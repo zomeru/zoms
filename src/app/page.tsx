@@ -9,11 +9,6 @@ export default async function Home(): Promise<React.JSX.Element> {
         <About />
         <TechStack />
         <Experience />
-        {Array(20)
-          .fill(null)
-          .map((_, index) => (
-            <div key={index}>{index}</div>
-          ))}
       </div>
     </main>
   );
