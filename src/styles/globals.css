@@ -26,7 +26,11 @@ html {
     @apply text-primary font-medium text-xl mb-3;
   }
 
+  .btn-primary {
+    @apply text-textPrimary before:transition-all before:duration-300 before:content-[''] relative before:absolute before:h-[2px] before:bottom-0 before:transform before:translate-y-1 before:opacity-0 hover:before:opacity-100 before:w-full before:bg-primary;
+  }
+
   .link-primary {
-    @apply text-textPrimary before:transition-all before:duration-300 before:content-[''] relative before:absolute before:h-[2px] before:bottom-0 before:transform before:translate-y-1 before:opacity-0 hover:before:opacity-100 before:w-full before:bg-primary  after:content-['→'] after:absolute after:ml-2 hover:after:transform hover:after:translate-x-2 after:transition-all after:duration-200;
+    @apply btn-primary  after:content-['→'] after:absolute after:ml-2 hover:after:transform hover:after:translate-x-2 after:transition-all after:duration-200;
   }
 }
