@@ -20,7 +20,9 @@
   "rules": {
     // Typescript
     "@typescript-eslint/semi": "off",
-    "@typescript-eslint/space-before-function-paren": "off"
+    "@typescript-eslint/space-before-function-paren": "off",
+    "@typescript-eslint/member-delimiter-style": "off",
+    "@typescript-eslint/restrict-template-expressions": "off"
   },
   "settings": {
     "react": {

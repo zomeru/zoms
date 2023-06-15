@@ -1,7 +1,20 @@
-export default function Home(): React.JSX.Element {
+import { MainInfo } from '@/components';
+import { About, Experience, TechStack } from '@/components/Sections';
+
+export default async function Home(): Promise<React.JSX.Element> {
   return (
-    <main className='max-w-[1300px] mx-auto'>
-      <div className=''>Hello wrold</div>
+    <main className='max-w-[1100px] mx-auto h-auto lg:h-full'>
+      <MainInfo />
+      <div className='w-1/2 ml-auto pb-[90px]'>
+        <About />
+        <TechStack />
+        <Experience />
+        {Array(20)
+          .fill(null)
+          .map((_, index) => (
+            <div key={index}>{index}</div>
+          ))}
+      </div>
     </main>
-  )
+  );
 }
