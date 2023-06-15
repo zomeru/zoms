@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
     <html lang='en'>
       <body
         suppressHydrationWarning={true}
-        className={`bg-backgroundPrimary w-screen px-20 py-24 h-screen text-white ${inter.className}`}
+        className={`bg-backgroundPrimary px-20 py-[90px] h-screen text-textPrimary ${inter.className}`}
       >
         <React.Fragment>
           <MouseFollower />

@@ -10,8 +10,10 @@ module.exports = {
       colors: {
         backgroundPrimary: '#0e0e0e',
         backgroundSecondary: '#1a1a1a',
-        primary: '#8001fe',
-        secondary: '#ffb2de'
+        primary: '#ad5aff',
+        secondary: '#ffb2de',
+        textPrimary: '#f2f2f2',
+        textSecondary: '#b3b3b3'
       }
     }
   },
