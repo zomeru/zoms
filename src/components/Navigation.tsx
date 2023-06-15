@@ -65,31 +65,35 @@ const Navigation = (): React.JSX.Element => {
   };
 
   return (
-    <ul className='list-none space-y-4'>
-      {navigation.map(({ name, url }) => {
-        const isCurrentSection = currentSection === url.replace(REGEX, '');
-        return (
-          <li key={url} className='flex items-center'>
-            <div
-              className={`h-[1px] mr-3 w-full ${
-                isCurrentSection ? 'max-w-[60px] bg-textPrimary' : 'max-w-[30px] bg-textSecondary'
-              } transition-all duration-200 ease-in-out`}
-            ></div>
-            <Link
-              onClick={handleNavClick}
-              href={url}
-              className={` uppercase text-sm ${
-                isCurrentSection
-                  ? 'text-textPrimary'
-                  : 'text-textSecondary transition-all duration-200 ease-in-out'
-              }`}
-            >
-              {name}
-            </Link>
-          </li>
-        );
-      })}
-    </ul>
+    <nav>
+      <ul className='list-none space-y-4'>
+        {navigation.map(({ name, url }) => {
+          const isCurrentSection = currentSection === url.replace(REGEX, '');
+          return (
+            <li key={url}>
+              <Link href={url} onClick={handleNavClick} className='flex items-center group'>
+                <div
+                  className={`h-[1px] mr-3 w-full ${
+                    isCurrentSection
+                      ? 'max-w-[60px] bg-textPrimary'
+                      : 'max-w-[30px] bg-textSecondary'
+                  } transition-all duration-200 ease-in-out group-hover:max-w-[60px] group-hover:bg-textPrimary`}
+                ></div>
+                <span
+                  className={` uppercase text-sm ${
+                    isCurrentSection
+                      ? 'text-textPrimary'
+                      : 'text-textSecondary transition-all duration-200 ease-in-out group-hover:text-textPrimary'
+                  }`}
+                >
+                  {name}
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 };
 

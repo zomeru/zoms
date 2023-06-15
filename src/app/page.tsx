@@ -1,5 +1,5 @@
-import { MainInfo } from '@/components';
-import { About, Experience, TechStack } from '@/components/Sections';
+import { Footer, MainInfo } from '@/components';
+import { About, Experience, Projects, TechStack } from '@/components/Sections';
 
 export default async function Home(): Promise<React.JSX.Element> {
   return (
@@ -9,6 +9,8 @@ export default async function Home(): Promise<React.JSX.Element> {
         <About />
         <TechStack />
         <Experience />
+        <Projects />
+        <Footer />
       </div>
     </main>
   );
