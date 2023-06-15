@@ -1,6 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
 
+import Socials from './Socials';
+import Navigation from './Navigation';
+
 const MainInfo = (): React.JSX.Element => {
   return (
     <div className='h-[calc(100vh-180px)] flex flex-col justify-between w-[550px] mr-auto fixed '>
@@ -12,9 +15,11 @@ const MainInfo = (): React.JSX.Element => {
         <h3 className='max-w-[300px] text-textSecondary'>
           I build responsive and elegant products for the web and mobile.
         </h3>
-        <div className='transform translate-y-20'>NAVIGATION</div>
+        <div className='transform translate-y-20'>
+          <Navigation />
+        </div>
       </div>
-      <div>SOCIALS</div>
+      <Socials />
     </div>
   );
 };

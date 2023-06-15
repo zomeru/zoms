@@ -31,6 +31,25 @@ export const socials = [
   }
 ];
 
+export const navigation = [
+  {
+    name: 'About',
+    url: '/#about'
+  },
+  {
+    name: 'Technologies',
+    url: '/#technologies'
+  },
+  {
+    name: 'Experience',
+    url: '/#experience'
+  },
+  {
+    name: 'Projects',
+    url: '/#projects'
+  }
+];
+
 export const technologies = [
   {
     name: 'Typescript',
