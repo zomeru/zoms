@@ -49,8 +49,8 @@ const Projects = (): React.JSX.Element => {
                   src={`/assets/images/projects/${image}`}
                   fill
                   className='w-full h-full object-cover object-center'
-                  sizes='(max-width: 768px) 100vw'
                   alt={alt}
+                  sizes='(max-width: 768px) 100vw'
                   loading='lazy'
                 />
               </div>

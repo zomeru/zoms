@@ -21,6 +21,18 @@ export const seo: Metadata = {
     title,
     statusBarStyle: 'default'
   },
+  icons: {
+    apple: '/assets/icons/apple-touch-icon.png',
+    other: [
+      { url: '/assets/icons/favicon-16x16.png', sizes: '16x16' },
+      { url: '/assets/icons/favicon-32x32.png', sizes: '32x32' },
+      { url: '/assets/icons/safari-pinned-tab.svg', rel: 'mask-icon' }
+    ],
+    icon: '/assets/icons/favicon.ico',
+    shortcut: '/assets/icons/favicon.ico'
+  },
+  creator: title,
+  authors: [{ name: title, url: SITE_URL }],
   openGraph: {
     url: SITE_URL,
     title,
@@ -34,13 +46,24 @@ export const seo: Metadata = {
   formatDetection: {
     telephone: false
   },
-  manifest: '/assets/icons/site.webmanifest',
+  manifest: '/assets/icons/manifest.json',
   twitter: {
     creator: '@zomeru_sama',
     site: SITE_URL,
     card: 'summary_large_image'
   },
-  keywords: ['Zomer Gregorio', 'Zomer', 'Zomeru', title, `${title} | Software Engineer`],
+  keywords: [
+    'Zomer',
+    'Zomeru',
+    title,
+    `${title} | Software Engineer`,
+    `${title} | Front End Engineer`,
+    `${title} | Full Stack Engineer`,
+    `${title} | Web Developer`,
+    `${title} | React Developer`,
+    `${title} | Typescript Developer`
+  ],
   viewport:
-    'minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover'
+    'minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover',
+  themeColor: '#ad5aff'
 };

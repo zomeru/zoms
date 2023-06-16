@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 
 const withPWA = require('@imbios/next-pwa')({
-  dest: 'public'
+  dest: 'public',
+  scope: '/',
+  sw: 'service-worker.js',
+  register: true
 });
 
 const nextConfig = {

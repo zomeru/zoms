@@ -43,3 +43,5 @@ next-env.d.ts
 **/public/sw.js.map
 **/public/worker-*.js
 **/public/worker-*.js.map
+**/public/service-worker*.js
+**/public/service-worker*.js.map

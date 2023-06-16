@@ -24,7 +24,10 @@ const About = (): React.JSX.Element => {
           These days, my main focus is building responsive and elegant web and mobile applications.
           I love learning new things and also enjoy traveling in my free time. When I&apos;m not in
           front of my computer, I like hanging out with loved ones, including my{' '}
-          <span className='highlight'>two dogs</span>.
+          <span className='highlight cursor-[url("/assets/images/doge-dance-sm.gif"),_pointer]'>
+            two dogs
+          </span>
+          .
         </p>
       </div>
     </section>
