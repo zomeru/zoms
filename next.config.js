@@ -13,22 +13,22 @@ const nextConfig = {
       {
         source: '/facebook',
         destination: 'https://facebook.com/Zomeru',
-        permanent: false
+        permanent: true
       },
       {
         source: '/instagram',
         destination: 'https://instagram.com/zomeruu',
-        permanent: false
+        permanent: true
       },
       {
         source: '/linkedin',
         destination: 'https://linkedin.com/in/zomergregorio',
-        permanent: false
+        permanent: true
       },
       {
         source: '/github',
         destination: 'https://github.com/zomeru',
-        permanent: false
+        permanent: true
       }
     ];
   }
