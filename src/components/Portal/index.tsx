@@ -41,7 +41,7 @@ const Portal: React.FC<PortalProps> = ({ closeModal }): React.JSX.Element => {
             Looking for my different portfolio? Go back in time...
           </p>
           <a
-            href='https://legazy.zomeru.com'
+            href='https://legacy.zomeru.com'
             target='_blank'
             rel='noopener noreferrer'
             className='relative hover:scale-105 transition-transform h-[100px] w-[150px] sm:w-[200px] rounded-md overflow-hidden my-auto'
