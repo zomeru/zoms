@@ -1,4 +1,4 @@
-import { AiOutlineInstagram, AiFillGithub, AiFillApi, AiFillFacebook } from 'react-icons/ai';
+import { AiOutlineInstagram, AiFillGithub, AiFillApi } from 'react-icons/ai';
 import { IoLogoLinkedin } from 'react-icons/io';
 import { GrGraphQl } from 'react-icons/gr';
 import {
@@ -24,10 +24,6 @@ export const socials = [
   {
     url: '/instagram',
     Icon: AiOutlineInstagram
-  },
-  {
-    url: '/facebook',
-    Icon: AiFillFacebook
   }
 ];
 

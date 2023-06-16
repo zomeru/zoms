@@ -65,7 +65,7 @@ const Navigation = (): React.JSX.Element => {
   };
 
   return (
-    <nav>
+    <nav className='hidden lg:block'>
       <ul className='list-none space-y-4'>
         {navigation.map(({ name, url }) => {
           const isCurrentSection = currentSection === url.replace(REGEX, '');

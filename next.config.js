@@ -1,4 +1,12 @@
 /** @type {import('next').NextConfig} */
+
+const withPWA = require('@imbios/next-pwa')({
+  dest: 'public',
+  scope: '/',
+  sw: 'service-worker.js',
+  register: true
+});
+
 const nextConfig = {
   async redirects() {
     return [
@@ -26,4 +34,4 @@ const nextConfig = {
   }
 };
 
-module.exports = nextConfig;
+module.exports = withPWA(nextConfig);

@@ -4,7 +4,7 @@ import { technologies } from '@/constants';
 
 const TechStack = (): React.JSX.Element => {
   return (
-    <section id='technologies' className='my-32'>
+    <section id='technologies' className='my-24 sm:my-32'>
       <h2 className='section-title'>Technologies</h2>
       <ul className='flex flex-wrap'>
         {technologies.map(({ name, Icon }) => (

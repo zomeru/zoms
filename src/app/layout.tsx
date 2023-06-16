@@ -16,12 +16,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
     <html lang='en'>
       <body
         suppressHydrationWarning={true}
-        className={`bg-backgroundPrimary px-20 py-[90px] h-screen text-textPrimary ${inter.className}`}
+        className={`bg-backgroundPrimary h-screen text-textPrimary ${inter.className}`}
       >
-        <React.Fragment>
-          <MouseFollower />
-          {children}
-        </React.Fragment>
+        <div id='my-root'>
+          <React.Fragment>
+            <MouseFollower />
+            {children}
+          </React.Fragment>
+        </div>
       </body>
     </html>
   );
