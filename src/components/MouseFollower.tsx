@@ -19,7 +19,7 @@ const MouseFollower = (): React.JSX.Element => {
 
   return (
     <div
-      className='w-[1000px] h-[1000px] rounded-full pointer-events-none fixed transform -translate-x-1/2 -translate-y-1/2'
+      className='hidden lg:block w-[1000px] h-[1000px] rounded-full pointer-events-none fixed transform -translate-x-1/2 -translate-y-1/2'
       style={{
         opacity: 0.1,
         top: position.y,

@@ -71,14 +71,14 @@ const Navigation = (): React.JSX.Element => {
           const isCurrentSection = currentSection === url.replace(REGEX, '');
           return (
             <li key={url}>
-              <Link href={url} onClick={handleNavClick} className='flex items-center group'>
+              <Link href={url} onClick={handleNavClick} className='group'>
                 <div
                   className={`h-[1px] mr-3 w-full ${
                     isCurrentSection
                       ? 'max-w-[60px] bg-textPrimary'
                       : 'max-w-[30px] bg-textSecondary'
-                  } transition-all duration-200 ease-in-out group-hover:max-w-[60px] group-hover:bg-textPrimary`}
-                ></div>
+                  } transition-all duration-200 ease-in-out group-hover:max-w-[60px] group-hover:bg-textPrimary inline-block transform -translate-y-1`}
+                />
                 <span
                   className={` uppercase text-sm ${
                     isCurrentSection
