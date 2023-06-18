@@ -5,7 +5,7 @@ export default async function Home(): Promise<React.JSX.Element> {
   return (
     <main className='max-w-[1200px] mx-auto h-auto lg:h-full relative px-6 sm:px-12 md:px-16 lg:px-20 py-[50px] md:py-[90px]'>
       <MainInfo />
-      <div className='w-full lg:w-1/2 ml-0 lg:ml-auto  relative'>
+      <div className='w-full lg:w-1/2 ml-0 lg:ml-auto relative pb-20 sm:pb-0'>
         <About />
         <TechStack />
         <Experience />
