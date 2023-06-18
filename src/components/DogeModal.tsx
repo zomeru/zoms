@@ -41,7 +41,7 @@ const DogeModal = (): React.JSX.Element => {
   }, [modalIsOpen]);
 
   return (
-    <div className='absolute right-0 bottom-0 transform translate-y-14'>
+    <div className='absolute right-0 bottom-0 transform translate-y-20 pb-10 sm:pb-10'>
       <button
         className='relative w-[80px] h-[80px] hover:-translate-y-3 transition-transform duration-200'
         type='button'

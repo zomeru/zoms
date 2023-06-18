@@ -1,4 +1,4 @@
-import { AiOutlineInstagram, AiFillGithub, AiFillApi } from 'react-icons/ai';
+import { AiOutlineInstagram, AiFillGithub, AiFillApi, AiOutlineMail } from 'react-icons/ai';
 import { IoLogoLinkedin } from 'react-icons/io';
 import { GrGraphQl } from 'react-icons/gr';
 import {
@@ -13,6 +13,10 @@ import { FaReact, FaNodeJs, FaGitAlt } from 'react-icons/fa';
 import { TbBrandSupabase } from 'react-icons/tb';
 
 export const socials = [
+  {
+    url: 'mailto:zomergregorio@gmail.com',
+    Icon: AiOutlineMail
+  },
   {
     url: '/linkedin',
     Icon: IoLogoLinkedin
