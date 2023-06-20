@@ -22,14 +22,13 @@ export const seo: Metadata = {
     statusBarStyle: 'default'
   },
   icons: {
-    apple: '/assets/icons/apple-touch-icon.png',
     other: [
       { url: '/assets/icons/favicon-16x16.png', sizes: '16x16' },
       { url: '/assets/icons/favicon-32x32.png', sizes: '32x32' },
       { url: '/assets/icons/safari-pinned-tab.svg', rel: 'mask-icon' }
     ],
-    icon: '/assets/icons/favicon.ico',
-    shortcut: '/assets/icons/favicon.ico'
+    icon: '/favicon.ico',
+    apple: '/assets/icons/apple-icon.png'
   },
   creator: title,
   authors: [{ name: title, url: SITE_URL }],
@@ -39,18 +38,23 @@ export const seo: Metadata = {
     description,
     images: [
       {
-        url: `${SITE_URL}/assets/images/og.png`
+        url: '/assets/icons/opengraph-image.png'
       }
-    ]
+    ],
+    type: 'website',
+    siteName: title
   },
   formatDetection: {
     telephone: false
   },
-  manifest: '/assets/icons/manifest.json',
+  manifest: '/manifest.json',
   twitter: {
     creator: '@zomeru_sama',
     site: SITE_URL,
-    card: 'summary_large_image'
+    card: 'summary_large_image',
+    description,
+    title,
+    images: ['/assets/icons/opengraph-image.png']
   },
   keywords: [
     'Zomer',
