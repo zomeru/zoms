@@ -11,16 +11,26 @@ export const projects = [
     }
   },
   {
-    name: 'Zomify',
-    image: 'project-zomify.jpg',
-    alt: 'Zomify website',
-    info: 'Zomify is a spotify clone that is built with SvelteKit, Typescript, and Tailwind CSS.',
-    techs: ['SvelteKit', 'Typescript', 'Tailwind CSS', 'Spotify API'],
+    name: 'Zomink',
+    image: 'project-zomink.png',
+    alt: 'Zomink  website',
+    info: 'Zomink is an open-source link management platform with all the features you need in one place. Manage, track, and shorten your URLs with your custom alias.',
+    techs: [
+      'Typescript',
+      'React.js',
+      'Next.js',
+      'Tailwind CSS',
+      'tRPC',
+      'Turborepo',
+      'Prisma',
+      'PostgreSQL'
+    ],
     links: {
-      demo: 'https://zomify.vercel.app',
-      github: 'https://github.com/zomeru/zomify'
+      demo: 'https://zom.ink/',
+      github: 'https://github.com/zomeru/zom.ink'
     }
   },
+
   {
     name: 'STICA LMS',
     image: 'project-sticalms.png',
@@ -52,14 +62,14 @@ export const projects = [
     }
   },
   {
-    name: 'Zomink',
-    image: 'project-zomink.png',
-    alt: 'Zomink  website',
-    info: 'Zomink is an open-source link management platform with all the features you need in one place. Manage, track, and shorten your URLs with your custom alias.',
-    techs: ['Typescript', 'React.js', 'Next.js', 'Tailwind CSS', 'Node.js', 'MongoDB'],
+    name: 'Zomify',
+    image: 'project-zomify.jpg',
+    alt: 'Zomify website',
+    info: 'Zomify is a spotify clone that is built with SvelteKit, Typescript, and Tailwind CSS.',
+    techs: ['SvelteKit', 'Typescript', 'Tailwind CSS', 'Spotify API'],
     links: {
-      demo: 'https://zom.ink/',
-      github: 'https://github.com/zomeru/zomink'
+      demo: 'https://zomify.vercel.app',
+      github: 'https://github.com/zomeru/zomify'
     }
   },
   {
