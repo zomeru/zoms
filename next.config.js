@@ -22,6 +22,11 @@ const nextConfig = {
         source: '/github',
         destination: 'https://github.com/zomeru',
         permanent: true
+      },
+      {
+        source: '/tiktok',
+        destination: 'https://tiktok.com/@zomeruu',
+        permanent: true
       }
     ];
   }
