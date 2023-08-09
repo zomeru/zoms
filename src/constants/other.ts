@@ -7,7 +7,9 @@ import {
   SiFirebase,
   SiMongodb,
   SiStyledcomponents,
-  SiPostgresql
+  SiPostgresql,
+  SiTiktok,
+  SiTrpc
 } from 'react-icons/si';
 import { FaReact, FaNodeJs, FaGitAlt } from 'react-icons/fa';
 import { TbBrandSupabase } from 'react-icons/tb';
@@ -28,6 +30,10 @@ export const socials = [
   {
     url: '/instagram',
     Icon: AiOutlineInstagram
+  },
+  {
+    url: '/tiktok',
+    Icon: SiTiktok
   }
 ];
 
@@ -70,6 +76,10 @@ export const technologies = [
   {
     name: 'Tailwind CSS',
     Icon: SiTailwindcss
+  },
+  {
+    name: 'tRPC',
+    Icon: SiTrpc
   },
   {
     name: 'Node.js',

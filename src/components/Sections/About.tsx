@@ -14,20 +14,18 @@ const About = (): React.JSX.Element => {
           with co-students on open-source projects and took on small consulting work.
         </p>
         <p>
-          In 2021, I got my first big gig as a freelance developer thanks to a colleague who gave me
-          a chance to work on a real-world application. I added that experience to my resume and
-          started applying for full-time jobs. The following year, while still a student, I landed
-          my first full-time remote job as a{' '}
-          <span className='highlight'>Full Stack Software Engineer</span>, which was pretty cool.
+          In 2021, I got my first big gig as a freelance developer, thanks to my mentor who gave me
+          a chance to work on a real-world application. The following year, while still a student, I
+          landed my first full-time remote job as a{' '}
+          <span className='highlight cursor-[url("/assets/images/doge-dance-sm.gif"),_pointer]'>
+            Full Stack Software Engineer
+          </span>
+          .
         </p>
         <p>
           These days, my main focus is building responsive and elegant web and mobile applications.
           I love learning new things and also enjoy traveling in my free time. When I&apos;m not in
-          front of my computer, I like hanging out with loved ones, including my{' '}
-          <span className='highlight cursor-[url("/assets/images/doge-dance-sm.gif"),_pointer]'>
-            two dogs
-          </span>
-          .
+          front of my computer, I like hanging out with friends.
         </p>
       </div>
     </section>
