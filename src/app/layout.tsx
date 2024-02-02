@@ -4,11 +4,20 @@ import React from 'react';
 
 import { seo } from '@/configs';
 import { MouseFollower } from '@/components';
+import { type Viewport } from 'next';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
   ...seo
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  minimumScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#ad5aff'
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }): React.JSX.Element {
