@@ -1,34 +1,48 @@
 export const experience = [
   {
-    id: '1',
-    title: 'React Frontend Engineer',
-    company: 'Evelan GmbH',
-    location: 'Hamburg, Germany (Remote)',
-    range: 'Aug. 2023 - Present',
+    title: 'Full Stack Software Engineer',
+    company: 'Seansoft Corporation',
+    location: 'Makati City, Philippines (Remote)',
+    range: 'Jan. 2024 - Present',
     duties: []
   },
   {
-    id: '2',
+    title: 'Full Stack Web Developer',
+    company: 'Evelan GmbH',
+    location: 'Hamburg, Germany (Remote)',
+    range: 'Aug. 2023 - Jan. 2024',
+    duties: [
+      'Joined an existing project aimed at developing and enhancing all-in-one management system, a comprehensive master data, company holdings, tasks, and document management system for corporate and holding structures.',
+      'Created responsive React web components utilizing Chakra UI, ensuring an intuitive user interface.',
+      'Developed backend API within Next.js using tRPC for integrated, high-performance functionality.',
+      'Created unit tests using jest to guarantee flawless functionality of core business logic.',
+      'Designed and optimized PostgreSQL database schemas using Prisma for efficient data structure and accessibility.',
+      'Established unified client-server validation using Zod, ensuring seamless data integrity across the system.',
+      'Collaborated with designers, project managers, and other engineers to deliver high quality products for clients.',
+      'Took charge of reviewing pull requests and refining onboarding procedures, enhancing team productivity and effectiveness.'
+    ]
+  },
+  {
     title: 'Software Engineer',
     company: 'Beyonder Inc.',
     location: 'Makati City, Philippines (Remote)',
     range: 'Feb. 2022 - Aug. 2023',
     duties: [
-      'Write modern, performant, and robust code for a diverse array of client and internal projects.',
-      'Create prototypes using Figma to visualize design concepts and guide the development process.',
-      'Successfully delivered multiple web and mobile applications, including Kokuban (こくばん) and スマホdeマップ, as well as maintained Doko? (どこ?) with high standards of quality and user experience.',
-      'Work remotely and collaborate with teams of engineers to ensure project success.',
-      'Lead the frontend development team and mentor some junior developers.'
+      'Developed robust, full-stack applications for diverse clients using React, React Native, Node.js, and Tailwind CSS.',
+      'Implemented CI/CD pipelines using GitHub Actions for automated and efficient deployment workflows.',
+      'Created prototypes using Figma to visualize design concepts and guide the development process.',
+      'Successfully delivered multiple full-stack web and mobile applications, including Kokuban, スマホdeマップ, and Doko?.',
+      'Worked remotely and collaborated with teams of engineers to ensure project success.',
+      'Led the front-end development team, mentoring junior developers and fostering a collaborative, high-achieving environment.'
     ]
   },
   {
-    id: '3',
     title: 'Full Stack Developer',
     company: 'Freelance',
     location: 'Bulacan, Philippines (Remote)',
     range: 'Apr. 2021 - Feb. 2022',
     duties: [
-      'Collaborated with a team of developers to deliver web applications for small startups and individuals, utilizing skills in ReactJS, NextJS, and other relevant technologies.',
+      'Collaborated with a team of three developers to deliver web applications for small businesses and individuals, utilizing skills in ReactJS, NextJS, and other relevant technologies.',
       'Translated PSD designs into high-quality web pages, ensuring a seamless user experience.',
       'Created prototypes using Figma to guide the development process.'
     ]
