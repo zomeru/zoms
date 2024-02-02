@@ -6,26 +6,25 @@ const About = (): React.JSX.Element => {
       <h2 className='section-title block lg:hidden'>About</h2>
       <div className='space-y-5'>
         <p>
-          In 2019, I was considered one of the top programmers in school, but my skills were limited
-          to the basics. The Covid pandemic hit in 2020, and with all the free time I had from not
-          being able to hang out with friends, I decided to learn web development. I followed
-          roadmaps, watched YouTube tutorials, and even bought online courses. I spent more than 12
-          hours a day coding and improving my skills. After a few months, I started collaborating
-          with co-students on open-source projects and took on small consulting work.
+          Back in 2019, I was known as one of the top coders in school, but my skills were kind of
+          basic. Then, when Covid hit in 2020, and I couldn&apos;t hang out with friends, I decided
+          to dive into web development. I&apos;d spend more than 12 hours daily coding, checking out
+          YouTube tutorials, and investing in online courses.
         </p>
         <p>
-          In 2021, I got my first big gig as a freelance developer, thanks to my mentor who gave me
-          a chance to work on a real-world application. The following year, while still a student, I
-          landed my first full-time remote job as a{' '}
+          After a few months, I started teaming up with classmates on open-source projects and took
+          on some small consulting gigs. In 2021, I snagged my first big freelance gig thanks to my
+          mentor, who threw me a bone to work on a real-world application. The next year, while
+          still in school, I snagged my first full-time remote job as a{' '}
           <span className='highlight cursor-[url("/assets/images/doge-dance-sm.gif"),_pointer]'>
             Full Stack Software Engineer
           </span>
           .
         </p>
         <p>
-          These days, my main focus is building responsive and elegant web and mobile applications.
-          I love learning new things and also enjoy traveling in my free time. When I&apos;m not in
-          front of my computer, I like hanging out with friends.
+          My main focus these days is building responsive and stylish web and mobile apps. I&apos;m
+          all about learning new things and love hitting the road on my motorcycle to beaches and
+          mountains when I&apos;m not in front of the screen. Life&apos;s treating me well!
         </p>
       </div>
     </section>

@@ -44,3 +44,6 @@ yarn-error.log*
 **/public/worker-*.js.map
 **/public/service-worker*.js
 **/public/service-worker*.js.map
+
+# Other
+.vscode
