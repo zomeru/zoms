@@ -1,11 +1,11 @@
 export const experience = [
-  {
-    title: 'Full Stack Software Engineer',
-    company: 'Seansoft Corporation',
-    location: 'Makati City, Philippines (Remote)',
-    range: 'Jan. 2024 - Present',
-    duties: []
-  },
+  // {
+  //   title: 'Full Stack Software Engineer',
+  //   company: 'Seansoft Corporation',
+  //   location: 'Makati City, Philippines (Remote)',
+  //   range: 'Jan. 2024 - Present',
+  //   duties: []
+  // },
   {
     title: 'Full Stack Web Developer',
     company: 'Evelan GmbH',
