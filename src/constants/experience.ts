@@ -1,16 +1,16 @@
 export const experience = [
-  // {
-  //   title: 'Full Stack Software Engineer',
-  //   company: 'Seansoft Corporation',
-  //   location: 'Makati City, Philippines (Remote)',
-  //   range: 'Jan. 2024 - Present',
-  //   duties: []
-  // },
+  {
+    title: 'Software Engineer',
+    company: 'Seansoft Corporation',
+    location: 'Makati City, Philippines (Remote)',
+    range: 'Jan. 2024 - Present',
+    duties: []
+  },
   {
     title: 'Full Stack Web Developer',
     company: 'Evelan GmbH',
     location: 'Hamburg, Germany (Remote)',
-    range: 'Aug. 2023 - Jan. 2024',
+    range: 'Aug. 2023 - Dec. 2023',
     duties: [
       'Joined an existing project aimed at developing and enhancing all-in-one management system, a comprehensive master data, company holdings, tasks, and document management system for corporate and holding structures.',
       'Created responsive React web components utilizing Chakra UI, ensuring an intuitive user interface.',

@@ -5,7 +5,7 @@ const About = (): React.JSX.Element => {
     <section id='about' className='text-textSecondary mt-24 sm:mt-32 lg:mt-0'>
       <h2 className='section-title block lg:hidden'>About</h2>
       <div className='space-y-5'>
-        <p>
+        {/* <p>
           Back in 2019, I was known as one of the top coders in school, but my skills were kind of
           basic. Then, when Covid hit in 2020, and I couldn&apos;t hang out with friends, I decided
           to dive into web development. I&apos;d spend more than 12 hours daily coding, checking out
@@ -20,7 +20,7 @@ const About = (): React.JSX.Element => {
             Full Stack Software Engineer
           </span>
           .
-        </p>
+        </p> */}
         <p>
           My main focus these days is building responsive and stylish web and mobile apps. I&apos;m
           all about learning new things and love hitting the road on my motorcycle to beaches and
