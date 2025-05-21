@@ -1,6 +1,6 @@
 # New Portfolio
 
-My latest portfolio at https://zomeru.com/
+My latest portfolio at https://zoms.vercel.app/
 
 ## Tech Used
 
@@ -10,4 +10,4 @@ My latest portfolio at https://zomeru.com/
 
 ---
 
-Made with ☕ by [**Zomer Gregorio**](https://zomeru.com/)
+Made with ☕ by [**Zomer Gregorio**](https://zoms.vercel.app/)
