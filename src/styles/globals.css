@@ -22,33 +22,31 @@ html {
   box-sizing: inherit;
 }
 
-@layer components {
-  .highlight {
-    color: var(--color-textPrimary);
-    font-weight: 500;
-    transition-property: color;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 300ms;
-  }
+@utility highlight {
+  color: var(--color-textPrimary);
+  font-weight: 500;
+  transition-property: color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
 
-  .highlight:hover {
+  &:hover {
     color: var(--color-primary);
   }
+}
 
-  .section-title {
-    color: var(--color-primary);
-    font-weight: 500;
-    font-size: 1.25rem;
-    line-height: 1.75rem;
-    margin-bottom: 0.75rem;
-  }
+@utility section-title {
+  color: var(--color-primary);
+  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  margin-bottom: 0.75rem;
+}
 
-  .btn-primary {
-    position: relative;
-    color: var(--color-textPrimary);
-  }
+@utility btn-primary {
+  position: relative;
+  color: var(--color-textPrimary);
 
-  .btn-primary::before {
+  &::before {
     content: '';
     position: absolute;
     bottom: 0;
@@ -62,16 +60,16 @@ html {
     transition-duration: 300ms;
   }
 
-  .btn-primary:hover::before {
+  &:hover::before {
     opacity: 1;
   }
+}
 
-  .link-primary {
-    position: relative;
-    color: var(--color-textPrimary);
-  }
+@utility link-primary {
+  position: relative;
+  color: var(--color-textPrimary);
 
-  .link-primary::before {
+  &::before {
     content: '';
     position: absolute;
     bottom: 0;
@@ -85,11 +83,11 @@ html {
     transition-duration: 300ms;
   }
 
-  .link-primary:hover::before {
+  &:hover::before {
     opacity: 1;
   }
 
-  .link-primary::after {
+  &::after {
     content: '→';
     position: absolute;
     margin-left: 0.5rem;
@@ -98,7 +96,7 @@ html {
     transition-duration: 200ms;
   }
 
-  .link-primary:hover::after {
+  &:hover::after {
     transform: translateX(0.5rem);
   }
 }
