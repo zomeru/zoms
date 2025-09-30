@@ -24,18 +24,81 @@ html {
 
 @layer components {
   .highlight {
-    @apply text-textPrimary hover:text-primary transition-colors duration-300 ease-in-out font-medium;
+    color: var(--color-textPrimary);
+    font-weight: 500;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+  }
+
+  .highlight:hover {
+    color: var(--color-primary);
   }
 
   .section-title {
-    @apply text-primary font-medium text-xl mb-3;
+    color: var(--color-primary);
+    font-weight: 500;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    margin-bottom: 0.75rem;
   }
 
   .btn-primary {
-    @apply text-textPrimary before:transition-all before:duration-300 before:content-[''] relative before:absolute before:h-[2px] before:bottom-0 before:transform before:translate-y-1 before:opacity-0 hover:before:opacity-100 before:w-full before:bg-primary;
+    position: relative;
+    color: var(--color-textPrimary);
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--color-primary);
+    transform: translateY(0.25rem);
+    opacity: 0;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+  }
+
+  .btn-primary:hover::before {
+    opacity: 1;
   }
 
   .link-primary {
-    @apply btn-primary  after:content-['→'] after:absolute after:ml-2 hover:after:transform hover:after:translate-x-2 after:transition-all after:duration-200;
+    position: relative;
+    color: var(--color-textPrimary);
+  }
+
+  .link-primary::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--color-primary);
+    transform: translateY(0.25rem);
+    opacity: 0;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+  }
+
+  .link-primary:hover::before {
+    opacity: 1;
+  }
+
+  .link-primary::after {
+    content: '→';
+    position: absolute;
+    margin-left: 0.5rem;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
+
+  .link-primary:hover::after {
+    transform: translateX(0.5rem);
   }
 }
