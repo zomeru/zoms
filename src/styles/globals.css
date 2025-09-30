@@ -1,6 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-backgroundPrimary: #0e0e0e;
+  --color-backgroundSecondary: #1a1a1a;
+  --color-primary: #ad5aff;
+  --color-secondary: #ffb2de;
+  --color-textPrimary: #f2f2f2;
+  --color-textSecondary: #919191;
+}
 
 *,
 *::before,
