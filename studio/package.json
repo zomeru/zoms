@@ -1,0 +1,16 @@
+{
+  "name": "studio",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "with-env": "dotenv -e ../.env.local --"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "dotenv-cli": "^10.0.0",
+    "sanity": "^4.10.2"
+  }
+}
