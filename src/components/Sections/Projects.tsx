@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Image from 'next/image';
-
-import { FiGithub } from 'react-icons/fi';
 import { AiOutlineArrowUp } from 'react-icons/ai';
+import { FiGithub } from 'react-icons/fi';
 
 import { projects } from '@/constants';
 

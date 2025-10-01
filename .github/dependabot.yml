@@ -1,10 +1,10 @@
 version: 2
 updates:
-  - package-ecosystem: "npm" # works for pnpm too
-    directory: "/" # root of your repo
+  - package-ecosystem: 'npm' # works for pnpm too
+    directory: '/' # root of your repo
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     commit-message:
-      prefix: "chore(deps)"
-      include: "scope"
+      prefix: 'chore(deps)'
+      include: 'scope'
     versioning-strategy: increase

@@ -1,6 +1,7 @@
 # Suggested Commands
 
 ## Development Commands
+
 ```bash
 # Start development server
 pnpm dev  # or npm run dev
@@ -13,6 +14,7 @@ pnpm start  # or npm run start
 ```
 
 ## Code Quality Commands
+
 ```bash
 # Run all checks (format, lint, types)
 npm run test-all
@@ -31,6 +33,7 @@ npm run lint            # Auto-fix ESLint issues
 ```
 
 ## Package Management
+
 ```bash
 # Install dependencies (prefer pnpm)
 pnpm install
@@ -43,6 +46,7 @@ pnpm add -D <package-name>
 ```
 
 ## Git Workflow
+
 ```bash
 # Husky pre-commit hooks automatically run:
 # - lint-staged (ESLint + Prettier on staged files)
@@ -54,6 +58,7 @@ npm run check-types
 ```
 
 ## System Commands (macOS)
+
 ```bash
 # Navigation
 ls -la                   # List files with details
@@ -68,6 +73,7 @@ git push origin main
 ```
 
 ## Build & Deploy
+
 ```bash
 # Local build test
 npm run test-all:build

@@ -1,6 +1,7 @@
-import Image from 'next/image';
 import React from 'react';
+import Image from 'next/image';
 import { AiOutlineClose } from 'react-icons/ai';
+
 import './index.css';
 
 interface PortalProps {

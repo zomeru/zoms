@@ -1,6 +1,7 @@
 # Codebase Structure
 
 ## Root Directory Structure
+
 ```
 /
 ├── .github/              # GitHub configuration (dependabot)
@@ -16,6 +17,7 @@
 ```
 
 ## Source Code Organization (`src/`)
+
 ```
 src/
 ├── app/                 # Next.js App Router
@@ -52,18 +54,20 @@ src/
 ## Key Architectural Patterns
 
 ### Layout Structure
+
 - **Two-column layout**: Fixed left sidebar (`MainInfo`) + scrollable right content
 - **Responsive design**: Stacks vertically on mobile, side-by-side on desktop
 - **Fixed positioning**: Left sidebar stays in place while right content scrolls
 
 ### Component Hierarchy
+
 ```
 RootLayout
 ├── MouseFollower (global interactive element)
 └── Home Page
     ├── MainInfo (left sidebar)
     │   ├── Navigation
-    │   └── Socials  
+    │   └── Socials
     └── Content Sections (right side)
         ├── About
         ├── TechStack
@@ -74,11 +78,13 @@ RootLayout
 ```
 
 ### Data Flow
+
 - **Static content**: Stored in `constants/` files as TypeScript objects
 - **Configuration-driven**: SEO, colors, and app settings in `configs/`
 - **Component props**: Data passed down from constants to display components
 
 ### Import Strategy
+
 - **Barrel exports**: Clean imports via `index.ts` files
 - **Path aliases**: `@/` prefix for all src/ imports
 - **Default exports**: Components use default exports with named barrel re-exports
