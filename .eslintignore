@@ -6,3 +6,4 @@ package-lock.json
 public
 next.config.js
 postcss.config.mjs
+next-sitemap.config.js
