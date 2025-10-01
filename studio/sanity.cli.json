@@ -1,0 +1,10 @@
+{
+  "root": true,
+  "project": {
+    "name": "Zoms Portfolio"
+  },
+  "api": {
+    "projectId": "env:NEXT_PUBLIC_SANITY_PROJECT_ID",
+    "dataset": "env:NEXT_PUBLIC_SANITY_DATASET"
+  }
+}

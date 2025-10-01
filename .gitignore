@@ -47,3 +47,7 @@ yarn-error.log*
 
 # Other
 .vscode
+
+# Sanity
+/studio/dist
+/studio/node_modules
