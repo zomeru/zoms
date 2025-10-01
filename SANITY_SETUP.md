@@ -21,7 +21,29 @@ NEXT_PUBLIC_SANITY_DATASET=production
 
 You can find these values in your Sanity project dashboard at https://www.sanity.io/manage
 
-### 3. Run Sanity Studio
+### 3. (Optional) Seed Initial Data
+
+If you want to populate Sanity with your existing experience data:
+
+1. Get a write token from your Sanity project:
+   - Go to https://www.sanity.io/manage
+   - Select your project
+   - Navigate to API → Tokens
+   - Create a new token with "Editor" role
+2. Add the token to your `.env.local`:
+
+   ```env
+   SANITY_API_TOKEN=your_write_token_here
+   ```
+
+3. Run the seed script:
+   ```bash
+   pnpm sanity:seed
+   ```
+
+This will import all experience entries from `src/constants/experience.ts` into Sanity.
+
+### 4. Run Sanity Studio
 
 Start the Sanity Studio locally to manage your content:
 
@@ -31,7 +53,7 @@ pnpm studio:dev
 
 This will start the Sanity Studio at http://localhost:3333
 
-### 4. Add Your Experience Data
+### 5. Add Your Experience Data
 
 1. Open http://localhost:3333 in your browser
 2. Sign in with your Sanity account
