@@ -1,34 +1,89 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@theme {
+  --color-backgroundPrimary: #0e0e0e;
+  --color-backgroundSecondary: #1a1a1a;
+  --color-primary: #ad5aff;
+  --color-secondary: #ffb2de;
+  --color-textPrimary: #f2f2f2;
+  --color-textSecondary: #919191;
 }
 
-html {
-  scroll-behavior: smooth;
-  box-sizing: inherit;
+@utility highlight {
+  color: var(--color-textPrimary);
+  font-weight: 500;
+  transition-property: color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+
+  &:hover {
+    color: var(--color-primary);
+  }
 }
 
-@layer components {
-  .highlight {
-    @apply text-textPrimary hover:text-primary transition-colors duration-300 ease-in-out font-medium;
+@utility section-title {
+  color: var(--color-primary);
+  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+@utility btn-primary {
+  position: relative;
+  color: var(--color-textPrimary);
+
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--color-primary);
+    transform: translateY(0.25rem);
+    opacity: 0;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
   }
 
-  .section-title {
-    @apply text-primary font-medium text-xl mb-3;
+  &:hover::before {
+    opacity: 1;
+  }
+}
+
+@utility link-primary {
+  position: relative;
+  color: var(--color-textPrimary);
+
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--color-primary);
+    transform: translateY(0.25rem);
+    opacity: 0;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
   }
 
-  .btn-primary {
-    @apply text-textPrimary before:transition-all before:duration-300 before:content-[''] relative before:absolute before:h-[2px] before:bottom-0 before:transform before:translate-y-1 before:opacity-0 hover:before:opacity-100 before:w-full before:bg-primary;
+  &:hover::before {
+    opacity: 1;
   }
 
-  .link-primary {
-    @apply btn-primary  after:content-['→'] after:absolute after:ml-2 hover:after:transform hover:after:translate-x-2 after:transition-all after:duration-200;
+  &::after {
+    content: '→';
+    position: absolute;
+    margin-left: 0.5rem;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
+
+  &:hover::after {
+    transform: translateX(0.5rem);
   }
 }
