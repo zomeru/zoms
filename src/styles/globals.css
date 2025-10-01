@@ -9,19 +9,6 @@
   --color-textSecondary: #919191;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  scroll-behavior: smooth;
-  box-sizing: inherit;
-}
-
 @utility highlight {
   color: var(--color-textPrimary);
   font-weight: 500;
