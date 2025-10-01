@@ -84,8 +84,7 @@ For detailed instructions, see [SANITY_SETUP.md](./SANITY_SETUP.md)
 │   ├── configs/       # Configuration files (SEO, etc.)
 │   ├── constants/     # Static data and fallback content
 │   ├── lib/           # Utility functions and services
-│   ├── styles/        # Global styles
-│   └── types/         # TypeScript type definitions
+│   └── styles/        # Global styles
 ├── studio/            # Sanity Studio configuration
 │   ├── schemas/       # Sanity schema definitions
 │   └── sanity.config.ts
