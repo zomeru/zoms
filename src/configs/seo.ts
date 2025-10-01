@@ -1,4 +1,4 @@
-import { type Metadata } from 'next';
+import type { Metadata } from 'next';
 
 export const DEFAULT_URL =
   process.env.NODE_ENV === 'production' ? 'https://zomeru.com' : 'https://dev-zoms.vercel.app';

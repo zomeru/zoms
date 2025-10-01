@@ -1,5 +1,5 @@
-import { DogeModal, Footer, MainInfo } from '@/components';
 import { About, Experience, Projects, TechStack } from '@/components/Sections';
+import { DogeModal, Footer, MainInfo } from '@/components';
 
 export default async function Home(): Promise<React.JSX.Element> {
   return (

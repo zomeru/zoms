@@ -1,6 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 # Check ESLint Standards
 echo '🔎 Checking ESLint Standards...'
 npx lint-staged ||
@@ -22,4 +19,3 @@ echo '✅ All checks passed.'
 
 # If everything passes... Now we can commit
 echo '✏ Commiting your changes.'
-
