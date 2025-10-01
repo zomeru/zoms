@@ -1,8 +1,8 @@
 import React from 'react';
-
-import Socials from './Socials';
-import Navigation from './Navigation';
 import Link from 'next/link';
+
+import Navigation from './Navigation';
+import Socials from './Socials';
 
 const MainInfo = (): React.JSX.Element => {
   return (

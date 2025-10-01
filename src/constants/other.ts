@@ -1,17 +1,17 @@
-import { AiOutlineInstagram, AiFillGithub, AiFillApi, AiOutlineMail } from 'react-icons/ai';
-import { IoLogoLinkedin } from 'react-icons/io';
+import { AiFillApi, AiFillGithub, AiOutlineInstagram, AiOutlineMail } from 'react-icons/ai';
+import { FaGitAlt, FaNodeJs, FaReact } from 'react-icons/fa';
 import { GrGraphQl } from 'react-icons/gr';
+import { IoLogoLinkedin } from 'react-icons/io';
 import {
-  SiTypescript,
-  SiTailwindcss,
   SiFirebase,
   SiMongodb,
-  SiStyledcomponents,
   SiPostgresql,
+  SiStyledcomponents,
+  SiTailwindcss,
   SiTiktok,
-  SiTrpc
+  SiTrpc,
+  SiTypescript
 } from 'react-icons/si';
-import { FaReact, FaNodeJs, FaGitAlt } from 'react-icons/fa';
 import { TbBrandSupabase } from 'react-icons/tb';
 
 export const socials = [

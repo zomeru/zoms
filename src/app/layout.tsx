@@ -1,10 +1,12 @@
 import type { Viewport } from 'next';
-import '../styles/globals.css';
-import { Inter } from 'next/font/google';
-import React from 'react';
 
-import { seo } from '@/configs';
+import '../styles/globals.css';
+
+import React from 'react';
+import { Inter } from 'next/font/google';
+
 import { MouseFollower } from '@/components';
+import { seo } from '@/configs';
 
 const inter = Inter({ subsets: ['latin'] });
 
