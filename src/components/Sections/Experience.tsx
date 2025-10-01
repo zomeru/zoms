@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { experience } from '@/constants';
+const Experience = async (): Promise<React.JSX.Element> => {
+  const { getExperience } = await import('@/lib/experience');
+  const experience = await getExperience();
 
-const Experience = (): React.JSX.Element => {
   return (
     <section id='experience' className='mb-24 sm:mb-32'>
       <h2 className='section-title'>Experience</h2>

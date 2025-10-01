@@ -4,7 +4,8 @@ export const experience = [
     company: 'Seansoft Corporation',
     location: 'Makati City, Philippines (Remote)',
     range: 'Jan. 2024 - Present',
-    duties: []
+    duties: [],
+    order: 0
   },
   {
     title: 'Full Stack Web Developer',
@@ -20,7 +21,8 @@ export const experience = [
       'Established unified client-server validation using Zod, ensuring seamless data integrity across the system.',
       'Collaborated with designers, project managers, and other engineers to deliver high quality products for clients.',
       'Took charge of reviewing pull requests and refining onboarding procedures, enhancing team productivity and effectiveness.'
-    ]
+    ],
+    order: 1
   },
   {
     title: 'Software Engineer',
@@ -34,7 +36,8 @@ export const experience = [
       'Successfully delivered multiple full-stack web and mobile applications, including Kokuban, スマホdeマップ, and Doko?.',
       'Worked remotely and collaborated with teams of engineers to ensure project success.',
       'Led the front-end development team, mentoring junior developers and fostering a collaborative, high-achieving environment.'
-    ]
+    ],
+    order: 2
   },
   {
     title: 'Full Stack Developer',
@@ -45,6 +48,7 @@ export const experience = [
       'Collaborated with a team of three developers to deliver web applications for small businesses and individuals, utilizing skills in ReactJS, NextJS, and other relevant technologies.',
       'Translated PSD designs into high-quality web pages, ensuring a seamless user experience.',
       'Created prototypes using Figma to guide the development process.'
-    ]
+    ],
+    order: 3
   }
 ];
