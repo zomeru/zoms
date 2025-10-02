@@ -8,7 +8,6 @@ import {
   SiPostgresql,
   SiStyledcomponents,
   SiTailwindcss,
-  SiTiktok,
   SiTrpc,
   SiTypescript
 } from 'react-icons/si';
@@ -30,10 +29,6 @@ export const socials = [
   {
     url: '/instagram',
     Icon: AiOutlineInstagram
-  },
-  {
-    url: '/tiktok',
-    Icon: SiTiktok
   }
 ];
 
