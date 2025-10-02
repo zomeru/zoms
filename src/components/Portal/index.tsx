@@ -10,7 +10,10 @@ interface PortalProps {
 
 const Portal: React.FC<PortalProps> = ({ closeModal }): React.JSX.Element => {
   return (
-    <div className='h-screen w-screen fixed bg-backgroundPrimary/50 backdrop-blur-sm'>
+    <div
+      className='h-screen w-screen fixed bg-backgroundPrimary/50 backdrop-blur-sm'
+      onClick={closeModal}
+    >
       <div className='portal-spinner m-0'>
         <div className='portal'></div>
         <div className='portal'></div>
@@ -37,6 +40,9 @@ const Portal: React.FC<PortalProps> = ({ closeModal }): React.JSX.Element => {
             transformOrigin: '50% 100%'
           }}
           className='max-w-[300px] flex flex-col items-center mt-12 sm:mt-4'
+          onClick={(e): void => {
+            e.stopPropagation();
+          }}
         >
           <p className='text-center text-sm sm:text-base md:text-xl text-backgroundSecondary mb-1 sm:mb-3 w-[150px] sm:w-[200px] md:w-full'>
             Looking for my different portfolio? Go back in time...
