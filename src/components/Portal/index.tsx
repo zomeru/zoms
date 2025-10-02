@@ -10,7 +10,10 @@ interface PortalProps {
 
 const Portal: React.FC<PortalProps> = ({ closeModal }): React.JSX.Element => {
   return (
-    <div className='h-screen w-screen fixed bg-backgroundPrimary/50 backdrop-blur-sm'>
+    <div
+      className='h-screen w-screen fixed bg-backgroundPrimary/50 backdrop-blur-sm'
+      onClick={closeModal}
+    >
       <div className='portal-spinner m-0'>
         <div className='portal'></div>
         <div className='portal'></div>
@@ -27,7 +30,7 @@ const Portal: React.FC<PortalProps> = ({ closeModal }): React.JSX.Element => {
         <button
           aria-label='Close button'
           onClick={closeModal}
-          className='absolute top-5 right-8 text-textSecondary'
+          className='absolute top-5 right-8 text-textSecondary cursor-pointer'
         >
           <AiOutlineClose className='w-[30px] h-[30px]' />
         </button>
@@ -37,12 +40,15 @@ const Portal: React.FC<PortalProps> = ({ closeModal }): React.JSX.Element => {
             transformOrigin: '50% 100%'
           }}
           className='max-w-[300px] flex flex-col items-center mt-12 sm:mt-4'
+          onClick={(e): void => {
+            e.stopPropagation();
+          }}
         >
           <p className='text-center text-sm sm:text-base md:text-xl text-backgroundSecondary mb-1 sm:mb-3 w-[150px] sm:w-[200px] md:w-full'>
             Looking for my different portfolio? Go back in time...
           </p>
           <a
-            href='https://legacy.zomeru.com'
+            href='https://zomer.vercel.app/'
             target='_blank'
             rel='noopener noreferrer'
             className='relative hover:scale-105 transition-transform h-[100px] w-[120px] sm:w-[150px] md:w-[200px] rounded-md overflow-hidden my-auto'

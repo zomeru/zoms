@@ -91,7 +91,7 @@ const Projects = (): React.JSX.Element => {
           </li>
         ))}
       </ol>
-      <button className='outline-none' type='button' onClick={handleButtonClick}>
+      <button className='outline-none cursor-pointer' type='button' onClick={handleButtonClick}>
         <span className='link-primary'>
           {filteredProjects.length < projects.length ? 'Show more' : 'Show less'}
         </span>
