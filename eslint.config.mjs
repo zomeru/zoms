@@ -1,10 +1,5 @@
-import { FlatCompat } from '@eslint/eslintrc';
-import js from '@eslint/js';
-
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-  recommendedConfig: js.configs.recommended
-});
+import love from 'eslint-config-love';
+import prettierConfig from 'eslint-config-prettier';
 
 export default [
   {
@@ -19,7 +14,25 @@ export default [
       'next-sitemap.config.js'
     ]
   },
-  ...compat.config({
-    extends: ['next']
-  })
+  {
+    ...love,
+    files: ['**/*.ts', '**/*.tsx']
+  },
+  prettierConfig,
+  {
+    rules: {
+      // Disable overly strict rules
+      '@typescript-eslint/no-magic-numbers': 'off',
+      '@typescript-eslint/restrict-template-expressions': 'off',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-confusing-void-expression': 'off',
+      '@typescript-eslint/no-misused-promises': 'off',
+      '@typescript-eslint/prefer-destructuring': 'off',
+      '@typescript-eslint/require-await': 'off',
+      '@typescript-eslint/no-unnecessary-type-arguments': 'off',
+      'arrow-body-style': 'off',
+      // React specific
+      'react/react-in-jsx-scope': 'off'
+    }
+  }
 ];
