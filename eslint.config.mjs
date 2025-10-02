@@ -7,6 +7,7 @@ export default [
       '.next/**',
       'node_modules/**',
       'public/**',
+      'studio/**',
       '*.config.js',
       '*.config.mjs',
       'next-env.d.ts',
