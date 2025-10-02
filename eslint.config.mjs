@@ -1,13 +1,9 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { FlatCompat } from '@eslint/eslintrc';
-import prettierConfig from 'eslint-config-prettier';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import js from '@eslint/js';
 
 const compat = new FlatCompat({
-  baseDirectory: __dirname
+  baseDirectory: import.meta.dirname,
+  recommendedConfig: js.configs.recommended
 });
 
 export default [
@@ -23,12 +19,7 @@ export default [
       'next-sitemap.config.js'
     ]
   },
-  ...compat.extends('next/core-web-vitals'),
-  prettierConfig,
-  {
-    rules: {
-      // React specific
-      'react/react-in-jsx-scope': 'off'
-    }
-  }
+  ...compat.config({
+    extends: ['next']
+  })
 ];
