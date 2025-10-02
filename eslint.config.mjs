@@ -1,5 +1,14 @@
-import love from 'eslint-config-love';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { FlatCompat } from '@eslint/eslintrc';
 import prettierConfig from 'eslint-config-prettier';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname
+});
 
 export default [
   {
@@ -14,23 +23,10 @@ export default [
       'next-sitemap.config.js'
     ]
   },
-  {
-    ...love,
-    files: ['**/*.ts', '**/*.tsx']
-  },
+  ...compat.extends('next/core-web-vitals'),
   prettierConfig,
   {
     rules: {
-      // Disable overly strict rules
-      '@typescript-eslint/no-magic-numbers': 'off',
-      '@typescript-eslint/restrict-template-expressions': 'off',
-      '@typescript-eslint/explicit-function-return-type': 'off',
-      '@typescript-eslint/no-confusing-void-expression': 'off',
-      '@typescript-eslint/no-misused-promises': 'off',
-      '@typescript-eslint/prefer-destructuring': 'off',
-      '@typescript-eslint/require-await': 'off',
-      '@typescript-eslint/no-unnecessary-type-arguments': 'off',
-      'arrow-body-style': 'off',
       // React specific
       'react/react-in-jsx-scope': 'off'
     }
