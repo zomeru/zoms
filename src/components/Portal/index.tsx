@@ -27,7 +27,7 @@ const Portal: React.FC<PortalProps> = ({ closeModal }): React.JSX.Element => {
         <button
           aria-label='Close button'
           onClick={closeModal}
-          className='absolute top-5 right-8 text-textSecondary'
+          className='absolute top-5 right-8 text-textSecondary cursor-pointer'
         >
           <AiOutlineClose className='w-[30px] h-[30px]' />
         </button>
