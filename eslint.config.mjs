@@ -37,6 +37,7 @@ export default [
       '@typescript-eslint/prefer-destructuring': 'off',
       '@typescript-eslint/require-await': 'off',
       '@typescript-eslint/no-unnecessary-type-arguments': 'off',
+      '@typescript-eslint/strict-boolean-expressions': 'off',
       'arrow-body-style': 'off',
       // React specific
       'react/react-in-jsx-scope': 'off'

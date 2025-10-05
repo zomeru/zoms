@@ -58,7 +58,7 @@ export default defineType({
       range: 'range',
       order: 'order'
     },
-    prepare(selection: { title: string; company: string; range: string; order: number }) {
+    prepare(selection: Record<string, string>) {
       const { title, company, range, order } = selection;
       return {
         title: `${title} · ${company}`,
