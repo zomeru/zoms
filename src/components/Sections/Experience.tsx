@@ -1,4 +1,43 @@
 import React from 'react';
+import {
+  PortableText,
+  type PortableTextComponents,
+  type PortableTextMarkComponentProps
+} from '@portabletext/react';
+
+// Define the link value type
+interface LinkValue {
+  _type: string;
+  href?: string;
+}
+
+const portableTextComponents: PortableTextComponents = {
+  marks: {
+    link: ({ value, children }: PortableTextMarkComponentProps<LinkValue>) => {
+      const href = value?.href ?? '';
+      return (
+        <a
+          href={href}
+          target='_blank'
+          rel='noopener noreferrer'
+          className='text-primary hover:underline'
+        >
+          {children}
+        </a>
+      );
+    },
+    strong: ({ children }) => <strong className='font-semibold'>{children}</strong>,
+    em: ({ children }) => <em className='italic'>{children}</em>
+  },
+  block: {
+    normal: ({ children }) => (
+      <p className='text-sm text-textSecondary mb-2 last:mb-0'>
+        {'- '}
+        {children}
+      </p>
+    )
+  }
+};
 
 const Experience = async (): Promise<React.JSX.Element> => {
   const { getExperience } = await import('@/lib/experience');
@@ -8,7 +47,7 @@ const Experience = async (): Promise<React.JSX.Element> => {
     <section id='experience' className='mb-24 sm:mb-32'>
       <h2 className='section-title'>Experience</h2>
       <ol className='group/list space-y-10 mb-10'>
-        {experience.map(({ title, company, location, range, duties }) => {
+        {experience.map(({ title, company, companyWebsite, location, range, duties }) => {
           const id =
             title.replaceAll(' ', '-').toLowerCase() +
             '-' +
@@ -25,16 +64,23 @@ const Experience = async (): Promise<React.JSX.Element> => {
                 </div>
                 <div className='ml-0 sm:ml-4 col-span-8 sm:col-span-6'>
                   <h3 className='text-base group-hover:text-primary'>
-                    {title} · {company}
+                    {title} ·{' '}
+                    {companyWebsite !== undefined && companyWebsite !== '' ? (
+                      <a
+                        href={companyWebsite}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className='hover:text-primary transition-colors'
+                      >
+                        {company}
+                      </a>
+                    ) : (
+                      company
+                    )}
                   </h3>
                   <span className='text-textSecondary text-sm'>{location}</span>
                   <div className='mt-2'>
-                    {duties.map((duty) => (
-                      <p key={duty} className='text-sm text-textSecondary'>
-                        {'- '}
-                        {duty}
-                      </p>
-                    ))}
+                    <PortableText value={duties} components={portableTextComponents} />
                   </div>
                 </div>
               </div>

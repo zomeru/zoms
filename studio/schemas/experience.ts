@@ -34,8 +34,15 @@ export default defineType({
       name: 'duties',
       title: 'Responsibilities',
       type: 'array',
-      of: [{ type: 'text' }],
-      description: 'List of job responsibilities and achievements'
+      of: [{ type: 'block' }],
+      description: 'List of job responsibilities and achievements (supports rich text formatting)'
+    }),
+    defineField({
+      name: 'companyWebsite',
+      title: 'Company Website',
+      type: 'url',
+      description: "Optional: link to the company's official website",
+      validation: (Rule) => Rule.uri({ scheme: ['http', 'https'] })
     }),
     defineField({
       name: 'order',
