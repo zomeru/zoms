@@ -11,14 +11,21 @@ export default [
       '*.config.js',
       '*.config.mjs',
       'next-env.d.ts',
-      'next-sitemap.config.js'
+      'next-sitemap.config.js',
+      '**/pnpm-lock.yaml'
     ]
   },
+
+  // Love config for TypeScript
   {
     ...love,
     files: ['**/*.ts', '**/*.tsx']
   },
+
+  // Prettier overrides
   prettierConfig,
+
+  // Custom rules
   {
     rules: {
       // Disable overly strict rules

@@ -33,8 +33,7 @@ export default defineType({
     defineField({
       name: 'duties',
       title: 'Responsibilities',
-      type: 'array',
-      of: [{ type: 'block' }],
+      type: 'blockContent',
       description: 'List of job responsibilities and achievements (supports rich text formatting)'
     }),
     defineField({
@@ -59,7 +58,7 @@ export default defineType({
       range: 'range',
       order: 'order'
     },
-    prepare(selection: { title: string; company: string; range: string; order: number }) {
+    prepare(selection) {
       const { title, company, range, order } = selection;
       return {
         title: `${title} · ${company}`,
