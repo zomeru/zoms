@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { SITE_URL } from '@/configs/seo';
 import { getBlogPostCount, getBlogPosts } from '@/lib/blog';
 
+import BlogGenerateButton from './BlogGenerateButton';
 import BlogListClient from './BlogListClient';
 
 export const metadata: Metadata = {
@@ -44,6 +45,9 @@ const BlogPage = async (): Promise<React.JSX.Element> => {
           Articles about web development, software engineering, and technology.
         </p>
       </div>
+
+      {/* Generate Blog Button - Always visible */}
+      <BlogGenerateButton />
 
       {/* Blog Posts */}
       {posts.length === 0 ? (
