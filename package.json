@@ -20,6 +20,7 @@
     "studio:deploy": "cd studio && pnpm run with-env sanity deploy"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@portabletext/react": "^4.0.3",
     "@portabletext/types": "^2.0.15",
     "@sanity/client": "^7.11.2",
