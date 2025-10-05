@@ -1,3 +1,5 @@
+import type { PortableTextBlock } from '@portabletext/types';
+
 import { experience as fallbackExperience } from '@/constants/experience';
 
 import { client } from './sanity';
@@ -6,9 +8,10 @@ export interface Experience {
   _id?: string;
   title: string;
   company: string;
+  companyWebsite?: string;
   location: string;
   range: string;
-  duties: string[];
+  duties: PortableTextBlock[];
   order: number;
 }
 
@@ -19,6 +22,7 @@ export async function getExperience(): Promise<Experience[]> {
         _id,
         title,
         company,
+        companyWebsite,
         location,
         range,
         duties,

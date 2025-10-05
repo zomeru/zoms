@@ -33,9 +33,15 @@ export default defineType({
     defineField({
       name: 'duties',
       title: 'Responsibilities',
-      type: 'array',
-      of: [{ type: 'text' }],
-      description: 'List of job responsibilities and achievements'
+      type: 'blockContent',
+      description: 'List of job responsibilities and achievements (supports rich text formatting)'
+    }),
+    defineField({
+      name: 'companyWebsite',
+      title: 'Company Website',
+      type: 'url',
+      description: "Optional: link to the company's official website",
+      validation: (Rule) => Rule.uri({ scheme: ['http', 'https'] })
     }),
     defineField({
       name: 'order',
@@ -52,7 +58,7 @@ export default defineType({
       range: 'range',
       order: 'order'
     },
-    prepare(selection: { title: string; company: string; range: string; order: number }) {
+    prepare(selection: Record<string, string>) {
       const { title, company, range, order } = selection;
       return {
         title: `${title} · ${company}`,
