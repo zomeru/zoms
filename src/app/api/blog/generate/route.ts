@@ -13,15 +13,20 @@ export const maxDuration = 60; // Vercel serverless function timeout
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // Verify secret
+    // Verify secret - can be from Authorization header OR from Vercel Cron
     const authHeader = request.headers.get('authorization');
+    const cronSecret = request.headers.get('x-vercel-cron-secret');
     const secret = process.env.BLOG_GENERATION_SECRET;
 
     if (!secret) {
       return NextResponse.json({ error: 'Blog generation is not configured' }, { status: 500 });
     }
 
-    if (!authHeader || authHeader !== `Bearer ${secret}`) {
+    // Check if request is from Vercel Cron or has valid Authorization header
+    const isValidCron = cronSecret === secret;
+    const isValidAuth = authHeader === `Bearer ${secret}`;
+
+    if (!isValidCron && !isValidAuth) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
