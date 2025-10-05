@@ -1,45 +1,70 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@sanity/client';
+import { createClient, type SanityClient } from '@sanity/client';
 
-import { fetchTrendingTopics, generateBlogContent, markdownToBlocks } from '@/lib/generateBlog';
+import {
+  fetchTrendingTopics,
+  generateBlogContent,
+  markdownToBlocks,
+  type GeneratedBlogPost
+} from '@/lib/generateBlog';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Vercel serverless function timeout
 
-/**
- * POST /api/blog/generate
- * Generates a new blog post using Gemini AI
- * Protected by BLOG_GENERATION_SECRET
- */
+async function validateSecret(request: NextRequest): Promise<string | null> {
+  const cronSecret = request.headers.get('x-vercel-cron-secret');
+  const secret = process.env.BLOG_GENERATION_SECRET;
+
+  if (!secret) {
+    throw new Error('Blog generation is not configured');
+  }
+
+  if (process.env.NODE_ENV === 'production' && (!cronSecret || cronSecret !== secret)) {
+    throw new Error('Authorization is required');
+  }
+
+  return secret;
+}
+
+function validateSanityEnv() {
+  const apiToken = process.env.SANITY_API_TOKEN;
+  const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+  const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
+
+  if (!apiToken || !projectId || !dataset) {
+    throw new Error('Sanity write configuration is missing');
+  }
+
+  return { apiToken, projectId, dataset };
+}
+
+async function createBlogPost(writeClient: SanityClient, content: GeneratedBlogPost) {
+  const body = markdownToBlocks(content.body);
+
+  const slug = content.title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+  // eslint-disable-next-line @typescript-eslint/return-await -- Directly return the promise
+  return writeClient.create({
+    _type: 'blogPost',
+    title: content.title,
+    slug: { _type: 'slug', current: slug },
+    summary: content.summary,
+    body,
+    publishedAt: new Date().toISOString(),
+    tags: content.tags,
+    source: 'automated/gemini',
+    generated: true
+  });
+}
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // Verify secret - can be from Authorization header OR from Vercel Cron
-    const authHeader = request.headers.get('authorization');
-    const cronSecret = request.headers.get('x-vercel-cron-secret');
-    const secret = process.env.BLOG_GENERATION_SECRET;
+    await validateSecret(request);
 
-    if (!secret) {
-      return NextResponse.json({ error: 'Blog generation is not configured' }, { status: 500 });
-    }
-
-    // Check if request is from Vercel Cron or has valid Authorization header
-    const isValidCron = cronSecret === secret;
-    const isValidAuth = authHeader === `Bearer ${secret}`;
-
-    if (!isValidCron && !isValidAuth) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check for required environment variables
-    const apiToken = process.env.SANITY_API_TOKEN;
-    const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-    const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
-
-    if (!apiToken || !projectId || !dataset) {
-      return NextResponse.json({ error: 'Sanity write configuration is missing' }, { status: 500 });
-    }
-
-    // Create Sanity client with write access
+    const { apiToken, projectId, dataset } = validateSanityEnv();
     const writeClient = createClient({
       projectId,
       dataset,
@@ -48,37 +73,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       useCdn: false
     });
 
-    // Fetch trending topics
     const topics = await fetchTrendingTopics();
     const randomTopic = topics[Math.floor(Math.random() * topics.length)];
-
-    // Generate blog content using Gemini
     const content = await generateBlogContent(randomTopic);
 
-    // Convert markdown to Sanity blocks
-    const body = markdownToBlocks(content.body);
-
-    // Create slug from title
-    const slug = content.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
-
-    // Create the blog post in Sanity
-    const newPost = await writeClient.create({
-      _type: 'blogPost',
-      title: content.title,
-      slug: {
-        _type: 'slug',
-        current: slug
-      },
-      summary: content.summary,
-      body,
-      publishedAt: new Date().toISOString(),
-      tags: content.tags,
-      source: 'automated/gemini',
-      generated: true
-    });
+    const newPost = await createBlogPost(writeClient, content);
 
     return NextResponse.json({
       success: true,
@@ -90,13 +89,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     });
   } catch (error) {
-    // eslint-disable-next-line no-console -- Allow console for API errors
-    console.error('Error generating blog post:', error);
-
     return NextResponse.json(
       {
-        error: 'Failed to generate blog post',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Failed to generate blog post',
+        timestamp: new Date().toISOString()
       },
       { status: 500 }
     );

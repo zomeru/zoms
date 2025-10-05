@@ -52,28 +52,47 @@ export default defineType({
     }),
     // Code block support
     defineArrayMember({
-      type: 'code',
+      type: 'object',
+      name: 'codeBlock',
       title: 'Code Block',
-      options: {
-        language: 'javascript',
-        languageAlternatives: [
-          { title: 'JavaScript', value: 'javascript' },
-          { title: 'TypeScript', value: 'typescript' },
-          { title: 'JSX', value: 'jsx' },
-          { title: 'TSX', value: 'tsx' },
-          { title: 'HTML', value: 'html' },
-          { title: 'CSS', value: 'css' },
-          { title: 'SCSS', value: 'scss' },
-          { title: 'JSON', value: 'json' },
-          { title: 'Python', value: 'python' },
-          { title: 'Bash', value: 'bash' },
-          { title: 'SQL', value: 'sql' },
-          { title: 'GraphQL', value: 'graphql' },
-          { title: 'Markdown', value: 'markdown' },
-          { title: 'YAML', value: 'yaml' }
-        ],
-        withFilename: true
-      }
+      fields: [
+        {
+          name: 'language',
+          title: 'Language',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'JavaScript', value: 'javascript' },
+              { title: 'TypeScript', value: 'typescript' },
+              { title: 'JSX', value: 'jsx' },
+              { title: 'TSX', value: 'tsx' },
+              { title: 'HTML', value: 'html' },
+              { title: 'CSS', value: 'css' },
+              { title: 'SCSS', value: 'scss' },
+              { title: 'JSON', value: 'json' },
+              { title: 'Python', value: 'python' },
+              { title: 'Bash', value: 'bash' },
+              { title: 'SQL', value: 'sql' },
+              { title: 'GraphQL', value: 'graphql' },
+              { title: 'Markdown', value: 'markdown' },
+              { title: 'YAML', value: 'yaml' }
+            ]
+          },
+          initialValue: 'javascript'
+        },
+        {
+          name: 'filename',
+          title: 'Filename',
+          type: 'string',
+          description: 'Optional filename to display'
+        },
+        {
+          name: 'code',
+          title: 'Code',
+          type: 'text',
+          rows: 10
+        }
+      ]
     })
   ]
 });

@@ -6,7 +6,7 @@ import {
 } from '@portabletext/react';
 import type { PortableTextBlock } from '@portabletext/types';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { coldarkDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface LinkValue {
   _type: string;
@@ -14,7 +14,7 @@ interface LinkValue {
 }
 
 interface CodeBlock {
-  _type: 'code';
+  _type: 'codeBlock';
   language?: string;
   code: string;
   filename?: string;
@@ -76,8 +76,9 @@ const blogPortableTextComponents: PortableTextComponents = {
     number: ({ children }) => <li className='text-textSecondary ml-4'>{children}</li>
   },
   types: {
-    code: ({ value }: { value: CodeBlock }) => {
+    codeBlock: ({ value }: { value: CodeBlock }) => {
       const { language = 'javascript', code, filename } = value;
+
       return (
         <div className='my-6 rounded-lg overflow-hidden border border-textSecondary border-opacity-20'>
           {filename && (
@@ -87,7 +88,7 @@ const blogPortableTextComponents: PortableTextComponents = {
           )}
           <SyntaxHighlighter
             language={language}
-            style={vscDarkPlus}
+            style={coldarkDark}
             customStyle={{
               margin: 0,
               padding: '1rem',

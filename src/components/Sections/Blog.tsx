@@ -14,10 +14,13 @@ const Blog = async (): Promise<React.JSX.Element> => {
       ) : (
         <ol className='group/list space-y-6 mb-10'>
           {posts.map(({ _id, title, slug, summary, publishedAt, generated }) => {
-            const date = new Date(publishedAt).toLocaleDateString('en-US', {
+            const date = new Date(publishedAt).toLocaleString('en-US', {
               year: 'numeric',
               month: 'short',
-              day: 'numeric'
+              day: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true
             });
 
             return (
@@ -28,11 +31,6 @@ const Blog = async (): Promise<React.JSX.Element> => {
                 <div className='grid grid-cols-8'>
                   <div className='col-span-8 sm:col-span-2 text-textSecondary text-sm mb-1 sm:mb-0'>
                     {date}
-                    {generated && (
-                      <span className='ml-2 text-xs opacity-60' title='AI Generated'>
-                        🤖
-                      </span>
-                    )}
                   </div>
                   <div className='ml-0 sm:ml-4 col-span-8 sm:col-span-6'>
                     <Link
@@ -50,7 +48,7 @@ const Blog = async (): Promise<React.JSX.Element> => {
         </ol>
       )}
       <Link href='/blog' className='link-primary'>
-        Go to blog page →
+        Go to blog page
       </Link>
     </section>
   );

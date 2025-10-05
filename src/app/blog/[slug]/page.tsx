@@ -76,7 +76,7 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
     : null;
 
   return (
-    <main className='max-w-[800px] mx-auto px-6 sm:px-12 md:px-16 lg:px-20 py-[50px] md:py-[90px]'>
+    <main className='max-w-[1200px] mx-auto px-6 sm:px-12 md:px-16 lg:px-20 py-[50px] md:py-[90px]'>
       {/* Back Link */}
       <Link href='/blog' className='text-primary hover:underline mb-8 inline-block'>
         ← Back to blog
