@@ -1,4 +1,4 @@
-import { About, Experience, Projects, TechStack } from '@/components/Sections';
+import { About, Blog, Experience, Projects, TechStack } from '@/components/Sections';
 import { DogeModal, Footer, MainInfo } from '@/components';
 
 export default async function Home(): Promise<React.JSX.Element> {
@@ -10,6 +10,7 @@ export default async function Home(): Promise<React.JSX.Element> {
         <TechStack />
         <Experience />
         <Projects />
+        <Blog />
         <Footer />
         <DogeModal />
       </div>
