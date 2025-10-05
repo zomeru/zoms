@@ -11,14 +11,21 @@ export default [
       '*.config.js',
       '*.config.mjs',
       'next-env.d.ts',
-      'next-sitemap.config.js'
+      'next-sitemap.config.js',
+      '**/pnpm-lock.yaml'
     ]
   },
+
+  // Love config for TypeScript
   {
     ...love,
     files: ['**/*.ts', '**/*.tsx']
   },
+
+  // Prettier overrides
   prettierConfig,
+
+  // Custom rules
   {
     rules: {
       // Disable overly strict rules
@@ -30,6 +37,7 @@ export default [
       '@typescript-eslint/prefer-destructuring': 'off',
       '@typescript-eslint/require-await': 'off',
       '@typescript-eslint/no-unnecessary-type-arguments': 'off',
+      '@typescript-eslint/strict-boolean-expressions': 'off',
       'arrow-body-style': 'off',
       // React specific
       'react/react-in-jsx-scope': 'off'

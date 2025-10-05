@@ -4,5 +4,8 @@ export default defineCliConfig({
   api: {
     projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
     dataset: process.env.NEXT_PUBLIC_SANITY_DATASET ?? 'production'
+  },
+  deployment: {
+    appId: process.env.SANITY_STUDIO_VERCEL_APP_ID
   }
 });

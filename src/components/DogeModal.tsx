@@ -48,6 +48,7 @@ const DogeModal = (): React.JSX.Element => {
         onClick={openModal}
       >
         <Image
+          unoptimized
           src='/assets/images/doge-dance.gif'
           alt='Modal button - Dancing doge'
           className='h-full w-auto object-contain'
