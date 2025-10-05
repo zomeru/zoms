@@ -5,9 +5,11 @@ My latest portfolio at https://zoms.vercel.app/
 ## Tech Used
 
 - TypeScript
-- NextJS
-- TailwindCSS
+- Next.js 15
+- Tailwind CSS v4
 - Sanity CMS
+- Gemini AI
+- React Syntax Highlighter
 
 ## 🚀 Getting Started
 
@@ -42,7 +44,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the portfolio.
 
 ## 📝 Content Management
 
-This portfolio uses [Sanity CMS](https://www.sanity.io/) for managing the Experience section dynamically.
+This portfolio uses [Sanity CMS](https://www.sanity.io/) for managing dynamic content (Experience and Blog sections).
 
 ### Managing Experience Content
 
@@ -58,7 +60,16 @@ pnpm studio:dev
 3. Sign in with your Sanity account
 4. Add, edit, or remove experience entries through the UI
 
-For detailed instructions, see [SANITY_SETUP.md](./SANITY_SETUP.md)
+### Managing Blog Content
+
+The blog system supports both manual and AI-generated content:
+
+1. **Manual Posts**: Create and edit blog posts directly in Sanity Studio
+2. **AI-Generated Posts**: Automatic weekly blog generation using Gemini AI (configured via Vercel Cron)
+
+For detailed blog setup and usage, see [BLOG_DOCUMENTATION.md](./BLOG_DOCUMENTATION.md)
+
+For Sanity setup instructions, see [SANITY_SETUP.md](./SANITY_SETUP.md)
 
 ## 📦 Available Scripts
 
@@ -93,19 +104,29 @@ For detailed instructions, see [SANITY_SETUP.md](./SANITY_SETUP.md)
 
 ## 🔧 Environment Variables
 
-Required environment variables for Sanity CMS:
+Required environment variables:
+
+**Sanity CMS:**
 
 - `NEXT_PUBLIC_SANITY_PROJECT_ID` - Your Sanity project ID
 - `NEXT_PUBLIC_SANITY_DATASET` - Dataset name (usually `production`)
+- `SANITY_API_TOKEN` - Write token for blog generation (optional for read-only)
+
+**Blog Generation (Optional):**
+
+- `GEMINI_API_KEY` - Google Gemini API key for AI content generation
+- `BLOG_GENERATION_SECRET` - Secret for protecting the blog generation endpoint
 
 See `.env.example` for reference.
 
 ## 🎨 Features
 
-- **Dynamic Content Management** - Update experience section via Sanity Studio
-- **Responsive Design** - Mobile-first approach with Tailwind CSS
+- **Dynamic Content Management** - Update experience and blog content via Sanity Studio
+- **AI-Powered Blog** - Automatic weekly blog post generation using Gemini AI
+- **Responsive Design** - Mobile-first approach with Tailwind CSS v4
 - **Modern Stack** - Next.js 15, React 19, TypeScript
-- **SEO Optimized** - Comprehensive metadata and sitemap
+- **SEO Optimized** - Comprehensive metadata, Open Graph, and sitemap
+- **Syntax Highlighting** - Beautiful code blocks in blog posts
 - **Type Safe** - Full TypeScript coverage
 - **Code Quality** - ESLint, Prettier, and Husky pre-commit hooks
 - **ISR Support** - Incremental Static Regeneration with 60s revalidation
