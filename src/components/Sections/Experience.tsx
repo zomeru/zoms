@@ -75,7 +75,7 @@ const Experience = async (): Promise<React.JSX.Element> => {
                   {range}
                 </div>
                 <div className='ml-0 sm:ml-4 col-span-8 sm:col-span-6'>
-                  {companyWebsite != null && companyWebsite !== '' ? (
+                  {companyWebsite ? (
                     <a
                       href={companyWebsite}
                       target='_blank'
