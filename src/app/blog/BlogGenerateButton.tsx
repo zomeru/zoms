@@ -82,7 +82,7 @@ const BlogGenerateButton: React.FC = () => {
           onClick={() => {
             setIsModalOpen(true);
           }}
-          className='px-6 py-3 bg-secondary text-backgroundPrimary rounded-lg hover:bg-opacity-80 transition-all font-medium flex items-center gap-2'
+          className='px-4 py-2 bg-secondary text-backgroundPrimary rounded-lg hover:bg-opacity-80 transition-all text-sm font-medium flex items-center gap-2'
         >
           <span>🤖</span>
           <span>Generate Blog with AI</span>

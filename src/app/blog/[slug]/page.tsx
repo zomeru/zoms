@@ -95,6 +95,12 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
               <time dateTime={post.modifiedAt}>Updated {formatDateWithTime(modifiedDate)}</time>
             </>
           )}
+          {post.readTime && (
+            <>
+              <span>•</span>
+              <span>{post.readTime} min read</span>
+            </>
+          )}
           {post.generated && (
             <>
               <span>•</span>

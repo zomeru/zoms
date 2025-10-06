@@ -62,7 +62,8 @@ async function createBlogPost(writeClient: SanityClient, content: GeneratedBlogP
     publishedAt: new Date().toISOString(),
     tags: content.tags,
     source: 'automated/gemini',
-    generated: true
+    generated: true,
+    readTime: content.readTime
   });
 }
 

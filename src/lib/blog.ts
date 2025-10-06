@@ -15,6 +15,7 @@ export interface BlogPost {
   tags?: string[];
   source?: string;
   generated?: boolean;
+  readTime?: number;
 }
 
 export interface BlogPostListItem {
@@ -27,6 +28,7 @@ export interface BlogPostListItem {
   publishedAt: string;
   tags?: string[];
   generated?: boolean;
+  readTime?: number;
 }
 
 /**
@@ -45,7 +47,8 @@ export async function getBlogPosts(limit = 25, offset = 0): Promise<BlogPostList
         summary,
         publishedAt,
         tags,
-        generated
+        generated,
+        readTime
       }`,
       { offset, end: offset + limit },
       {
@@ -83,7 +86,8 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
         body,
         tags,
         source,
-        generated
+        generated,
+        readTime
       }`,
       { slug },
       {

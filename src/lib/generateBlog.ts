@@ -13,6 +13,7 @@ export interface GeneratedBlogPost {
   summary: string;
   body: string;
   tags: string[];
+  readTime: number;
 }
 
 /**
@@ -27,29 +28,138 @@ export async function fetchTrendingTopics(): Promise<TrendingTopic[]> {
   // - https://github.com/trending/javascript?since=weekly
   // - https://www.reddit.com/r/webdev/
 
-  // For now, return some default topics that Gemini can write about
-  return [
+  // Return diverse topics covering various aspects of web development
+  const topics = [
+    // React & Next.js
     {
       title: 'Latest trends in React and Next.js',
       url: 'https://nextjs.org/blog',
       description: 'Recent updates and best practices in React and Next.js ecosystem'
     },
     {
+      title: 'React Server Components deep dive',
+      url: 'https://react.dev',
+      description: 'Understanding React Server Components and their benefits'
+    },
+    // TypeScript & JavaScript
+    {
       title: 'TypeScript best practices and new features',
       url: 'https://github.com/trending/typescript',
       description: 'Modern TypeScript patterns and trending repositories'
     },
     {
-      title: 'Javascript best practices and new features',
+      title: 'JavaScript best practices and new features',
       url: 'https://github.com/trending/javascript',
       description: 'Modern Javascript patterns and trending repositories'
     },
+    // React Native
     {
-      title: 'Web development trends and tools',
+      title: 'React Native development tips and tricks',
+      url: 'https://reactnative.dev',
+      description: 'Building mobile apps with React Native'
+    },
+    {
+      title: 'Cross-platform mobile development with React Native',
+      url: 'https://reactnative.dev',
+      description: 'Best practices for React Native apps'
+    },
+    // AI & LLMs
+    {
+      title: 'Integrating AI and LLMs into web applications',
+      url: 'https://ai.google.dev',
+      description: 'Building AI-powered features in modern web apps'
+    },
+    {
+      title: 'AI models and machine learning for developers',
+      url: 'https://platform.openai.com',
+      description: 'Practical guide to using AI APIs in production'
+    },
+    // Web Dev Tools
+    {
+      title: 'Trending web development tools and frameworks',
       url: 'https://www.reddit.com/r/webdev/',
-      description: 'Popular discussions and tools in web development community'
+      description: 'Popular tools and frameworks in web development community'
+    },
+    {
+      title: 'Developer productivity tools and workflows',
+      url: 'https://github.com/trending',
+      description: 'Tools that improve developer experience and efficiency'
+    },
+    // Backend Tech
+    {
+      title: 'Modern backend architecture with Node.js',
+      url: 'https://nodejs.org',
+      description: 'Building scalable APIs with Node.js and Express'
+    },
+    {
+      title: 'tRPC and type-safe APIs',
+      url: 'https://trpc.io',
+      description: 'End-to-end typesafe APIs with tRPC'
+    },
+    {
+      title: 'Building REST and GraphQL APIs',
+      url: 'https://graphql.org',
+      description: 'API design patterns and best practices'
+    },
+    // Cloud Platforms
+    {
+      title: 'Firebase for modern web applications',
+      url: 'https://firebase.google.com',
+      description: 'Using Firebase for authentication, database, and hosting'
+    },
+    {
+      title: 'Supabase as a Firebase alternative',
+      url: 'https://supabase.com',
+      description: 'Open source Firebase alternative for modern apps'
+    },
+    {
+      title: 'AWS services for web developers',
+      url: 'https://aws.amazon.com',
+      description: 'Essential AWS services for deploying web applications'
+    },
+    {
+      title: 'Serverless architecture on Vercel',
+      url: 'https://vercel.com',
+      description: 'Building and deploying serverless applications'
+    },
+    // Frontend Frameworks
+    {
+      title: 'Vue.js vs React comparison',
+      url: 'https://vuejs.org',
+      description: 'Choosing the right frontend framework'
+    },
+    {
+      title: 'Svelte and SvelteKit for web development',
+      url: 'https://svelte.dev',
+      description: 'Modern frontend development with Svelte'
+    },
+    // Security
+    {
+      title: 'Web application security best practices',
+      url: 'https://owasp.org',
+      description: 'Protecting web applications from common vulnerabilities'
+    },
+    {
+      title: 'Authentication and authorization patterns',
+      url: 'https://auth0.com',
+      description: 'Implementing secure authentication in web apps'
+    },
+    // General Web Dev
+    {
+      title: 'Web performance optimization techniques',
+      url: 'https://web.dev',
+      description: 'Making web applications faster and more efficient'
+    },
+    {
+      title: 'Progressive Web Apps (PWA) development',
+      url: 'https://web.dev/progressive-web-apps',
+      description: 'Building offline-capable web applications'
     }
   ];
+
+  // Return a random selection of topics for variety
+  const shuffled = topics.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 10);
 }
 
 /**
@@ -95,7 +205,7 @@ function extractTags(jsonText: string): string[] {
   const tagsMatch = tagsRegex.exec(jsonText);
 
   if (!tagsMatch) {
-    return ['webdev'];
+    return ['web development'];
   }
 
   try {
@@ -105,7 +215,7 @@ function extractTags(jsonText: string): string[] {
       .map((tag) => tag.trim().replace(/^"(.*)"$/u, '$1'))
       .filter((tag) => tag.length > 0);
   } catch {
-    return ['webdev'];
+    return ['web development'];
   }
 }
 
@@ -241,19 +351,21 @@ CRITICAL: Respond with ONLY valid JSON in this exact format (no additional text 
   "title": "Compelling and concise blog post title (Must be between 40 and 80 characters in length, spaces included — ABSOLUTE REQUIREMENT)",
   "summary": "Brief SEO-friendly summary (Must be between 100 and 150 characters, including spaces — NON-NEGOTIABLE; do not use backticks or quotes)",
   "body": "Full blog content in Markdown format. Use proper escaping for special characters.",
-  "tags": ["tag1", "tag2", "tag3"] // 3-8 relevant tags, all lowercase, or special characters
+  "tags": ["tag1", "tag2", "tag3"],
+  "readTime": 5
 }
 
 JSON FORMATTING REQUIREMENTS:
 - Use double quotes for ALL strings
 - NO backticks (\`) in the summary field - use single quotes instead
-- Escape any double quotes inside strings with backslash (")
+- Escape any double quotes inside strings with backslash (\\")
 - NO trailing commas
 - NO comments in JSON
 - Make sure all brackets and braces are properly closed
 - The body field should contain valid markdown text
-- Include 3-8 relevant tags
+- Include 3-8 relevant tags, all lowercase, no special characters
 - For code references in summary, use single quotes like 'satisfies' instead of backticks
+- readTime: estimated reading time in minutes (calculate based on word count: ~200 words per minute)
 
 Make sure the content is:
 - Accurate and up-to-date (${new Date().getFullYear()}), with information from at least the last two months.
@@ -275,6 +387,7 @@ Make sure the content is:
       summary: string;
       body: string;
       tags: string[];
+      readTime?: number;
     };
 
     // Validate required fields
@@ -286,7 +399,8 @@ Make sure the content is:
       title: parsed.title.slice(0, MAX_TITLE_LENGTH), // Ensure title length limit
       summary: parsed.summary.slice(0, MAX_SUMMARY_LENGTH), // Ensure summary length limit
       body: parsed.body,
-      tags: Array.isArray(parsed.tags) ? parsed.tags.slice(0, 5) : []
+      tags: Array.isArray(parsed.tags) ? parsed.tags.slice(0, 5) : [],
+      readTime: parsed.readTime ?? 5 // Default to 5 minutes if not provided
     };
   } catch (error) {
     throw new Error('Failed to parse AI-generated content', { cause: error });

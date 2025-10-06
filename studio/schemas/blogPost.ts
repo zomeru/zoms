@@ -75,6 +75,13 @@ export default defineType({
       type: 'boolean',
       description: 'Whether this post was auto-generated',
       initialValue: false
+    }),
+    defineField({
+      name: 'readTime',
+      title: 'Read Time',
+      type: 'number',
+      description: 'Estimated read time in minutes (AI-generated)',
+      validation: (Rule) => Rule.min(1).max(60)
     })
   ],
   preview: {

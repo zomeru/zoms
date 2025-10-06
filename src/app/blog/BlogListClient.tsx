@@ -85,6 +85,11 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
               <div className='flex flex-col sm:flex-row sm:items-start gap-4'>
                 <div className='sm:w-32 flex-shrink-0'>
                   <time className='text-textSecondary text-sm'>{date}</time>
+                  {post.readTime && (
+                    <span className='block mt-1 text-xs text-textSecondary opacity-60'>
+                      {post.readTime} min read
+                    </span>
+                  )}
                   {post.generated && (
                     <span
                       className='block mt-1 text-xs text-textSecondary opacity-60'
