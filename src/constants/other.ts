@@ -117,3 +117,8 @@ export const technologies = [
     Icon: FaGitAlt
   }
 ];
+
+export const MAX_PORTFOLIO_BLOG_POSTS = 5;
+export const BLOG_POSTS_PAGE_SIZE = 25;
+export const MAX_TITLE_LENGTH = 100;
+export const MAX_SUMMARY_LENGTH = 200;

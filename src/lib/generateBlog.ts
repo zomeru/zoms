@@ -1,5 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
+
 export interface TrendingTopic {
   title: string;
   url: string;
@@ -281,8 +283,8 @@ Make sure the content is:
     }
 
     return {
-      title: parsed.title.slice(0, 100), // Ensure title length limit
-      summary: parsed.summary.slice(0, 160), // Ensure summary length limit
+      title: parsed.title.slice(0, MAX_TITLE_LENGTH), // Ensure title length limit
+      summary: parsed.summary.slice(0, MAX_SUMMARY_LENGTH), // Ensure summary length limit
       body: parsed.body,
       tags: Array.isArray(parsed.tags) ? parsed.tags.slice(0, 5) : []
     };

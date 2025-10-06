@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { SITE_URL } from '@/configs/seo';
+import { BLOG_POSTS_PAGE_SIZE } from '@/constants';
 import { getBlogPostCount, getBlogPosts } from '@/lib/blog';
 
 import BlogGenerateButton from './BlogGenerateButton';
@@ -31,7 +32,10 @@ export const metadata: Metadata = {
 };
 
 const BlogPage = async (): Promise<React.JSX.Element> => {
-  const [posts, total] = await Promise.all([getBlogPosts(25, 0), getBlogPostCount()]);
+  const [posts, total] = await Promise.all([
+    getBlogPosts(BLOG_POSTS_PAGE_SIZE, 0),
+    getBlogPostCount()
+  ]);
 
   return (
     <main className='max-w-[1000px] mx-auto px-6 sm:px-12 md:px-16 lg:px-20 py-[50px] md:py-[90px]'>

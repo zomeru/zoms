@@ -1,11 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
 
+import { MAX_PORTFOLIO_BLOG_POSTS } from '@/constants';
 import { getLatestBlogPosts } from '@/lib/blog';
 import { formatDate } from '@/lib/utils';
 
 const Blog = async (): Promise<React.JSX.Element> => {
-  const posts = await getLatestBlogPosts(3);
+  const posts = await getLatestBlogPosts(MAX_PORTFOLIO_BLOG_POSTS);
 
   return (
     <section id='blog' className='mb-24 sm:mb-32'>
