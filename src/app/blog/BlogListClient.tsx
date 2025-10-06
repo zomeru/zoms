@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 
+import { BLOG_POSTS_PAGE_SIZE } from '@/constants';
 import type { BlogPostListItem } from '@/lib/blog';
 import { formatDate } from '@/lib/utils';
 
@@ -26,7 +27,7 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
     setError(null);
 
     try {
-      const response = await fetch(`/api/blog?limit=25&offset=${offset}`);
+      const response = await fetch(`/api/blog?limit=${BLOG_POSTS_PAGE_SIZE}&offset=${offset}`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch blog posts');

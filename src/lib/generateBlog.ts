@@ -217,7 +217,7 @@ export async function generateBlogContent(topic: TrendingTopic): Promise<Generat
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY is not configured');
+    throw new Error('Gemini API key is not configured');
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
@@ -238,8 +238,8 @@ Requirements:
 CRITICAL: Respond with ONLY valid JSON in this exact format (no additional text before or after):
 
 {
-  "title": "Compelling and concise blog post title (Must be between 60 and 100 characters in length, spaces included — ABSOLUTE REQUIREMENT)",
-  "summary": "Brief SEO-friendly summary (Must be between 100 and 200 characters, including spaces — NON-NEGOTIABLE; do not use backticks or quotes)",
+  "title": "Compelling and concise blog post title (Must be between 40 and 80 characters in length, spaces included — ABSOLUTE REQUIREMENT)",
+  "summary": "Brief SEO-friendly summary (Must be between 100 and 150 characters, including spaces — NON-NEGOTIABLE; do not use backticks or quotes)",
   "body": "Full blog content in Markdown format. Use proper escaping for special characters.",
   "tags": ["3 to 5 relevant keywords or topics"]
 }

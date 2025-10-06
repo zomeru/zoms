@@ -1,14 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 
 import GenerateBlogModal from './GenerateBlogModal';
 
 const BlogGenerateButton: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const router = useRouter();
 
   const handleGenerateBlog = async (token: string): Promise<void> => {
     const toastId = toast.loading('Generating blog post with AI...');
@@ -34,7 +32,9 @@ const BlogGenerateButton: React.FC = () => {
       toast.success('Blog post generated successfully!', { id: toastId });
 
       // Refresh the page to show the new blog post
-      router.refresh();
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to generate blog post';
       toast.error(errorMessage, { id: toastId });

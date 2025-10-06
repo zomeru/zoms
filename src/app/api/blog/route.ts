@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
+import { BLOG_POSTS_PAGE_SIZE } from '@/constants';
 import { getBlogPostCount, getBlogPosts } from '@/lib/blog';
 
 export const dynamic = 'force-dynamic';
@@ -14,7 +15,10 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const limit = Math.min(parseInt(searchParams.get('limit') ?? '25', 10), 100);
+    const limit = Math.min(
+      parseInt(searchParams.get('limit') ?? `${BLOG_POSTS_PAGE_SIZE}`, 10),
+      100
+    );
     const offset = Math.max(parseInt(searchParams.get('offset') ?? '0', 10), 0);
 
     const [posts, total] = await Promise.all([getBlogPosts(limit, offset), getBlogPostCount()]);
