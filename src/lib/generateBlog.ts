@@ -241,7 +241,7 @@ CRITICAL: Respond with ONLY valid JSON in this exact format (no additional text 
   "title": "Compelling and concise blog post title (Must be between 40 and 80 characters in length, spaces included — ABSOLUTE REQUIREMENT)",
   "summary": "Brief SEO-friendly summary (Must be between 100 and 150 characters, including spaces — NON-NEGOTIABLE; do not use backticks or quotes)",
   "body": "Full blog content in Markdown format. Use proper escaping for special characters.",
-  "tags": ["3 to 5 relevant keywords or topics"]
+  "tags": ["tag1", "tag2", "tag3"] // 3-8 relevant tags, all lowercase, or special characters
 }
 
 JSON FORMATTING REQUIREMENTS:
@@ -252,11 +252,11 @@ JSON FORMATTING REQUIREMENTS:
 - NO comments in JSON
 - Make sure all brackets and braces are properly closed
 - The body field should contain valid markdown text
-- Include exactly 4 relevant tags
+- Include 3-8 relevant tags
 - For code references in summary, use single quotes like 'satisfies' instead of backticks
 
 Make sure the content is:
-- Accurate and up-to-date
+- Accurate and up-to-date (${new Date().getFullYear()}), with information from at least the last two months.
 - Well-structured and easy to read
 - Includes code examples where appropriate
 - Provides real value to readers`;
