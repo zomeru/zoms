@@ -109,7 +109,7 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
             {post.tags.map((tag, index) => (
               <span
                 key={index}
-                className='text-xs px-3 py-1 rounded-full bg-primary bg-opacity-10 text-primary'
+                className='text-xs px-3 py-1 rounded-full bg-[#ad5aff1f] text-textSecondary'
               >
                 {tag}
               </span>

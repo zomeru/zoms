@@ -40,7 +40,7 @@ const blogPortableTextComponents: PortableTextComponents = {
     ),
     em: ({ children }) => <em className='italic'>{children}</em>,
     code: ({ children }) => (
-      <code className='px-1.5 py-0.5 rounded bg-primary bg-opacity-10 text-primary font-mono text-sm'>
+      <code className='px-1.5 py-0.5 rounded bg-[#ad5aff1f] text-textSecondary font-mono text-sm'>
         {children}
       </code>
     )
@@ -66,14 +66,16 @@ const blogPortableTextComponents: PortableTextComponents = {
     )
   },
   list: {
-    bullet: ({ children }) => <ul className='list-disc list-inside mb-4 space-y-2'>{children}</ul>,
+    bullet: ({ children }) => (
+      <ul className='list-disc list-outside mb-4 space-y-2 pl-6'>{children}</ul>
+    ),
     number: ({ children }) => (
-      <ol className='list-decimal list-inside mb-4 space-y-2'>{children}</ol>
+      <ol className='list-decimal list-outside mb-4 space-y-2 pl-6'>{children}</ol>
     )
   },
   listItem: {
-    bullet: ({ children }) => <li className='text-textSecondary ml-4'>{children}</li>,
-    number: ({ children }) => <li className='text-textSecondary ml-4'>{children}</li>
+    bullet: ({ children }) => <li className='text-textSecondary'>{children}</li>,
+    number: ({ children }) => <li className='text-textSecondary'>{children}</li>
   },
   types: {
     codeBlock: ({ value }: { value: CodeBlock }) => {
