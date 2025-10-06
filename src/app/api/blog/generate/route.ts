@@ -13,14 +13,20 @@ export const maxDuration = 60; // Vercel serverless function timeout
 
 async function validateSecret(request: NextRequest): Promise<string | null> {
   const cronSecret = request.headers.get('x-vercel-cron-secret');
+  const authHeader = request.headers.get('authorization');
+  const authSecret = authHeader?.replace(/^Bearer\s+/i, '') ?? null;
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- We are asserting the type here
+  const { manual } = (await request.json()) as unknown as { manual?: boolean };
+
   const secret = process.env.BLOG_GENERATION_SECRET;
 
-  if (!secret) {
-    throw new Error('Blog generation is not configured');
+  if (process.env.NODE_ENV !== 'development' && !cronSecret) {
+    throw new Error('Unauthorized access.');
   }
 
-  if (process.env.NODE_ENV === 'production' && (!cronSecret || cronSecret !== secret)) {
-    throw new Error('Authorization is required');
+  if (!secret || (manual && authSecret !== secret)) {
+    throw new Error('Unauthorized access.');
   }
 
   return secret;

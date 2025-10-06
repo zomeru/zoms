@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 
 import { SITE_URL } from '@/configs/seo';
 import { getBlogPostBySlug } from '@/lib/blog';
+import { formatDateWithTime } from '@/lib/utils';
 
 import BlogContent from './BlogContent';
 
@@ -87,11 +88,11 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
         <h1 className='text-4xl md:text-5xl font-bold mb-4 text-textPrimary'>{post.title}</h1>
 
         <div className='flex flex-wrap items-center gap-4 text-textSecondary text-sm mb-4'>
-          <time dateTime={post.publishedAt}>Published {publishedDate}</time>
+          <time dateTime={post.publishedAt}>Published {formatDateWithTime(publishedDate)}</time>
           {modifiedDate && post.modifiedAt !== post.publishedAt && (
             <>
               <span>•</span>
-              <time dateTime={post.modifiedAt}>Updated {modifiedDate}</time>
+              <time dateTime={post.modifiedAt}>Updated {formatDateWithTime(modifiedDate)}</time>
             </>
           )}
           {post.generated && (

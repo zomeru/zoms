@@ -236,10 +236,10 @@ Requirements:
 CRITICAL: Respond with ONLY valid JSON in this exact format (no additional text before or after):
 
 {
-  "title": "Your compelling title here (max 100 characters)",
-  "summary": "Brief summary for SEO (max 160 characters - avoid backticks and quotes)",
-  "body": "Full markdown content here with proper escaping",
-  "tags": ["tag1", "tag2", "tag3", "tag4"] (3-5 relevant tags)
+  "title": "Compelling and concise blog post title (Must be between 60 and 100 characters in length, spaces included — ABSOLUTE REQUIREMENT)",
+  "summary": "Brief SEO-friendly summary (Must be between 100 and 200 characters, including spaces — NON-NEGOTIABLE; do not use backticks or quotes)",
+  "body": "Full blog content in Markdown format. Use proper escaping for special characters.",
+  "tags": ["3 to 5 relevant keywords or topics"]
 }
 
 JSON FORMATTING REQUIREMENTS:
@@ -298,13 +298,6 @@ export function markdownToBlocks(markdown: string): unknown[] {
   const blocks: unknown[] = [];
   const lines = markdown.split('\n');
 
-  let currentBlock: {
-    _type: string;
-    _key: string;
-    style: string;
-    children: Array<{ _type: string; text: string; marks?: string[] }>;
-  } | null = null;
-
   let inCodeBlock = false;
   let codeLanguage = '';
   let codeLines: string[] = [];
@@ -313,17 +306,18 @@ export function markdownToBlocks(markdown: string): unknown[] {
   while (lineIndex < lines.length) {
     const line = lines[lineIndex];
 
-    // Handle code blocks
+    // --- Handle fenced code blocks ---
     if (line.startsWith('```')) {
       if (inCodeBlock) {
         // End code block
-        inCodeBlock = false;
         blocks.push({
           _type: 'codeBlock',
           _key: `code-${lineIndex}`,
           language: codeLanguage,
           code: codeLines.join('\n')
         });
+        inCodeBlock = false;
+        codeLanguage = '';
         codeLines = [];
       } else {
         // Start code block
@@ -341,51 +335,30 @@ export function markdownToBlocks(markdown: string): unknown[] {
       continue;
     }
 
-    // Handle headers
-    if (line.startsWith('## ')) {
-      currentBlock = {
-        _type: 'block',
-        _key: `block-${lineIndex}`,
-        style: 'h2',
-        children: [{ _type: 'span', text: line.slice(3) }]
-      };
-      blocks.push(currentBlock);
-      currentBlock = null;
+    // --- Handle headers ---
+    const headingBlock = getHeadingBlock(line, lineIndex);
+    if (headingBlock) {
+      blocks.push(headingBlock);
       lineIndex += 1;
       continue;
     }
 
-    if (line.startsWith('### ')) {
-      currentBlock = {
-        _type: 'block',
-        _key: `block-${lineIndex}`,
-        style: 'h3',
-        children: [{ _type: 'span', text: line.slice(4) }]
-      };
-      blocks.push(currentBlock);
-      currentBlock = null;
+    // --- Handle bullet list items ---
+    const bulletBlock = getBulletBlock(line, lineIndex);
+    if (bulletBlock) {
+      blocks.push(bulletBlock);
       lineIndex += 1;
       continue;
     }
 
-    // Handle empty lines
+    // --- Handle empty line (skip) ---
     if (line.trim() === '') {
-      currentBlock = null;
       lineIndex += 1;
       continue;
     }
 
-    // Handle normal text with inline code
-    const textWithMarks = parseInlineCode(line);
-
-    currentBlock = {
-      _type: 'block',
-      _key: `block-${lineIndex}`,
-      style: 'normal',
-      children: textWithMarks
-    };
-    blocks.push(currentBlock);
-    currentBlock = null;
+    // --- Handle normal text ---
+    blocks.push(makeNormalBlock(line, lineIndex));
     lineIndex += 1;
   }
 
@@ -393,33 +366,47 @@ export function markdownToBlocks(markdown: string): unknown[] {
 }
 
 /**
- * Parse inline code in a line of text
+ * Parse inline markdown formatting (code, bold) in a line of text
  */
-function parseInlineCode(line: string): Array<{ _type: string; text: string; marks?: string[] }> {
-  const textWithMarks: Array<{ _type: string; text: string; marks?: string[] }> = [];
-  const codeRegex = /`([^`]+)`/gu;
+function parseInlineMarkdown(line: string): Array<{ text: string; marks?: string[] }> {
+  const textWithMarks: Array<{ text: string; marks?: string[] }> = [];
+
+  // Combined regex to match both inline code and bold text
+  // Order matters: code should be processed first to avoid conflicts
+  const markdownRegex = /(`[^`]+`)|(\*\*[^*]+\*\*)/gu;
   let lastIndex = 0;
 
   // eslint-disable-next-line @typescript-eslint/init-declarations -- match is assigned in loop condition
   let match: RegExpExecArray | null;
 
-  while ((match = codeRegex.exec(line)) !== null) {
-    // Add text before code
+  while ((match = markdownRegex.exec(line)) !== null) {
+    // Add text before the match
     if (match.index > lastIndex) {
       const textBefore = line.slice(lastIndex, match.index);
       if (textBefore) {
         textWithMarks.push({
-          _type: 'span',
           text: textBefore
         });
       }
     }
-    // Add code
-    textWithMarks.push({
-      _type: 'span',
-      text: match[1],
-      marks: ['code']
-    });
+
+    // Determine the type of match and add appropriate formatting
+    if (match[1]) {
+      // Inline code match (backticks)
+      const codeText = match[1].slice(1, -1); // Remove backticks
+      textWithMarks.push({
+        text: codeText,
+        marks: ['code']
+      });
+    } else if (match[2]) {
+      // Bold text match (double asterisks)
+      const boldText = match[2].slice(2, -2); // Remove asterisks
+      textWithMarks.push({
+        text: boldText,
+        marks: ['strong']
+      });
+    }
+
     lastIndex = match.index + match[0].length;
   }
 
@@ -428,19 +415,52 @@ function parseInlineCode(line: string): Array<{ _type: string; text: string; mar
     const remainingText = line.slice(lastIndex);
     if (remainingText) {
       textWithMarks.push({
-        _type: 'span',
         text: remainingText
       });
     }
   }
 
-  // If no inline code, just add the whole line
+  // If no markdown formatting, just add the whole line
   if (textWithMarks.length === 0) {
     textWithMarks.push({
-      _type: 'span',
       text: line
     });
   }
 
   return textWithMarks;
+}
+
+/** * Returns a heading block if the line is a heading, otherwise null */
+function getHeadingBlock(line: string, lineIndex: number) {
+  const headingMatch = /^(#{1,4})\s+(.*)/.exec(line);
+  if (!headingMatch) return null;
+  const level = headingMatch[1].length;
+  const text = headingMatch[2];
+  const textWithMarks = parseInlineMarkdown(text).map((span) => ({ _type: 'span', ...span }));
+  return {
+    _type: 'block',
+    _key: `block-${lineIndex}`,
+    style: `h${level}`,
+    children: textWithMarks
+  };
+}
+
+/** * Returns a bullet list block if the line is a list item, otherwise null */
+function getBulletBlock(line: string, lineIndex: number) {
+  if (!(line.startsWith('* ') || line.startsWith('* '))) return null;
+  const bulletText = line.startsWith('* ') ? line.slice(4) : line.slice(2);
+  const textWithMarks = parseInlineMarkdown(bulletText).map((span) => ({ _type: 'span', ...span }));
+  return {
+    _type: 'block',
+    _key: `block-${lineIndex}`,
+    style: 'normal',
+    listItem: 'bullet',
+    children: textWithMarks
+  };
+}
+
+/** * Returns a normal text block */
+function makeNormalBlock(line: string, lineIndex: number) {
+  const textWithMarks = parseInlineMarkdown(line).map((span) => ({ _type: 'span', ...span }));
+  return { _type: 'block', _key: `block-${lineIndex}`, style: 'normal', children: textWithMarks };
 }

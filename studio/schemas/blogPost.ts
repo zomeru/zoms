@@ -28,7 +28,7 @@ export default defineType({
       type: 'text',
       rows: 3,
       validation: (Rule) =>
-        Rule.required().max(160).warning('Summaries should be under 160 characters for SEO')
+        Rule.required().max(200).warning('Summaries should be under 200 characters for SEO')
     }),
     defineField({
       name: 'body',

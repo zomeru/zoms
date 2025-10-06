@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 
 import type { BlogPostListItem } from '@/lib/blog';
+import { formatDate } from '@/lib/utils';
 
 interface BlogListClientProps {
   initialPosts: BlogPostListItem[];
@@ -73,11 +74,7 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
       {/* Blog Posts Grid */}
       <div className='grid grid-cols-1 gap-6 mb-8'>
         {posts.map((post) => {
-          const date = new Date(post.publishedAt).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-          });
+          const date = formatDate(post.publishedAt);
 
           return (
             <article
@@ -111,7 +108,7 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
                       {post.tags.map((tag, index) => (
                         <span
                           key={index}
-                          className='text-xs px-2 py-1 rounded-full bg-primary bg-opacity-10 text-primary'
+                          className='text-xs px-3 py-1 rounded-full bg-[#ad5aff1f] text-textSecondary'
                         >
                           {tag}
                         </span>

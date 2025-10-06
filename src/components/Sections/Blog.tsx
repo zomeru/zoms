@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 
 import { getLatestBlogPosts } from '@/lib/blog';
+import { formatDate } from '@/lib/utils';
 
 const Blog = async (): Promise<React.JSX.Element> => {
   const posts = await getLatestBlogPosts(3);
@@ -14,14 +15,7 @@ const Blog = async (): Promise<React.JSX.Element> => {
       ) : (
         <ol className='group/list space-y-6 mb-10'>
           {posts.map(({ _id, title, slug, summary, publishedAt, generated }) => {
-            const date = new Date(publishedAt).toLocaleString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: '2-digit',
-              hour12: true
-            });
+            const date = formatDate(publishedAt);
 
             return (
               <li
@@ -35,7 +29,7 @@ const Blog = async (): Promise<React.JSX.Element> => {
                   <div className='ml-0 sm:ml-4 col-span-8 sm:col-span-6'>
                     <Link
                       href={`/blog/${slug.current}`}
-                      className='group-hover:text-primary hover:text-primary transition-colors relative z-10'
+                      className='group-hover:text-primary hover:text-primary transition-colors relative z-10 hover:underline'
                     >
                       <h3 className='text-base transition-colors font-medium'>{title}</h3>
                     </Link>

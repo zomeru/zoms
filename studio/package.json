@@ -3,24 +3,24 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "sanity dev",
-    "start": "sanity start",
-    "build": "sanity build",
-    "deploy": "sanity deploy",
-    "with-env": "dotenv -e ../.env.local --"
+    "dev": "env-cmd -f ../.env.local sanity dev",
+    "start": "env-cmd -f ../.env.local sanity start",
+    "build": "env-cmd -f ../.env.local sanity build",
+    "deploy": "env-cmd -f ../.env.local sanity deploy"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "dotenv-cli": "^10.0.0",
-    "sanity": "^4.10.2",
     "@types/node": "^20.0.0",
+    "sanity": "^4.10.2",
     "typescript": "^5.0.0"
   },
   "dependencies": {
     "@sanity/vision": "^4.10.2",
+    "dotenv": "^17.2.3",
+    "env-cmd": "^11.0.0",
     "styled-components": "^6.1.19"
   }
 }

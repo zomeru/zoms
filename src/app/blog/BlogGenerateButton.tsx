@@ -19,7 +19,10 @@ const BlogGenerateButton: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
-        }
+        },
+        body: JSON.stringify({
+          manual: true
+        })
       });
 
       if (!response.ok) {

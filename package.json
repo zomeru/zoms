@@ -15,9 +15,9 @@
     "test-all": "npm run check-format && npm run check-lint && npm run check-types",
     "test-all:build": " npm run test-all && npm run build",
     "prepare": "husky install",
-    "studio:dev": "cd studio && pnpm run with-env sanity dev",
-    "studio:build": "cd studio && pnpm run with-env sanity build",
-    "studio:deploy": "cd studio && pnpm run with-env sanity deploy"
+    "studio:dev": "cd studio && pnpm run dev",
+    "studio:build": "cd studio && pnpm run build",
+    "studio:deploy": "cd studio && pnpm run deploy"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

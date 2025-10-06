@@ -54,14 +54,14 @@ const GenerateBlogModal: React.FC<GenerateBlogModalProps> = ({ isOpen, onClose, 
       <div className='mb-4'>
         <h2 className='text-2xl font-bold text-textPrimary mb-2'>Generate Blog with AI</h2>
         <p className='text-textSecondary text-sm'>
-          Enter your Sanity API token to generate a new blog post using AI.
+          Enter your API token to generate a new blog post using AI.
         </p>
       </div>
 
       <form onSubmit={handleSubmit}>
         <div className='mb-4'>
           <label htmlFor='token' className='block text-textPrimary mb-2 text-sm font-medium'>
-            Sanity API Token
+            API Token
           </label>
           <input
             type='password'
@@ -79,7 +79,7 @@ const GenerateBlogModal: React.FC<GenerateBlogModalProps> = ({ isOpen, onClose, 
 
         {error && (
           <div className='mb-4 p-3 bg-red-500 bg-opacity-10 border border-red-500 rounded-lg'>
-            <p className='text-red-400 text-sm'>{error}</p>
+            <p className='text-white text-sm'>{error}</p>
           </div>
         )}
 
