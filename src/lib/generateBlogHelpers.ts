@@ -284,13 +284,20 @@ export function normalizeLanguage(lang: string): string {
 }
 
 /**
- * Parse inline markdown formatting (code, bold, bold+code) in a line of text
+ * Parse inline markdown formatting (code, bold, bold+code, links) in a line of text
  */
-export function parseInlineMarkdown(line: string): Array<{ text: string; marks?: string[] }> {
-  const textWithMarks: Array<{ text: string; marks?: string[] }> = [];
+export function parseInlineMarkdown(
+  line: string
+): Array<{ text: string; marks?: string[]; markDef?: { _type: string; href: string } }> {
+  const textWithMarks: Array<{
+    text: string;
+    marks?: string[];
+    markDef?: { _type: string; href: string };
+  }> = [];
 
-  // Enhanced regex to match inline code, bold text, and bold text with inline code
-  const markdownRegex = /(\*\*(?:[^*]|`[^`]*`)+\*\*)|(`[^`]+`)|(\*\*[^*]+\*\*)/gu;
+  // Enhanced regex to match inline code, bold text, bold text with inline code, and markdown links
+  const markdownRegex =
+    /(\*\*(?:[^*]|`[^`]*`)+\*\*)|(`[^`]+`)|(\*\*[^*]+\*\*)|(\[([^\]]+)\]\(([^)]+)\))/gu;
   let lastIndex = 0;
 
   // eslint-disable-next-line @typescript-eslint/init-declarations -- match is assigned in loop condition
@@ -314,7 +321,11 @@ export function parseInlineMarkdown(line: string): Array<{ text: string; marks?:
  * Add text before a markdown match
  */
 export function addTextBefore(
-  textWithMarks: Array<{ text: string; marks?: string[] }>,
+  textWithMarks: Array<{
+    text: string;
+    marks?: string[];
+    markDef?: { _type: string; href: string };
+  }>,
   line: string,
   lastIndex: number,
   matchIndex: number
@@ -331,7 +342,11 @@ export function addTextBefore(
  * Process a markdown match and add formatted text
  */
 export function processMarkdownMatch(
-  textWithMarks: Array<{ text: string; marks?: string[] }>,
+  textWithMarks: Array<{
+    text: string;
+    marks?: string[];
+    markDef?: { _type: string; href: string };
+  }>,
   match: RegExpExecArray
 ): void {
   if (match[1]) {
@@ -351,6 +366,17 @@ export function processMarkdownMatch(
     // Bold text match (no inline code)
     const boldText = match[3].slice(2, -2);
     textWithMarks.push({ text: boldText, marks: ['strong'] });
+  } else if (match[4]) {
+    // Markdown link match [text](url)
+    const linkText = match[5]; // The text inside brackets
+    const linkUrl = match[6]; // The URL inside parentheses
+    const linkKey = `link-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+
+    textWithMarks.push({
+      text: linkText,
+      marks: [linkKey],
+      markDef: { _type: 'link', href: linkUrl }
+    });
   }
 }
 
@@ -358,10 +384,14 @@ export function processMarkdownMatch(
  * Add remaining text after all matches or return plain text if no formatting found
  */
 export function addRemainingText(
-  textWithMarks: Array<{ text: string; marks?: string[] }>,
+  textWithMarks: Array<{
+    text: string;
+    marks?: string[];
+    markDef?: { _type: string; href: string };
+  }>,
   line: string,
   lastIndex: number
-): Array<{ text: string; marks?: string[] }> {
+): Array<{ text: string; marks?: string[]; markDef?: { _type: string; href: string } }> {
   if (lastIndex < line.length) {
     const remainingText = line.slice(lastIndex);
     if (remainingText) {
@@ -381,8 +411,14 @@ export function addRemainingText(
  * Parse bold text that contains inline code
  * Example: "text with `code` inside" -> [{ text: "text with ", marks: ["strong"] }, { text: "code", marks: ["strong", "code"] }, { text: " inside", marks: ["strong"] }]
  */
-function parseBoldWithCode(boldContent: string): Array<{ text: string; marks?: string[] }> {
-  const parts: Array<{ text: string; marks?: string[] }> = [];
+function parseBoldWithCode(
+  boldContent: string
+): Array<{ text: string; marks?: string[]; markDef?: { _type: string; href: string } }> {
+  const parts: Array<{
+    text: string;
+    marks?: string[];
+    markDef?: { _type: string; href: string };
+  }> = [];
   const codeRegex = /`([^`]+)`/gu;
   let lastIndex = 0;
 
@@ -431,31 +467,63 @@ export function getHeadingBlock(line: string, lineIndex: number) {
   if (!headingMatch) return null;
   const level = headingMatch[1].length;
   const text = headingMatch[2];
-  const textWithMarks = parseInlineMarkdown(text).map((span) => ({ _type: 'span', ...span }));
-  return {
+  const parsedText = parseInlineMarkdown(text);
+  const textWithMarks = parsedText.map((span) => ({ _type: 'span', ...span }));
+
+  // Extract markDefs from parsed text
+  const markDefs = parsedText
+    .filter((span) => span.markDef)
+    .map((span) => ({ _key: span.marks?.[0], ...span.markDef }));
+
+  const block = {
     _type: 'block',
     _key: `block-${lineIndex}`,
     style: `h${level}`,
     children: textWithMarks
   };
+
+  return markDefs.length > 0 ? { ...block, markDefs } : block;
 }
 
 /** * Returns a bullet list block if the line is a list item, otherwise null */
 export function getBulletBlock(line: string, lineIndex: number) {
   if (!(line.startsWith('* ') || line.startsWith('* '))) return null;
   const bulletText = line.startsWith('* ') ? line.slice(4) : line.slice(2);
-  const textWithMarks = parseInlineMarkdown(bulletText).map((span) => ({ _type: 'span', ...span }));
-  return {
+  const parsedText = parseInlineMarkdown(bulletText);
+  const textWithMarks = parsedText.map((span) => ({ _type: 'span', ...span }));
+
+  // Extract markDefs from parsed text
+  const markDefs = parsedText
+    .filter((span) => span.markDef)
+    .map((span) => ({ _key: span.marks?.[0], ...span.markDef }));
+
+  const block = {
     _type: 'block',
     _key: `block-${lineIndex}`,
     style: 'normal',
     listItem: 'bullet',
     children: textWithMarks
   };
+
+  return markDefs.length > 0 ? { ...block, markDefs } : block;
 }
 
 /** * Returns a normal text block */
 export function makeNormalBlock(line: string, lineIndex: number) {
-  const textWithMarks = parseInlineMarkdown(line).map((span) => ({ _type: 'span', ...span }));
-  return { _type: 'block', _key: `block-${lineIndex}`, style: 'normal', children: textWithMarks };
+  const parsedText = parseInlineMarkdown(line);
+  const textWithMarks = parsedText.map((span) => ({ _type: 'span', ...span }));
+
+  // Extract markDefs from parsed text
+  const markDefs = parsedText
+    .filter((span) => span.markDef)
+    .map((span) => ({ _key: span.marks?.[0], ...span.markDef }));
+
+  const block = {
+    _type: 'block',
+    _key: `block-${lineIndex}`,
+    style: 'normal',
+    children: textWithMarks
+  };
+
+  return markDefs.length > 0 ? { ...block, markDefs } : block;
 }
