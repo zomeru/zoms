@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "pnpm run test-all && next build",
     "start": "next start",
     "lint": "eslint . --fix",
     "postbuild": "next-sitemap",
@@ -15,23 +15,28 @@
     "test-all": "npm run check-format && npm run check-lint && npm run check-types",
     "test-all:build": " npm run test-all && npm run build",
     "prepare": "husky install",
-    "studio:dev": "cd studio && pnpm run with-env sanity dev",
-    "studio:build": "cd studio && pnpm run with-env sanity build",
-    "studio:deploy": "cd studio && pnpm run with-env sanity deploy"
+    "studio:dev": "cd studio && pnpm run dev",
+    "studio:build": "cd studio && pnpm run build",
+    "studio:deploy": "cd studio && pnpm run deploy"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@portabletext/react": "^4.0.3",
     "@portabletext/types": "^2.0.15",
     "@sanity/client": "^7.11.2",
     "@sanity/image-url": "^1.2.0",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "@vercel/analytics": "^1.5.0",
+    "@vercel/speed-insights": "^1.2.0",
     "next": "15.5.4",
     "next-sanity": "^11.4.2",
     "next-sitemap": "^4.2.3",
     "react": "19.1.1",
     "react-dom": "19.1.1",
+    "react-hot-toast": "^2.6.0",
     "react-icons": "^5.0.1",
-    "react-modal": "^3.16.3"
+    "react-modal": "^3.16.3",
+    "react-syntax-highlighter": "^15.6.6"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
@@ -44,7 +49,6 @@
     "autoprefixer": "^10.4.21",
     "eslint": "9.36.0",
     "eslint-config-love": "^130.0.0",
-    "eslint-config-next": "15.5.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import": "^2",
@@ -65,5 +69,14 @@
       "prettier --write"
     ]
   },
-  "packageManager": "pnpm@10.17.1"
+  "packageManager": "pnpm@10.17.1",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@tailwindcss/oxide",
+      "@vercel/speed-insights",
+      "esbuild",
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
 }
