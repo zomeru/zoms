@@ -326,25 +326,43 @@ export function markdownToBlocks(markdown: string): unknown[] {
   while (lineIndex < lines.length) {
     const line = lines[lineIndex];
 
-    // --- Handle fenced code blocks ---
-    if (line.startsWith('```')) {
-      if (inCodeBlock) {
-        // End code block
-        blocks.push({
-          _type: 'codeBlock',
-          _key: `code-${lineIndex}`,
-          language: codeLanguage,
-          code: codeLines.join('\n')
-        });
-        inCodeBlock = false;
-        codeLanguage = '';
-        codeLines = [];
-      } else {
-        // Start code block
+    // --- Handle fenced code blocks (both ```language and language```) ---
+    // Check for opening code block: ``` followed by optional language
+    const codeBlockStartMatch = /^```(\w*)/.exec(line);
+    if (codeBlockStartMatch && !inCodeBlock) {
+      // Start code block
+      inCodeBlock = true;
+      codeLanguage = codeBlockStartMatch[1] || 'javascript';
+      codeLines = [];
+      lineIndex += 1;
+      continue;
+    }
+
+    // Check for code block with language on next line: language followed by ```
+    if (!inCodeBlock && lineIndex + 1 < lines.length) {
+      const nextLine = lines[lineIndex + 1];
+      if (/^\w+$/.test(line.trim()) && nextLine.trim().startsWith('```')) {
+        // Language is on current line, opening backticks on next line
         inCodeBlock = true;
-        codeLanguage = line.slice(3).trim() || 'javascript';
+        codeLanguage = line.trim();
         codeLines = [];
+        lineIndex += 2; // Skip both lines
+        continue;
       }
+    }
+
+    // Check for closing code block
+    if (line.trim() === '```' && inCodeBlock) {
+      // End code block
+      blocks.push({
+        _type: 'codeBlock',
+        _key: `code-${lineIndex}`,
+        language: normalizeLanguage(codeLanguage),
+        code: codeLines.join('\n')
+      });
+      inCodeBlock = false;
+      codeLanguage = '';
+      codeLines = [];
       lineIndex += 1;
       continue;
     }
@@ -386,14 +404,40 @@ export function markdownToBlocks(markdown: string): unknown[] {
 }
 
 /**
- * Parse inline markdown formatting (code, bold) in a line of text
+ * Normalize language name to match Sanity schema
+ */
+function normalizeLanguage(lang: string): string {
+  const langLower = lang.toLowerCase().trim();
+  
+  // Map common variations to schema values
+  const languageMap: Record<string, string> = {
+    js: 'javascript',
+    ts: 'typescript',
+    py: 'python',
+    sh: 'bash',
+    shell: 'bash',
+    yml: 'yaml',
+    gql: 'graphql',
+    md: 'markdown',
+    htm: 'html',
+    // Add more mappings as needed
+  };
+
+  return languageMap[langLower] || langLower || 'javascript';
+}
+
+/**
+ * Parse inline markdown formatting (code, bold, bold+code) in a line of text
  */
 function parseInlineMarkdown(line: string): Array<{ text: string; marks?: string[] }> {
   const textWithMarks: Array<{ text: string; marks?: string[] }> = [];
 
-  // Combined regex to match both inline code and bold text
-  // Order matters: code should be processed first to avoid conflicts
-  const markdownRegex = /(`[^`]+`)|(\*\*[^*]+\*\*)/gu;
+  // Enhanced regex to match inline code, bold text, and bold text with inline code
+  // Patterns:
+  // 1. **text with `code`** - Bold text containing inline code
+  // 2. `code` - Inline code
+  // 3. **bold** - Bold text
+  const markdownRegex = /(\*\*(?:[^*]|`[^`]*`)+\*\*)|(`[^`]+`)|(\*\*[^*]+\*\*)/gu;
   let lastIndex = 0;
 
   // eslint-disable-next-line @typescript-eslint/init-declarations -- match is assigned in loop condition
@@ -412,15 +456,31 @@ function parseInlineMarkdown(line: string): Array<{ text: string; marks?: string
 
     // Determine the type of match and add appropriate formatting
     if (match[1]) {
-      // Inline code match (backticks)
-      const codeText = match[1].slice(1, -1); // Remove backticks
+      // Bold text match (possibly containing inline code) - match[1]
+      const boldContent = match[1].slice(2, -2); // Remove outer **
+      
+      // Check if bold content contains inline code
+      if (boldContent.includes('`')) {
+        // Parse the content recursively to handle inline code within bold
+        const innerParts = parseBoldWithCode(boldContent);
+        textWithMarks.push(...innerParts);
+      } else {
+        // Plain bold text
+        textWithMarks.push({
+          text: boldContent,
+          marks: ['strong']
+        });
+      }
+    } else if (match[2]) {
+      // Inline code match (backticks) - match[2]
+      const codeText = match[2].slice(1, -1); // Remove backticks
       textWithMarks.push({
         text: codeText,
         marks: ['code']
       });
-    } else if (match[2]) {
-      // Bold text match (double asterisks)
-      const boldText = match[2].slice(2, -2); // Remove asterisks
+    } else if (match[3]) {
+      // Bold text match (no inline code) - match[3]
+      const boldText = match[3].slice(2, -2); // Remove asterisks
       textWithMarks.push({
         text: boldText,
         marks: ['strong']
@@ -448,6 +508,54 @@ function parseInlineMarkdown(line: string): Array<{ text: string; marks?: string
   }
 
   return textWithMarks;
+}
+
+/**
+ * Parse bold text that contains inline code
+ * Example: "text with `code` inside" -> [{ text: "text with ", marks: ["strong"] }, { text: "code", marks: ["strong", "code"] }, { text: " inside", marks: ["strong"] }]
+ */
+function parseBoldWithCode(boldContent: string): Array<{ text: string; marks?: string[] }> {
+  const parts: Array<{ text: string; marks?: string[] }> = [];
+  const codeRegex = /`([^`]+)`/gu;
+  let lastIndex = 0;
+
+  // eslint-disable-next-line @typescript-eslint/init-declarations -- match is assigned in loop condition
+  let match: RegExpExecArray | null;
+
+  while ((match = codeRegex.exec(boldContent)) !== null) {
+    // Add bold text before the code
+    if (match.index > lastIndex) {
+      const textBefore = boldContent.slice(lastIndex, match.index);
+      if (textBefore) {
+        parts.push({
+          text: textBefore,
+          marks: ['strong']
+        });
+      }
+    }
+
+    // Add code with both bold and code marks
+    const codeText = match[1];
+    parts.push({
+      text: codeText,
+      marks: ['strong', 'code']
+    });
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Add remaining bold text
+  if (lastIndex < boldContent.length) {
+    const remainingText = boldContent.slice(lastIndex);
+    if (remainingText) {
+      parts.push({
+        text: remainingText,
+        marks: ['strong']
+      });
+    }
+  }
+
+  return parts;
 }
 
 /** * Returns a heading block if the line is a heading, otherwise null */
