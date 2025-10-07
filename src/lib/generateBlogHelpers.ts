@@ -61,8 +61,8 @@ export function extractTags(jsonText: string): string[] {
  * Manually reconstruct JSON from AI response
  */
 export function reconstructJSON(jsonText: string): string {
-  const titleRegex = /"title"\s*:\s*"((?:\\.|[^"\\])*)"/u;
-  const summaryRegex = /"summary"\s*:\s*"((?:\\.|[^"\\])*)"/u;
+  const titleRegex = /"title"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/u;
+  const summaryRegex = /"summary"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/u;
   const bodyStartRegex = /"body"\s*:\s*"/u;
 
   const titleMatch = titleRegex.exec(jsonText);
