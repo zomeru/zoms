@@ -39,8 +39,7 @@ async function createBlogPost(
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
 
-  // eslint-disable-next-line @typescript-eslint/return-await -- Directly return the promise
-  return sanityClient.create({
+  return await sanityClient.create({
     _type: 'blogPost',
     title: content.title,
     slug: { _type: 'slug', current: slug },
