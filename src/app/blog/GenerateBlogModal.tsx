@@ -47,9 +47,10 @@ const GenerateBlogModal: React.FC<GenerateBlogModalProps> = ({ isOpen, onClose, 
     <Modal
       isOpen={isOpen}
       onRequestClose={handleClose}
-      className='max-w-md mx-auto mt-20 bg-backgroundSecondary rounded-lg p-6 outline-none'
-      overlayClassName='fixed inset-0 bg-black bg-opacity-75 flex items-start justify-center px-4 z-50'
+      className='max-w-md mx-auto mt-20 bg-backgroundSecondary rounded-lg p-6 outline-none animate-modalSlideIn'
+      overlayClassName='fixed inset-0 bg-black bg-opacity-90 backdrop-blur-sm flex items-start justify-center px-4 z-50 animate-fadeIn'
       ariaHideApp={false}
+      closeTimeoutMS={200}
     >
       <div className='mb-4'>
         <h2 className='text-2xl font-bold text-textPrimary mb-2'>Generate Blog with AI</h2>

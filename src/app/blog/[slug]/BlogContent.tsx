@@ -29,7 +29,7 @@ const blogPortableTextComponents: PortableTextComponents = {
           href={href}
           target='_blank'
           rel='noopener noreferrer'
-          className='text-primary hover:underline transition-colors'
+          className='text-textPrimary hover:underline transition-all duration-200'
         >
           {children}
         </a>
