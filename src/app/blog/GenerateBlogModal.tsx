@@ -19,7 +19,7 @@ const GenerateBlogModal: React.FC<GenerateBlogModalProps> = ({ isOpen, onClose, 
     setError(null);
 
     if (!token.trim()) {
-      setError('Please enter a Sanity API token');
+      setError('Please enter the blog generation secret token');
       return;
     }
 
