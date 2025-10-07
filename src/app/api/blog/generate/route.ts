@@ -27,7 +27,11 @@ function validateSanityEnv() {
   return { apiToken, projectId, dataset };
 }
 
-async function createBlogPost(sanityClient: SanityClient, content: GeneratedBlogPost) {
+async function createBlogPost(
+  sanityClient: SanityClient,
+  content: GeneratedBlogPost,
+  aiGenerated = true
+) {
   const body = markdownToBlocks(content.body);
 
   const slug = content.title
@@ -45,7 +49,7 @@ async function createBlogPost(sanityClient: SanityClient, content: GeneratedBlog
     publishedAt: new Date().toISOString(),
     tags: content.tags,
     source: 'automated/gemini',
-    generated: true,
+    generated: aiGenerated,
     readTime: content.readTime
   });
 }
@@ -53,6 +57,10 @@ async function createBlogPost(sanityClient: SanityClient, content: GeneratedBlog
 async function handleGenerate(request: NextRequest): Promise<NextResponse> {
   try {
     await validateSecret(request);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- We validate the structure below
+    const body = (await request.json()) as unknown as { aiGenerated?: boolean };
+    const aiGenerated = body.aiGenerated;
 
     const { apiToken, projectId, dataset } = validateSanityEnv();
     const writeClient = createClient({
@@ -65,7 +73,8 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
 
     const content = await generateBlogContent();
 
-    const newPost = await createBlogPost(writeClient, content);
+    const generated = typeof aiGenerated === 'boolean' ? aiGenerated : true;
+    const newPost = await createBlogPost(writeClient, content, generated);
 
     return NextResponse.json({
       success: true,
@@ -73,7 +82,11 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
         _id: newPost._id,
         title: newPost.title,
         slug: newPost.slug,
-        summary: content.summary
+        summary: content.summary,
+        publishedAt: newPost.publishedAt,
+        tags: newPost.tags,
+        generated: newPost.generated,
+        readTime: newPost.readTime
       }
     });
   } catch (error) {
@@ -89,10 +102,10 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
 
 // GET handler for Vercel Cron (cron jobs send GET requests)
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  return handleGenerate(request);
+  return await handleGenerate(request);
 }
 
 // POST handler for manual API calls (UI button)
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  return handleGenerate(request);
+  return await handleGenerate(request);
 }

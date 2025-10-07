@@ -19,7 +19,7 @@ const BlogGenerateButton: React.FC = () => {
           Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
-          manual: true
+          aiGenerated: false
         })
       });
 
