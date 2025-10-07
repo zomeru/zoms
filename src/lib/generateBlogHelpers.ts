@@ -299,7 +299,7 @@ export function parseInlineMarkdown(
 
   // Enhanced regex to match inline code, bold text, bold text with inline code, and markdown links
   const markdownRegex =
-    /(\*\*(?:[^*`]|`[^`]+`)+\*\*)|(`[^`]+`)|(\*\*[^*]+\*\*)|(\[([^\]]+)\]\(([^)]+)\))/gu;
+    /(\*\*(?:[^*]|`[^`]*`)+\*\*)|(`[^`]+`)|(\*\*[^*]+\*\*)|(\[([^\]]+)\]\(([^)]+)\))/gu;
   let lastIndex = 0;
 
   // Use for...of with matchAll for clarity and to avoid eslint-disable
