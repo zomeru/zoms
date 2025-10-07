@@ -26,8 +26,8 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     };
   }
 
-  const publishedTime = new Date(post.publishedAt).toISOString();
-  const modifiedTime = post.modifiedAt ? new Date(post.modifiedAt).toISOString() : publishedTime;
+  const publishedTime = formatDateWithTime(post.publishedAt);
+  const modifiedTime = post.modifiedAt ? formatDateWithTime(post.modifiedAt) : publishedTime;
 
   return {
     title: `${post.title} | Zomer Gregorio`,
