@@ -1,8 +1,15 @@
 import type { Metadata } from 'next';
 
-export const DEFAULT_URL =
-  process.env.NODE_ENV === 'production' ? 'https://zomeru.com' : 'https://dev-zoms.vercel.app';
-export const SITE_URL = process.env.SITE_URL ?? DEFAULT_URL;
+// Enforce SITE_URL to be set in environment; fallback to localhost in development only
+let siteUrl = process.env.SITE_URL;
+if (!siteUrl) {
+  if (process.env.NODE_ENV === 'development') {
+    siteUrl = 'http://localhost:3000';
+  } else {
+    throw new Error('SITE_URL environment variable must be set in production.');
+  }
+}
+export const SITE_URL = siteUrl;
 export const title = 'Zomer Gregorio';
 export const description =
   'Hi 👋, I am Zomer, a Software Engineer based in the Philippines with a demonstrated history of working in the information technology and services industry. Skilled in React, Node, Typescript, and other web technologies with 2 years of professional experience in Full Stack Development.';
@@ -66,7 +73,6 @@ export const seo: Metadata = {
     `${title} | Front End Engineer`,
     `${title} | Full Stack Engineer`,
     `${title} | Web Developer`,
-    `${title} | React Developer`,
-    `${title} | Typescript Developer`
+    `${title} | React Developer`
   ]
 };
