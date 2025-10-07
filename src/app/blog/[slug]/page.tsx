@@ -64,9 +64,7 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
 
   const publishedDate = formatDateWithTime(post.publishedAt);
 
-  const modifiedDate = post.modifiedAt
-    ? formatDateWithTime(post.modifiedAt)
-    : null;
+  const modifiedDate = post.modifiedAt ? formatDateWithTime(post.modifiedAt) : null;
 
   return (
     <main className='max-w-[1200px] mx-auto px-6 sm:px-12 md:px-16 lg:px-20 py-[50px] md:py-[90px]'>
