@@ -305,12 +305,12 @@ export function parseInlineMarkdown(
   // Use for...of with matchAll for clarity and to avoid eslint-disable
   for (const match of line.matchAll(markdownRegex)) {
     // Add text before the match
-    addTextBefore(textWithMarks, line, lastIndex, match.index!);
+    addTextBefore(textWithMarks, line, lastIndex, match.index);
 
     // Process the matched pattern
     processMarkdownMatch(textWithMarks, match);
 
-    lastIndex = match.index! + match[0].length;
+    lastIndex = match.index + match[0].length;
   }
 
   // Add remaining text or return plain text if no matches

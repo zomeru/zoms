@@ -5,7 +5,6 @@ let siteUrl = process.env.SITE_URL;
 if (!siteUrl) {
   if (process.env.NODE_ENV === 'development') {
     siteUrl = 'http://localhost:3000';
-    console.warn('Warning: SITE_URL is not set. Falling back to http://localhost:3000 for development.');
   } else {
     throw new Error('SITE_URL environment variable must be set in production.');
   }
