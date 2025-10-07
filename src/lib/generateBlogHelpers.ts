@@ -302,17 +302,15 @@ export function parseInlineMarkdown(
     /(\*\*(?:[^*]|`[^`]*`)+\*\*)|(`[^`]+`)|(\*\*[^*]+\*\*)|(\[([^\]]+)\]\(([^)]+)\))/gu;
   let lastIndex = 0;
 
-  // eslint-disable-next-line @typescript-eslint/init-declarations -- match is assigned in loop condition
-  let match: RegExpExecArray | null;
-
-  while ((match = markdownRegex.exec(line)) !== null) {
+  // Use for...of with matchAll for clarity and to avoid eslint-disable
+  for (const match of line.matchAll(markdownRegex)) {
     // Add text before the match
-    addTextBefore(textWithMarks, line, lastIndex, match.index);
+    addTextBefore(textWithMarks, line, lastIndex, match.index!);
 
     // Process the matched pattern
     processMarkdownMatch(textWithMarks, match);
 
-    lastIndex = match.index + match[0].length;
+    lastIndex = match.index! + match[0].length;
   }
 
   // Add remaining text or return plain text if no matches
