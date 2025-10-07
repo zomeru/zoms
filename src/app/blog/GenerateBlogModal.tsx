@@ -59,9 +59,7 @@ const GenerateBlogModal: React.FC<GenerateBlogModalProps> = ({ isOpen, onClose, 
     >
       <div className='mb-4'>
         <h2 className='text-2xl font-bold text-textPrimary mb-2'>Generate Blog with AI</h2>
-        <p className='text-textSecondary text-sm'>
-          Enter your secret token to generate a new blog post using AI.
-        </p>
+        <p className='text-textSecondary text-sm'>Enter the blog generation secret token.</p>
       </div>
 
       <form onSubmit={handleSubmit}>

@@ -1,3 +1,5 @@
+import crypto from 'node:crypto';
+
 /**
  * Remove markdown code block wrappers from text
  */
@@ -370,7 +372,11 @@ export function processMarkdownMatch(
     // Markdown link match [text](url)
     const linkText = match[5]; // The text inside brackets
     const linkUrl = match[6]; // The URL inside parentheses
-    const linkKey = `link-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+    const linkKey = `link-${crypto
+      .createHash('sha1')
+      .update(linkUrl + linkText)
+      .digest('hex')
+      .slice(0, 8)}`;
 
     textWithMarks.push({
       text: linkText,
