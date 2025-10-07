@@ -50,7 +50,7 @@ async function createBlogPost(sanityClient: SanityClient, content: GeneratedBlog
   });
 }
 
-export async function POST(request: NextRequest): Promise<NextResponse> {
+async function handleGenerate(request: NextRequest): Promise<NextResponse> {
   try {
     await validateSecret(request);
 
@@ -85,4 +85,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { status: 500 }
     );
   }
+}
+
+// GET handler for Vercel Cron (cron jobs send GET requests)
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  return handleGenerate(request);
+}
+
+// POST handler for manual API calls (UI button)
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  return handleGenerate(request);
 }

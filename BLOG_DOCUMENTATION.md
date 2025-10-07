@@ -53,9 +53,10 @@ Located in `src/app/api/blog/`:
 2. **[slug]/route.ts** - GET `/api/blog/[slug]`
    - Returns single blog post by slug
 
-3. **generate/route.ts** - POST `/api/blog/generate`
+3. **generate/route.ts** - GET/POST `/api/blog/generate`
    - Protected endpoint for AI blog generation
-   - Called by Vercel Cron weekly
+   - Supports GET (for Vercel Cron) and POST (for manual UI calls)
+   - Called by Vercel Cron weekly (Monday 10:00 AM UTC)
 
 ### UI Components
 
@@ -87,6 +88,9 @@ SANITY_API_TOKEN=your_write_token
 
 # Gemini AI
 GEMINI_API_KEY=your_gemini_api_key
+
+# Cron Job Authentication
+CRON_SECRET=your_random_secret
 ```
 
 ### Vercel Cron Job
@@ -94,8 +98,9 @@ GEMINI_API_KEY=your_gemini_api_key
 Configured in `vercel.json`:
 
 - Runs every Monday at 10:00 AM UTC
-- Calls `/api/blog/generate`
-- Uses `x-vercel-cron-secret` header for authentication
+- Sends GET request to `/api/blog/generate`
+- Uses `authorization` header with Bearer token for authentication
+- Environment variable `CRON_SECRET` must be set for authentication
 
 ## Content Management
 
