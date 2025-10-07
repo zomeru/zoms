@@ -102,8 +102,6 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
                 <div className='flex-grow'>
                   <Link
                     href={`/blog/${post.slug.current}`}
-                    target='_blank'
-                    rel='noopener noreferrer'
                     className='group-hover:text-primary transition-colors'
                   >
                     <h2 className='text-xl font-semibold mb-2 transition-colors'>{post.title}</h2>
