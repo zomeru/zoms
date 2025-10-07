@@ -48,9 +48,14 @@ const GenerateBlogModal: React.FC<GenerateBlogModalProps> = ({ isOpen, onClose, 
       isOpen={isOpen}
       onRequestClose={handleClose}
       className='max-w-md mx-auto mt-20 bg-backgroundSecondary rounded-lg p-6 outline-none animate-modalSlideIn'
-      overlayClassName='fixed inset-0 bg-black bg-opacity-90 backdrop-blur-sm flex items-start justify-center px-4 z-50 animate-fadeIn'
+      overlayClassName='fixed inset-0 bg-black bg-opacity-90 backdrop-blur-md flex items-start justify-center px-4 z-50 animate-fadeIn'
       ariaHideApp={false}
       closeTimeoutMS={200}
+      style={{
+        overlay: {
+          background: 'none'
+        }
+      }}
     >
       <div className='mb-4'>
         <h2 className='text-2xl font-bold text-textPrimary mb-2'>Generate Blog with AI</h2>
@@ -89,14 +94,14 @@ const GenerateBlogModal: React.FC<GenerateBlogModalProps> = ({ isOpen, onClose, 
             type='button'
             onClick={handleClose}
             disabled={isGenerating}
-            className='px-4 py-2 text-textSecondary hover:text-textPrimary transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+            className='px-4 py-2 text-textSecondary hover:text-textPrimary transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer'
           >
             Cancel
           </button>
           <button
             type='submit'
             disabled={isGenerating}
-            className='px-6 py-2 bg-primary text-textPrimary rounded-lg hover:bg-opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium'
+            className='px-6 py-2 bg-primary text-textPrimary rounded-lg hover:bg-opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium hover:cursor-pointer'
           >
             {isGenerating ? 'Generating...' : 'Generate'}
           </button>

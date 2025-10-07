@@ -30,7 +30,7 @@ const Blog = async (): Promise<React.JSX.Element> => {
                   <div className='ml-0 sm:ml-4 col-span-8 sm:col-span-6'>
                     <Link
                       href={`/blog/${slug.current}`}
-                      className='group-hover:text-primary hover:text-primary transition-colors relative z-10 hover:underline'
+                      className='group-hover:text-primary hover:text-primary transition-colors relative hover:underline'
                     >
                       <h3 className='text-base transition-colors font-medium'>{title}</h3>
                     </Link>

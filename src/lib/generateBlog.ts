@@ -87,16 +87,18 @@ ${selectedCloudPlatformTopic ? formatTopicDescriptionAsMarkdown([selectedCloudPl
 Requirements:
 1. Write in a professional, engaging tone suitable for software engineers
 2. Include practical examples and code snippets where relevant
-3. The blog post should be 800-1200 words
+3. The blog post should be 1000-1500 words
 4. Structure the content with clear sections (use ## for headings)
 5. Include actionable insights and best practices
 6. Target audience: intermediate to advanced web developers
+7. Use markdown formatting: headers (# ## ### ####), bullet lists, **bold**, \`code\`, and code blocks
+8. Don't include resource URLs in the blog body, just make them references for you to learn from (scrape them if you must)
 
 CRITICAL: Respond with ONLY valid JSON in this exact format (no additional text before or after):
 
 {
   "title": "Compelling and concise blog post title (Must be between 40 and 80 characters in length, spaces included — ABSOLUTE REQUIREMENT)",
-  "summary": "Brief SEO-friendly summary (Must be between 100 and 150 characters, including spaces — NON-NEGOTIABLE; do not use backticks or quotes)",
+  "summary": "Brief SEO-friendly summary (Must be between 100 and 200 characters, including spaces — NON-NEGOTIABLE; do not use backticks or quotes)",
   "body": "Full blog content in Markdown format. Use proper escaping for special characters.",
   "tags": ["tag1", "tag2", "tag3"],
   "readTime": 5

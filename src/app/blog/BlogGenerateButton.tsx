@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 
 import GenerateBlogModal from './GenerateBlogModal';
 
 const BlogGenerateButton: React.FC = () => {
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const handleGenerateBlog = async (token: string): Promise<void> => {
@@ -32,9 +34,7 @@ const BlogGenerateButton: React.FC = () => {
       toast.success('Blog post generated successfully!', { id: toastId });
 
       // Refresh the page to show the new blog post
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
+      router.refresh();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to generate blog post';
       toast.error(errorMessage, { id: toastId });
@@ -68,13 +68,15 @@ const BlogGenerateButton: React.FC = () => {
         }}
       />
 
-      <GenerateBlogModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-        }}
-        onGenerate={handleGenerateBlog}
-      />
+      {isModalOpen && (
+        <GenerateBlogModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+          }}
+          onGenerate={handleGenerateBlog}
+        />
+      )}
 
       {/* Generate Blog Button */}
       <div className='mb-8 flex justify-center'>
@@ -82,7 +84,7 @@ const BlogGenerateButton: React.FC = () => {
           onClick={() => {
             setIsModalOpen(true);
           }}
-          className='px-4 py-2 bg-secondary text-backgroundPrimary rounded-lg hover:bg-opacity-80 transition-all text-sm font-medium flex items-center gap-2'
+          className='px-4 py-2 bg-secondary text-backgroundPrimary rounded-lg hover:bg-opacity-80 transition-all text-sm font-medium flex items-center gap-2 hover:cursor-pointer'
         >
           <span>🤖</span>
           <span>Generate Blog with AI</span>
