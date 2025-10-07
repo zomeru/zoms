@@ -56,7 +56,6 @@ Located in `src/app/api/blog/`:
 3. **generate/route.ts** - POST `/api/blog/generate`
    - Protected endpoint for AI blog generation
    - Called by Vercel Cron weekly
-   - Requires `BLOG_GENERATION_SECRET` for authentication
 
 ### UI Components
 
@@ -88,9 +87,6 @@ SANITY_API_TOKEN=your_write_token
 
 # Gemini AI
 GEMINI_API_KEY=your_gemini_api_key
-
-# Blog Generation
-BLOG_GENERATION_SECRET=your_random_secret
 ```
 
 ### Vercel Cron Job

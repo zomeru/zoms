@@ -115,7 +115,6 @@ Required environment variables:
 **Blog Generation (Optional):**
 
 - `GEMINI_API_KEY` - Google Gemini API key for AI content generation
-- `BLOG_GENERATION_SECRET` - Secret for protecting the blog generation endpoint
 
 See `.env.example` for reference.
 

@@ -331,7 +331,6 @@ Before deploying to production:
    - [ ] Set `NEXT_PUBLIC_SANITY_DATASET`
    - [ ] Set `SANITY_API_TOKEN`
    - [ ] Set `GEMINI_API_KEY`
-   - [ ] Set `BLOG_GENERATION_SECRET` (random secure string)
 
 4. **Verify Deployment**
    - [ ] Blog section shows on home page
