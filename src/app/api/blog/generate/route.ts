@@ -1,35 +1,18 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient, type SanityClient } from '@sanity/client';
 
-import {
-  fetchTrendingTopics,
-  generateBlogContent,
-  markdownToBlocks,
-  type GeneratedBlogPost
-} from '@/lib/generateBlog';
+import { generateBlogContent, markdownToBlocks, type GeneratedBlogPost } from '@/lib/generateBlog';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Vercel serverless function timeout
 
-async function validateSecret(request: NextRequest): Promise<string | null> {
-  const cronSecret = request.headers.get('x-vercel-cron-secret');
+async function validateSecret(request: NextRequest): Promise<void> {
   const authHeader = request.headers.get('authorization');
-  const authSecret = authHeader?.replace(/^Bearer\s+/i, '') ?? null;
+  const secret = process.env.CRON_SECRET;
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- We are asserting the type here
-  const { manual } = (await request.json()) as unknown as { manual?: boolean };
-
-  const secret = process.env.BLOG_GENERATION_SECRET;
-
-  if (process.env.NODE_ENV !== 'development' && !cronSecret) {
-    throw new Error('Unauthorized access.');
+  if (!secret || authHeader !== `Bearer ${secret}`) {
+    throw new Error('Unauthorized access');
   }
-
-  if (!secret || (manual && authSecret !== secret)) {
-    throw new Error('Unauthorized access.');
-  }
-
-  return secret;
 }
 
 function validateSanityEnv() {
@@ -44,7 +27,7 @@ function validateSanityEnv() {
   return { apiToken, projectId, dataset };
 }
 
-async function createBlogPost(writeClient: SanityClient, content: GeneratedBlogPost) {
+async function createBlogPost(sanityClient: SanityClient, content: GeneratedBlogPost) {
   const body = markdownToBlocks(content.body);
 
   const slug = content.title
@@ -53,7 +36,7 @@ async function createBlogPost(writeClient: SanityClient, content: GeneratedBlogP
     .replace(/(^-|-$)/g, '');
 
   // eslint-disable-next-line @typescript-eslint/return-await -- Directly return the promise
-  return writeClient.create({
+  return sanityClient.create({
     _type: 'blogPost',
     title: content.title,
     slug: { _type: 'slug', current: slug },
@@ -80,9 +63,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       useCdn: false
     });
 
-    const topics = await fetchTrendingTopics();
-    const randomTopic = topics[Math.floor(Math.random() * topics.length)];
-    const content = await generateBlogContent(randomTopic);
+    const content = await generateBlogContent();
 
     const newPost = await createBlogPost(writeClient, content);
 

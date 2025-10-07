@@ -1,10 +1,18 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+import {
+  backendFrameworkTopics,
+  cloudPlatformTopics,
+  frontendFrameworkTopics,
+  generalTopics
+} from '@/constants/topics';
 import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
+
+import { pickOneOrNone, pickRandom } from './utils';
 
 export interface TrendingTopic {
   title: string;
-  url: string;
+  urls: string[];
   description?: string;
 }
 
@@ -14,152 +22,6 @@ export interface GeneratedBlogPost {
   body: string;
   tags: string[];
   readTime: number;
-}
-
-/**
- * Fetch trending topics from various sources
- * This is a simplified version - in production, you'd want to scrape actual data
- * For now, we'll use placeholders and rely on Gemini's knowledge
- */
-export async function fetchTrendingTopics(): Promise<TrendingTopic[]> {
-  // In a real implementation, you would scrape these URLs:
-  // - https://nextjs.org/blog
-  // - https://github.com/trending/typescript?since=weekly
-  // - https://github.com/trending/javascript?since=weekly
-  // - https://www.reddit.com/r/webdev/
-
-  // Return diverse topics covering various aspects of web development
-  const topics = [
-    // React & Next.js
-    {
-      title: 'Latest trends in React and Next.js',
-      url: 'https://nextjs.org/blog',
-      description: 'Recent updates and best practices in React and Next.js ecosystem'
-    },
-    {
-      title: 'React Server Components deep dive',
-      url: 'https://react.dev',
-      description: 'Understanding React Server Components and their benefits'
-    },
-    // TypeScript & JavaScript
-    {
-      title: 'TypeScript best practices and new features',
-      url: 'https://github.com/trending/typescript',
-      description: 'Modern TypeScript patterns and trending repositories'
-    },
-    {
-      title: 'JavaScript best practices and new features',
-      url: 'https://github.com/trending/javascript',
-      description: 'Modern Javascript patterns and trending repositories'
-    },
-    // React Native
-    {
-      title: 'React Native development tips and tricks',
-      url: 'https://reactnative.dev',
-      description: 'Building mobile apps with React Native'
-    },
-    {
-      title: 'Cross-platform mobile development with React Native',
-      url: 'https://reactnative.dev',
-      description: 'Best practices for React Native apps'
-    },
-    // AI & LLMs
-    {
-      title: 'Integrating AI and LLMs into web applications',
-      url: 'https://ai.google.dev',
-      description: 'Building AI-powered features in modern web apps'
-    },
-    {
-      title: 'AI models and machine learning for developers',
-      url: 'https://platform.openai.com',
-      description: 'Practical guide to using AI APIs in production'
-    },
-    // Web Dev Tools
-    {
-      title: 'Trending web development tools and frameworks',
-      url: 'https://www.reddit.com/r/webdev/',
-      description: 'Popular tools and frameworks in web development community'
-    },
-    {
-      title: 'Developer productivity tools and workflows',
-      url: 'https://github.com/trending',
-      description: 'Tools that improve developer experience and efficiency'
-    },
-    // Backend Tech
-    {
-      title: 'Modern backend architecture with Node.js',
-      url: 'https://nodejs.org',
-      description: 'Building scalable APIs with Node.js and Express'
-    },
-    {
-      title: 'tRPC and type-safe APIs',
-      url: 'https://trpc.io',
-      description: 'End-to-end typesafe APIs with tRPC'
-    },
-    {
-      title: 'Building REST and GraphQL APIs',
-      url: 'https://graphql.org',
-      description: 'API design patterns and best practices'
-    },
-    // Cloud Platforms
-    {
-      title: 'Firebase for modern web applications',
-      url: 'https://firebase.google.com',
-      description: 'Using Firebase for authentication, database, and hosting'
-    },
-    {
-      title: 'Supabase as a Firebase alternative',
-      url: 'https://supabase.com',
-      description: 'Open source Firebase alternative for modern apps'
-    },
-    {
-      title: 'AWS services for web developers',
-      url: 'https://aws.amazon.com',
-      description: 'Essential AWS services for deploying web applications'
-    },
-    {
-      title: 'Serverless architecture on Vercel',
-      url: 'https://vercel.com',
-      description: 'Building and deploying serverless applications'
-    },
-    // Frontend Frameworks
-    {
-      title: 'Vue.js vs React comparison',
-      url: 'https://vuejs.org',
-      description: 'Choosing the right frontend framework'
-    },
-    {
-      title: 'Svelte and SvelteKit for web development',
-      url: 'https://svelte.dev',
-      description: 'Modern frontend development with Svelte'
-    },
-    // Security
-    {
-      title: 'Web application security best practices',
-      url: 'https://owasp.org',
-      description: 'Protecting web applications from common vulnerabilities'
-    },
-    {
-      title: 'Authentication and authorization patterns',
-      url: 'https://auth0.com',
-      description: 'Implementing secure authentication in web apps'
-    },
-    // General Web Dev
-    {
-      title: 'Web performance optimization techniques',
-      url: 'https://web.dev',
-      description: 'Making web applications faster and more efficient'
-    },
-    {
-      title: 'Progressive Web Apps (PWA) development',
-      url: 'https://web.dev/progressive-web-apps',
-      description: 'Building offline-capable web applications'
-    }
-  ];
-
-  // Return a random selection of topics for variety
-  const shuffled = topics.sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, 10);
 }
 
 /**
@@ -321,21 +183,63 @@ function extractAndFixJSON(text: string): string {
 }
 
 /**
+ * Select a combination of topics
+ * @returns Array of selected topics
+ */
+function selectCombinationOfTopics() {
+  const frontendTopic = pickOneOrNone<TrendingTopic>(frontendFrameworkTopics);
+  const backendTopic = pickOneOrNone<TrendingTopic>(backendFrameworkTopics, !frontendTopic);
+
+  const frameworkTopics: TrendingTopic[] = [frontendTopic, backendTopic].filter(
+    (t) => t !== undefined
+  );
+
+  const selectedCloudPlatformTopic = pickOneOrNone<TrendingTopic>(cloudPlatformTopics);
+
+  const selectedGeneralTopics = pickRandom<TrendingTopic>(generalTopics, 2, 3);
+
+  return {
+    frameworkTopics,
+    selectedCloudPlatformTopic,
+    selectedGeneralTopics
+  };
+}
+
+function formatTopicDescriptionAsMarkdown(topics: TrendingTopic[]): string {
+  return topics.map((topic) => `- ${topic.title}: ${topic.description ?? ''}`).join('\n');
+}
+
+function formatTopicListAsMarkdown(topics: TrendingTopic[]): string {
+  return topics.map((topic) => `- ${topic.title} | Resources: ${topic.urls.join(', ')}`).join('\n');
+}
+
+/**
  * Generate blog post content using Gemini AI
  */
-export async function generateBlogContent(topic: TrendingTopic): Promise<GeneratedBlogPost> {
+export async function generateBlogContent(): Promise<GeneratedBlogPost> {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
     throw new Error('Gemini API key is not configured');
   }
 
+  const { frameworkTopics, selectedCloudPlatformTopic, selectedGeneralTopics } =
+    selectCombinationOfTopics();
+
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-  const prompt = `Write a comprehensive, informative blog post about: "${topic.title}".
+  const prompt = `Write a comprehensive, informative blog post about:
+${formatTopicListAsMarkdown(frameworkTopics)}
 
-Context: ${topic.description ?? 'No additional context provided'}
+with combinations of topics from:
+${formatTopicListAsMarkdown(selectedGeneralTopics)}
+${selectedCloudPlatformTopic ? formatTopicListAsMarkdown([selectedCloudPlatformTopic]) : ''}
+
+Contexts:
+${formatTopicDescriptionAsMarkdown(frameworkTopics)}
+${formatTopicDescriptionAsMarkdown(selectedGeneralTopics)}
+${selectedCloudPlatformTopic ? formatTopicDescriptionAsMarkdown([selectedCloudPlatformTopic]) : ''}
 
 Requirements:
 1. Write in a professional, engaging tone suitable for software engineers
