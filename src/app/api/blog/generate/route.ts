@@ -48,7 +48,7 @@ async function createBlogPost(
     body,
     publishedAt: new Date().toISOString(),
     tags: content.tags,
-    source: 'automated/gemini',
+    source: aiGenerated ? 'automated/gemini' : 'manual',
     generated: aiGenerated,
     readTime: content.readTime
   });

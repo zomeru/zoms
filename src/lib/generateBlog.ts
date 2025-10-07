@@ -327,7 +327,14 @@ export function markdownToBlocks(markdown: string): unknown[] {
     const line = lines[lineIndex];
 
     // Handle code blocks
-    const codeBlockResult = handleCodeBlock(line, lines, lineIndex, inCodeBlock, codeLanguage, codeLines);
+    const codeBlockResult = handleCodeBlock(
+      line,
+      lines,
+      lineIndex,
+      inCodeBlock,
+      codeLanguage,
+      codeLines
+    );
     if (codeBlockResult.handled) {
       if (codeBlockResult.block) {
         blocks.push(codeBlockResult.block);
@@ -350,7 +357,7 @@ export function markdownToBlocks(markdown: string): unknown[] {
     if (block) {
       blocks.push(block);
     }
-    
+
     lineIndex += 1;
   }
 
@@ -465,7 +472,7 @@ function handleTextBlock(line: string, lineIndex: number): unknown | null {
  */
 function normalizeLanguage(lang: string): string {
   const langLower = lang.toLowerCase().trim();
-  
+
   // Map common variations to schema values
   const languageMap: Record<string, string> = {
     js: 'javascript',
@@ -476,7 +483,7 @@ function normalizeLanguage(lang: string): string {
     yml: 'yaml',
     gql: 'graphql',
     md: 'markdown',
-    htm: 'html',
+    htm: 'html'
     // Add more mappings as needed
   };
 
