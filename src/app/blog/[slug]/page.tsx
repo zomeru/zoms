@@ -62,18 +62,10 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
     notFound();
   }
 
-  const publishedDate = new Date(post.publishedAt).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+  const publishedDate = formatDateWithTime(post.publishedAt);
 
   const modifiedDate = post.modifiedAt
-    ? new Date(post.modifiedAt).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
+    ? formatDateWithTime(post.modifiedAt)
     : null;
 
   return (
