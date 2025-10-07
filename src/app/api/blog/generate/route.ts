@@ -1,7 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient, type SanityClient } from '@sanity/client';
 
-import { generateBlogContent, markdownToBlocks, type GeneratedBlogPost } from '@/lib/generateBlog';
+import {
+  fetchTrendingTopics,
+  generateBlogPost,
+  markdownToBlocks,
+  type GeneratedBlogPost
+} from '@/lib/generateBlog';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Vercel serverless function timeout
@@ -71,7 +76,8 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
       useCdn: false
     });
 
-    const content = await generateBlogContent();
+    const topics = await fetchTrendingTopics();
+    const content = await generateBlogPost(topics);
 
     const generated = typeof aiGenerated === 'boolean' ? aiGenerated : true;
     const newPost = await createBlogPost(writeClient, content, generated);
