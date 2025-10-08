@@ -100,7 +100,7 @@ CRITICAL: Respond with ONLY valid JSON in this exact format (no additional text 
   "title": "Compelling and concise blog post title (Must be between 40 and 80 characters in length, spaces included — ABSOLUTE REQUIREMENT)",
   "summary": "Brief SEO-friendly summary (Must be between 100 and 200 characters, including spaces — NON-NEGOTIABLE; do not use backticks or quotes)",
   "body": "Full blog content in Markdown format. Use proper escaping for special characters.",
-  "tags": ["tag1", "tag2", "tag3"],
+  "tags": ["tag1", "tag2", "tag3"], // This is important, always include this: include 3-8 relevant tags, all lowercase, no special characters
   "readTime": 5
 }
 

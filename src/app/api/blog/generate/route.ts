@@ -14,7 +14,8 @@ async function validateSecret(request: NextRequest): Promise<void> {
   const authHeader = request.headers.get('authorization');
   const secret = process.env.CRON_SECRET;
 
-  if (!secret || authHeader !== `Bearer ${secret}`) {
+  // Only enforce in non-development environments
+  if ((!secret || authHeader !== `Bearer ${secret}`) && process.env.NODE_ENV !== 'development') {
     log.warn('Unauthorized blog generation attempt', {
       hasAuthHeader: !!authHeader,
       hasSecret: !!secret
@@ -69,6 +70,7 @@ async function createBlogPost(
 async function handleGenerate(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now();
   const path = '/api/blog/generate';
+  const method = request.method === 'GET' ? 'GET' : 'POST';
 
   try {
     // Rate limiting - strict for blog generation
@@ -77,14 +79,13 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
       return rateLimitResponse;
     }
 
-    const method = request.method === 'GET' ? 'GET' : 'POST';
     log.request(method, path);
 
     await validateSecret(request);
 
     let aiGenerated = true;
 
-    if (request.method === 'POST') {
+    if (method === 'POST') {
       try {
         const body: unknown = await request.json();
         const validatedBody = validateSchema(blogGenerateRequestSchema, body);
@@ -99,7 +100,7 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
     const writeClient = createClient({
       projectId,
       dataset,
-      apiVersion: '2024-01-01',
+      apiVersion: '2025-10-08',
       token: apiToken,
       useCdn: false
     });
@@ -141,7 +142,6 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
       }
     });
   } catch (error) {
-    const method = request.method === 'GET' ? 'GET' : 'POST';
     return handleApiError(error, {
       method,
       path,
