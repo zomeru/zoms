@@ -1,22 +1,18 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 import {
+  aiProviderTopics,
   backendFrameworkTopics,
   cloudPlatformTopics,
   frontendFrameworkTopics,
-  generalTopics
+  hostingTopics,
+  webDevGeneralTopics
 } from '@/constants/topics';
 import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
 
 import { getErrorMessage } from './errorMessages';
 import { extractAndFixJSON } from './generateBlogHelpers';
 import { pickOneOrNone, pickRandom } from './utils';
-
-export interface TrendingTopic {
-  title: string;
-  urls: string[];
-  description?: string;
-}
 
 export interface GeneratedBlogPost {
   title: string;
@@ -30,31 +26,25 @@ export interface GeneratedBlogPost {
  * Select a combination of topics
  * @returns Array of selected topics
  */
-function selectCombinationOfTopics() {
-  const frontendTopic = pickOneOrNone<TrendingTopic>(frontendFrameworkTopics);
-  const backendTopic = pickOneOrNone<TrendingTopic>(backendFrameworkTopics, !frontendTopic);
+function selectCombinationOfTopics(): string[] {
+  const frontendTopic = pickOneOrNone<string>(frontendFrameworkTopics);
+  const backendTopic = pickOneOrNone<string>(backendFrameworkTopics, !frontendTopic);
 
-  const frameworkTopics: TrendingTopic[] = [frontendTopic, backendTopic].filter(
-    (t) => t !== undefined
-  );
+  const fullStackTopics: string[] = [frontendTopic, backendTopic].filter((t) => t !== undefined);
 
-  const selectedCloudPlatformTopic = pickOneOrNone<TrendingTopic>(cloudPlatformTopics);
+  const cloudPlatformTopic = pickOneOrNone<string>(cloudPlatformTopics);
+  const hostingTopic = pickOneOrNone<string>(hostingTopics, !cloudPlatformTopic);
+  const cloudTopics = [cloudPlatformTopic, hostingTopic].filter((t) => t !== undefined);
 
-  const selectedGeneralTopics = pickRandom<TrendingTopic>(generalTopics, 2, 3);
+  const aiTopic = pickOneOrNone<string>(aiProviderTopics);
+  const selectedGeneralTopics = pickRandom<string>(webDevGeneralTopics, 2, 3);
 
-  return {
-    frameworkTopics,
-    selectedCloudPlatformTopic,
-    selectedGeneralTopics
-  };
-}
-
-function formatTopicDescriptionAsMarkdown(topics: TrendingTopic[]): string {
-  return topics.map((topic) => `- ${topic.title}: ${topic.description ?? ''}`).join('\n');
-}
-
-function formatTopicListAsMarkdown(topics: TrendingTopic[]): string {
-  return topics.map((topic) => `- ${topic.title} | Resources: ${topic.urls.join(', ')}`).join('\n');
+  return [
+    ...fullStackTopics,
+    ...cloudTopics,
+    ...(aiTopic ? [aiTopic] : []),
+    ...selectedGeneralTopics
+  ];
 }
 
 /**
@@ -67,61 +57,54 @@ export async function generateBlogContent(): Promise<GeneratedBlogPost> {
     throw new Error(getErrorMessage('MISSING_GEMINI_KEY'));
   }
 
-  const { frameworkTopics, selectedCloudPlatformTopic, selectedGeneralTopics } =
-    selectCombinationOfTopics();
+  const topics = selectCombinationOfTopics();
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-  const prompt = `Write a comprehensive, informative, and technical blog post about:
-${formatTopicListAsMarkdown(frameworkTopics)}
+  const prompt = `
+Write a comprehensive, technically detailed blog post that demonstrates how the following web development topics can be integrated within a single application context:
 
-with combinations of topics from:
-${formatTopicListAsMarkdown(selectedGeneralTopics)}
-${selectedCloudPlatformTopic ? formatTopicListAsMarkdown([selectedCloudPlatformTopic]) : ''}
+${topics.map((t) => `- ${t}`).join('\n')}
 
-Contexts:
-${formatTopicDescriptionAsMarkdown(frameworkTopics)}
-${formatTopicDescriptionAsMarkdown(selectedGeneralTopics)}
-${selectedCloudPlatformTopic ? formatTopicDescriptionAsMarkdown([selectedCloudPlatformTopic]) : ''}
+The article must be written for intermediate to advanced web developers, offering practical examples, best practices, and actionable insights. Ensure all content is accurate and current as of ${new Date().getFullYear()} (reflecting developments from the last two months).
 
-Requirements:
-1. Write in a professional, engaging tone suitable for software engineers
-2. Include practical examples and code snippets where relevant
-3. The blog post should be 1000-1500 words
-4. Structure the content with clear sections (use ## for headings)
-5. Include actionable insights and best practices
-6. Target audience: intermediate to advanced web developers
-7. Use markdown formatting: headers (# ## ### ####), bullet lists, **bold**, \`code\`, and code blocks
-8. Don't include resource URLs in the blog body, just make them references for you to learn from (scrape them if you must)
+Writing Guidelines:
+1. Use a professional yet engaging tone suitable for software engineers.
+2. Include relevant code snippets and technical explanations.
+3. Word count: 1000–1500 words.
+4. Structure clearly using Markdown headings (## for major sections).
+5. Focus on actionable insights and real-world applications.
+6. Target audience: intermediate to advanced developers.
+7. Use valid Markdown formatting: headers (#, ##, ###), bullet points, **bold**, \`inline code\`, and fenced code blocks.
+8. Do not include resource URLs in the content — you may reference them internally for accuracy.
 
-CRITICAL: Respond with ONLY valid JSON in this exact format (no additional text before or after):
+CRITICAL OUTPUT FORMAT:
+Respond with ONLY valid JSON in this exact structure:
 
 {
-  "title": "Compelling and concise blog post title (Must be between 40 and 80 characters in length, spaces included — ABSOLUTE REQUIREMENT)",
-  "summary": "Brief SEO-friendly summary (Must be between 100 and 200 characters, including spaces — NON-NEGOTIABLE; do not use backticks or quotes)",
-  "body": "Full blog content in Markdown format. Use proper escaping for special characters.",
-  "tags": ["tag1", "tag2", "tag3"], // This is important, always include this: include 3-8 relevant tags, all lowercase, no special characters
+  "title": "Compelling and concise blog title (40–80 characters total, including spaces — REQUIRED)",
+  "summary": "SEO-friendly summary (100–200 characters total, including spaces — REQUIRED; no backticks or quotes)",
+  "body": "Full blog post content in Markdown format. Escape all internal double quotes with a backslash (\\").",
+  "tags": ["tag1", "tag2", "tag3"], // always include 3–5 relevant tags (lowercase, no special characters)
   "readTime": 5
 }
 
-JSON FORMATTING REQUIREMENTS:
-- Use double quotes for ALL strings
-- NO backticks (\`) in the summary field - use single quotes instead
-- Escape any double quotes inside strings with backslash (\\")
-- NO trailing commas
-- NO comments in JSON
-- Make sure all brackets and braces are properly closed
-- The body field should contain valid markdown text
-- Include 3-8 relevant tags, all lowercase, no special characters
-- For code references in summary, use single quotes like 'satisfies' instead of backticks
-- readTime: estimated reading time in minutes (calculate based on word count: ~200 words per minute)
+JSON VALIDATION RULES:
+- Use double quotes for all strings
+- No backticks (\`) in the summary — use single quotes instead for code references
+- Escape any double quotes inside strings
+- No trailing commas or comments
+- The body field must contain valid Markdown
+- Include 3–5 relevant tags (lowercase, no special characters)
+- Calculate readTime as total words ÷ 200 (rounded up)
 
-Make sure the content is:
-- Accurate and up-to-date (${new Date().getFullYear()}), with information from at least the last two months.
-- Well-structured and easy to read
-- Includes code examples where appropriate
-- Provides real value to readers`;
+Final Quality Requirements:
+- Content must be accurate and up-to-date (${new Date().getFullYear()})
+- Writing should be well-structured, clear, and valuable to professionals
+- Include concise code examples where relevant
+- Provide meaningful insights developers can apply immediately
+`;
 
   const result = await model.generateContent(prompt);
   const response = result.response;
