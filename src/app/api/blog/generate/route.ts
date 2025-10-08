@@ -1,7 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient, type SanityClient } from '@sanity/client';
 
+import { ApiError, handleApiError, validateSchema } from '@/lib/errorHandler';
 import { generateBlogContent, markdownToBlocks, type GeneratedBlogPost } from '@/lib/generateBlog';
+import log from '@/lib/logger';
+import { rateLimitMiddleware } from '@/lib/rateLimit';
+import { blogGenerateRequestSchema } from '@/lib/schemas';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Vercel serverless function timeout
@@ -11,7 +15,11 @@ async function validateSecret(request: NextRequest): Promise<void> {
   const secret = process.env.CRON_SECRET;
 
   if (!secret || authHeader !== `Bearer ${secret}`) {
-    throw new Error('Unauthorized access');
+    log.warn('Unauthorized blog generation attempt', {
+      hasAuthHeader: !!authHeader,
+      hasSecret: !!secret
+    });
+    throw new ApiError('Unauthorized access', 401, 'UNAUTHORIZED');
   }
 }
 
@@ -21,7 +29,12 @@ function validateSanityEnv() {
   const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
 
   if (!apiToken || !projectId || !dataset) {
-    throw new Error('Sanity write configuration is missing');
+    log.error('Sanity environment variables missing', {
+      hasApiToken: !!apiToken,
+      hasProjectId: !!projectId,
+      hasDataset: !!dataset
+    });
+    throw new ApiError('Sanity write configuration is missing', 500, 'CONFIG_ERROR');
   }
 
   return { apiToken, projectId, dataset };
@@ -54,19 +67,30 @@ async function createBlogPost(
 }
 
 async function handleGenerate(request: NextRequest): Promise<NextResponse> {
+  const startTime = Date.now();
+  const path = '/api/blog/generate';
+
   try {
+    // Rate limiting - strict for blog generation
+    const rateLimitResponse = await rateLimitMiddleware(request, 'BLOG_GENERATE');
+    if (rateLimitResponse) {
+      return rateLimitResponse;
+    }
+
+    const method = request.method === 'GET' ? 'GET' : 'POST';
+    log.request(method, path);
+
     await validateSecret(request);
 
     let aiGenerated = true;
 
     if (request.method === 'POST') {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- We validate the structure below
-        const body = (await request.json()) as unknown as { aiGenerated?: boolean };
-        if (typeof body.aiGenerated === 'boolean') {
-          aiGenerated = body.aiGenerated;
-        }
+        const body: unknown = await request.json();
+        const validatedBody = validateSchema(blogGenerateRequestSchema, body);
+        aiGenerated = validatedBody.aiGenerated;
       } catch {
+        // Default to true if validation fails
         aiGenerated = true;
       }
     }
@@ -80,9 +104,28 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
       useCdn: false
     });
 
-    const content = await generateBlogContent();
+    log.info('Generating blog content', { aiGenerated });
+
+    const content = await log.timeAsync(
+      'AI content generation',
+      async () => await generateBlogContent(),
+      { aiGenerated }
+    );
+
+    log.info('Creating blog post in Sanity', {
+      title: content.title,
+      tags: content.tags
+    });
 
     const newPost = await createBlogPost(writeClient, content, aiGenerated);
+
+    const duration = Date.now() - startTime;
+    log.response(method, path, 200, {
+      duration: `${duration}ms`,
+      postId: newPost._id,
+      title: newPost.title,
+      aiGenerated
+    });
 
     return NextResponse.json({
       success: true,
@@ -98,13 +141,12 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
       }
     });
   } catch (error) {
-    return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : 'Failed to generate blog post',
-        timestamp: new Date().toISOString()
-      },
-      { status: 500 }
-    );
+    const method = request.method === 'GET' ? 'GET' : 'POST';
+    return handleApiError(error, {
+      method,
+      path,
+      metadata: { duration: Date.now() - startTime }
+    });
   }
 }
 

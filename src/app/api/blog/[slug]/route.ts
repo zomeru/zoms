@@ -1,8 +1,16 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { z } from 'zod';
 
 import { getBlogPostBySlug } from '@/lib/blog';
+import { ApiError, handleApiError, validateSchema } from '@/lib/errorHandler';
+import log from '@/lib/logger';
+import { rateLimitMiddleware } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
+
+const slugParamsSchema = z.object({
+  slug: z.string().min(1)
+});
 
 /**
  * GET /api/blog/[slug]
@@ -12,24 +20,45 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ): Promise<NextResponse> {
-  try {
-    const { slug } = await params;
+  const startTime = Date.now();
+  const path = '/api/blog/[slug]';
 
-    if (!slug) {
-      return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
+  try {
+    // Rate limiting
+    const rateLimitResponse = await rateLimitMiddleware(request, 'BLOG_API');
+    if (rateLimitResponse) {
+      return rateLimitResponse;
     }
 
-    const post = await getBlogPostBySlug(slug);
+    const resolvedParams = await params;
+    const { slug } = validateSchema(slugParamsSchema, resolvedParams);
+
+    log.request('GET', path, { slug });
+
+    const post = await log.timeAsync(
+      'Fetch blog post by slug',
+      async () => await getBlogPostBySlug(slug),
+      { slug }
+    );
 
     if (!post) {
-      return NextResponse.json({ error: 'Blog post not found' }, { status: 404 });
+      throw new ApiError('Blog post not found', 404, 'NOT_FOUND');
     }
+
+    const duration = Date.now() - startTime;
+    log.response('GET', path, 200, {
+      duration: `${duration}ms`,
+      slug,
+      postId: post._id,
+      title: post.title
+    });
 
     return NextResponse.json({ post });
   } catch (error) {
-    // eslint-disable-next-line no-console -- Allow console for API errors
-    console.error('Error in /api/blog/[slug]:', error);
-
-    return NextResponse.json({ error: 'Failed to fetch blog post' }, { status: 500 });
+    return handleApiError(error, {
+      method: 'GET',
+      path,
+      metadata: { duration: Date.now() - startTime }
+    });
   }
 }
