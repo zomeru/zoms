@@ -34,7 +34,17 @@ export default defineType({
       name: 'body',
       title: 'Body',
       type: 'blogPostBlockContent',
-      validation: (Rule) => Rule.required()
+      validation: (Rule) => Rule.required(),
+      hidden: ({ document }) => !!document?.bodyMarkdown
+    }),
+    defineField({
+      name: 'bodyMarkdown',
+      title: 'Body (Markdown)',
+      type: 'text',
+      rows: 20,
+      description:
+        'Blog content in Markdown format. When provided, this takes precedence over the block content.',
+      hidden: ({ document }) => !!document?.body && !document?.bodyMarkdown
     }),
     defineField({
       name: 'publishedAt',

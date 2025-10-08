@@ -11,7 +11,8 @@ export interface BlogPost {
   summary: string;
   publishedAt: string;
   modifiedAt?: string;
-  body: PortableTextBlock[];
+  body?: PortableTextBlock[]; // Legacy block content (backward compatibility)
+  bodyMarkdown?: string; // New markdown content
   tags?: string[];
   source?: string;
   generated?: boolean;
@@ -84,6 +85,7 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
         publishedAt,
         modifiedAt,
         body,
+        bodyMarkdown,
         tags,
         source,
         generated,

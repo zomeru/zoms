@@ -9,7 +9,7 @@ import {
 import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
 
 import { getErrorMessage } from './errorMessages';
-import { extractAndFixJSON, handleCodeBlock, handleTextBlock } from './generateBlogHelpers';
+import { extractAndFixJSON } from './generateBlogHelpers';
 import { pickOneOrNone, pickRandom } from './utils';
 
 export interface TrendingTopic {
@@ -21,7 +21,7 @@ export interface TrendingTopic {
 export interface GeneratedBlogPost {
   title: string;
   summary: string;
-  body: string;
+  bodyMarkdown: string; // Now we store raw markdown instead of processing it
   tags: string[];
   readTime: number;
 }
@@ -148,64 +148,11 @@ Make sure the content is:
     return {
       title: parsed.title.slice(0, MAX_TITLE_LENGTH), // Ensure title length limit
       summary: parsed.summary.slice(0, MAX_SUMMARY_LENGTH), // Ensure summary length limit
-      body: parsed.body,
+      bodyMarkdown: parsed.body, // Store raw markdown
       tags: Array.isArray(parsed.tags) ? parsed.tags.slice(0, 5) : [],
       readTime: parsed.readTime ?? 5 // Default to 5 minutes if not provided
     };
   } catch (error) {
     throw new Error(getErrorMessage('AI_GENERATION_FAILED'), { cause: error });
   }
-}
-
-/**
- * Convert markdown to Sanity block content
- */
-export function markdownToBlocks(markdown: string): unknown[] {
-  const blocks: unknown[] = [];
-  const lines = markdown.split('\n');
-
-  let inCodeBlock = false;
-  let codeLanguage = '';
-  let codeLines: string[] = [];
-
-  let lineIndex = 0;
-  while (lineIndex < lines.length) {
-    const line = lines[lineIndex];
-
-    const codeBlockResult = handleCodeBlock({
-      line,
-      lines,
-      lineIndex,
-      inCodeBlock,
-      codeLanguage,
-      codeLines
-    });
-
-    if (codeBlockResult.handled) {
-      if (codeBlockResult.block) {
-        blocks.push(codeBlockResult.block);
-      }
-      inCodeBlock = codeBlockResult.inCodeBlock;
-      codeLanguage = codeBlockResult.codeLanguage;
-      codeLines = codeBlockResult.codeLines;
-      lineIndex = codeBlockResult.nextLineIndex;
-      continue;
-    }
-
-    // Skip empty lines
-    if (line.trim() === '') {
-      lineIndex += 1;
-      continue;
-    }
-
-    // Handle other block types
-    const block = handleTextBlock(line, lineIndex);
-    if (block) {
-      blocks.push(block);
-    }
-
-    lineIndex += 1;
-  }
-
-  return blocks;
 }
