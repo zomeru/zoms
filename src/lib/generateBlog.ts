@@ -8,6 +8,7 @@ import {
 } from '@/constants/topics';
 import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
 
+import { getErrorMessage } from './errorMessages';
 import { extractAndFixJSON, handleCodeBlock, handleTextBlock } from './generateBlogHelpers';
 import { pickOneOrNone, pickRandom } from './utils';
 
@@ -63,7 +64,7 @@ export async function generateBlogContent(): Promise<GeneratedBlogPost> {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    throw new Error('Gemini API key is not configured');
+    throw new Error(getErrorMessage('MISSING_GEMINI_KEY'));
   }
 
   const { frameworkTopics, selectedCloudPlatformTopic, selectedGeneralTopics } =
@@ -141,7 +142,7 @@ Make sure the content is:
 
     // Validate required fields
     if (!parsed.title || !parsed.summary || !parsed.body) {
-      throw new Error('Missing required fields in generated content');
+      throw new Error(getErrorMessage('MISSING_REQUIRED_FIELDS'));
     }
 
     return {
@@ -152,7 +153,7 @@ Make sure the content is:
       readTime: parsed.readTime ?? 5 // Default to 5 minutes if not provided
     };
   } catch (error) {
-    throw new Error('Failed to parse AI-generated content', { cause: error });
+    throw new Error(getErrorMessage('AI_GENERATION_FAILED'), { cause: error });
   }
 }
 

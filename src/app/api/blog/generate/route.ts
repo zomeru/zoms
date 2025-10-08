@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createClient, type SanityClient } from '@sanity/client';
 
 import { ApiError, handleApiError, validateSchema } from '@/lib/errorHandler';
+import { getErrorMessage } from '@/lib/errorMessages';
 import { generateBlogContent, markdownToBlocks, type GeneratedBlogPost } from '@/lib/generateBlog';
 import log from '@/lib/logger';
 import { rateLimitMiddleware } from '@/lib/rateLimit';
@@ -20,7 +21,7 @@ async function validateSecret(request: NextRequest): Promise<void> {
       hasAuthHeader: !!authHeader,
       hasSecret: !!secret
     });
-    throw new ApiError('Unauthorized access', 401, 'UNAUTHORIZED');
+    throw new ApiError(getErrorMessage('UNAUTHORIZED'), 401, 'UNAUTHORIZED');
   }
 }
 
@@ -35,7 +36,7 @@ function validateSanityEnv() {
       hasProjectId: !!projectId,
       hasDataset: !!dataset
     });
-    throw new ApiError('Sanity write configuration is missing', 500, 'CONFIG_ERROR');
+    throw new ApiError(getErrorMessage('MISSING_SANITY_CONFIG'), 500, 'CONFIG_ERROR');
   }
 
   return { apiToken, projectId, dataset };

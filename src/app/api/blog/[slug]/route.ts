@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { getBlogPostBySlug } from '@/lib/blog';
 import { ApiError, handleApiError, validateSchema } from '@/lib/errorHandler';
+import { getErrorMessage } from '@/lib/errorMessages';
 import log from '@/lib/logger';
 import { rateLimitMiddleware } from '@/lib/rateLimit';
 
@@ -42,7 +43,7 @@ export async function GET(
     );
 
     if (!post) {
-      throw new ApiError('Blog post not found', 404, 'NOT_FOUND');
+      throw new ApiError(getErrorMessage('BLOG_POST_NOT_FOUND'), 404, 'NOT_FOUND');
     }
 
     const duration = Date.now() - startTime;

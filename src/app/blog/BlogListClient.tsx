@@ -5,6 +5,7 @@ import Link from 'next/link';
 
 import { BLOG_POSTS_PAGE_SIZE } from '@/constants';
 import type { BlogPostListItem } from '@/lib/blog';
+import { getClientErrorMessage } from '@/lib/errorMessages';
 import { formatDate } from '@/lib/utils';
 
 interface BlogListClientProps {
@@ -45,7 +46,7 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
       setPosts((prevPosts) => [...prevPosts, ...data.posts]);
       setOffset((prevOffset) => prevOffset + data.posts.length);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load more posts');
+      setError(getClientErrorMessage(err));
     } finally {
       setLoading(false);
       isLoadingRef.current = false;

@@ -6,6 +6,7 @@
 import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 
+import { getErrorMessage } from './errorMessages';
 import log from './logger';
 import type { ErrorResponse } from './schemas';
 
@@ -45,11 +46,11 @@ const sanitizeErrorMessage = (error: unknown): string => {
   }
 
   if (error instanceof ZodError) {
-    return 'Invalid request data';
+    return getErrorMessage('INVALID_REQUEST_DATA');
   }
 
   // Generic error for production
-  return 'An error occurred while processing your request';
+  return getErrorMessage('SERVER_ERROR');
 };
 
 /**
