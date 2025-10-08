@@ -74,7 +74,7 @@ Modern, responsive portfolio website for Zomer Gregorio featuring dynamic conten
 
 ### Prerequisites
 
-- **Node.js**: 18+ (recommended: latest LTS)
+- **Node.js**: 22+ (recommended: latest LTS)
 - **pnpm**: 10.17.1+ (`npm install -g pnpm@latest-10`)
 - **Sanity Account**: Free tier available at [sanity.io](https://sanity.io)
 
