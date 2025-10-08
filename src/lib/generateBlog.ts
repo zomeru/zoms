@@ -72,7 +72,7 @@ export async function generateBlogContent(): Promise<GeneratedBlogPost> {
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-  const prompt = `Write a comprehensive, informative blog post about:
+  const prompt = `Write a comprehensive, informative, and technical blog post about:
 ${formatTopicListAsMarkdown(frameworkTopics)}
 
 with combinations of topics from:
