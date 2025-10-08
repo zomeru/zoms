@@ -90,7 +90,7 @@ export const aiProviderTopics = [
 ];
 
 export const webDevGeneralTopics = [
-  // "TypeScript", // Always in typescript
+  'TypeScript',
   'Frontend Development',
   'Backend Development',
   'Web Security',

@@ -67,6 +67,8 @@ Write a comprehensive, technically detailed blog post that demonstrates how the 
 
 ${topics.map((t) => `- ${t}`).join('\n')}
 
+All examples, explanations, and code snippets must use TypeScript as the primary language.
+
 The article must be written for intermediate to advanced web developers, offering practical examples, best practices, and actionable insights. Ensure all content is accurate and current as of ${new Date().getFullYear()} (reflecting developments from the last two months).
 
 Writing Guidelines:
