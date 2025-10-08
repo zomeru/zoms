@@ -14,7 +14,7 @@
     "format": "prettier --write .",
     "test-all": "npm run check-format && npm run check-lint && npm run check-types",
     "test-all:build": " npm run test-all && npm run build",
-    "prepare": "husky install",
+    "prepare": "husky",
     "studio:dev": "cd studio && pnpm run dev",
     "studio:build": "cd studio && pnpm run build",
     "studio:deploy": "cd studio && pnpm run deploy"
@@ -81,5 +81,8 @@
       "sharp",
       "unrs-resolver"
     ]
+  },
+  "engines": {
+    "node": "22.x"
   }
 }
