@@ -34,17 +34,13 @@ function selectCombinationOfTopics(): string[] {
 
   const cloudPlatformTopic = pickOneOrNone<string>(cloudPlatformTopics);
   const hostingTopic = pickOneOrNone<string>(hostingTopics, !cloudPlatformTopic);
-  const cloudTopics = [cloudPlatformTopic, hostingTopic].filter((t) => t !== undefined);
-
   const aiTopic = pickOneOrNone<string>(aiProviderTopics);
+
+  const nullableTopics = [cloudPlatformTopic, hostingTopic, aiTopic].filter((t) => t !== undefined);
+
   const selectedGeneralTopics = pickRandom<string>(webDevGeneralTopics, 2, 3);
 
-  return [
-    ...fullStackTopics,
-    ...cloudTopics,
-    ...(aiTopic ? [aiTopic] : []),
-    ...selectedGeneralTopics
-  ];
+  return [...fullStackTopics, ...nullableTopics, ...selectedGeneralTopics];
 }
 
 /**
