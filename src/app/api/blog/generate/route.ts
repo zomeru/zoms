@@ -57,9 +57,19 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
   try {
     await validateSecret(request);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- We validate the structure below
-    const body = (await request.json()) as unknown as { aiGenerated?: boolean };
-    const aiGenerated = body.aiGenerated;
+    let aiGenerated = true;
+
+    if (request.method === 'POST') {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- We validate the structure below
+        const body = (await request.json()) as unknown as { aiGenerated?: boolean };
+        if (typeof body.aiGenerated === 'boolean') {
+          aiGenerated = body.aiGenerated;
+        }
+      } catch {
+        aiGenerated = true;
+      }
+    }
 
     const { apiToken, projectId, dataset } = validateSanityEnv();
     const writeClient = createClient({
