@@ -38,7 +38,7 @@ const validated = validateSchema(blogGenerateRequestSchema, body);
 
 ---
 
-### 2️⃣ Structured Logging with nexlog ✅
+### 2️⃣ Structured Logging with custom logger ✅
 
 Production-ready logging with Edge Runtime support and automatic PII sanitization.
 
@@ -180,7 +180,7 @@ Centralized, environment-aware error management.
 | File                        | Lines | Purpose                      |
 | --------------------------- | ----- | ---------------------------- |
 | `src/lib/schemas.ts`        | 107   | Zod validation schemas       |
-| `src/lib/logger.ts`         | 150   | nexlog logging utilities     |
+| `src/lib/logger.ts`         | 150   | custom logger logging utilities     |
 | `src/lib/errorHandler.ts`   | 195   | Centralized error handling   |
 | `src/lib/rateLimit.ts`      | 222   | Rate limiting implementation |
 | `ENHANCEMENTS.md`           | 257   | Feature documentation        |
@@ -195,7 +195,7 @@ Centralized, environment-aware error management.
 | `src/app/api/blog/generate/route.ts` | +52 lines | Added validation, logging, rate limiting |
 | `src/app/api/blog/[slug]/route.ts`   | +32 lines | Added validation, logging, rate limiting |
 | `src/app/blog/BlogListClient.tsx`    | +53 lines | Grid layout + infinite scroll            |
-| `package.json`                       | +4 deps   | Added zod, nexlog, upstash               |
+| `package.json`                       | +4 deps   | Added zod, custom logger, upstash               |
 
 ---
 
@@ -319,7 +319,7 @@ Files Changed:    13 files
 Lines Added:      +1,518 lines
 Lines Removed:    -106 lines
 Net Change:       +1,412 lines
-New Dependencies: 4 (zod, nexlog, @upstash/ratelimit, @upstash/redis)
+New Dependencies: 3 (zod, @upstash/ratelimit, @upstash/redis)
 Test Coverage:    100% passing
 Breaking Changes: 0
 Performance:      Optimized (minimal overhead)

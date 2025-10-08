@@ -7,7 +7,7 @@ This document describes the newly implemented features for type safety, logging,
 The following enhancements have been implemented:
 
 - ✅ **Zod Integration** - Type-safe validation for all API routes
-- ✅ **nexlog Logging** - Structured, Edge-compatible logging with auto-sanitization
+- ✅ **custom logger Logging** - Structured, Edge-compatible logging with auto-sanitization
 - ✅ **Rate Limiting** - Protection against API abuse with flexible configuration
 - ✅ **Error Handling** - Centralized, environment-aware error responses
 - ✅ **Blog UI Improvements** - Grid layout with infinite scroll
@@ -38,7 +38,7 @@ const queryParams = validateSchema(blogListQuerySchema, {
 });
 ```
 
-## Logging with nexlog
+## Logging with custom logger
 
 ### Logger Location
 

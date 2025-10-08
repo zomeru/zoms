@@ -31,13 +31,13 @@
 **Required:**
 
 - Implement structured logging using Pino or Next-Logger
-- Must support Edge Runtime (Vercel) - consider nexlog
+- Must support Edge Runtime (Vercel) - consider custom logger
 - Capture request/response metadata, API errors, execution time, environment context
 - Separate log levels with environment-specific configurations
 
 **Implemented:**
 
-- ✅ Integrated **nexlog** (Edge Runtime compatible as recommended)
+- ✅ Integrated **custom logger** (Edge Runtime compatible as recommended)
 - ✅ Structured logging with JSON in production, pretty-print in dev
 - ✅ Request/response logging with metadata
 - ✅ Error logging with automatic PII sanitization (GDPR compliant)
@@ -181,7 +181,7 @@ UPSTASH_REDIS_REST_TOKEN=...
 | Criteria                                                          | Status | Evidence                                                   |
 | ----------------------------------------------------------------- | ------ | ---------------------------------------------------------- |
 | Zod validation active and replacing manual type checks            | ✅     | All API routes use `validateSchema()` from schemas.ts      |
-| Logging works in both dev and production (including edge runtime) | ✅     | nexlog configured with Edge Runtime support                |
+| Logging works in both dev and production (including edge runtime) | ✅     | custom logger configured with Edge Runtime support                |
 | Blog list uses grid layout and infinite scroll behaves correctly  | ✅     | Grid: `lg:grid-cols-2`, IntersectionObserver implemented   |
 | Rate limiting enforced on sensitive endpoints                     | ✅     | All APIs protected, blog generation has strict 5/min limit |
 | Error messages are environment-aware and user-safe                | ✅     | Centralized error handler with dev/prod modes              |
@@ -194,7 +194,7 @@ UPSTASH_REDIS_REST_TOKEN=...
 ```json
 {
   "zod": "4.1.12",
-  "nexlog": "5.2.1",
+  
   "@upstash/ratelimit": "2.0.6",
   "@upstash/redis": "1.35.5"
 }
