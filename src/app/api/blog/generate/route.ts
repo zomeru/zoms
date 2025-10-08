@@ -82,8 +82,7 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
 
     const content = await generateBlogContent();
 
-    const generated = typeof aiGenerated === 'boolean' ? aiGenerated : true;
-    const newPost = await createBlogPost(writeClient, content, generated);
+    const newPost = await createBlogPost(writeClient, content, aiGenerated);
 
     return NextResponse.json({
       success: true,
