@@ -4,7 +4,7 @@ import { createClient, type SanityClient } from '@sanity/client';
 import { generateBlogContent, markdownToBlocks, type GeneratedBlogPost } from '@/lib/generateBlog';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 120; // Vercel serverless function timeout
+export const maxDuration = 60; // Vercel serverless function timeout
 
 async function validateSecret(request: NextRequest): Promise<void> {
   const authHeader = request.headers.get('authorization');
