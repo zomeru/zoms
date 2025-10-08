@@ -2,7 +2,7 @@
 
 Modern, responsive portfolio website for Zomer Gregorio featuring dynamic content management and AI-powered blog generation.
 
-🌐 **Live Site**: [zomeru.com](https://zoms.vercel.app)  
+🌐 **Live Site**: [zoms.vercel.app](https://zoms.vercel.app)  
 🎨 **Studio**:
 
 ## ✨ Features
