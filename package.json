@@ -14,7 +14,7 @@
     "format": "prettier --write .",
     "test-all": "npm run check-format && npm run check-lint && npm run check-types",
     "test-all:build": " npm run test-all && npm run build",
-    "prepare": "husky install",
+    "prepare": "husky",
     "studio:dev": "cd studio && pnpm run dev",
     "studio:build": "cd studio && pnpm run build",
     "studio:deploy": "cd studio && pnpm run deploy"
@@ -26,6 +26,8 @@
     "@sanity/client": "^7.12.0",
     "@sanity/image-url": "^1.2.0",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "@upstash/ratelimit": "^2.0.6",
+    "@upstash/redis": "^1.35.5",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
     "next": "15.5.4",
@@ -36,7 +38,8 @@
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.0.1",
     "react-modal": "^3.16.3",
-    "react-syntax-highlighter": "^15.6.6"
+    "react-syntax-highlighter": "^15.6.6",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
@@ -78,5 +81,8 @@
       "sharp",
       "unrs-resolver"
     ]
+  },
+  "engines": {
+    "node": "22.x"
   }
 }

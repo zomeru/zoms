@@ -38,7 +38,7 @@ const BlogPage = async (): Promise<React.JSX.Element> => {
   ]);
 
   return (
-    <main className='max-w-[1000px] mx-auto px-6 sm:px-12 md:px-16 lg:px-20 py-[50px] md:py-[90px]'>
+    <main className='max-w-[1200px] mx-auto px-6 sm:px-12 md:px-16 lg:px-20 py-[50px] md:py-[90px]'>
       {/* Header */}
       <div className='mb-12'>
         <Link href='/' className='text-primary hover:underline mb-4 inline-block'>

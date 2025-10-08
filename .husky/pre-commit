@@ -1,21 +1,20 @@
-# Check ESLint Standards
-echo '🔎 Checking ESLint Standards...'
+echo "🔎 Checking ESLint Standards..."
 npx lint-staged ||
     (
-        echo '❌ ESLint Check Failed. Make the required changes listed above, add changes and try to commit again.'
+        echo "❌ ESLint Check Failed. Make the required changes listed above, add changes and try to commit again."
         false
     )
 
 # Check tsconfig standards
-echo '🔎 Checking tsconfig standards...'
+echo "🔎 Checking tsconfig standards..."
 npm run check-types ||
     (
-        echo '❌ Failed Type check. Check your typescript types.'
+        echo "❌ Failed Type check. Check your typescript types."
         false
     )
 
 # If everything passes... Now we can commit
-echo '✅ All checks passed.'
+echo "✅ All checks passed."
 
 # If everything passes... Now we can commit
-echo '✏ Commiting your changes.'
+echo "✏ Commiting your changes."

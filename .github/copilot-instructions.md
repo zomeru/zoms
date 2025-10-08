@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This is a modern Next.js 15 portfolio website for Zomer Gregorio using TypeScript, TailwindCSS v4, and the App Router. The site features a dark theme with purple accents, a two-column responsive layout, and a dynamic blog system powered by Sanity CMS and AI content generation.
+This is a modern Next.js 15 portfolio website for Zomer Gregorio using TypeScript, TailwindCSS v4, and the App Router. The site features a dark theme with purple accents, a two-column responsive layout, dynamic blog system powered by Sanity CMS and AI content generation, plus enterprise-grade features including rate limiting, structured logging, and comprehensive error handling.
 
 ## Architecture & Key Patterns
 
@@ -22,7 +22,7 @@ src/components/
 ├── Sections/          # Right-side content sections
 │   ├── About.tsx
 │   ├── TechStack.tsx
-│   ├── Experience.tsx # Sanity CMS powered
+│   ├── Experience.tsx # Sanity CMS powered with fallback
 │   ├── Projects.tsx
 │   └── Blog.tsx       # Latest blog posts section
 ```
@@ -31,7 +31,7 @@ src/components/
 
 - **Static Content**: Projects, tech stack, personal info in `src/constants/`
 - **Dynamic Content**: Experience and blog posts managed via Sanity CMS
-- **AI Content**: Automated blog generation using Google Gemini AI
+- **AI Content**: Automated blog generation using Google Gemini AI with topic rotation
 - **Hybrid Approach**: Fallback to constants if Sanity unavailable
 
 ### Data Management
@@ -41,13 +41,18 @@ src/components/
 - **Configuration-based SEO**: Comprehensive metadata in `src/configs/seo.ts`
 - **Path aliases**: Use `@/` for all src/ imports (configured in tsconfig.json)
 
+### Enterprise Features
+
+- **Rate Limiting**: Upstash Redis with in-memory fallback (`src/lib/rateLimit.ts`)
+- **Structured Logging**: Edge Runtime-compatible logger with PII sanitization (`src/lib/logger.ts`)
+- **Error Handling**: Centralized error management with environment-aware responses (`src/lib/errorHandler.ts`)
+- **Input Validation**: Zod schemas for type-safe API validation (`src/lib/schemas.ts`)
+
 ## Development Workflow
 
 ### Essential Commands
 
 ```bash
-npm install -g pnpm@latest-10 # Install pnpm globally
-pnpm install             # Install dependencies
 pnpm dev                 # Frontend development server
 pnpm studio:dev          # Sanity Studio (localhost:3333)
 pnpm test-all            # Format + lint + type check
@@ -76,12 +81,15 @@ pnpm studio:deploy       # Deploy studio to Sanity hosting
 - **Strict config**: No implicit returns, unreachable code, or fallthrough cases
 - **Props destructuring**: In function parameters with explicit typing
 - **Interface definitions**: Sanity schema types in lib files
+- **API validation**: Use Zod schemas for all API inputs/outputs
 
 ### Styling with TailwindCSS v4
 
-- **Custom colors**: Use semantic names (`backgroundPrimary`, `textSecondary`, `primary`)
+- **Modern approach**: No `tailwind.config.js` file, uses `@theme` directive in `globals.css`
+- **CSS variables**: Semantic color names (`backgroundPrimary`, `textSecondary`, `primary`)
+- **Custom utilities**: Define with `@utility` in `globals.css`
 - **Responsive utilities**: Mobile-first with `sm:`, `md:`, `lg:` breakpoints
-- **Layout patterns**: `max-w-[1300px] mx-auto` for containers, `lg:w-[550px]` for sidebar
+- **Layout patterns**: `max-w-[1300px] mx-auto` for containers
 
 ### Import/Export Conventions
 
@@ -89,7 +97,42 @@ pnpm studio:deploy       # Deploy studio to Sanity hosting
 - **Default exports**: Components use default, utilities use named exports
 - **Import order**: External packages, then internal with `@/` alias
 
+### Error Handling Patterns
+
+```typescript
+// API routes with comprehensive error handling
+import { handleApiError, validateSchema } from '@/lib/errorHandler';
+import log from '@/lib/logger';
+import { rateLimitMiddleware } from '@/lib/rateLimit';
+
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  try {
+    // Rate limiting
+    const rateLimitResult = await rateLimitMiddleware(request, 'BLOG_API');
+    if (rateLimitResult) return rateLimitResult;
+
+    // Input validation
+    const body = await request.json();
+    const validatedData = validateSchema(requestSchema, body);
+
+    // Business logic with logging
+    log.info('API request processed', { method: 'POST', path: '/api/example' });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return handleApiError(error, { method: 'POST', path: '/api/example' });
+  }
+}
+```
+
 ## Key Integration Points
+
+### TailwindCSS v4 Implementation
+
+- **Configuration**: Uses `@theme` directive in `src/styles/globals.css`
+- **Custom colors**: Defined as CSS variables (e.g., `--color-primary: #ad5aff`)
+- **Custom utilities**: Use `@utility` directive for reusable components
+- **No config file**: Modern approach eliminates need for `tailwind.config.js`
 
 ### Sanity CMS Integration
 
@@ -104,19 +147,21 @@ pnpm studio:deploy       # Deploy studio to Sanity hosting
 - **AI generation**: Google Gemini API for automated content creation
 - **Topic rotation**: Curated topics in `src/constants/topics.ts`
 - **Rich content**: Portable Text with React Syntax Highlighter for code blocks
-- **API routes**: CRUD operations in `src/app/api/blog/`
+- **API routes**: CRUD operations in `src/app/api/blog/` with validation and rate limiting
 
-### SEO & Metadata
+### Rate Limiting & Security
 
-- **Environment-based URLs**: Production vs development domains in `src/configs/seo.ts`
-- **Comprehensive metadata**: OpenGraph, Twitter cards, manifest, icons
-- **Sitemap generation**: Automatic via `next-sitemap` after build
-- **ISR considerations**: Dynamic content revalidation for SEO
+- **Multiple backends**: Upstash Redis (production) with in-memory fallback (development)
+- **Configurable limits**: Different limits for different endpoints
+- **Graceful degradation**: Falls back to in-memory if Redis unavailable
+- **Logging integration**: All rate limit events logged with context
 
-### Social Media Redirects
+### Logging & Monitoring
 
-- **Next.js redirects**: Configured in `next.config.js` for `/github`, `/linkedin`, etc.
-- **Permanent redirects**: All social links use `permanent: true`
+- **Environment-aware**: Pretty logs for development, JSON for production
+- **PII protection**: Automatic sanitization of sensitive data
+- **Edge Runtime compatible**: Works in serverless and edge environments
+- **Structured output**: Consistent format for log aggregation
 
 ## Content Management Workflows
 
@@ -135,9 +180,10 @@ pnpm studio:deploy       # Deploy studio to Sanity hosting
 
 ### AI Blog Generation
 
-- **Manual Trigger**: Use "Generate New Post" button on `/blog` page
+- **Manual Trigger**: Use "Generate Blog with AI" button on `/blog` page
 - **Automatic Process**: Topic selection, Gemini AI generation, Sanity publishing
 - **Content Quality**: AI generates technical content with code examples and structured format
+- **Rate Limited**: Strict rate limiting prevents abuse
 
 ## Common Tasks
 
@@ -147,6 +193,30 @@ pnpm studio:deploy       # Deploy studio to Sanity hosting
 2. Use PascalCase naming with TypeScript
 3. Add to barrel export in `index.ts`
 4. Import using `@/components` alias
+
+### Adding Custom TailwindCSS v4 Utilities
+
+Add to `src/styles/globals.css`:
+
+```css
+@utility my-custom-utility {
+  /* CSS properties */
+  color: var(--color-primary);
+  transition: all 300ms ease;
+
+  &:hover {
+    color: var(--color-secondary);
+  }
+}
+```
+
+### API Route Development
+
+1. Create route handler in `src/app/api/`
+2. Add Zod schema validation in `src/lib/schemas.ts`
+3. Implement rate limiting with appropriate config
+4. Use centralized error handling
+5. Add structured logging for monitoring
 
 ### Modifying Layout
 
@@ -178,7 +248,7 @@ pnpm studio:deploy       # Deploy studio to Sanity hosting
 ### Deployment Preparation
 
 - **Build validation**: `pnpm test-all:build` must pass
-- **Environment variables**: Ensure Sanity and Gemini credentials are set
+- **Environment variables**: Ensure all required credentials are set
 - **Studio deployment**: Deploy Sanity Studio separately
 - **Sitemap verification**: Check generated files in `public/` after build
 
@@ -193,10 +263,20 @@ pnpm studio:deploy       # Deploy studio to Sanity hosting
 ### Optional Variables
 
 - `GEMINI_API_KEY`: For AI blog generation
+- `UPSTASH_REDIS_REST_URL`: Redis URL for production rate limiting
+- `UPSTASH_REDIS_REST_TOKEN`: Redis authentication token
+- `LOG_LEVEL`: Logging level (trace, debug, info, warn, error, fatal)
+- `NEXLOG_STRUCTURED`: Enable JSON structured logging (true/false)
 - `SITE_URL`: Custom domain (auto-detected otherwise)
 
 ### Development vs Production
 
-- **Development**: Uses local studio and dev Sanity dataset
-- **Production**: Uses production Sanity dataset with ISR caching
+- **Development**: Uses local studio, in-memory rate limiting, pretty logs
+- **Production**: Uses production Sanity dataset, Redis rate limiting, structured logs
 - **Studio**: Separate deployment with environment variable inheritance
+
+### Error Handling Configuration
+
+- **Development**: Detailed error messages with stack traces
+- **Production**: Sanitized error messages, no sensitive data exposure
+- **Logging**: All errors logged with context for debugging
