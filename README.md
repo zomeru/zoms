@@ -19,8 +19,10 @@ Modern, responsive portfolio website for Zomer Gregorio featuring dynamic conten
 - **🤖 AI-Powered Blog**: Automatic content generation using Google Gemini AI
 - **📝 Content Management**: Dynamic content via Sanity CMS with live preview
 - **💻 Syntax Highlighting**: Beautiful code blocks with React Syntax Highlighter
+- **📖 Markdown Rendering**: GitHub-flavored markdown with unified.js and react-markdown
 - **🔄 Topic Rotation**: Intelligent cycling through curated technical topics
 - **📊 Content Analytics**: Track AI-generated vs manually created posts
+- **🎨 Rich Formatting**: Support for tables, task lists, blockquotes, and inline code
 
 ### Enterprise Features
 
@@ -51,7 +53,9 @@ Modern, responsive portfolio website for Zomer Gregorio featuring dynamic conten
 
 - **CMS**: Sanity (@sanity/client 7.12.0)
 - **AI**: Google Gemini API (@google/generative-ai 0.24.1)
-- **Rich Text**: Portable Text with React Syntax Highlighter
+- **Markdown Processing**: Unified.js ecosystem (remark-parse, remark-gfm, rehype-stringify)
+- **Markdown Rendering**: react-markdown with GFM support
+- **Syntax Highlighting**: React Syntax Highlighter with Prism
 - **Image Optimization**: Sanity Image URLs with Next.js optimization
 
 ### Enterprise Features
@@ -160,6 +164,32 @@ curl -X POST http://localhost:3000/api/blog/generate \
   -d '{"aiGenerated": true}'
 ```
 
+### Markdown Architecture
+
+The blog system uses a modern, simplified markdown processing pipeline:
+
+**Content Flow:**
+
+1. **AI Generation**: Gemini generates markdown content with proper formatting
+2. **Direct Storage**: Raw markdown is stored in Sanity's `bodyMarkdown` field
+3. **Render Time**: React-markdown processes markdown during render with:
+   - GitHub-flavored markdown (tables, task lists, strikethrough)
+   - Syntax highlighting via React Syntax Highlighter
+   - Custom styled components for headings, blockquotes, code blocks
+
+**Benefits:**
+
+- ⚡ **Faster API Response**: No server-side preprocessing required
+- 🔧 **Simpler Code**: 400+ lines of custom parser removed
+- 📝 **Better Markdown**: Full GFM support out of the box
+- 🔄 **Backward Compatible**: Legacy block content still supported
+
+**Unified.js Integration:**
+
+- `markdownProcessor.ts` provides unified pipeline for future use
+- Can process markdown to HTML with rehype plugins
+- Currently rendering handled by react-markdown for better React integration
+
 ## 📦 Available Scripts
 
 ### Development
@@ -217,6 +247,8 @@ zoms/
 │   ├── lib/              # Utilities and services
 │   │   ├── blog.ts       # Blog data fetching with ISR
 │   │   ├── generateBlog.ts # AI blog generation logic
+│   │   ├── generateBlogHelpers.ts # JSON parsing utilities
+│   │   ├── markdownProcessor.ts # Unified.js markdown pipeline
 │   │   ├── schemas.ts    # Zod validation schemas
 │   │   ├── errorHandler.ts # Centralized error handling
 │   │   ├── rateLimit.ts  # Rate limiting utilities
