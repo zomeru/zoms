@@ -1,352 +1,133 @@
 # Code Style Conventions
 
-## TypeScript Configuration
+## TypeScript Standards
 
-### Strict Type Checking
-
-```typescript
-// tsconfig.json key settings
-{
-  "strict": true,
-  "noImplicitReturns": true,
-  "noUnusedLocals": true,
-  "noUnusedParameters": true,
-  "noUncheckedIndexedAccess": true,
-  "exactOptionalPropertyTypes": true
-}
-```
-
-### Component Typing Patterns
+### Component Types and Patterns
 
 ```typescript
-// Always specify return type for components
-const ComponentName = (): React.JSX.Element => {
+// Always use React.JSX.Element return type for components
+const MyComponent = async (): Promise<React.JSX.Element> => {
   return <div>Content</div>;
 };
 
-// Props interface with proper typing
+// Props destructuring in function parameters with explicit typing
 interface ComponentProps {
   title: string;
-  optional?: boolean;
-  children?: React.ReactNode;
+  count?: number;
 }
 
-const Component = ({ title, optional = false, children }: ComponentProps): React.JSX.Element => {
-  return <div>{title}</div>;
-};
-```
-
-## Component Conventions
-
-### File Naming
-
-- **Components**: PascalCase (e.g., `MainInfo.tsx`, `BlogContent.tsx`)
-- **Utilities**: camelCase (e.g., `generateBlog.ts`, `utils.ts`)
-- **Constants**: camelCase (e.g., `projects.ts`, `other.ts`)
-- **API Routes**: lowercase (e.g., `route.ts`)
-
-### Component Structure
-
-```typescript
-// 1. External imports
-import React from 'react';
-import Link from 'next/link';
-
-// 2. Internal imports (using @/ alias)
-import { ComponentName } from '@/components';
-import { CONSTANT_NAME } from '@/constants';
-import { functionName } from '@/lib/utils';
-
-// 3. Type definitions
-interface Props {
-  // Props definition
-}
-
-// 4. Component implementation
-const ComponentName = ({ prop }: Props): React.JSX.Element => {
-  // Component logic
-  return (
-    <div>
-      {/* JSX content */}
-    </div>
-  );
+const Component = ({ title, count = 0 }: ComponentProps): React.JSX.Element => {
+  return <div>{title}: {count}</div>;
 };
 
-// 5. Default export
-export default ComponentName;
-```
-
-### Barrel Exports
-
-```typescript
-// Usage
-import { Footer, MainInfo, Navigation } from '@/components';
-
-// components/index.ts
-export { default as MainInfo } from './MainInfo';
-export { default as Navigation } from './Navigation';
-export { default as Footer } from './Footer';
-```
-
-## Data Fetching Patterns
-
-### Sanity Data Fetching
-
-```typescript
-// ISR pattern with error handling
-export async function getBlogPosts(limit = 25, offset = 0): Promise<BlogPostListItem[]> {
-  try {
-    const posts = await client.fetch<BlogPostListItem[]>(
-      `*[_type == "blogPost"] | order(publishedAt desc) [$offset...$end] {
-        _id,
-        title,
-        slug,
-        summary,
-        publishedAt,
-        tags,
-        generated,
-        readTime
-      }`,
-      { offset, end: offset + limit },
-      {
-        // ISR revalidation
-        next: { revalidate: 60 }
-      }
-    );
-
-    return posts;
-  } catch (error) {
-    // Development-only logging
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error fetching blog posts from Sanity:', error);
-    }
-    return [];
-  }
-}
+// Async components (common in App Router)
+const DataComponent = async (): Promise<React.JSX.Element> => {
+  const data = await fetchData();
+  return <div>{data}</div>;
+};
 ```
 
 ### API Route Patterns
 
 ```typescript
-// Next.js 15 App Router API pattern
+// Standard API route structure with validation
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  try {
-    // API logic
-    const data = await fetchData();
-    return NextResponse.json(data);
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
-}
+import { handleApiError, validateSchema } from '@/lib/errorHandler';
+import log from '@/lib/logger';
+import { rateLimitMiddleware } from '@/lib/rateLimit';
+
+const requestSchema = z.object({
+  title: z.string().min(1),
+  content: z.string().min(10)
+});
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    // Rate limiting check
+    const rateLimitResult = await rateLimitMiddleware(request, 'BLOG_API');
+    if (rateLimitResult) return rateLimitResult;
+
+    // Request validation
     const body = await request.json();
-    // Process request
-    return NextResponse.json({ success: true });
+    const validatedData = validateSchema(requestSchema, body);
+
+    // Business logic with logging
+    log.info('Processing request', {
+      method: 'POST',
+      path: '/api/example'
+    });
+
+    const result = await processData(validatedData);
+
+    return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    return NextResponse.json({ error: 'Bad request' }, { status: 400 });
+    return handleApiError(error, {
+      method: 'POST',
+      path: '/api/example'
+    });
   }
 }
 ```
 
-## Styling Conventions
-
-### TailwindCSS Class Organization
+### Error Handling Patterns
 
 ```typescript
-// Group related classes with line breaks for readability
-const Component = (): React.JSX.Element => {
-  return (
-    <div className='
-      max-w-[1300px] mx-auto h-auto lg:h-full relative
-      px-6 sm:px-12 md:px-16 lg:px-20
-      py-[50px] md:py-[90px]
-    '>
-      <section className='
-        mb-24 sm:mb-32
-        group lg:group-hover/list:opacity-50 lg:hover:!opacity-100
-        transition-all duration-300 ease-in-out
-      '>
-        Content
-      </section>
-    </div>
-  );
-};
-```
+// Custom API errors
+import { ApiError } from '@/lib/errorHandler';
+// Client-side error handling
+import { getClientErrorMessage } from '@/lib/errorMessages';
 
-### Responsive Design Patterns
+// Throw structured errors
+throw new ApiError('Resource not found', 404, 'RESOURCE_NOT_FOUND', { resourceId: id });
 
-```typescript
-// Mobile-first approach
-<div className='
-  grid grid-cols-8
-  space-y-6 mb-10
-'>
-  <div className='col-span-8 sm:col-span-2 text-textSecondary text-sm mb-1 sm:mb-0'>
-    Date
-  </div>
-  <div className='ml-0 sm:ml-4 col-span-8 sm:col-span-6'>
-    Content
-  </div>
-</div>
-```
-
-## Error Handling
-
-### Component Error Boundaries
-
-```typescript
-// Graceful error handling with fallbacks
-const Component = (): React.JSX.Element => {
-  const [data, setData] = useState<DataType[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchData()
-      .then(setData)
-      .catch((err) => {
-        setError(err.message);
-        // Use fallback data from constants
-        setData(FALLBACK_DATA);
-      });
-  }, []);
-
-  if (error && !data) {
-    return <div>Unable to load content. Please try again later.</div>;
-  }
-
-  return <div>{/* Render data */}</div>;
-};
-```
-
-### API Error Handling
-
-```typescript
-// Consistent error response format
-export async function handleApiError(error: unknown): Promise<NextResponse> {
-  if (error instanceof ValidationError) {
-    return NextResponse.json({ error: error.message, code: 'VALIDATION_ERROR' }, { status: 400 });
-  }
-
-  // Log server errors but don't expose details
-  console.error('API Error:', error);
-  return NextResponse.json(
-    { error: 'Internal server error', code: 'INTERNAL_ERROR' },
-    { status: 500 }
-  );
+try {
+  await apiCall();
+} catch (error) {
+  const message = getClientErrorMessage(error);
+  toast.error(message);
 }
 ```
 
-## Import/Export Standards
-
-### Path Aliases
+### Zod Schema Patterns
 
 ```typescript
-// Always use @/ alias for internal imports
-import { Component } from '@/components';
-import { config } from '@/configs';
-import { CONSTANT } from '@/constants';
-import { utility } from '@/lib/utils';
-
-// Never use relative imports for src/ files
-// ❌ import { Component } from '../../../components/Component';
-// ✅ import { Component } from '@/components';
-```
-
-### Export Patterns
-
-```typescript
-// Default exports for components
-export default ComponentName;
-
-// Named exports for utilities and constants
-export const CONSTANT_VALUE = 'value';
-export const utilityFunction = () => {};
-
-// Barrel exports for clean imports
-// index.ts
-export { default as ComponentA } from './ComponentA';
-export { default as ComponentB } from './ComponentB';
-export * from './constants';
-```
-
-## Environment and Configuration
-
-### Environment Variable Patterns
-
-```typescript
-// Client-side variables (NEXT_PUBLIC_ prefix)
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-
-// Server-side only variables
-const apiKey = process.env.GEMINI_API_KEY;
-
-// Type-safe environment validation
-if (!projectId) {
-  throw new Error('NEXT_PUBLIC_SANITY_PROJECT_ID is required');
-}
-```
-
-### Configuration Management
-
-```typescript
-// Centralized configuration in configs/
-export const seoConfig = {
-  siteName: 'Zoms Portfolio',
-  siteDescription: 'Software Engineer Portfolio',
-  siteUrl: process.env.SITE_URL || 'https://zoms.vercel.app',
-  openGraph: {
-    type: 'website',
-    locale: 'en_US'
-    // ... other config
-  }
-};
-```
-
-## Performance Considerations
-
-### Component Optimization
-
-```typescript
-// Use React.memo for expensive components
-const ExpensiveComponent = React.memo(({ data }: Props) => {
-  return <div>{/* Expensive rendering */}</div>;
+// API validation schemas
+export const blogPostSchema = z.object({
+  title: z.string().min(1).max(200),
+  content: z.string().min(10),
+  tags: z.array(z.string()).optional(),
+  published: z.boolean().default(false)
 });
 
-// Lazy loading for non-critical components
-const LazyComponent = React.lazy(() => import('./LazyComponent'));
+// Type inference from schemas
+export type BlogPostInput = z.infer<typeof blogPostSchema>;
 
-// Dynamic imports for large dependencies
-const generateBlog = async () => {
-  const { generateWithGemini } = await import('@/lib/generateBlog');
-  return generateWithGemini();
-};
+// Schema composition
+export const paginationSchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(25),
+  offset: z.coerce.number().int().min(0).default(0)
+});
+
+export const blogListQuerySchema = z
+  .object({
+    search: z.string().optional(),
+    tags: z.array(z.string()).optional()
+  })
+  .merge(paginationSchema);
 ```
 
-### Data Fetching Optimization
+### Interface Definitions
 
 ```typescript
-// ISR with appropriate revalidation times
-export const revalidate = 60; // 60 seconds for blog content
-export const revalidate = 3600; // 1 hour for less frequent updates
-
-// Parallel data fetching
-const [posts, experience] = await Promise.all([getBlogPosts(), getExperience()]);
-```
-
-## Testing and Validation
-
-### Type Safety
-
-```typescript
-// Comprehensive type definitions
-interface BlogPost {
+// Sanity document interfaces
+export interface BlogPost {
   _id: string;
+  _type: 'blogPost';
   title: string;
   slug: {
+    _type: 'slug';
     current: string;
   };
   summary: string;
@@ -359,28 +140,371 @@ interface BlogPost {
   readTime?: number;
 }
 
-// Runtime validation for external data
-const validateBlogPost = (data: unknown): data is BlogPost => {
+// Component prop interfaces
+interface BlogListProps {
+  posts: BlogPost[];
+  pagination: {
+    limit: number;
+    offset: number;
+    total: number;
+    hasMore: boolean;
+  };
+}
+```
+
+## Styling Conventions
+
+### TailwindCSS v4 Usage
+
+```tsx
+// Use semantic color names from CSS variables
+<div className="bg-backgroundPrimary text-textPrimary">
+  <h1 className="text-primary">Title</h1>
+  <p className="text-textSecondary">Description</p>
+</div>
+
+// Custom utility classes for consistent patterns
+<h2 className="section-title">Section Title</h2>
+<Link href="/blog" className="link-primary">Blog Link</Link>
+<button className="btn-primary">Primary Button</button>
+
+// Responsive design with mobile-first approach
+<div className="grid grid-cols-8">
+  <div className="col-span-8 sm:col-span-2 text-textSecondary">
+    Date
+  </div>
+  <div className="col-span-8 sm:col-span-6 ml-0 sm:ml-4">
+    Content
+  </div>
+</div>
+
+// Interactive hover effects
+<li className="group lg:group-hover/list:opacity-50 lg:hover:!opacity-100 transition-all duration-300">
+  Content
+</li>
+```
+
+### Component Styling Patterns
+
+```tsx
+// Consistent spacing patterns
+<section className="mb-24 sm:mb-32">
+  <h2 className="section-title">Title</h2>
+  <div className="space-y-6 mb-10">
+    Content items
+  </div>
+</section>
+
+// Layout container patterns
+<main className="max-w-[1300px] mx-auto px-6 sm:px-12 md:px-16 lg:px-20 py-[50px] md:py-[90px]">
+  Content
+</main>
+
+// Button styling conventions
+<button className="px-4 py-2 bg-secondary text-backgroundPrimary rounded-lg hover:bg-opacity-80 transition-all text-sm font-medium">
+  Action Button
+</button>
+```
+
+## Import/Export Conventions
+
+### Barrel Exports
+
+```typescript
+// Usage in files
+import { About, Blog, Experience } from '@/components/Sections';
+import { Footer, MainInfo } from '@/components';
+
+// components/index.ts
+export { default as MainInfo } from './MainInfo';
+export { default as Footer } from './Footer';
+export { default as DogeModal } from './DogeModal';
+
+// components/Sections/index.ts
+export { default as About } from './About';
+export { default as Blog } from './Blog';
+export { default as Experience } from './Experience';
+```
+
+### Default vs Named Exports
+
+```typescript
+// Components: Default exports
+const BlogPost = (): React.JSX.Element => {
+  return <article>Content</article>;
+};
+
+export default BlogPost;
+
+// Utilities: Named exports
+export const formatDate = (date: string): string => {
+  return new Date(date).toLocaleDateString();
+};
+
+export const generateSlug = (title: string): string => {
+  return title.toLowerCase().replace(/\s+/g, '-');
+};
+
+// Types: Named exports
+export interface BlogPost {
+  id: string;
+  title: string;
+}
+
+export type BlogStatus = 'draft' | 'published' | 'archived';
+```
+
+### Path Aliases Usage
+
+```typescript
+// Always use @/ for src/ imports
+
+// External packages first, then internal
+import React from 'react';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+
+import { getSEOConfig } from '@/configs/seo';
+import { PROJECTS } from '@/constants/projects';
+import { MainInfo } from '@/components';
+import { handleError } from '@/lib/errorHandler';
+import log from '@/lib/logger';
+import { BlogPost } from '@/lib/types';
+```
+
+## Data Fetching Patterns
+
+### ISR with Error Handling
+
+```typescript
+// Fetch with ISR and fallback
+export async function getBlogPosts(limit = 25, offset = 0): Promise<BlogPost[]> {
+  try {
+    const posts = await client.fetch<BlogPost[]>(
+      query,
+      { limit, offset },
+      {
+        next: { revalidate: 60 } // ISR with 60-second revalidation
+      }
+    );
+    return posts;
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error fetching from Sanity:', error);
+    }
+    // Return fallback data or empty array
+    return [];
+  }
+}
+
+// Server component data fetching
+const BlogSection = async (): Promise<React.JSX.Element> => {
+  const posts = await getLatestBlogPosts(MAX_PORTFOLIO_BLOG_POSTS);
+
+  if (posts.length === 0) {
+    return <p className="text-textSecondary">No posts available</p>;
+  }
+
   return (
-    typeof data === 'object' &&
-    data !== null &&
-    typeof (data as BlogPost)._id === 'string' &&
-    typeof (data as BlogPost).title === 'string'
-    // ... other validations
+    <section>
+      {posts.map(post => (
+        <BlogCard key={post._id} post={post} />
+      ))}
+    </section>
   );
 };
 ```
 
-### Code Quality Tools
+### Client-Side Data Fetching
 
 ```typescript
-// ESLint configuration adherence
-/* eslint-disable no-console -- Allow console in development for debugging */
-if (process.env.NODE_ENV === 'development') {
-  console.error('Development error:', error);
-}
-/* eslint-enable no-console */
+// Client component with error handling
+'use client';
 
-// Prettier formatting (auto-applied via Husky)
-// No manual formatting required - handled by pre-commit hooks
+import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+
+const ClientComponent = (): React.JSX.Element => {
+  const [data, setData] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async (): Promise<void> => {
+      try {
+        const response = await fetch('/api/blog');
+        if (!response.ok) {
+          throw new Error('Failed to fetch');
+        }
+        const result = await response.json();
+        setData(result.posts);
+      } catch (error) {
+        toast.error('Failed to load data');
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void fetchData();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+
+  return <div>{/* Render data */}</div>;
+};
+```
+
+## Logging and Monitoring
+
+### Structured Logging
+
+```typescript
+import log from '@/lib/logger';
+
+// Standard logging with metadata
+log.info('User action completed', {
+  userId: user.id,
+  action: 'blog_generated',
+  duration: performance.now() - start
+});
+
+// Error logging with context
+log.error('API request failed', {
+  method: 'POST',
+  path: '/api/blog/generate',
+  error: error.message,
+  userId: user?.id
+});
+
+// Performance monitoring
+const result = await log.timeAsync('Blog generation', () => generateBlogPost(topic), {
+  topic,
+  model: 'gemini-pro'
+});
+```
+
+### Error Boundary Patterns
+
+```typescript
+// Use Next.js error boundaries
+// error.tsx in app directory
+'use client';
+
+import { useEffect } from 'react';
+import log from '@/lib/logger';
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}): React.JSX.Element {
+  useEffect(() => {
+    log.error('Page error boundary triggered', {
+      error: error.message,
+      digest: error.digest
+    });
+  }, [error]);
+
+  return (
+    <div className="text-center py-20">
+      <h2 className="text-xl text-primary mb-4">Something went wrong!</h2>
+      <button onClick={reset} className="btn-primary">
+        Try again
+      </button>
+    </div>
+  );
+}
+```
+
+## Security and Validation
+
+### Environment Variable Handling
+
+```typescript
+// Validate required environment variables
+const requiredEnvVars = {
+  NEXT_PUBLIC_SANITY_PROJECT_ID: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  NEXT_PUBLIC_SANITY_DATASET: process.env.NEXT_PUBLIC_SANITY_DATASET,
+  SANITY_API_TOKEN: process.env.SANITY_API_TOKEN
+} as const;
+
+for (const [key, value] of Object.entries(requiredEnvVars)) {
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+}
+
+// Optional environment variables with defaults
+const config = {
+  logLevel: process.env.LOG_LEVEL ?? 'info',
+  rateLimit: {
+    maxRequests: Number(process.env.RATE_LIMIT_MAX) || 60,
+    windowMs: Number(process.env.RATE_LIMIT_WINDOW) || 60000
+  }
+};
+```
+
+### Input Sanitization
+
+```typescript
+// Sanitize user inputs
+import { sanitizeValue } from '@/lib/logger';
+
+const sanitizedInput = sanitizeValue(userInput);
+log.info('User input received', { input: sanitizedInput });
+
+// Validate file uploads
+const validateImageUpload = (file: File): boolean => {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  const maxSize = 5 * 1024 * 1024; // 5MB
+
+  return allowedTypes.includes(file.type) && file.size <= maxSize;
+};
+```
+
+## Testing Patterns
+
+### Component Testing Conventions
+
+```typescript
+// Test component render and behavior
+import { render, screen } from '@testing-library/react';
+import BlogCard from '@/components/BlogCard';
+
+test('renders blog card with title and summary', () => {
+  const mockPost = {
+    _id: '1',
+    title: 'Test Post',
+    summary: 'Test summary',
+    slug: { current: 'test-post' },
+    publishedAt: '2024-01-01'
+  };
+
+  render(<BlogCard post={mockPost} />);
+
+  expect(screen.getByText('Test Post')).toBeInTheDocument();
+  expect(screen.getByText('Test summary')).toBeInTheDocument();
+});
+```
+
+### API Testing Patterns
+
+```typescript
+// Test API endpoints
+import { NextRequest } from 'next/server';
+
+import { GET } from '@/app/api/blog/route';
+
+test('GET /api/blog returns blog posts', async () => {
+  const request = new NextRequest('http://localhost/api/blog');
+  const response = await GET(request);
+
+  expect(response.status).toBe(200);
+
+  const data = await response.json();
+  expect(data).toHaveProperty('posts');
+  expect(Array.isArray(data.posts)).toBe(true);
+});
 ```

@@ -8,6 +8,7 @@ import {
 } from '@/constants/topics';
 import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
 
+import { getErrorMessage } from './errorMessages';
 import { extractAndFixJSON, handleCodeBlock, handleTextBlock } from './generateBlogHelpers';
 import { pickOneOrNone, pickRandom } from './utils';
 
@@ -63,7 +64,7 @@ export async function generateBlogContent(): Promise<GeneratedBlogPost> {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    throw new Error('Gemini API key is not configured');
+    throw new Error(getErrorMessage('MISSING_GEMINI_KEY'));
   }
 
   const { frameworkTopics, selectedCloudPlatformTopic, selectedGeneralTopics } =
@@ -72,7 +73,7 @@ export async function generateBlogContent(): Promise<GeneratedBlogPost> {
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-  const prompt = `Write a comprehensive, informative blog post about:
+  const prompt = `Write a comprehensive, informative, and technical blog post about:
 ${formatTopicListAsMarkdown(frameworkTopics)}
 
 with combinations of topics from:
@@ -100,7 +101,7 @@ CRITICAL: Respond with ONLY valid JSON in this exact format (no additional text 
   "title": "Compelling and concise blog post title (Must be between 40 and 80 characters in length, spaces included — ABSOLUTE REQUIREMENT)",
   "summary": "Brief SEO-friendly summary (Must be between 100 and 200 characters, including spaces — NON-NEGOTIABLE; do not use backticks or quotes)",
   "body": "Full blog content in Markdown format. Use proper escaping for special characters.",
-  "tags": ["tag1", "tag2", "tag3"],
+  "tags": ["tag1", "tag2", "tag3"], // This is important, always include this: include 3-8 relevant tags, all lowercase, no special characters
   "readTime": 5
 }
 
@@ -141,7 +142,7 @@ Make sure the content is:
 
     // Validate required fields
     if (!parsed.title || !parsed.summary || !parsed.body) {
-      throw new Error('Missing required fields in generated content');
+      throw new Error(getErrorMessage('MISSING_REQUIRED_FIELDS'));
     }
 
     return {
@@ -152,7 +153,7 @@ Make sure the content is:
       readTime: parsed.readTime ?? 5 // Default to 5 minutes if not provided
     };
   } catch (error) {
-    throw new Error('Failed to parse AI-generated content', { cause: error });
+    throw new Error(getErrorMessage('AI_GENERATION_FAILED'), { cause: error });
   }
 }
 

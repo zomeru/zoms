@@ -1,5 +1,7 @@
 import crypto from 'node:crypto';
 
+import { getErrorMessage } from './errorMessages';
+
 /**
  * Remove markdown code block wrappers from text
  */
@@ -70,14 +72,14 @@ export function reconstructJSON(jsonText: string): string {
   const bodyStartMatch = bodyStartRegex.exec(jsonText);
 
   if (!bodyStartMatch || !titleMatch || !summaryMatch) {
-    throw new Error('Could not extract required JSON fields');
+    throw new Error(getErrorMessage('AI_JSON_PARSE_ERROR'));
   }
 
   const bodyStart = bodyStartMatch.index + bodyStartMatch[0].length;
   const bodyEnd = findBodyEnd(jsonText, bodyStart);
 
   if (bodyEnd === -1) {
-    throw new Error('Could not find end of body string');
+    throw new Error(getErrorMessage('AI_BODY_EXTRACTION_ERROR'));
   }
 
   const bodyContent = jsonText.slice(bodyStart, bodyEnd);
@@ -113,7 +115,7 @@ export function extractAndFixJSON(text: string): string {
   try {
     return reconstructJSON(jsonText);
   } catch (parseError) {
-    throw new Error('Failed to parse or reconstruct JSON from AI response', {
+    throw new Error(getErrorMessage('AI_JSON_PARSE_ERROR'), {
       cause: parseError
     });
   }

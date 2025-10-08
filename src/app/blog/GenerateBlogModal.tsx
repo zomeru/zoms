@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
 
+import { CLIENT_ERROR_MESSAGES, getClientErrorMessage } from '@/lib/errorMessages';
+
 interface GenerateBlogModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -19,7 +21,7 @@ const GenerateBlogModal: React.FC<GenerateBlogModalProps> = ({ isOpen, onClose, 
     setError(null);
 
     if (!token.trim()) {
-      setError('Please enter the blog generation secret token');
+      setError(CLIENT_ERROR_MESSAGES.TOKEN_REQUIRED);
       return;
     }
 
@@ -29,7 +31,7 @@ const GenerateBlogModal: React.FC<GenerateBlogModalProps> = ({ isOpen, onClose, 
       setToken('');
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate blog post');
+      setError(getClientErrorMessage(err));
     } finally {
       setIsGenerating(false);
     }

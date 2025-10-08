@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 
+import { getClientErrorMessage } from '@/lib/errorMessages';
+
 import GenerateBlogModal from './GenerateBlogModal';
 
 const BlogGenerateButton: React.FC = () => {
@@ -36,7 +38,7 @@ const BlogGenerateButton: React.FC = () => {
       // Refresh the page to show the new blog post
       router.refresh();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to generate blog post';
+      const errorMessage = getClientErrorMessage(err);
       toast.error(errorMessage, { id: toastId });
       throw err;
     }
