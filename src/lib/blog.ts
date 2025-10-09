@@ -82,7 +82,6 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
         publishedAt,
         modifiedAt,
         body,
-        bodyMarkdown,
         tags,
         source,
         generated,

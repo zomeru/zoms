@@ -36,7 +36,7 @@ Modern personal portfolio + AI-assisted technical blog. Built with **Next.js 15 
 ### Blog System
 
 - AI-powered generation via Gemini (`/api/blog/generate`)
-- Sanity-backed storage (raw markdown stored in `body` / `bodyMarkdown`)
+- Sanity-backed storage (raw markdown stored in `body`)
 - Pagination + summary + tags + read time
 - ISR (60s) for list + detail fetches
 

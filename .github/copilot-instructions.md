@@ -10,7 +10,7 @@ Stack: Next.js 15 (App Router, TS strict), React 19, TailwindCSS v4, Sanity CMS,
 ## 2. Core Architecture
 
 - App Router (`src/app`) with server components by default; mark interactive files with `'use client'`.
-- Blog content: Gemini produces JSON containing markdown body → stored in Sanity (`bodyMarkdown` / `body`) → rendered to HTML (current implementation uses pre-rendered HTML in `BlogContent.tsx`; ensure sanitation if enabling raw markdown rendering).
+- Blog content: Gemini produces JSON containing markdown body → stored in Sanity (`body`) → rendered to HTML (current implementation uses pre-rendered HTML in `BlogContent.tsx`; ensure sanitation if enabling raw markdown rendering).
 - Revalidation: Queries include `next: { revalidate: 60 }` for incremental freshness.
 - Rate limiting: `rateLimit.ts` (in‑memory + Upstash sliding window). Stricter on generation endpoint.
 - Error layer: `errorHandler.ts` (`ApiError`, `withErrorHandling`, `handleApiError`). Always use in API routes.
