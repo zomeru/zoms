@@ -56,7 +56,15 @@ export async function generateBlogContent(): Promise<GeneratedBlogPost> {
   const topics = selectCombinationOfTopics();
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-2.5-flash',
+    generationConfig: {
+      maxOutputTokens: 2048, // Limit output to ~1500 words for faster generation
+      temperature: 0.7, // Balanced creativity with faster, more focused responses
+      topP: 0.9,
+      topK: 40
+    }
+  });
 
   const prompt = `
 Write a comprehensive, technically detailed blog post that demonstrates how the following web development topics can be integrated within a single application context:
@@ -70,7 +78,7 @@ The article must be written for intermediate to advanced web developers, offerin
 Writing Guidelines:
 1. Use a professional yet engaging tone suitable for software engineers.
 2. Include relevant code snippets and technical explanations.
-3. Word count: 1000–1500 words.
+3. Word count: 800–1200 words (optimized for faster generation).
 4. Structure clearly using Markdown headings (## for major sections).
 5. Focus on actionable insights and real-world applications.
 6. Target audience: intermediate to advanced developers.
