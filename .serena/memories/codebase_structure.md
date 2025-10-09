@@ -1,6 +1,7 @@
 # Codebase Structure
 
 ## Root Directory Structure
+
 ```
 zoms/
 ├── .github/                 # GitHub configuration and workflows
@@ -23,6 +24,7 @@ zoms/
 ```
 
 ## Source Code Structure (src/)
+
 ```
 src/
 ├── app/                     # Next.js App Router
@@ -42,12 +44,15 @@ src/
 ## Key Directories Explained
 
 ### `/src/app/api/blog/`
+
 - `route.ts` - GET /api/blog (paginated blog list)
 - `generate/route.ts` - GET/POST /api/blog/generate (AI blog generation)
 - `[slug]/route.ts` - GET /api/blog/[slug] (single blog post)
 
 ### `/src/lib/`
+
 Core utility modules:
+
 - `blog.ts` - Blog data fetching functions
 - `errorHandler.ts` - Centralized error handling
 - `generateBlog.ts` - AI blog generation logic
@@ -60,31 +65,38 @@ Core utility modules:
 - `utils.ts` - General utility functions
 
 ### `/src/constants/`
+
 Static data files for content that doesn't need CMS management
 
 ### `/src/components/`
+
 Reusable UI components organized by feature/section
 
 ### `/studio/`
+
 Sanity CMS configuration:
+
 - `schemas/` - Content type definitions
 - `sanity.config.ts` - Studio configuration
 
 ## Architecture Patterns
 
 ### API Routes
+
 - All routes use centralized error handling
 - Rate limiting applied based on endpoint type
 - Zod validation for request/response data
 - Structured logging for observability
 
 ### Data Flow
+
 1. **Static Content** → TypeScript constants in `/src/constants/`
 2. **Dynamic Content** → Sanity CMS with ISR (60s revalidation)
 3. **AI Content** → Generated via Gemini API and stored in Sanity
 4. **Client Rendering** → Server components by default, client only when needed
 
 ### Component Architecture
+
 - Server components for data fetching and static content
 - Client components marked with `'use client'` for interactivity
 - Shared utilities in `/src/lib/` for reuse across components and API routes
