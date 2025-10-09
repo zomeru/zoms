@@ -88,6 +88,51 @@ const getErrorCode = (error: unknown): string => {
 };
 
 /**
+ * Get error stack trace for logging
+ * Returns stack trace for all environments (needed for monitoring)
+ */
+export const getErrorStackTrace = (error: unknown): string | undefined => {
+  if (error instanceof Error && error.stack) {
+    return error.stack;
+  }
+  return undefined;
+};
+
+/**
+ * Extract error origin (function/module) from stack trace
+ * Parses the first meaningful line from the stack trace
+ */
+export const getErrorOrigin = (error: unknown): string | undefined => {
+  if (!(error instanceof Error) || !error.stack) {
+    return undefined;
+  }
+
+  // Parse stack trace to find the first meaningful line
+  // Stack format: "Error: message\n    at function (file:line:col)"
+  const stackLines = error.stack.split('\n');
+
+  // Find first line that contains "at " and is not from error handling itself
+  for (const line of stackLines) {
+    const trimmed = line.trim();
+    if (
+      trimmed.startsWith('at ') &&
+      !trimmed.includes('errorHandler') &&
+      !trimmed.includes('node_modules')
+    ) {
+      // Extract function/module name
+      // Format: "at functionName (file)" or "at file"
+      const regex = /at\s+(?:async\s+)?([^\s(]+)/;
+      const match = regex.exec(trimmed);
+      if (match?.[1]) {
+        return match[1];
+      }
+    }
+  }
+
+  return undefined;
+};
+
+/**
  * Get error details for logging (dev only)
  */
 const getErrorDetails = (error: unknown): unknown => {
@@ -122,14 +167,18 @@ export const handleApiError = (
   const code = getErrorCode(error);
   const message = sanitizeErrorMessage(error);
   const details = getErrorDetails(error);
+  const stack = getErrorStackTrace(error);
+  const origin = getErrorOrigin(error);
 
-  // Log error with context
+  // Log error with full context (stack trace always included for monitoring)
   log.error('API Error', {
     code,
     message: error instanceof Error ? error.message : String(error),
     statusCode,
     method: context?.method,
     path: context?.path,
+    ...(stack ? { stack } : {}),
+    ...(origin ? { origin } : {}),
     details,
     ...context?.metadata
   });

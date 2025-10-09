@@ -171,7 +171,8 @@ export const checkRateLimit = async (
     return await limiter.limit(identifier);
   } catch (error) {
     log.error('Rate limiting error', {
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
+      ...(error instanceof Error && error.stack ? { stack: error.stack } : {})
     });
 
     // On error, allow the request but log it

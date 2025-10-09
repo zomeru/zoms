@@ -3,272 +3,100 @@
 ## Root Directory Structure
 
 ```
-/
-├── .github/              # GitHub configuration (dependabot, copilot instructions)
-├── .husky/              # Git hooks (pre-commit validation)
-├── public/              # Static assets, manifests, sitemaps
-├── src/                 # Frontend source code
-├── studio/              # Sanity CMS workspace
-├── package.json         # Dependencies and scripts
-├── next.config.js       # Next.js configuration with redirects
-├── postcss.config.mjs   # PostCSS configuration for TailwindCSS v4
-├── tsconfig.json        # TypeScript configuration
-├── eslint.config.mjs    # ESLint configuration
-└── prettier.config.js   # Prettier configuration
+zoms/
+├── .github/                 # GitHub configuration and workflows
+├── .husky/                  # Git hooks configuration
+├── .next/                   # Next.js build output (auto-generated)
+├── .serena/                 # Serena AI assistant configuration
+├── node_modules/            # Dependencies (auto-generated)
+├── public/                  # Static assets and files
+├── src/                     # Main application source code
+├── studio/                  # Sanity CMS configuration
+├── .env.example             # Environment variables template
+├── .env.local               # Local environment variables (not in git)
+├── .gitignore               # Git ignore rules
+├── eslint.config.mjs        # ESLint configuration
+├── next.config.js           # Next.js configuration
+├── package.json             # Project dependencies and scripts
+├── prettier.config.js       # Prettier configuration
+├── README.md                # Project documentation
+└── tsconfig.json            # TypeScript configuration
 ```
 
-## Source Code Organization (`src/`)
+## Source Code Structure (src/)
 
 ```
 src/
-├── app/                 # Next.js App Router
-│   ├── layout.tsx       # Root layout with font, metadata, global styles
-│   ├── page.tsx         # Home page component
-│   ├── not-found.tsx    # 404 page
-│   ├── blog/            # Blog pages and components
-│   │   ├── page.tsx     # Blog listing page with pagination
-│   │   ├── BlogListClient.tsx      # Client-side blog list with pagination
-│   │   ├── BlogGenerateButton.tsx  # AI generation button with toast
-│   │   ├── GenerateBlogModal.tsx   # Modal for AI blog generation
-│   │   └── [slug]/      # Dynamic blog post pages
-│   │       ├── page.tsx # Blog post page with metadata
-│   │       └── BlogContent.tsx     # Rich content renderer
-│   └── api/             # API routes with validation and error handling
-│       └── blog/        # Blog API endpoints
-│           ├── route.ts # Blog CRUD operations with pagination
-│           ├── generate/route.ts   # AI blog generation endpoint
-│           └── [slug]/route.ts     # Single post operations
-├── components/          # Reusable UI components
-│   ├── index.ts         # Barrel exports
-│   ├── MainInfo.tsx     # Left sidebar (name, title, navigation, socials)
-│   ├── MouseFollower.tsx # Interactive mouse follower effect
-│   ├── DogeModal.tsx    # Easter egg modal component
-│   ├── Footer.tsx       # Footer component
-│   ├── Navigation.tsx   # Navigation menu with active states
-│   ├── Socials.tsx      # Social media links
-│   ├── Portal/          # Portal component for modals
-│   │   ├── index.tsx    # Portal implementation
-│   │   └── index.css    # Portal-specific styles
-│   └── Sections/        # Main content sections
-│       ├── index.ts     # Barrel exports
-│       ├── About.tsx    # About section
-│       ├── Blog.tsx     # Blog section (latest posts preview)
-│       ├── Experience.tsx # Work experience (Sanity-powered with fallback)
-│       ├── Projects.tsx # Projects showcase section
-│       └── TechStack.tsx # Technology stack section
-├── configs/             # Application configuration
-│   ├── index.ts         # Barrel exports
-│   └── seo.ts           # SEO metadata and OpenGraph config
-├── constants/           # Static data and content
-│   ├── index.ts         # Barrel exports
-│   ├── experience.ts    # Fallback experience data
-│   ├── projects.ts      # Project portfolio data
-│   ├── topics.ts        # Blog topic rotation for AI generation
-│   └── other.ts         # Personal info and miscellaneous constants
-├── lib/                 # Utilities and services
-│   ├── blog.ts          # Blog data fetching with ISR
-│   ├── experience.ts    # Experience data fetching with fallback
-│   ├── generateBlog.ts  # AI blog generation logic
-│   ├── generateBlogHelpers.ts  # Helper functions for blog generation
-│   ├── sanity.ts        # Sanity client configuration
-│   ├── utils.ts         # General utility functions
-│   ├── schemas.ts       # Zod schemas for API validation
-│   ├── errorHandler.ts  # Centralized error handling utilities
-│   ├── errorMessages.ts # Error message definitions
-│   ├── rateLimit.ts     # Rate limiting with Redis/in-memory fallback
-│   └── logger.ts        # Edge Runtime-compatible structured logging
-└── styles/              # Global styles
-    └── globals.css      # TailwindCSS v4 imports, theme, and custom utilities
+├── app/                     # Next.js App Router
+│   ├── api/                 # API routes
+│   │   └── blog/            # Blog-related API endpoints
+│   ├── blog/                # Blog pages and components
+│   ├── layout.tsx           # Root layout component
+│   ├── not-found.tsx        # 404 page
+│   └── page.tsx             # Home page
+├── components/              # Reusable React components
+├── configs/                 # Application configuration
+├── constants/               # Static data and constants
+├── lib/                     # Utility functions and helpers
+└── styles/                  # Global styles and CSS
 ```
 
-## Studio Directory (`studio/`)
+## Key Directories Explained
 
-```
-studio/
-├── schemas/             # Sanity schema definitions
-│   ├── index.ts         # Schema exports
-│   ├── blogPost.ts      # Blog post schema with validation
-│   ├── experience.ts    # Experience schema
-│   ├── blockContent.ts  # Rich text schema for general content
-│   └── blogPostBlockContent.ts  # Blog-specific rich text with code blocks
-├── sanity.config.ts     # Sanity studio configuration
-├── config.ts            # Studio-specific configuration
-├── sanity.cli.ts        # CLI configuration
-└── package.json         # Studio dependencies and scripts
-```
+### `/src/app/api/blog/`
 
-## Key Architectural Patterns
+- `route.ts` - GET /api/blog (paginated blog list)
+- `generate/route.ts` - GET/POST /api/blog/generate (AI blog generation)
+- `[slug]/route.ts` - GET /api/blog/[slug] (single blog post)
 
-### App Router Structure
+### `/src/lib/`
 
-```
-app/
-├── layout.tsx                    # Root layout with metadata
-├── page.tsx                      # Home page (all sections)
-├── not-found.tsx                 # 404 error page
-├── blog/
-│   ├── page.tsx                  # Blog listing with AI generation
-│   ├── BlogListClient.tsx        # Client-side pagination
-│   ├── BlogGenerateButton.tsx    # AI generation UI
-│   ├── GenerateBlogModal.tsx     # Generation modal
-│   └── [slug]/
-│       ├── page.tsx              # Individual blog post
-│       └── BlogContent.tsx       # Rich content renderer
-└── api/
-    └── blog/
-        ├── route.ts              # GET /api/blog (list posts)
-        ├── generate/route.ts     # POST /api/blog/generate (AI)
-        └── [slug]/route.ts       # GET /api/blog/[slug] (single post)
-```
+Core utility modules:
 
-### Component Hierarchy
+- `blog.ts` - Blog data fetching functions
+- `errorHandler.ts` - Centralized error handling
+- `generateBlog.ts` - AI blog generation logic
+- `generateBlogHelpers.ts` - JSON parsing utilities
+- `logger.ts` - Structured logging system
+- `rateLimit.ts` - Rate limiting implementation
+- `sanity.ts` - Sanity CMS client configuration
+- `schemas.ts` - Zod validation schemas
+- `unified.ts` - Markdown processing pipeline
+- `utils.ts` - General utility functions
 
-```
-RootLayout
-├── Inter Font Loading
-├── Metadata Configuration
-├── Analytics Components
-└── Home Page
-    ├── MainInfo (fixed sidebar)
-    │   ├── Personal Info
-    │   ├── Navigation
-    │   └── Socials
-    ├── MouseFollower (global interactive element)
-    └── Content Sections (scrollable)
-        ├── About
-        ├── TechStack
-        ├── Experience (Sanity + fallback)
-        ├── Projects
-        ├── Blog (latest posts)
-        ├── Footer
-        └── DogeModal (easter egg)
-```
+### `/src/constants/`
 
-### Data Flow Architecture
+Static data files for content that doesn't need CMS management
 
-```
-Static Content Flow:
-constants/ → components → pages
+### `/src/components/`
 
-Dynamic Content Flow:
-Sanity CMS → lib/fetchers → ISR → components → pages
+Reusable UI components organized by feature/section
 
-AI Generation Flow:
-UI trigger → API route → Gemini AI → Sanity CMS → ISR → UI update
+### `/studio/`
 
-Error Handling Flow:
-API error → errorHandler → logger → sanitized response
+Sanity CMS configuration:
 
-Rate Limiting Flow:
-Request → rateLimit middleware → Redis/memory → allow/deny
-```
+- `schemas/` - Content type definitions
+- `sanity.config.ts` - Studio configuration
 
-### API Route Structure
+## Architecture Patterns
 
-```
-/api/blog/
-├── route.ts (GET)
-│   ├── Query validation (Zod)
-│   ├── Rate limiting
-│   ├── Data fetching
-│   ├── Pagination
-│   └── Error handling
-├── generate/route.ts (POST)
-│   ├── Authentication check
-│   ├── Strict rate limiting
-│   ├── AI generation
-│   ├── Sanity publishing
-│   └── Response validation
-└── [slug]/route.ts (GET)
-    ├── Slug validation
-    ├── Single post fetch
-    ├── 404 handling
-    └── Structured response
-```
+### API Routes
 
-### Validation & Error Handling
+- All routes use centralized error handling
+- Rate limiting applied based on endpoint type
+- Zod validation for request/response data
+- Structured logging for observability
 
-```
-Request Validation:
-Raw Request → Zod Schema → Validated Data → Business Logic
+### Data Flow
 
-Error Handling:
-Error → Error Handler → Environment Check → Sanitized Response
+1. **Static Content** → TypeScript constants in `/src/constants/`
+2. **Dynamic Content** → Sanity CMS with ISR (60s revalidation)
+3. **AI Content** → Generated via Gemini API and stored in Sanity
+4. **Client Rendering** → Server components by default, client only when needed
 
-Logging:
-Event → Logger → PII Sanitization → Structured Output → Console/External
-```
+### Component Architecture
 
-### Import Strategy
-
-- **Barrel exports**: Clean imports via `index.ts` files in directories
-- **Path aliases**: `@/` prefix for all src/ imports (configured in tsconfig.json)
-- **Default exports**: Components use default exports with named barrel re-exports
-- **Type-only imports**: Use `import type` for TypeScript-only imports
-
-### Content Management Strategy
-
-```
-Static Content:
-- Projects: constants/projects.ts
-- Tech Stack: constants/other.ts
-- Personal Info: constants/other.ts
-- Blog Topics: constants/topics.ts
-
-Dynamic Content:
-- Experience: Sanity CMS → lib/experience.ts → fallback to constants
-- Blog Posts: Sanity CMS → lib/blog.ts → ISR caching
-
-AI Content:
-- Topics: constants/topics.ts
-- Generation: lib/generateBlog.ts
-- Publishing: Direct Sanity API calls
-```
-
-### Styling Architecture
-
-```
-TailwindCSS v4:
-globals.css
-├── @import 'tailwindcss'
-├── @theme (CSS variables)
-├── @utility (custom utilities)
-└── @keyframes (custom animations)
-
-Component Styling:
-- Utility classes for layout and responsive design
-- Custom utilities for consistent interactive elements
-- CSS variables for theming
-- No separate config file needed
-```
-
-### Development vs Production Differences
-
-```
-Development:
-- Detailed error messages
-- Debug logging
-- In-memory rate limiting
-- Local Sanity dataset
-- Pretty console logging
-
-Production:
-- Sanitized error messages
-- Info+ level logging
-- Redis rate limiting
-- Production Sanity dataset
-- Structured JSON logging
-```
-
-### Type Safety Architecture
-
-```
-Schema Definition:
-Sanity Schemas → TypeScript Interfaces → Zod Schemas → API Validation
-
-Component Props:
-TypeScript Interfaces → Component Props → Runtime Validation
-
-API Contracts:
-Zod Schemas → Request/Response Types → Runtime Validation
-```
+- Server components for data fetching and static content
+- Client components marked with `'use client'` for interactivity
+- Shared utilities in `/src/lib/` for reuse across components and API routes

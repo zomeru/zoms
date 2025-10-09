@@ -3,7 +3,7 @@ import { createClient, type SanityClient } from '@sanity/client';
 
 import { ApiError, handleApiError, validateSchema } from '@/lib/errorHandler';
 import { getErrorMessage } from '@/lib/errorMessages';
-import { generateBlogContent, markdownToBlocks, type GeneratedBlogPost } from '@/lib/generateBlog';
+import { generateBlogContent, type GeneratedBlogPost } from '@/lib/generateBlog';
 import log from '@/lib/logger';
 import { rateLimitMiddleware } from '@/lib/rateLimit';
 import { blogGenerateRequestSchema } from '@/lib/schemas';
@@ -47,8 +47,7 @@ async function createBlogPost(
   content: GeneratedBlogPost,
   aiGenerated = true
 ) {
-  const body = markdownToBlocks(content.body);
-
+  // Store markdown directly instead of converting to blocks
   const slug = content.title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -59,7 +58,7 @@ async function createBlogPost(
     title: content.title,
     slug: { _type: 'slug', current: slug },
     summary: content.summary,
-    body,
+    body: content.body, // Store raw markdown
     publishedAt: new Date().toISOString(),
     tags: content.tags,
     source: aiGenerated ? 'automated/gemini' : 'manual',

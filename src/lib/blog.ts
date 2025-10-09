@@ -1,5 +1,3 @@
-import type { PortableTextBlock } from '@portabletext/types';
-
 import { client } from './sanity';
 
 export interface BlogPost {
@@ -11,7 +9,7 @@ export interface BlogPost {
   summary: string;
   publishedAt: string;
   modifiedAt?: string;
-  body: PortableTextBlock[];
+  body: string;
   tags?: string[];
   source?: string;
   generated?: boolean;

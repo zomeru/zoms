@@ -1,282 +1,267 @@
-# Copilot Instructions for Zoms Portfolio
+# GitHub Copilot Instructions - Zoms Portfolio & AI Blog
+
+This file provides guidance for AI assistants (including GitHub Copilot) when working on this codebase.
 
 ## Project Overview
 
-This is a modern Next.js 15 portfolio website for Zomer Gregorio using TypeScript, TailwindCSS v4, and the App Router. The site features a dark theme with purple accents, a two-column responsive layout, dynamic blog system powered by Sanity CMS and AI content generation, plus enterprise-grade features including rate limiting, structured logging, and comprehensive error handling.
+**Zoms** is a modern personal portfolio website with AI-powered blog generation built using Next.js 15 App Router, React 19, TypeScript (strict mode), TailwindCSS v4, Sanity CMS, and Google Gemini AI.
 
-## Architecture & Key Patterns
+## Architecture & Tech Stack
 
-### Layout Structure
+### Core Technologies
 
-- **Two-column design**: Fixed left sidebar (`MainInfo`) with scrollable right content sections
-- **Responsive breakpoints**: Mobile stacks vertically, desktop side-by-side using `lg:` prefix
-- **App Router**: Uses `src/app/` directory with `layout.tsx` and `page.tsx`
-- **Dynamic routing**: Blog system with `/blog` and `/blog/[slug]` pages
+- **Next.js 15** (App Router) with React 19
+- **TypeScript 5.9** (strict mode)
+- **TailwindCSS v4** with modern `@theme` directive
+- **Sanity CMS** for content management
+- **Google Gemini AI** for blog generation
+- **Upstash Redis** for rate limiting (with in-memory fallback)
 
-### Component Organization
+### Key Libraries
 
-```
-src/components/
-├── index.ts           # Barrel exports for clean imports
-├── MainInfo.tsx       # Left sidebar (name, title, navigation, socials)
-├── Sections/          # Right-side content sections
-│   ├── About.tsx
-│   ├── TechStack.tsx
-│   ├── Experience.tsx # Sanity CMS powered with fallback
-│   ├── Projects.tsx
-│   └── Blog.tsx       # Latest blog posts section
-```
+- **Zod** for schema validation
+- **Unified/Remark/Rehype** for markdown processing
+- **React Hot Toast** for notifications
+- **Vercel Analytics** for performance monitoring
 
-### Content Management Strategy
+## Code Conventions & Patterns
 
-- **Static Content**: Projects, tech stack, personal info in `src/constants/`
-- **Dynamic Content**: Experience and blog posts managed via Sanity CMS
-- **AI Content**: Automated blog generation using Google Gemini AI with topic rotation
-- **Hybrid Approach**: Fallback to constants if Sanity unavailable
+### TypeScript Guidelines
 
-### Data Management
+- **Strict mode enabled** - no implicit any, explicit return types where beneficial
+- **Path aliases** - use `@/` for `src/` imports
+- **Component props** - define interfaces for all component props
+- **API responses** - use Zod schemas for validation
 
-- **Constants-driven static content**: Portfolio data in `src/constants/` (projects.ts, other.ts)
-- **Sanity CMS dynamic content**: Experience and blog posts with ISR
-- **Configuration-based SEO**: Comprehensive metadata in `src/configs/seo.ts`
-- **Path aliases**: Use `@/` for all src/ imports (configured in tsconfig.json)
-
-### Enterprise Features
-
-- **Rate Limiting**: Upstash Redis with in-memory fallback (`src/lib/rateLimit.ts`)
-- **Structured Logging**: Edge Runtime-compatible logger with PII sanitization (`src/lib/logger.ts`)
-- **Error Handling**: Centralized error management with environment-aware responses (`src/lib/errorHandler.ts`)
-- **Input Validation**: Zod schemas for type-safe API validation (`src/lib/schemas.ts`)
-
-## Development Workflow
-
-### Essential Commands
-
-```bash
-pnpm dev                 # Frontend development server
-pnpm studio:dev          # Sanity Studio (localhost:3333)
-pnpm test-all            # Format + lint + type check
-pnpm test-all:build      # Full validation + build test
-```
-
-### Content Management Commands
-
-```bash
-pnpm studio:dev          # Start Sanity Studio locally
-pnpm studio:build        # Build studio for deployment
-pnpm studio:deploy       # Deploy studio to Sanity hosting
-```
-
-### Pre-commit Automation (Husky)
-
-- **Automatic**: ESLint auto-fix + Prettier formatting on staged files
-- **Type checking**: TypeScript validation before commit
-- **Commit blocked** if any checks fail
-
-## Code Style & Conventions
-
-### TypeScript Patterns
-
-- **Component types**: Always use `React.JSX.Element` return type
-- **Strict config**: No implicit returns, unreachable code, or fallthrough cases
-- **Props destructuring**: In function parameters with explicit typing
-- **Interface definitions**: Sanity schema types in lib files
-- **API validation**: Use Zod schemas for all API inputs/outputs
-
-### Styling with TailwindCSS v4
-
-- **Modern approach**: No `tailwind.config.js` file, uses `@theme` directive in `globals.css`
-- **CSS variables**: Semantic color names (`backgroundPrimary`, `textSecondary`, `primary`)
-- **Custom utilities**: Define with `@utility` in `globals.css`
-- **Responsive utilities**: Mobile-first with `sm:`, `md:`, `lg:` breakpoints
-- **Layout patterns**: `max-w-[1300px] mx-auto` for containers
-
-### Import/Export Conventions
-
-- **Barrel exports**: Components exported via `index.ts` files
-- **Default exports**: Components use default, utilities use named exports
-- **Import order**: External packages, then internal with `@/` alias
-
-### Error Handling Patterns
+### Component Architecture
 
 ```typescript
-// API routes with comprehensive error handling
-import { handleApiError, validateSchema } from '@/lib/errorHandler';
-import log from '@/lib/logger';
-import { rateLimitMiddleware } from '@/lib/rateLimit';
+// Server component by default
+export default function ServerComponent() {
+  return <div>Server rendered content</div>
+}
 
-export async function POST(request: NextRequest): Promise<NextResponse> {
-  try {
-    // Rate limiting
-    const rateLimitResult = await rateLimitMiddleware(request, 'BLOG_API');
-    if (rateLimitResult) return rateLimitResult;
-
-    // Input validation
-    const body = await request.json();
-    const validatedData = validateSchema(requestSchema, body);
-
-    // Business logic with logging
-    log.info('API request processed', { method: 'POST', path: '/api/example' });
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    return handleApiError(error, { method: 'POST', path: '/api/example' });
-  }
+// Client component only when needed
+'use client'
+export default function ClientComponent() {
+  const [state, setState] = useState()
+  return <div>Interactive content</div>
 }
 ```
 
-## Key Integration Points
+### API Route Pattern
 
-### TailwindCSS v4 Implementation
+```typescript
+import { NextResponse, type NextRequest } from 'next/server';
 
-- **Configuration**: Uses `@theme` directive in `src/styles/globals.css`
-- **Custom colors**: Defined as CSS variables (e.g., `--color-primary: #ad5aff`)
-- **Custom utilities**: Use `@utility` directive for reusable components
-- **No config file**: Modern approach eliminates need for `tailwind.config.js`
+import { validateSchema, withErrorHandling } from '@/lib/errorHandler';
+import { rateLimitMiddleware } from '@/lib/rateLimit';
+import { someSchema } from '@/lib/schemas';
 
-### Sanity CMS Integration
+export async function POST(request: NextRequest) {
+  // Apply rate limiting first
+  const rateLimitResponse = await rateLimitMiddleware(request, 'DEFAULT');
+  if (rateLimitResponse) return rateLimitResponse;
 
-- **Client configuration**: `src/lib/sanity.ts` with environment-based settings
-- **Data fetching**: ISR with 60-second revalidation for all Sanity content
-- **Schema definitions**: Located in `studio/schemas/` directory
-- **Fallback strategy**: Constants provide backup data if Sanity unavailable
+  return withErrorHandling(
+    async () => {
+      const body = await request.json();
+      const validatedData = validateSchema(someSchema, body);
 
-### Blog System Architecture
+      // Business logic here
 
-- **Dynamic routing**: `/blog` for listing, `/blog/[slug]` for individual posts
-- **AI generation**: Google Gemini API for automated content creation
-- **Topic rotation**: Curated topics in `src/constants/topics.ts`
-- **Rich content**: Portable Text with React Syntax Highlighter for code blocks
-- **API routes**: CRUD operations in `src/app/api/blog/` with validation and rate limiting
+      return NextResponse.json({ success: true, data: validatedData });
+    },
+    { method: 'POST', path: '/api/endpoint' }
+  );
+}
+```
 
-### Rate Limiting & Security
+### Error Handling
 
-- **Multiple backends**: Upstash Redis (production) with in-memory fallback (development)
-- **Configurable limits**: Different limits for different endpoints
-- **Graceful degradation**: Falls back to in-memory if Redis unavailable
-- **Logging integration**: All rate limit events logged with context
+- Use `ApiError` class for structured API errors
+- Wrap API route logic with `withErrorHandling`
+- Validate inputs with Zod schemas via `validateSchema`
+- Environment-aware error messages (detailed in dev, sanitized in prod)
 
-### Logging & Monitoring
+### Logging
 
-- **Environment-aware**: Pretty logs for development, JSON for production
-- **PII protection**: Automatic sanitization of sensitive data
-- **Edge Runtime compatible**: Works in serverless and edge environments
-- **Structured output**: Consistent format for log aggregation
+```typescript
+import log from '@/lib/logger';
 
-## Content Management Workflows
+// Use structured logging instead of console
+log.info('Operation completed', { userId, operation: 'blog-generate' });
+log.error('Operation failed', { error: error.message, context });
+log.timeAsync('Database query', async () => await dbQuery());
+```
 
-### Static Content Updates
+## Important Patterns
 
-- **Projects**: Modify `src/constants/projects.ts`
-- **Tech Stack**: Update `src/constants/other.ts`
-- **Personal Info**: Edit constants in `src/constants/other.ts`
-- **Blog Topics**: Manage AI generation topics in `src/constants/topics.ts`
+### Data Fetching
 
-### Dynamic Content Updates
+- **Server components** - fetch data directly in component
+- **ISR enabled** - all Sanity queries use `revalidate: 60`
+- **Client fetching** - only when user interaction required
 
-- **Experience**: Use Sanity Studio at `localhost:3333` or production studio
-- **Blog Posts**: Manual creation in Studio or AI generation via blog page
-- **Schema Changes**: Modify schemas in `studio/schemas/` and redeploy
+### Rate Limiting
 
-### AI Blog Generation
+- Apply `rateLimitMiddleware` to write/compute-heavy endpoints
+- Different configs: `BLOG_GENERATE` (5/min), `BLOG_API` (100/min), `DEFAULT` (60/min)
 
-- **Manual Trigger**: Use "Generate Blog with AI" button on `/blog` page
-- **Automatic Process**: Topic selection, Gemini AI generation, Sanity publishing
-- **Content Quality**: AI generates technical content with code examples and structured format
-- **Rate Limited**: Strict rate limiting prevents abuse
+### Environment Variables
+
+- All secrets in `.env.local` (never commit)
+- Use `.env.example` as template
+- Access via `process.env.VARIABLE_NAME`
+
+## AI Blog Generation
+
+### Contract
+
+The `generateBlogContent()` function must return:
+
+```typescript
+interface GeneratedBlogPost {
+  title: string; // truncated to MAX_TITLE_LENGTH
+  summary: string; // truncated to MAX_SUMMARY_LENGTH
+  body: string; // raw markdown content
+  tags: string[]; // 3-5 relevant tags
+  readTime: number; // estimated read time in minutes
+}
+```
+
+### Key Files
+
+- `src/lib/generateBlog.ts` - Main generation logic
+- `src/lib/generateBlogHelpers.ts` - JSON parsing utilities
+- `src/constants/topics.ts` - Topic selection for AI prompts
+
+## File Organization
+
+### Core Utilities (`src/lib/`)
+
+- `blog.ts` - Blog data fetching with ISR
+- `errorHandler.ts` - Centralized error handling
+- `logger.ts` - Structured logging with PII sanitization
+- `rateLimit.ts` - Rate limiting (Redis + in-memory fallback)
+- `sanity.ts` - Sanity CMS client
+- `schemas.ts` - Zod validation schemas
+
+### API Routes (`src/app/api/`)
+
+- `blog/route.ts` - GET paginated blog list
+- `blog/[slug]/route.ts` - GET single blog post
+- `blog/generate/route.ts` - POST AI blog generation
+
+## Development Guidelines
+
+### Code Quality
+
+- Run `pnpm test-all` before committing (format + lint + types)
+- Use `pnpm dev` for development server
+- Use `pnpm studio:dev` for Sanity Studio
+
+### Security
+
+- Never log secrets or PII (logger auto-sanitizes)
+- Validate all API inputs with Zod schemas
+- Apply rate limiting to public endpoints
+- Use environment-aware error responses
+
+### Performance
+
+- Prefer server components over client components
+- Use ISR (60s) for dynamic content
+- Minimize client-side JavaScript
+- Leverage Next.js automatic optimizations
 
 ## Common Tasks
 
-### Adding New Components
+### Adding New API Endpoint
 
-1. Create in appropriate directory (`components/` or `components/Sections/`)
-2. Use PascalCase naming with TypeScript
-3. Add to barrel export in `index.ts`
-4. Import using `@/components` alias
+1. Create route file in `src/app/api/`
+2. Add rate limiting via `rateLimitMiddleware`
+3. Define Zod schema in `src/lib/schemas.ts`
+4. Use `withErrorHandling` wrapper
+5. Add structured logging
 
-### Adding Custom TailwindCSS v4 Utilities
+### Adding New Component
 
-Add to `src/styles/globals.css`:
+1. Determine if server or client component needed
+2. Add `'use client'` only if interactive
+3. Define TypeScript interfaces for props
+4. Use Tailwind classes for styling
+5. Follow naming conventions (PascalCase)
 
-```css
-@utility my-custom-utility {
-  /* CSS properties */
-  color: var(--color-primary);
-  transition: all 300ms ease;
+### Environment Variables
 
-  &:hover {
-    color: var(--color-secondary);
-  }
-}
-```
+1. Add to `.env.example` with description
+2. Document in README.md
+3. Access via `process.env.VARIABLE_NAME`
+4. Never log raw values
 
-### API Route Development
+## Dependencies & Updates
 
-1. Create route handler in `src/app/api/`
-2. Add Zod schema validation in `src/lib/schemas.ts`
-3. Implement rate limiting with appropriate config
-4. Use centralized error handling
-5. Add structured logging for monitoring
+### Adding Dependencies
 
-### Modifying Layout
+- Prefer lightweight, well-maintained packages
+- Check bundle size impact
+- Ensure TypeScript compatibility
+- Update package.json and pnpm-lock.yaml
 
-- **Sidebar content**: Edit `MainInfo.tsx` and child components
-- **Content sections**: Add/modify in `src/components/Sections/`
-- **Responsive behavior**: Use Tailwind's `lg:` prefix for desktop-specific styles
+### Package Management
 
-### Blog System Modifications
+- Use `pnpm` as package manager
+- Pin major versions for stability
+- Regular security updates via `pnpm audit`
 
-- **Blog schemas**: Edit `studio/schemas/blogPost.ts` for data structure
-- **Content rendering**: Modify `BlogContent.tsx` for display customization
-- **AI prompts**: Update generation logic in `src/lib/generateBlog.ts`
-- **Topic management**: Add/remove topics in `src/constants/topics.ts`
+## Testing & Quality
 
-### Sanity Schema Updates
+### Pre-commit Hooks
 
-1. Modify schema files in `studio/schemas/`
-2. Test locally with `pnpm studio:dev`
-3. Deploy with `pnpm studio:deploy`
-4. Update TypeScript interfaces in `src/lib/` files
+- Husky runs ESLint + Prettier on staged files
+- Ensure `pnpm test-all` passes before push
+- TypeScript strict mode must pass
 
-### Performance Optimization
+### Manual Testing
 
-- **ISR configuration**: Modify revalidation times in data fetching functions
-- **Image optimization**: Use Next.js Image component for media
-- **Bundle analysis**: Monitor build output and dependency sizes
-- **Cache strategies**: Leverage Sanity CDN and Next.js static generation
+- Test in development mode (`pnpm dev`)
+- Verify API endpoints with proper error handling
+- Check responsive design across devices
+- Test environment variable configurations
 
-### Deployment Preparation
+## Performance Monitoring
 
-- **Build validation**: `pnpm test-all:build` must pass
-- **Environment variables**: Ensure all required credentials are set
-- **Studio deployment**: Deploy Sanity Studio separately
-- **Sitemap verification**: Check generated files in `public/` after build
+### Observability
 
-## Environment Variables Management
+- Structured logging in production
+- Vercel Analytics for user metrics
+- ISR cache performance monitoring
+- Error tracking via centralized handler
 
-### Required Variables
+### Optimization
 
-- `NEXT_PUBLIC_SANITY_PROJECT_ID`: Sanity project identifier
-- `NEXT_PUBLIC_SANITY_DATASET`: Usually 'production'
-- `SANITY_API_TOKEN`: Write token for content operations
+- Server-side rendering by default
+- Incremental Static Regeneration (60s)
+- Automatic image optimization
+- Bundle size monitoring
 
-### Optional Variables
+## Security Considerations
 
-- `GEMINI_API_KEY`: For AI blog generation
-- `UPSTASH_REDIS_REST_URL`: Redis URL for production rate limiting
-- `UPSTASH_REDIS_REST_TOKEN`: Redis authentication token
-- `LOG_LEVEL`: Logging level (trace, debug, info, warn, error, fatal)
-- `NEXLOG_STRUCTURED`: Enable JSON structured logging (true/false)
-- `SITE_URL`: Custom domain (auto-detected otherwise)
+### Data Protection
 
-### Development vs Production
+- PII sanitization in logs
+- Input validation with Zod
+- Rate limiting on public endpoints
+- Environment-aware error messages
 
-- **Development**: Uses local studio, in-memory rate limiting, pretty logs
-- **Production**: Uses production Sanity dataset, Redis rate limiting, structured logs
-- **Studio**: Separate deployment with environment variable inheritance
+### API Security
 
-### Error Handling Configuration
+- Request validation
+- Response sanitization
+- Proper error handling
+- Authentication for sensitive operations
 
-- **Development**: Detailed error messages with stack traces
-- **Production**: Sanitized error messages, no sensitive data exposure
-- **Logging**: All errors logged with context for debugging
+---
+
+When working on this codebase, always prioritize type safety, performance, and security. Follow the established patterns and conventions to maintain code quality and consistency.
