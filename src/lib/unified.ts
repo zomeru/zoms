@@ -9,30 +9,31 @@ import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import { unified } from 'unified';
 
-export async function processMarkdown(markdown: string) {
-  const file = await unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkBreaks)
-    .use(remarkRehype)
-    .use(rehypeSlug)
-    .use(rehypePrettyCode, {
-      theme: 'github-dark',
-      keepBackground: true,
-      defaultLang: 'plaintext',
-      transformers: [
-        transformerCopyButton({
-          visibility: 'always',
-          feedbackDuration: 3_000
-        })
-      ]
-    })
-    .use(rehypeExternalLinks, {
-      target: '_blank',
-      rel: ['noopener', 'noreferrer']
-    })
-    .use(rehypeStringify)
-    .process(markdown);
+const processor = unified()
+  .use(remarkParse)
+  .use(remarkGfm)
+  .use(remarkBreaks)
+  .use(remarkRehype)
+  .use(rehypeSlug)
+  .use(rehypePrettyCode, {
+    theme: 'github-dark',
+    keepBackground: true,
+    defaultLang: 'plaintext',
+    transformers: [
+      transformerCopyButton({
+        visibility: 'always',
+        feedbackDuration: 3_000
+      })
+    ]
+  })
+  .use(rehypeExternalLinks, {
+    target: '_blank',
+    rel: ['noopener', 'noreferrer']
+  })
+  .use(rehypeStringify)
+  .freeze();
 
+export async function processMarkdown(markdown: string) {
+  const file = await processor.process(markdown);
   return String(file);
 }
