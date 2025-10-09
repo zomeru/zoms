@@ -17,7 +17,7 @@ import { pickOneOrNone, pickRandom } from './utils';
 export interface GeneratedBlogPost {
   title: string;
   summary: string;
-  bodyMarkdown: string; // Now we store raw markdown instead of processing it
+  body: string; // Now we store raw markdown instead of processing it
   tags: string[];
   readTime: number;
 }
@@ -129,7 +129,7 @@ Final Quality Requirements:
     return {
       title: parsed.title.slice(0, MAX_TITLE_LENGTH), // Ensure title length limit
       summary: parsed.summary.slice(0, MAX_SUMMARY_LENGTH), // Ensure summary length limit
-      bodyMarkdown: parsed.body, // Store raw markdown
+      body: parsed.body, // Store raw markdown
       tags: Array.isArray(parsed.tags) ? parsed.tags.slice(0, 5) : [],
       readTime: parsed.readTime ?? 5 // Default to 5 minutes if not provided
     };

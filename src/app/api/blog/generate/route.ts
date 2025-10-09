@@ -58,7 +58,7 @@ async function createBlogPost(
     title: content.title,
     slug: { _type: 'slug', current: slug },
     summary: content.summary,
-    bodyMarkdown: content.bodyMarkdown, // Store raw markdown
+    body: content.body, // Store raw markdown
     publishedAt: new Date().toISOString(),
     tags: content.tags,
     source: aiGenerated ? 'automated/gemini' : 'manual',

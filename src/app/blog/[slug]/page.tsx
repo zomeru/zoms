@@ -117,8 +117,7 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
         <p className='text-lg text-textSecondary'>{post.summary}</p>
       </header>
 
-      {/* Article Content */}
-      <BlogContent body={post.body} bodyMarkdown={post.bodyMarkdown} />
+      <BlogContent body={post.body} />
 
       {/* Footer */}
       <footer className='mt-16 pt-8 border-t border-textSecondary border-opacity-20'>
