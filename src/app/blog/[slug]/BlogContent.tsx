@@ -6,9 +6,10 @@ interface BlogContentProps {
   body: string;
 }
 
+const window = new JSDOM('').window;
+const purify = DOMPurify(window);
+
 const BlogContent: React.FC<BlogContentProps> = ({ body }) => {
-  const window = new JSDOM('').window;
-  const purify = DOMPurify(window);
   const sanitizedBody = purify.sanitize(body);
 
   return (
