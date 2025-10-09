@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 
 import {
   aiProviderTopics,
@@ -55,18 +55,7 @@ export async function generateBlogContent(): Promise<GeneratedBlogPost> {
 
   const topics = selectCombinationOfTopics();
 
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash',
-    generationConfig: {
-      maxOutputTokens: 2048, // Limit output to ~1500 words for faster generation
-      temperature: 0.7, // Balanced creativity with faster, more focused responses
-      topP: 0.9,
-      topK: 40
-    },
-    systemInstruction:
-      'You are an experienced full-stack engineer and expert technical writer who produces clear, concise, and engaging content for professional web developers.'
-  });
+  const ai = new GoogleGenAI({ apiKey });
 
   const prompt = `
 Write a comprehensive, technically detailed blog post that demonstrates how the following web development topics can be integrated within a single application context:
@@ -115,9 +104,24 @@ Final Quality Requirements:
 - Provide meaningful insights developers can apply immediately
 `;
 
-  const result = await model.generateContent(prompt);
-  const response = result.response;
-  const text = response.text();
+  const result = await ai.models.generateContent({
+    model: 'gemini-2.0-flash-exp',
+    contents: prompt,
+    config: {
+      maxOutputTokens: 2048, // Limit output to ~1500 words for faster generation
+      temperature: 0.7, // Balanced creativity with faster, more focused responses
+      topP: 0.9,
+      topK: 40,
+      systemInstruction:
+        'You are an experienced full-stack engineer and expert technical writer who produces clear, concise, and engaging content for professional web developers.'
+    }
+  });
+
+  if (!result.text) {
+    throw new Error(getErrorMessage('AI_GENERATION_FAILED'));
+  }
+
+  const text = result.text;
 
   // Parse the JSON response
   try {
