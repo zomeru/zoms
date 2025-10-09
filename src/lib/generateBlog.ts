@@ -11,7 +11,7 @@ import {
 import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
 
 import { getErrorMessage } from './errorMessages';
-import { extractAndFixJSON } from './generateBlogHelpers';
+import { tryParseAIJSON } from './generateBlogHelpers';
 import { pickOneOrNone, pickRandom } from './utils';
 
 export interface GeneratedBlogPost {
@@ -21,6 +21,8 @@ export interface GeneratedBlogPost {
   tags: string[];
   readTime: number;
 }
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 /**
  * Select a combination of topics
@@ -47,15 +49,7 @@ function selectCombinationOfTopics(): string[] {
  * Generate blog post content using Gemini AI
  */
 export async function generateBlogContent(): Promise<GeneratedBlogPost> {
-  const apiKey = process.env.GEMINI_API_KEY;
-
-  if (!apiKey) {
-    throw new Error(getErrorMessage('MISSING_GEMINI_KEY'));
-  }
-
   const topics = selectCombinationOfTopics();
-
-  const ai = new GoogleGenAI({ apiKey });
 
   const prompt = `
 Write a comprehensive, technically detailed blog post that demonstrates how the following web development topics can be integrated within a single application context:
@@ -67,15 +61,12 @@ All examples, explanations, and code snippets must use TypeScript as the primary
 The article must be written for intermediate to advanced web developers, offering practical examples, best practices, and actionable insights. Ensure all content is accurate and current as of ${new Date().getFullYear()} (reflecting developments from the last two months).
 
 Writing Guidelines:
-1. Use a professional yet engaging tone suitable for software engineers.
-2. Include relevant code snippets and technical explanations.
-3. Word count: 800–1200 words (optimized for faster generation).
-4. Structure clearly using Markdown headings (## for major sections).
-5. Focus on actionable insights and real-world applications.
-6. Target audience: intermediate to advanced developers.
-7. Use valid Markdown formatting: headers (#, ##, ###), bullet points, **bold**, \`inline code\`, and fenced code blocks.
-8. Do not include resource URLs in the content — you may reference them internally for accuracy.
-9. Explain why each tool, library, or framework is used, how it fits into the architecture, and include hyperlinks to official documentation.
+1. Include relevant code snippets and technical explanations.
+2. Word count: 700–1000 words (optimized for faster generation).
+3. Structure clearly using Markdown headings (## for major sections).
+4. Focus on actionable insights and real-world applications.
+5. Use valid Markdown formatting: headers (#, ##, ###), bullet points, **bold**, \`inline code\`, and fenced code blocks.
+6. Explain why each tool, library, or framework is used, how it fits into the architecture, and include hyperlinks to official documentation.
 
 CRITICAL OUTPUT FORMAT:
 Respond with ONLY valid JSON in this exact structure:
@@ -84,7 +75,7 @@ Respond with ONLY valid JSON in this exact structure:
   "title": "Compelling and concise blog title (40–80 characters total, including spaces — REQUIRED)",
   "summary": "SEO-friendly summary (100–200 characters total, including spaces — REQUIRED; no backticks or quotes)",
   "body": "Full blog post content in Markdown format. Escape all internal double quotes with a backslash (\\").",
-  "tags": ["tag1", "tag2", "tag3"], // always include 3–5 relevant tags (lowercase, no special characters)
+  "tags": ["tag1", "tag2", "tag3"],
   "readTime": 5
 }
 
@@ -98,20 +89,15 @@ JSON VALIDATION RULES:
 - Calculate readTime as total words ÷ 200 (rounded up)
 
 Final Quality Requirements:
-- Content must be accurate and up-to-date (${new Date().getFullYear()})
 - Writing should be well-structured, clear, and valuable to professionals
 - Include concise code examples where relevant
 - Provide meaningful insights developers can apply immediately
 `;
 
   const result = await ai.models.generateContent({
-    model: 'gemini-2.0-flash-exp',
+    model: 'gemini-2.5-flash',
     contents: prompt,
     config: {
-      maxOutputTokens: 2048, // Limit output to ~1500 words for faster generation
-      temperature: 0.7, // Balanced creativity with faster, more focused responses
-      topP: 0.9,
-      topK: 40,
       systemInstruction:
         'You are an experienced full-stack engineer and expert technical writer who produces clear, concise, and engaging content for professional web developers.'
     }
@@ -123,18 +109,9 @@ Final Quality Requirements:
 
   const text = result.text;
 
-  // Parse the JSON response
   try {
-    const jsonText = extractAndFixJSON(text);
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- JSON.parse returns unknown, safe to assert after validation
-    const parsed = JSON.parse(jsonText) as {
-      title: string;
-      summary: string;
-      body: string;
-      tags: string[];
-      readTime?: number;
-    };
+    // Parse the JSON response
+    const parsed = tryParseAIJSON(text);
 
     // Validate required fields
     if (!parsed.title || !parsed.summary || !parsed.body) {
