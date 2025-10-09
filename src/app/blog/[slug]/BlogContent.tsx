@@ -1,12 +1,15 @@
 import React from 'react';
 import DOMPurify from 'dompurify';
+import { JSDOM } from 'jsdom';
 
 interface BlogContentProps {
   body: string;
 }
 
 const BlogContent: React.FC<BlogContentProps> = ({ body }) => {
-  const sanitizedBody = DOMPurify.sanitize(body);
+  const window = new JSDOM('').window;
+  const purify = DOMPurify(window);
+  const sanitizedBody = purify.sanitize(body);
 
   return (
     <article
