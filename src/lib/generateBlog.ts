@@ -63,7 +63,9 @@ export async function generateBlogContent(): Promise<GeneratedBlogPost> {
       temperature: 0.7, // Balanced creativity with faster, more focused responses
       topP: 0.9,
       topK: 40
-    }
+    },
+    systemInstruction:
+      'You are an experienced full-stack engineer and expert technical writer who produces clear, concise, and engaging content for professional web developers.'
   });
 
   const prompt = `
