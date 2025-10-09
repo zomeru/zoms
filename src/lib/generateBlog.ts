@@ -1,18 +1,9 @@
 import { GoogleGenAI } from '@google/genai';
 
-import {
-  aiProviderTopics,
-  backendFrameworkTopics,
-  cloudPlatformTopics,
-  frontendFrameworkTopics,
-  hostingTopics,
-  webDevGeneralTopics
-} from '@/constants/topics';
 import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
 
 import { getErrorMessage } from './errorMessages';
-import { tryParseAIJSON } from './generateBlogHelpers';
-import { pickOneOrNone, pickRandom } from './utils';
+import { selectCombinationOfTopics, tryParseAIJSON } from './generateBlogHelpers';
 
 export interface GeneratedBlogPost {
   title: string;
@@ -23,27 +14,6 @@ export interface GeneratedBlogPost {
 }
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-/**
- * Select a combination of topics
- * @returns Array of selected topics
- */
-function selectCombinationOfTopics(): string[] {
-  const frontendTopic = pickOneOrNone<string>(frontendFrameworkTopics);
-  const backendTopic = pickOneOrNone<string>(backendFrameworkTopics, !frontendTopic);
-
-  const fullStackTopics: string[] = [frontendTopic, backendTopic].filter((t) => t !== undefined);
-
-  const cloudPlatformTopic = pickOneOrNone<string>(cloudPlatformTopics);
-  const hostingTopic = pickOneOrNone<string>(hostingTopics, !cloudPlatformTopic);
-  const aiTopic = pickOneOrNone<string>(aiProviderTopics);
-
-  const nullableTopics = [cloudPlatformTopic, hostingTopic, aiTopic].filter((t) => t !== undefined);
-
-  const selectedGeneralTopics = pickRandom<string>(webDevGeneralTopics, 2, 3);
-
-  return [...fullStackTopics, ...nullableTopics, ...selectedGeneralTopics];
-}
 
 /**
  * Generate blog post content using Gemini AI
