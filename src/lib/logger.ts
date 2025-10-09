@@ -221,6 +221,7 @@ export const log = {
       log.error(`${label} failed`, {
         duration: `${duration}ms`,
         error: error instanceof Error ? error.message : String(error),
+        ...(error instanceof Error && error.stack ? { stack: error.stack } : {}),
         ...metadata
       });
       throw error;
