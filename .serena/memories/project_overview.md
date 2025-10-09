@@ -18,7 +18,8 @@ This is Zomer Gregorio's personal portfolio website - a modern, responsive Next.
 
 - **CMS**: Sanity for dynamic content management (@sanity/client 7.12.0)
 - **AI Integration**: Google Gemini API (@google/generative-ai 0.24.1) for blog generation
-- **Rich Text**: Portable Text with React Syntax Highlighter
+- **Markdown Rendering**: react-markdown with GitHub-flavored markdown support
+- **Syntax Highlighting**: React Syntax Highlighter for code blocks
 - **Image Handling**: Sanity Image URLs with Next.js optimization
 
 ### Data Validation & API
@@ -57,6 +58,7 @@ This is Zomer Gregorio's personal portfolio website - a modern, responsive Next.
 - **AI-powered content generation** using Google Gemini with topic rotation
 - **Dynamic routing** with `/blog` listing and `/blog/[slug]` individual posts
 - **Manual and automated posting** via Sanity Studio or AI generation
+- **Simplified markdown architecture** with direct react-markdown rendering
 - **Syntax highlighting** for code blocks in blog posts
 - **ISR (Incremental Static Regeneration)** with 60-second revalidation
 
@@ -95,7 +97,25 @@ This is Zomer Gregorio's personal portfolio website - a modern, responsive Next.
 
 - **Hybrid content strategy**: Static constants for stable data, Sanity CMS for dynamic content
 - **AI content pipeline**: Topic rotation → Gemini generation → Sanity publication
+- **Simplified blog processing**: Raw markdown storage with direct react-markdown rendering
 - **Flexible schemas**: Support for both manual and AI-generated content
+
+## Recent Changes (October 2025)
+
+### Markdown Architecture Simplification
+
+The blog system underwent a major simplification to improve performance and maintainability:
+
+- **Removed Complex Preprocessing**: Eliminated 400+ lines of unified.js preprocessing code
+- **Direct react-markdown Rendering**: Simplified content pipeline with client-side rendering
+- **Raw Markdown Storage**: Content stored as markdown strings in Sanity
+- **Better GFM Support**: Full GitHub-flavored markdown features out of the box
+
+**Benefits:**
+- Faster API responses (no server-side preprocessing)
+- Simpler codebase maintenance
+- Better markdown feature support
+- Reduced dependency complexity
 
 ## Deployment & Environment
 

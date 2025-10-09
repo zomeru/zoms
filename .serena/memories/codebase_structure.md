@@ -32,7 +32,7 @@ src/
 │   │   ├── GenerateBlogModal.tsx   # Modal for AI blog generation
 │   │   └── [slug]/      # Dynamic blog post pages
 │   │       ├── page.tsx # Blog post page with metadata
-│   │       └── BlogContent.tsx     # Rich content renderer
+│   │       └── BlogContent.tsx     # react-markdown content renderer
 │   └── api/             # API routes with validation and error handling
 │       └── blog/        # Blog API endpoints
 │           ├── route.ts # Blog CRUD operations with pagination
@@ -87,10 +87,9 @@ src/
 studio/
 ├── schemas/             # Sanity schema definitions
 │   ├── index.ts         # Schema exports
-│   ├── blogPost.ts      # Blog post schema with validation
+│   ├── blogPost.ts      # Blog post schema with markdown support
 │   ├── experience.ts    # Experience schema
-│   ├── blockContent.ts  # Rich text schema for general content
-│   └── blogPostBlockContent.ts  # Blog-specific rich text with code blocks
+│   └── blockContent.ts  # Rich text schema for general content
 ├── sanity.config.ts     # Sanity studio configuration
 ├── config.ts            # Studio-specific configuration
 ├── sanity.cli.ts        # CLI configuration
@@ -113,7 +112,7 @@ app/
 │   ├── GenerateBlogModal.tsx     # Generation modal
 │   └── [slug]/
 │       ├── page.tsx              # Individual blog post
-│       └── BlogContent.tsx       # Rich content renderer
+│       └── BlogContent.tsx       # react-markdown renderer
 └── api/
     └── blog/
         ├── route.ts              # GET /api/blog (list posts)
@@ -155,6 +154,9 @@ Sanity CMS → lib/fetchers → ISR → components → pages
 
 AI Generation Flow:
 UI trigger → API route → Gemini AI → Sanity CMS → ISR → UI update
+
+Blog Content Flow (Simplified):
+AI/Manual → Raw Markdown → Sanity Storage → react-markdown Render
 
 Error Handling Flow:
 API error → errorHandler → logger → sanitized response
@@ -222,7 +224,7 @@ Dynamic Content:
 AI Content:
 - Topics: constants/topics.ts
 - Generation: lib/generateBlog.ts
-- Publishing: Direct Sanity API calls
+- Publishing: Direct Sanity API calls with raw markdown storage
 ```
 
 ### Styling Architecture
@@ -272,3 +274,24 @@ TypeScript Interfaces → Component Props → Runtime Validation
 API Contracts:
 Zod Schemas → Request/Response Types → Runtime Validation
 ```
+
+## Recent Changes (October 2025)
+
+### Markdown Architecture Simplification
+
+- **Removed**: `src/lib/markdownProcessor.ts` - unified.js preprocessing pipeline
+- **Added**: Direct react-markdown rendering in `BlogContent.tsx`
+- **Simplified**: Blog content storage to raw markdown format
+- **Benefits**: 400+ lines of code removed, better performance, simpler maintenance
+
+### Blog Content Flow (Current)
+
+```
+AI Generation → Raw Markdown → Sanity Storage → react-markdown → Styled Output
+```
+
+**Key Components:**
+- `react-markdown`: GitHub-flavored markdown rendering
+- `React Syntax Highlighter`: Code block highlighting
+- Custom prose styles: Dark theme integration
+- GFM plugins: Tables, task lists, strikethrough support

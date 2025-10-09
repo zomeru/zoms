@@ -55,10 +55,11 @@
 #### Manual Blog Creation
 
 1. Access Sanity Studio via `pnpm studio:dev`
-2. Create new blog post with required fields (title, slug, summary, body)
-3. Use rich text editor with code block support
-4. Set tags, publication date, and metadata
-5. Publish when ready (appears via ISR within 60 seconds)
+2. Create new blog post with required fields (title, slug, summary)
+3. Write content in markdown format in the `bodyMarkdown` field
+4. Use GitHub-flavored markdown syntax (tables, code blocks, task lists)
+5. Set tags, publication date, and metadata
+6. Publish when ready (appears via ISR within 60 seconds)
 
 #### AI Blog Generation
 
@@ -66,9 +67,16 @@
 2. Use "Generate Blog with AI" button
 3. System automatically:
    - Selects next topic from rotation list
-   - Generates content using Gemini AI
-   - Creates properly formatted Sanity document
+   - Generates markdown content using Gemini AI
+   - Creates properly formatted Sanity document with raw markdown
    - Publishes post with AI generation metadata
+
+#### Blog Content Rendering
+
+- **Client-side Rendering**: Uses react-markdown for GitHub-flavored markdown
+- **Syntax Highlighting**: React Syntax Highlighter for code blocks
+- **Custom Styling**: Dark theme integration with prose classes
+- **No Preprocessing**: Direct markdown rendering for better performance
 
 #### Blog Topic Management
 
@@ -148,10 +156,33 @@ pnpm deploy
 
 - **Topic Rotation**: Intelligent cycling through curated technical topics
 - **Quality Control**: Structured prompts ensure consistent content quality
+- **Markdown Output**: AI generates properly formatted markdown content
 - **Fallback Handling**: Graceful degradation if AI service unavailable
 - **Metadata Tracking**: Full audit trail for generated content
 
-### 8. Maintenance Tasks
+### 8. Markdown Content Management
+
+#### Content Creation Best Practices
+
+- **GitHub-Flavored Markdown**: Use GFM syntax for tables, task lists, strikethrough
+- **Code Blocks**: Use triple backticks with language specification for syntax highlighting
+- **Headings**: Use proper heading hierarchy (H1 for title, H2-H6 for sections)
+- **Links and Images**: Standard markdown syntax with proper alt text
+
+#### Content Validation
+
+- **Preview**: Use react-markdown preview to validate rendering
+- **Syntax Check**: Ensure proper markdown syntax for complex elements
+- **Code Highlighting**: Verify code blocks render with correct syntax highlighting
+- **Responsive Design**: Test content rendering on different screen sizes
+
+#### Legacy Content Support
+
+- **Backward Compatibility**: Existing block content from previous implementation still supported
+- **Migration Strategy**: New posts use markdown format, old posts remain unchanged
+- **Mixed Content**: System handles both formats seamlessly
+
+### 9. Maintenance Tasks
 
 #### Regular Maintenance
 
@@ -161,6 +192,13 @@ pnpm deploy
 - **Content**: Review AI-generated posts for quality and accuracy
 - **Logs**: Monitor structured logs for performance and error patterns
 
+#### Content Quality Review
+
+- **AI Content**: Regular review of generated posts for accuracy and tone
+- **Markdown Validation**: Ensure proper rendering of complex markdown elements
+- **Performance**: Monitor page load times for content-heavy blog posts
+- **SEO**: Review metadata and content structure for search optimization
+
 #### Troubleshooting Workflow
 
 1. **Check Logs**: Review structured logs for error patterns
@@ -168,6 +206,7 @@ pnpm deploy
 3. **Test Locally**: Reproduce issues in development environment
 4. **Check Dependencies**: Run `pnpm audit` for security issues
 5. **Cache Clearing**: Clear Next.js cache with `rm -rf .next`
+6. **Markdown Issues**: Validate markdown syntax and react-markdown compatibility
 
 #### Performance Optimization
 
@@ -175,8 +214,9 @@ pnpm deploy
 - **Bundle Monitoring**: Use build output to identify large dependencies
 - **Image Optimization**: Ensure all images use Next.js Image component
 - **API Performance**: Monitor response times and optimize queries
+- **Markdown Rendering**: Monitor client-side rendering performance
 
-### 9. Emergency Procedures
+### 10. Emergency Procedures
 
 #### Content Rollback
 
@@ -191,6 +231,7 @@ pnpm deploy
 - **Build Issues**: Revert to last known good commit
 - **API Failures**: Check environment variables and service status
 - **Rate Limiting**: Adjust limits or temporarily disable if needed
+- **Markdown Rendering**: Fallback to raw text if react-markdown fails
 
 #### Data Recovery
 
@@ -199,7 +240,7 @@ pnpm deploy
 - **Environment Variables**: Maintain secure backup of all credentials
 - **Studio Configuration**: Keep studio config in version control
 
-### 10. Development Best Practices
+### 11. Development Best Practices
 
 #### Code Quality
 
@@ -214,6 +255,7 @@ pnpm deploy
 - **Bundle Size**: Monitor and optimize for performance
 - **API Efficiency**: Minimize database queries and API calls
 - **Caching Strategy**: Use appropriate caching for different content types
+- **Client-side Rendering**: Optimize react-markdown performance
 
 #### Testing Strategy
 
@@ -221,6 +263,7 @@ pnpm deploy
 - **API Testing**: Validate all endpoints with various input scenarios
 - **Responsive Testing**: Ensure functionality across device sizes
 - **Accessibility**: Verify keyboard navigation and screen reader compatibility
+- **Markdown Testing**: Validate complex markdown rendering
 
 #### Documentation Updates
 
@@ -228,3 +271,31 @@ pnpm deploy
 - **API Documentation**: Document all endpoint changes
 - **Environment Variables**: Update .env.example with new variables
 - **Deployment Notes**: Document any deployment-specific configuration
+- **Markdown Guide**: Maintain guidelines for content creators
+
+## Recent Architecture Changes (October 2025)
+
+### Markdown System Simplification
+
+The blog system has been simplified to improve performance and maintainability:
+
+#### What Changed
+
+- **Removed**: Complex unified.js preprocessing pipeline (`markdownProcessor.ts`)
+- **Added**: Direct react-markdown rendering with GitHub-flavored markdown
+- **Simplified**: Content storage to raw markdown format in Sanity
+- **Improved**: Performance by eliminating server-side preprocessing
+
+#### Benefits
+
+- **Performance**: 400+ lines of preprocessing code removed
+- **Simplicity**: Easier to maintain and debug
+- **Features**: Better GFM support out of the box
+- **Developer Experience**: Faster API responses and build times
+
+#### Migration Notes
+
+- **New Content**: Uses simplified markdown storage and rendering
+- **Existing Content**: Legacy block content still supported
+- **No Breaking Changes**: Backward compatible with existing posts
+- **Development**: No changes to content creation workflow

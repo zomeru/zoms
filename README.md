@@ -53,8 +53,7 @@ Modern, responsive portfolio website for Zomer Gregorio featuring dynamic conten
 
 - **CMS**: Sanity (@sanity/client 7.12.0)
 - **AI**: Google Gemini API (@google/generative-ai 0.24.1)
-- **Markdown Processing**: Unified.js ecosystem (remark-parse, remark-gfm, rehype-stringify)
-- **Markdown Rendering**: react-markdown with GFM support
+- **Markdown Rendering**: react-markdown with GitHub-flavored markdown support
 - **Syntax Highlighting**: React Syntax Highlighter with Prism
 - **Image Optimization**: Sanity Image URLs with Next.js optimization
 
@@ -184,11 +183,12 @@ The blog system uses a modern, simplified markdown processing pipeline:
 - 📝 **Better Markdown**: Full GFM support out of the box
 - 🔄 **Backward Compatible**: Legacy block content still supported
 
-**Unified.js Integration:**
+**Current Implementation:**
 
-- `markdownProcessor.ts` provides unified pipeline for future use
-- Can process markdown to HTML with rehype plugins
-- Currently rendering handled by react-markdown for better React integration
+- Direct react-markdown rendering with GitHub-flavored markdown support
+- Custom styled components for enhanced readability
+- React Syntax Highlighter integration for code blocks
+- Simplified content pipeline without preprocessing overhead
 
 ## 📦 Available Scripts
 
@@ -248,7 +248,7 @@ zoms/
 │   │   ├── blog.ts       # Blog data fetching with ISR
 │   │   ├── generateBlog.ts # AI blog generation logic
 │   │   ├── generateBlogHelpers.ts # JSON parsing utilities
-│   │   ├── markdownProcessor.ts # Unified.js markdown pipeline
+
 │   │   ├── schemas.ts    # Zod validation schemas
 │   │   ├── errorHandler.ts # Centralized error handling
 │   │   ├── rateLimit.ts  # Rate limiting utilities

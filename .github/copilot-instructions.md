@@ -146,8 +146,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 - **Dynamic routing**: `/blog` for listing, `/blog/[slug]` for individual posts
 - **AI generation**: Google Gemini API for automated content creation
 - **Topic rotation**: Curated topics in `src/constants/topics.ts`
-- **Rich content**: Portable Text with React Syntax Highlighter for code blocks
+- **Markdown rendering**: Direct react-markdown with GitHub-flavored markdown support
+- **Code highlighting**: React Syntax Highlighter for beautiful code blocks
 - **API routes**: CRUD operations in `src/app/api/blog/` with validation and rate limiting
+- **Simplified architecture**: Raw markdown storage with client-side rendering (400+ lines of preprocessing removed)
 
 ### Rate Limiting & Security
 
@@ -227,9 +229,10 @@ Add to `src/styles/globals.css`:
 ### Blog System Modifications
 
 - **Blog schemas**: Edit `studio/schemas/blogPost.ts` for data structure
-- **Content rendering**: Modify `BlogContent.tsx` for display customization
+- **Content rendering**: Modify `BlogContent.tsx` for display customization (uses react-markdown)
 - **AI prompts**: Update generation logic in `src/lib/generateBlog.ts`
 - **Topic management**: Add/remove topics in `src/constants/topics.ts`
+- **Markdown processing**: Direct react-markdown rendering (no preprocessing pipeline)
 
 ### Sanity Schema Updates
 
