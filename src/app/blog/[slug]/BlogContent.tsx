@@ -6,8 +6,8 @@ interface BlogContentProps {
   body: string;
 }
 
-let purifySingleton: DOMPurify.DOMPurifyI | null = null;
-
+// Singleton pattern for DOMPurify
+let purifySingleton: ReturnType<typeof DOMPurify> | null = null;
 function getPurify() {
   if (!purifySingleton) {
     const window = new JSDOM('').window;
