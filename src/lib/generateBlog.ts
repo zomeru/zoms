@@ -76,6 +76,7 @@ Writing Guidelines:
 6. Target audience: intermediate to advanced developers.
 7. Use valid Markdown formatting: headers (#, ##, ###), bullet points, **bold**, \`inline code\`, and fenced code blocks.
 8. Do not include resource URLs in the content — you may reference them internally for accuracy.
+9. Explain why each tool, library, or framework is used, how it fits into the architecture, and include hyperlinks to official documentation.
 
 CRITICAL OUTPUT FORMAT:
 Respond with ONLY valid JSON in this exact structure:
