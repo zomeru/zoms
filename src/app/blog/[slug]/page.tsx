@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 
 import { SITE_URL } from '@/configs/seo';
 import { getBlogPostBySlug } from '@/lib/blog';
+import { processMarkdown } from '@/lib/unified';
 import { formatDateWithTime } from '@/lib/utils';
 
 import BlogContent from './BlogContent';
@@ -66,6 +67,8 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
 
   const modifiedDate = post.modifiedAt ? formatDateWithTime(post.modifiedAt) : null;
 
+  const content = await processMarkdown(post.body);
+
   return (
     <main className='max-w-[1200px] mx-auto px-6 sm:px-12 md:px-16 lg:px-20 py-[50px] md:py-[90px]'>
       {/* Back Link */}
@@ -117,7 +120,7 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
         <p className='text-lg text-textSecondary'>{post.summary}</p>
       </header>
 
-      <BlogContent body={post.body} />
+      <BlogContent body={content} />
 
       {/* Footer */}
       <footer className='mt-16 pt-8 border-t border-textSecondary border-opacity-20'>
