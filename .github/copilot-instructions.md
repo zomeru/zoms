@@ -219,7 +219,7 @@ interface GeneratedBlogPost {
 
 ### Pre-commit Hooks
 
-- Husky runs ESLint + Prettier on staged files
+- Husky runs Biome.js on staged files
 - Ensure `pnpm test-all` passes before push
 - TypeScript strict mode must pass
 

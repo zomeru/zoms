@@ -40,8 +40,7 @@
 
 ## Development & Quality
 
-- **ESLint 9.36.0** with eslint-config-love - Strict TypeScript linting
-- **Prettier 3.2.4** with import sorting plugin - Code formatting
+- **Biome.js v2.2.5** - Combined linting and formatting tool (single quotes, 2 spaces, 100 line width)
 - **Husky & lint-staged** - Git hooks for quality gates
 - **pnpm 10.18.2** - Package manager
 
