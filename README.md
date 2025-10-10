@@ -56,7 +56,7 @@ Two modes currently supported:
 
 ### Developer Experience
 
-- Import sorting + Prettier formatting + linting gates
+- Import sorting + Biome formatting + linting gates
 - Strict TypeScript (no unintentional `any`)
 - Modular utilities in `src/lib/`
 
@@ -75,7 +75,7 @@ Two modes currently supported:
 | Rate Limiting                 | Upstash Redis (`@upstash/ratelimit`, `@upstash/redis`) + in-memory fallback |
 | Markdown (optional processor) | unified, remark-gfm, rehype-pretty-code, rehype-external-links, rehype-slug |
 | Logging                       | Custom logger (structured JSON / pretty dev)                                |
-| Tooling                       | ESLint (love config + prettier), Prettier, Husky, lint-staged               |
+| Tooling                       | Biome.js v2.2.5 (linting + formatting), Husky, lint-staged                  |
 | Deployment                    | Vercel + ISR                                                                |
 
 ---
@@ -149,11 +149,11 @@ pnpm studio:dev # Sanity Studio (http://localhost:3333)
 pnpm dev               # Start dev server
 pnpm build             # Run quality gates then build
 pnpm start             # Start production build
-pnpm lint              # ESLint with auto-fix
-pnpm format            # Prettier write
+pnpm lint              # Biome check with auto-fix
+pnpm format            # Biome format write
 pnpm check-types       # TypeScript type check
-pnpm check-format      # Prettier check only
-pnpm check-lint        # ESLint check only
+pnpm check-format      # Biome format check only
+pnpm check-lint        # Biome check only
 pnpm test-all          # format + lint + types
 pnpm test-all:build    # test-all + build
 pnpm studio:dev        # Run Sanity Studio locally
@@ -161,7 +161,7 @@ pnpm studio:build      # Build Studio
 pnpm studio:deploy     # Deploy Studio
 ```
 
-Pre-commit (Husky + lint-staged) auto-runs ESLint + Prettier on staged files.
+Pre-commit (Husky + lint-staged) auto-runs Biome on staged files.
 
 ---
 
@@ -229,8 +229,7 @@ If prompt/schema changes: update `generateBlog.ts`, helper parser (`generateBlog
 
 ## Quality & Tooling
 
-- ESLint config based on `eslint-config-love` + custom relaxations
-- Prettier + import sort plugin
+- Biome.js v2.2.5 for linting and formatting (single quotes, 2 spaces, 100 line width)
 - `test-all` gate blocks build (format, lint, types)
 - Husky ensures local consistency pre-commit
 
@@ -245,7 +244,7 @@ If prompt/schema changes: update `generateBlog.ts`, helper parser (`generateBlog
 | Validation    | Zod schemas + `validateSchema` / `safeValidate`           |
 | Errors        | Throw `ApiError`; wrap route logic in `withErrorHandling` |
 | Rate Limiting | Use `rateLimitMiddleware` for write/compute endpoints     |
-| Imports       | Let Prettier sort; no manual micro-grouping               |
+| Imports       | Biome handles basic sorting; maintain consistent order     |
 | Styling       | Tailwind utilities; tokens in `globals.css` @theme        |
 | Secrets       | Never log raw env values / PII                            |
 

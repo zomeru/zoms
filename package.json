@@ -6,12 +6,12 @@
     "dev": "next dev",
     "build": "pnpm run test-all && next build",
     "start": "next start",
-    "lint": "eslint . --fix",
+    "lint": "biome check --write .",
     "postbuild": "next-sitemap",
     "check-types": "tsc --pretty --noEmit",
-    "check-format": "prettier --check .",
-    "check-lint": "eslint .",
-    "format": "prettier --write .",
+    "check-format": "biome format .",
+    "check-lint": "biome check .",
+    "format": "biome format --write .",
     "test-all": "npm run check-format && npm run check-lint && npm run check-types",
     "test-all:build": " npm run test-all && npm run build",
     "prepare": "husky",
@@ -51,7 +51,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
+    "@biomejs/biome": "2.2.5",
     "@tailwindcss/postcss": "^4.1.14",
     "@types/jsdom": "^27.0.0",
     "@types/node": "24.6.1",
@@ -59,26 +59,15 @@
     "@types/react-dom": "19.2.1",
     "@types/react-modal": "^3.16.3",
     "autoprefixer": "^10.4.21",
-    "eslint": "9.36.0",
-    "eslint-config-love": "^130.0.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-import": "^2",
-    "eslint-plugin-n": "^17.23.1",
-    "eslint-plugin-promise": "^7.2.1",
-    "eslint-plugin-react": "^7.33.2",
     "husky": "^9",
     "lint-staged": "^16.2.3",
     "postcss": "8.5.6",
-    "prettier": "^3.2.4",
     "tailwindcss": "^4.1.14",
-    "typescript": "5.9.3",
-    "typescript-eslint": "^8.46.0"
+    "typescript": "5.9.3"
   },
   "lint-staged": {
-    "*{js,ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
+    "*{js,ts,tsx,jsx,css,json}": [
+      "biome check --write --no-errors-on-unmatched"
     ]
   },
   "packageManager": "pnpm@10.18.2",
