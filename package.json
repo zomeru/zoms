@@ -60,7 +60,7 @@
     "@types/react-modal": "^3.16.3",
     "autoprefixer": "^10.4.21",
     "eslint": "9.36.0",
-    "eslint-config-love": "^130.0.0",
+    "eslint-config-love": "^133.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import": "^2",
