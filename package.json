@@ -20,7 +20,7 @@
     "studio:deploy": "cd studio && pnpm run deploy"
   },
   "dependencies": {
-    "@google/genai": "^1.23.0",
+    "@google/genai": "^1.25.0",
     "@portabletext/react": "^4.0.3",
     "@portabletext/types": "^2.0.15",
     "@rehype-pretty/transformers": "^0.13.2",
