@@ -4,6 +4,7 @@ import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
 
 import { getErrorMessage } from './errorMessages';
 import { selectCombinationOfTopics, tryParseAIJSON } from './generateBlogHelpers';
+import log from './logger';
 
 export interface GeneratedBlogPost {
   title: string;
@@ -20,30 +21,33 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
  */
 export async function generateBlogContent(): Promise<GeneratedBlogPost> {
   const topics = selectCombinationOfTopics();
+  const topicsList = topics.map((t) => t).join(', ');
+  const year = new Date().getFullYear();
+
+  // Log selected topics
+  log.info('Selected topics for blog generation', { topics: topicsList });
 
   const prompt = `
 Write a comprehensive, technically detailed blog post that demonstrates how the following web development topics can be integrated within a single application context:
-
-${topics.map((t) => `- ${t}`).join('\n')}
+${topicsList}
 
 All examples, explanations, and code snippets must use TypeScript as the primary language.
 
-The article must be written for intermediate to advanced web developers, offering practical examples, best practices, and actionable insights. Ensure all content is accurate and current as of ${new Date().getFullYear()} (reflecting developments from the last two months).
+The article must be written for intermediate to advanced web developers, offering practical examples, best practices, and actionable insights. Ensure content is current as of ${year}.
 
 Writing Guidelines:
 1. Include relevant code snippets and technical explanations.
-2. Word count: 700–1000 words (optimized for faster generation).
+2. Word count: 550–750 words (optimized for faster generation).
 3. Structure clearly using Markdown headings (## for major sections).
-4. Focus on actionable insights and real-world applications.
-5. Use valid Markdown formatting: headers (#, ##, ###), bullet points, **bold**, \`inline code\`, and fenced code blocks.
-6. Explain why each tool, library, or framework is used, how it fits into the architecture, and include hyperlinks to official documentation.
+4. Use valid Markdown formatting: headers (#, ##, ###), bullet points, **bold**, \`inline code\`, and fenced code blocks.
+5. Explain why each tool, library, or framework is used, how it fits into the architecture, and include hyperlinks to official documentation. (2 sentences max per explanation)
+6. Keep explanations brief (1–2 sentences per section) and focus on practical code examples.
 
 CRITICAL OUTPUT FORMAT:
 Respond with ONLY valid JSON in this exact structure:
-
 {
   "title": "Compelling and concise blog title (40–80 characters total, including spaces — REQUIRED)",
-  "summary": "SEO-friendly summary (100–200 characters total, including spaces — REQUIRED; no backticks or quotes)",
+  "summary": "SEO-friendly summary (100–150 characters total, including spaces — REQUIRED; no backticks or quotes)",
   "body": "Full blog post content in Markdown format. Escape all internal double quotes with a backslash (\\").",
   "tags": ["tag1", "tag2", "tag3"],
   "readTime": 5
@@ -55,7 +59,7 @@ JSON VALIDATION RULES:
 - Escape any double quotes inside strings
 - No trailing commas or comments
 - The body field must contain valid Markdown
-- Include 3–5 relevant tags (lowercase, no special characters)
+- Include 2–5 relevant tags (lowercase, no special characters)
 - Calculate readTime as total words ÷ 200 (rounded up)
 
 Final Quality Requirements:
@@ -69,7 +73,8 @@ Final Quality Requirements:
     contents: prompt,
     config: {
       systemInstruction:
-        'You are an experienced full-stack engineer and expert technical writer who produces clear, concise, and engaging content for professional web developers.'
+        'You are an experienced full-stack engineer and expert technical writer who produces clear, concise, and engaging content for professional web developers.',
+      temperature: 0.6
     }
   });
 

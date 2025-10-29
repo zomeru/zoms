@@ -18,7 +18,8 @@ export const frontendFrameworkTopics = [
   'RedwoodJS',
   'Blitz.js',
   'Fresh',
-  'Waku'
+  'Waku',
+  'FeathersJS'
 ];
 
 export const backendFrameworkTopics = [
@@ -31,7 +32,6 @@ export const backendFrameworkTopics = [
   'AdonisJS',
   'LoopBack',
   'Sails.js',
-  'FeathersJS',
   'Moleculer'
 ];
 
