@@ -20,10 +20,10 @@ export function formatDateWithTime(dateString: string): string {
   return date;
 }
 
-export function pickOneOrNone<T>(arr: T[], forcePick = false, chance = 0.35): T | undefined {
+export function pickOneOrNone<T>(arr: T[], forcePick = false, chance = 0.65): T | undefined {
   if (arr.length === 0) return undefined;
 
-  // chance to pick nothing, unless forcePick is true
+  // 65% (default) chance to pick nothing, unless forcePick is true
   if (!forcePick && Math.random() < chance) return undefined;
 
   // Pick a random element
