@@ -5512,8 +5512,8 @@ packages:
     resolution: {integrity: sha512-OcXjMsGdhL4XnbShKpAcSqPMzQoYkYyhbEaeSko47MjRP9NfEQMhZkXL1DoFlt9LWQn4YttrdnV6X2OiyzBi+A==}
     engines: {node: '>=10'}
 
-  resolve@1.22.10:
-    resolution: {integrity: sha512-NPRy+/ncIMeDlTAsuqwKIiferiawhefFJtkNSW0qZJEqMEb+qBt/77B/jGeeek+F0uOeN05CDa6HXbbIgtVX4w==}
+  resolve@1.22.11:
+    resolution: {integrity: sha512-RfqAvLnMl313r7c9oclB1HhUEAezcpLjz95wFH4LVuhk9JF/r22qmVP9AMmOU4vMX7Q8pN8jwNg/CSpdFnMjTQ==}
     engines: {node: '>= 0.4'}
     hasBin: true
 
@@ -9214,7 +9214,7 @@ snapshots:
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.7.2
+      semver: 7.7.3
       ts-api-utils: 2.1.0(typescript@5.9.3)
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -10228,7 +10228,7 @@ snapshots:
   eslint-compat-utils@0.5.1(eslint@9.36.0(jiti@2.6.1)):
     dependencies:
       eslint: 9.36.0(jiti@2.6.1)
-      semver: 7.7.2
+      semver: 7.7.3
 
   eslint-config-love@133.0.0(@typescript-eslint/parser@8.46.0(eslint@9.36.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.36.0(jiti@2.6.1))(typescript@5.9.3):
     dependencies:
@@ -10254,7 +10254,7 @@ snapshots:
     dependencies:
       debug: 3.2.7
       is-core-module: 2.16.1
-      resolve: 1.22.10
+      resolve: 1.22.11
     transitivePeerDependencies:
       - supports-color
 
@@ -12796,7 +12796,7 @@ snapshots:
 
   resolve.exports@2.0.3: {}
 
-  resolve@1.22.10:
+  resolve@1.22.11:
     dependencies:
       is-core-module: 2.16.1
       path-parse: 1.0.7
@@ -13151,7 +13151,7 @@ snapshots:
     dependencies:
       '@img/colour': 1.0.0
       detect-libc: 2.1.1
-      semver: 7.7.2
+      semver: 7.7.3
     optionalDependencies:
       '@img/sharp-darwin-arm64': 0.34.4
       '@img/sharp-darwin-x64': 0.34.4
