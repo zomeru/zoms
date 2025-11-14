@@ -59,7 +59,7 @@ export function selectCombinationOfTopics(): string[] {
 
   const nullableTopics = [cloudPlatformTopic, hostingTopic, aiTopic].filter((t) => t !== undefined);
 
-  const selectedGeneralTopics = pickRandom<string>(webDevGeneralTopics, 2, 3);
+  const selectedGeneralTopics = pickRandom<string>(webDevGeneralTopics, 0, 2);
 
   return [...fullStackTopics, ...nullableTopics, ...selectedGeneralTopics];
 }
