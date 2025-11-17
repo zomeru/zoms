@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@google/genai": "^1.23.0",
-    "@portabletext/react": "^4.0.3",
+    "@portabletext/react": "^5.0.0",
     "@portabletext/types": "^2.0.15",
     "@rehype-pretty/transformers": "^0.13.2",
     "@sanity/client": "^7.12.0",
