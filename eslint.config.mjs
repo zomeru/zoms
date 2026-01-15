@@ -40,7 +40,13 @@ export default [
       '@typescript-eslint/strict-boolean-expressions': 'off',
       'arrow-body-style': 'off',
       // React specific
-      'react/react-in-jsx-scope': 'off'
+      'react/react-in-jsx-scope': 'off',
+      // Regex rules
+      'require-unicode-regexp': 'off',
+      'prefer-named-capture-groups': 'off',
+      'prefer-named-capture-group': 'off',
+      'prefer-template': 'off',
+      'require-atomic-updates': 'off'
     }
   }
 ];
