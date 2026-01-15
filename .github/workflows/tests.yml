@@ -1,4 +1,4 @@
-name: Test and build CI with pnpm 10 and Node 22
+name: Test and build CI with pnpm 10 and Node 24
 
 on:
   pull_request:
@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [22.x]
+        node-version: [24.x]
 
     env:
       NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
