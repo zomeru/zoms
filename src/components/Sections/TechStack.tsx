@@ -5,7 +5,7 @@ import { technologies } from '@/constants';
 
 const TechStack: React.FC = (): React.JSX.Element => {
   return (
-    <section id='technologies' className='py-20'>
+    <section id='technologies' className='pb-20'>
       <h2 className='section-title'>Technologies</h2>
 
       <div className='flex flex-wrap gap-2'>

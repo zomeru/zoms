@@ -29,7 +29,7 @@
   --color-warning: #f59e0b;
 
   /* === CODE COLORS === */
-  --color-code-bg: #0d1117;
+  --color-code-bg: rgba(13, 17, 23, 0.6);
   --color-code-border: #30363d;
 
   /* === TERMINAL COLORS === */
@@ -277,6 +277,27 @@ body {
   }
 }
 
+/* === UTILITY CLASSES === */
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@utility animate-delay-100 {
+  animation-delay: 100ms;
+}
+@utility animate-delay-200 {
+  animation-delay: 200ms;
+}
+@utility animate-delay-300 {
+  animation-delay: 300ms;
+}
+@utility animate-delay-400 {
+  animation-delay: 400ms;
+}
+@utility animate-delay-500 {
+  animation-delay: 500ms;
+}
+
 /* === ANIMATIONS === */
 @keyframes fadeIn {
   from {
@@ -404,7 +425,7 @@ body {
     padding: 0.125rem 0.375rem;
     background: rgba(59, 130, 246, 0.1);
     border-radius: 4px;
-    color: var(--color-secondary);
+    color: var(--color-terminal-green);
   }
 
   pre {
@@ -419,6 +440,10 @@ body {
       background: transparent;
       padding: 0;
       color: var(--color-text-secondary);
+
+      button.rehype-pretty-copy {
+        cursor: pointer;
+      }
     }
   }
 
@@ -463,25 +488,4 @@ body {
   td {
     color: var(--color-text-secondary);
   }
-}
-
-/* === UTILITY CLASSES === */
-@utility text-balance {
-  text-wrap: balance;
-}
-
-@utility animate-delay-100 {
-  animation-delay: 100ms;
-}
-@utility animate-delay-200 {
-  animation-delay: 200ms;
-}
-@utility animate-delay-300 {
-  animation-delay: 300ms;
-}
-@utility animate-delay-400 {
-  animation-delay: 400ms;
-}
-@utility animate-delay-500 {
-  animation-delay: 500ms;
 }

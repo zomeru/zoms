@@ -60,8 +60,10 @@ const Blog: React.FC = async (): Promise<React.JSX.Element> => {
           href='/blog'
           className='inline-flex items-center gap-2 text-primary hover:underline font-mono text-sm'
         >
-          <span className='text-primary'>➜</span>
-          <span>cd /blog</span>
+          <span className='text-terminal-green'>cd</span>
+          <span className='text-text-secondary'>..</span>
+          <span className='text-terminal-blue'>→</span>
+          <span>/blog</span>
         </Link>
       </div>
     </section>

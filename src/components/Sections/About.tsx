@@ -6,7 +6,7 @@ import TerminalHero from '../TerminalHero';
 
 const About: React.FC = (): React.JSX.Element => {
   return (
-    <section id='about' className='min-h-[80vh] flex flex-col justify-center py-20'>
+    <section id='about' className='min-h-screen flex flex-col justify-center py-20'>
       <div className='mb-12'>
         <h1 className='text-4xl md:text-5xl lg:text-6xl font-light mb-4 text-primary'>
           Zomer Gregorio

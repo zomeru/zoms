@@ -113,8 +113,8 @@ const Experience: React.FC = async (): Promise<React.JSX.Element> => {
           rel='noopener noreferrer'
           className='inline-flex items-center gap-2 text-primary hover:underline'
         >
-          <span className='font-mono'>cat</span>
-          <span className='text-text-muted'>→</span>
+          <span className='text-terminal-green'>cat</span>
+          <span className='text-terminal-blue'>→</span>
           <span>resume.pdf</span>
         </a>
       </div>

@@ -1,6 +1,8 @@
 import { transformerCopyButton } from '@rehype-pretty/transformers';
 import rehypeExternalLinks from 'rehype-external-links';
 import rehypePrettyCode from 'rehype-pretty-code';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
 import rehypeSlug from 'rehype-slug';
 import rehypeStringify from 'rehype-stringify';
 import remarkBreaks from 'remark-breaks';
@@ -13,12 +15,16 @@ const processor = unified()
   .use(remarkParse)
   .use(remarkGfm)
   .use(remarkBreaks)
-  .use(remarkRehype)
+  .use(remarkRehype, { allowDangerousHtml: true })
+  .use(rehypeRaw)
+  .use(rehypeSanitize)
   .use(rehypeSlug)
   .use(rehypePrettyCode, {
-    theme: 'github-dark',
-    keepBackground: true,
-    defaultLang: 'ts',
+    theme: 'github-dark-dimmed',
+    bypassInlineCode: true,
+    keepBackground: false,
+    // keepBackground: true,
+    // defaultLang: 'plaintext',
     transformers: [
       transformerCopyButton({
         visibility: 'always',
