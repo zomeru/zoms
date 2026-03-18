@@ -24,7 +24,7 @@ const Footer: React.FC = (): React.JSX.Element => {
         </div>
 
         <div className='text-sm text-text-muted'>
-          <div className='flex flex-col gap-1 text-right font-mono text-xs'>
+          <div className='flex flex-col gap-1 text-left md:text-right font-mono text-xs'>
             <span>
               <span className='text-secondary'>const</span>{' '}
               <span className='text-terminal-green'>year</span>{' '}
