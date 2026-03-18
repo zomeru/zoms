@@ -5,6 +5,8 @@ import {
   type PortableTextMarkComponentProps
 } from '@portabletext/react';
 
+import { TerminalCard } from '@/components/ui';
+
 interface LinkValue {
   _type: string;
   href?: string;
@@ -19,17 +21,17 @@ const portableTextComponents: PortableTextComponents = {
           href={href}
           target='_blank'
           rel='noopener noreferrer'
-          className='group-hover:text-primary hover:underline transition-colors'
+          className='text-primary hover:underline'
         >
           {children}
         </a>
       );
     },
-    strong: ({ children }) => <strong className='font-semibold'>{children}</strong>,
+    strong: ({ children }) => <strong className='font-semibold text-primary'>{children}</strong>,
     em: ({ children }) => <em className='italic'>{children}</em>
   },
   block: {
-    normal: ({ children }) => <p className='text-sm text-textSecondary'>{children}</p>
+    normal: ({ children }) => <p className='text-sm text-text-secondary mb-2'>{children}</p>
   },
   list: {
     bullet: ({ children }) => <>{children}</>,
@@ -37,28 +39,27 @@ const portableTextComponents: PortableTextComponents = {
   },
   listItem: {
     bullet: ({ children }) => (
-      <p className='text-sm text-textSecondary'>
-        {'- '}
-        {children}
+      <p className='text-sm text-text-secondary mb-1'>
+        <span className='text-primary'>›</span> {children}
       </p>
     ),
     number: ({ children, index }) => (
-      <p className='text-sm text-textSecondary'>
-        {`${index + 1}. `}
-        {children}
+      <p className='text-sm text-text-secondary mb-1'>
+        <span className='text-primary'>{index + 1}.</span> {children}
       </p>
     )
   }
 };
 
-const Experience = async (): Promise<React.JSX.Element> => {
+const Experience: React.FC = async (): Promise<React.JSX.Element> => {
   const { getExperience } = await import('@/lib/experience');
   const experience = await getExperience();
 
   return (
-    <section id='experience' className='mb-24 sm:mb-32'>
+    <section id='experience' className='py-20'>
       <h2 className='section-title'>Experience</h2>
-      <ol className='group/list space-y-10 mb-10'>
+
+      <div className='space-y-6'>
         {experience.map(({ title, company, companyWebsite, location, range, duties }) => {
           const id =
             title.replaceAll(' ', '-').toLowerCase() +
@@ -66,49 +67,57 @@ const Experience = async (): Promise<React.JSX.Element> => {
             company.replaceAll(' ', '-').toLowerCase();
 
           return (
-            <li
+            <TerminalCard
               key={id}
-              className='group lg:group-hover/list:opacity-50 lg:hover:!opacity-100 transition-all duration-300 ease-in-out hover:after:bg-[#ad5aff0a] after:content-[""] relative after:absolute after:w-full after:h-full after:top-0 after:left-0 after:transform after:scale-105 after:rounded-lg after:transition-colors after:duration-300 after:ease-in-out after:drop-shadow-md hover:after:shadow-[inset_0_1px_0_0_rgba(148,163,184,0.1)] after:pointer-events-none'
+              title={`${company.toLowerCase().replace(/\s+/g, '-')}.log`}
+              showHeader={true}
+              className='hover:border-border-hover transition-colors'
             >
-              <div className='grid grid-cols-8'>
-                <div className='col-span-8 sm:col-span-2 text-textSecondary text-sm mb-1 sm:mb-0'>
-                  {range}
-                </div>
-                <div className='ml-0 sm:ml-4 col-span-8 sm:col-span-6'>
-                  {companyWebsite ? (
-                    <a
-                      href={companyWebsite}
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      className='group-hover:text-primary hover:text-primary transition-colors relative z-10'
-                    >
-                      <h3 className='text-base transition-colors'>
-                        {title} · {company}
-                      </h3>
-                    </a>
-                  ) : (
-                    <h3 className='text-base group-hover:text-primary transition-colors'>
-                      {title} · {company}
-                    </h3>
-                  )}
-                  <span className='text-textSecondary text-sm'>{location}</span>
-                  <div className='mt-2'>
-                    <PortableText value={duties} components={portableTextComponents} />
+              <div className='flex flex-col gap-3'>
+                <div className='flex items-center justify-between flex-wrap gap-2'>
+                  <div>
+                    <span className='text-terminal-green font-medium'>{title}</span>
+                    <span className='text-text-muted'> @ </span>
+                    {companyWebsite ? (
+                      <a
+                        href={companyWebsite}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className='text-terminal-purple hover:underline'
+                      >
+                        {company}
+                      </a>
+                    ) : (
+                      <span className='text-terminal-purple'>{company}</span>
+                    )}
                   </div>
+                  <span className='text-muted text-xs font-mono'>{range}</span>
+                </div>
+                <div className='text-muted text-xs'>
+                  <span className='text-terminal-yellow'>location:</span> {location}
+                </div>
+                <div className='mt-2 pt-3 border-t border-code-border'>
+                  <div className='text-muted text-xs mb-2 font-mono'>duties:</div>
+                  <PortableText value={duties} components={portableTextComponents} />
                 </div>
               </div>
-            </li>
+            </TerminalCard>
           );
         })}
-      </ol>
-      <a
-        href='/assets/resume.pdf'
-        target='_blank'
-        rel='noopener noreferrer'
-        className='link-primary'
-      >
-        View resume
-      </a>
+      </div>
+
+      <div className='mt-8'>
+        <a
+          href='/assets/resume.pdf'
+          target='_blank'
+          rel='noopener noreferrer'
+          className='inline-flex items-center gap-2 text-primary hover:underline'
+        >
+          <span className='font-mono'>cat</span>
+          <span className='text-text-muted'>→</span>
+          <span>resume.pdf</span>
+        </a>
+      </div>
     </section>
   );
 };

@@ -3,9 +3,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 
+import { TechBadge } from '@/components/ui';
 import { BLOG_POSTS_PAGE_SIZE } from '@/constants';
 import type { BlogPostListItem } from '@/lib/blog';
-import { getClientErrorMessage } from '@/lib/errorMessages';
 import { formatDate } from '@/lib/utils';
 
 interface BlogListClientProps {
@@ -46,14 +46,13 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
       setPosts((prevPosts) => [...prevPosts, ...data.posts]);
       setOffset((prevOffset) => prevOffset + data.posts.length);
     } catch (err) {
-      setError(getClientErrorMessage(err));
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
       isLoadingRef.current = false;
     }
   }, [hasMore, offset]);
 
-  // Infinite scroll observer
   useEffect(() => {
     if (!hasMore || loading) return;
 
@@ -64,7 +63,7 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
         }
       },
       {
-        rootMargin: '100px' // Start loading 100px before reaching the bottom
+        rootMargin: '100px'
       }
     );
 
@@ -81,83 +80,60 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
   }, [hasMore, loading, loadMore]);
 
   return (
-    <>
-      {/* Error Message */}
+    <div className='space-y-4'>
       {error && (
-        <div className='mb-8 p-4 bg-red-500 bg-opacity-10 border border-red-500 rounded-lg'>
-          <p className='text-red-400 text-sm'>{error}</p>
+        <div className='bg-terminal-red/10 border border-terminal-red/30 rounded-lg p-4'>
+          <p className='text-terminal-red text-sm font-mono'>Error: {error}</p>
         </div>
       )}
 
-      {/* Blog Posts Grid - 2 columns on desktop, 1 on mobile */}
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8'>
-        {posts.map((post) => {
-          const date = formatDate(post.publishedAt);
+      {posts.map((post) => {
+        const date = formatDate(post.publishedAt);
 
-          return (
-            <article
-              key={post._id}
-              className='group p-6 rounded-lg border border-textSecondary border-opacity-20 hover:border-primary hover:border-opacity-50 transition-all duration-300 hover:bg-[#ad5aff0a] flex flex-col'
-            >
-              <div className='flex flex-col gap-3 flex-grow'>
-                <div className='flex flex-wrap items-center gap-2 text-sm'>
-                  <time className='text-textSecondary'>{date}</time>
+        return (
+          <Link key={post._id} href={`/blog/${post.slug.current}`} className='block'>
+            <article className='bg-code-bg border border-code-border rounded-lg p-5 hover:border-primary/30 transition-all duration-300 group'>
+              <div className='flex flex-col gap-3'>
+                <div className='flex flex-wrap items-center gap-3 text-xs text-text-muted font-mono'>
+                  <span>{date}</span>
                   {post.readTime && (
                     <>
-                      <span className='text-textSecondary opacity-40'>•</span>
-                      <span className='text-textSecondary opacity-60'>
-                        {post.readTime} min read
-                      </span>
-                    </>
-                  )}
-                  {post.generated && (
-                    <>
-                      <span className='text-textSecondary opacity-40'>•</span>
-                      <span className='text-textSecondary opacity-60' title='AI Generated'>
-                        🤖 AI Generated
-                      </span>
+                      <span className='text-text-muted'>|</span>
+                      <span>{post.readTime} min read</span>
                     </>
                   )}
                 </div>
-                <Link
-                  href={`/blog/${post.slug.current}`}
-                  className='group-hover:text-primary transition-colors'
-                >
-                  <h2 className='text-xl font-semibold mb-2 transition-colors'>{post.title}</h2>
-                </Link>
-                <p className='text-textSecondary text-sm mb-3 flex-grow'>{post.summary}</p>
+                <h2 className='text-primary font-medium text-lg  group-hover:text-primary-hover transition-colors'>
+                  {post.title}
+                </h2>
+                <p className='text-text-secondary text-sm line-clamp-2'>{post.summary}</p>
                 {post.tags && post.tags.length > 0 && (
-                  <div className='flex flex-wrap gap-2'>
-                    {post.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className='text-xs px-3 py-1 rounded-full bg-[#ad5aff1f] text-textSecondary'
-                      >
-                        {tag}
-                      </span>
+                  <div className='flex flex-wrap gap-2 mt-2'>
+                    {post.tags.map((tag) => (
+                      <TechBadge key={tag}>{tag}</TechBadge>
                     ))}
                   </div>
                 )}
               </div>
             </article>
-          );
-        })}
-      </div>
+          </Link>
+        );
+      })}
 
-      {/* Infinite scroll trigger */}
       {hasMore && (
-        <div ref={loadMoreRef} className='mb-8 flex justify-center py-4'>
+        <div ref={loadMoreRef} className='py-8 flex justify-center'>
           {loading ? (
-            <div className='flex items-center gap-2 text-textSecondary'>
-              <div className='w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin' />
-              <span>Loading more posts...</span>
+            <div className='flex items-center gap-2 text-text-muted font-mono text-sm'>
+              <span className='size-4 border-2 border-primary border-t-transparent rounded-full animate-spin' />
+              <span>Loading...</span>
             </div>
           ) : (
             <button
+              type='button'
               onClick={() => {
                 void loadMore();
               }}
-              className='px-6 py-3 bg-primary text-textPrimary rounded-lg hover:bg-opacity-80 transition-all font-medium'
+              className='px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover transition-all font-mono text-sm'
             >
               Load More Posts
             </button>
@@ -165,11 +141,11 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
         </div>
       )}
 
-      {/* Showing count */}
-      <div className='text-center text-textSecondary text-sm'>
-        Showing {posts.length} of {initialTotal} posts
+      <div className='text-center text-text-muted text-sm font-mono pt-8 border-t border-code-border'>
+        Showing <span className='text-terminal-blue'>{posts.length}</span> of{' '}
+        <span className='text-terminal-blue'>{initialTotal}</span> posts
       </div>
-    </>
+    </div>
   );
 };
 

@@ -18,7 +18,7 @@ const processor = unified()
   .use(rehypePrettyCode, {
     theme: 'github-dark',
     keepBackground: true,
-    defaultLang: 'plaintext',
+    defaultLang: 'ts',
     transformers: [
       transformerCopyButton({
         visibility: 'always',

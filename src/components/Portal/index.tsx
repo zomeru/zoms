@@ -11,7 +11,7 @@ interface PortalProps {
 const Portal: React.FC<PortalProps> = ({ closeModal }): React.JSX.Element => {
   return (
     <div
-      className='h-screen w-screen fixed bg-backgroundPrimary/50 backdrop-blur-sm'
+      className='size-screen fixed bg-backgroundPrimary/50 backdrop-blur-sm'
       onClick={closeModal}
     >
       <div className='portal-spinner m-0'>
@@ -25,33 +25,33 @@ const Portal: React.FC<PortalProps> = ({ closeModal }): React.JSX.Element => {
         style={{
           perspective: '400px'
         }}
-        className='w-full h-full flex items-center justify-center z-50 text-red-600 absolute'
+        className='size-full flex items-center justify-center z-50 text-red-600 absolute'
       >
         <button
           aria-label='Close button'
           onClick={closeModal}
           className='absolute top-5 right-8 text-textSecondary cursor-pointer'
         >
-          <AiOutlineClose className='w-[30px] h-[30px]' />
+          <AiOutlineClose className='size-7.5' />
         </button>
         <div
           style={{
             transform: 'rotateX(25deg) translateZ(100px)',
             transformOrigin: '50% 100%'
           }}
-          className='max-w-[300px] flex flex-col items-center mt-12 sm:mt-4'
+          className='max-w-75 flex flex-col items-center mt-12 sm:mt-4'
           onClick={(e): void => {
             e.stopPropagation();
           }}
         >
-          <p className='text-center text-sm sm:text-base md:text-xl text-backgroundSecondary mb-1 sm:mb-3 w-[150px] sm:w-[200px] md:w-full'>
+          <p className='text-center text-sm sm:text-base md:text-xl text-backgroundSecondary mb-1 sm:mb-3 w-37.5 sm:w-50 md:w-full'>
             Looking for my different portfolio? Go back in time...
           </p>
           <a
             href='https://zomer.vercel.app/'
             target='_blank'
             rel='noopener noreferrer'
-            className='relative hover:scale-105 transition-transform h-[100px] w-[120px] sm:w-[150px] md:w-[200px] rounded-md overflow-hidden my-auto'
+            className='relative hover:scale-105 transition-transform h-25 w-30 sm:w-37.5 md:w-50 rounded-md overflow-hidden my-auto'
             aria-label='Old Portfolio Link'
           >
             <Image

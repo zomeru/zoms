@@ -16,7 +16,7 @@ const GenerateBlogModal: React.FC<GenerateBlogModalProps> = ({ isOpen, onClose, 
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+  const handleSubmit = (e: React.SyntheticEvent): void => {
     e.preventDefault();
     setError(null);
 
@@ -26,15 +26,17 @@ const GenerateBlogModal: React.FC<GenerateBlogModalProps> = ({ isOpen, onClose, 
     }
 
     setIsGenerating(true);
-    try {
-      await onGenerate(token);
-      setToken('');
-      onClose();
-    } catch (err) {
-      setError(getClientErrorMessage(err));
-    } finally {
-      setIsGenerating(false);
-    }
+    onGenerate(token)
+      .then(() => {
+        setToken('');
+        onClose();
+      })
+      .catch((err: unknown) => {
+        setError(getClientErrorMessage(err));
+      })
+      .finally(() => {
+        setIsGenerating(false);
+      });
   };
 
   const handleClose = (): void => {

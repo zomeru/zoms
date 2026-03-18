@@ -23,7 +23,7 @@ export const frontendFrameworkTopics = [
 ];
 
 export const backendFrameworkTopics = [
-  // Major Node.js frameworks
+  // Major Node.js/Bun frameworks
   'Express',
   'Fastify',
   'NestJS',
@@ -32,7 +32,9 @@ export const backendFrameworkTopics = [
   'AdonisJS',
   'LoopBack',
   'Sails.js',
-  'Moleculer'
+  'Moleculer',
+  'ElysiaJS',
+  'Hono'
 ];
 
 export const cloudPlatformTopics = [
@@ -41,7 +43,7 @@ export const cloudPlatformTopics = [
   'Microsoft Azure',
   'Google Cloud Platform (GCP)',
   // "IBM Cloud",
-  // "Oracle Cloud Infrastructure (OCI)",
+  'Oracle Cloud Infrastructure (OCI)',
   // "Alibaba Cloud",
 
   // Container & edge platforms
@@ -71,22 +73,20 @@ export const hostingTopics = [
 ];
 
 export const aiProviderTopics = [
-  // Major general-purpose AI API providers
-  'OpenAI API',
-  'Anthropic Claude API',
-  'Google Gemini API',
-  'Mistral API',
-  'Cohere API',
-  'xAI (Grok API)',
-  'Together AI API',
-  'Perplexity API',
-  'Groq API',
-  'Replicate API',
-  'Hugging Face Inference API',
-
-  // Open-source or local-friendly APIs
-  'Ollama API',
-  'LM Studio API'
+  'OpenAI',
+  'Anthropic Claude',
+  'Google Gemini',
+  'OpenRouter',
+  'Mistral',
+  'Cohere',
+  'xAI (Grok)',
+  'Together AI',
+  'Perplexity',
+  'Groq',
+  'Replicate',
+  'Hugging Face Inference',
+  'Ollama',
+  'LM Studio'
 ];
 
 export const webDevGeneralTopics = [

@@ -73,11 +73,9 @@ const Navigation = (): React.JSX.Element => {
             <li key={url}>
               <Link href={url} onClick={handleNavClick} className='group'>
                 <div
-                  className={`h-[1px] mr-3 w-full ${
-                    isCurrentSection
-                      ? 'max-w-[60px] bg-textPrimary'
-                      : 'max-w-[30px] bg-textSecondary'
-                  } transition-all duration-200 ease-in-out group-hover:max-w-[60px] group-hover:bg-textPrimary inline-block transform -translate-y-1`}
+                  className={`h-px mr-3 w-full ${
+                    isCurrentSection ? 'max-w-15 bg-textPrimary' : 'max-w-7.5 bg-textSecondary'
+                  } transition-all duration-200 ease-in-out group-hover:max-w-15 group-hover:bg-textPrimary inline-block transform -translate-y-1`}
                 />
                 <span
                   className={` uppercase text-sm ${

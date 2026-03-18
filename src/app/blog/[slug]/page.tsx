@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { TechBadge } from '@/components/ui';
 import { SITE_URL } from '@/configs/seo';
 import { getBlogPostBySlug } from '@/lib/blog';
 import { processMarkdown } from '@/lib/unified';
@@ -65,70 +66,88 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
 
   const publishedDate = formatDateWithTime(post.publishedAt);
 
-  const modifiedDate = post.modifiedAt ? formatDateWithTime(post.modifiedAt) : null;
-
   const content = await processMarkdown(post.body);
 
   return (
-    <main className='max-w-[1200px] mx-auto px-6 sm:px-12 md:px-16 lg:px-20 py-[50px] md:py-[90px]'>
-      {/* Back Link */}
-      <Link href='/blog' className='text-primary hover:underline mb-8 inline-block'>
-        ← Back to blog
-      </Link>
+    <>
+      <main className='relative z-10 min-h-screen'>
+        <div className='max-w-6xl mx-auto px-6 py-16 md:py-24'>
+          <Link
+            href='/blog'
+            className='inline-flex items-center gap-2 text-primary hover:underline font-mono text-sm mb-8'
+          >
+            <span className='text-terminal-green'>cd</span>
+            <span className='text-text-secondary'>..</span>
+            <span className='text-terminal-blue'>→</span>
+            <span>blog</span>
+          </Link>
 
-      {/* Article Header */}
-      <header className='mb-12'>
-        <h1 className='text-4xl md:text-5xl font-bold mb-4 text-textPrimary'>{post.title}</h1>
+          <article className='bg-code-bg border border-code-border rounded-lg overflow-hidden'>
+            <div className='bg-linear-to-b from-border to-surface-elevated border-b border-code-border px-3 py-2 flex items-center gap-2'>
+              <div className='flex gap-1.5'>
+                <div className='size-3 rounded-full bg-terminal-red' />
+                <div className='size-3 rounded-full bg-terminal-yellow' />
+                <div className='size-3 rounded-full bg-terminal-green' />
+              </div>
+              <div className='flex-1 text-center'>
+                <span className='text-xs text-text-muted font-mono'>{slug}.md</span>
+              </div>
+            </div>
 
-        <div className='flex flex-wrap items-center gap-4 text-textSecondary text-sm mb-4'>
-          <time dateTime={post.publishedAt}>Published {publishedDate}</time>
-          {modifiedDate && post.modifiedAt !== post.publishedAt && (
-            <>
-              <span>•</span>
-              <time dateTime={post.modifiedAt}>Updated {modifiedDate}</time>
-            </>
-          )}
-          {post.readTime && (
-            <>
-              <span>•</span>
-              <span>{post.readTime} min read</span>
-            </>
-          )}
-          {post.generated && (
-            <>
-              <span>•</span>
-              <span className='flex items-center gap-1' title='AI Generated'>
-                <span>🤖</span> AI Generated
-              </span>
-            </>
-          )}
+            <div className='p-8'>
+              <header className='mb-8'>
+                <h1 className='text-3xl md:text-4xl font-semibold mb-4 text-primary'>
+                  {post.title}
+                </h1>
+
+                <div className='flex flex-wrap items-center gap-3 text-sm text-text-muted font-mono mb-6'>
+                  <span>
+                    <span className='text-secondary'>const</span>{' '}
+                    <span className='text-terminal-green'>published</span>{' '}
+                    <span className='text-text-secondary'>=</span>{' '}
+                    <span className='text-terminal-purple'>"{publishedDate}"</span>
+                  </span>
+                  {post.readTime && (
+                    <span>
+                      <span className='text-secondary'>const</span>{' '}
+                      <span className='text-terminal-green'>readTime</span>{' '}
+                      <span className='text-text-secondary'>=</span>{' '}
+                      <span className='text-terminal-purple'>{post.readTime} min</span>
+                    </span>
+                  )}
+                </div>
+
+                {post.tags && post.tags.length > 0 && (
+                  <div className='flex flex-wrap gap-2 mb-6'>
+                    {post.tags.map((tag) => (
+                      <TechBadge key={tag}>{tag}</TechBadge>
+                    ))}
+                  </div>
+                )}
+
+                <div className='text-text-secondary text-lg leading-relaxed'>{post.summary}</div>
+              </header>
+
+              <div className='prose prose-invert max-w-none'>
+                <BlogContent body={content} />
+              </div>
+            </div>
+          </article>
+
+          <footer className='mt-8 pt-8 border-t border-border'>
+            <Link
+              href='/blog'
+              className='inline-flex items-center gap-2 text-primary hover:underline font-mono text-sm'
+            >
+              <span className='text-terminal-green'>cd</span>
+              <span className='text-text-secondary'>..</span>
+              <span className='text-terminal-blue'>→</span>
+              <span>back to blog</span>
+            </Link>
+          </footer>
         </div>
-
-        {post.tags && post.tags.length > 0 && (
-          <div className='flex flex-wrap gap-2 mb-6'>
-            {post.tags.map((tag, index) => (
-              <span
-                key={index}
-                className='text-xs px-3 py-1 rounded-full bg-[#ad5aff1f] text-textSecondary'
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <p className='text-lg text-textSecondary'>{post.summary}</p>
-      </header>
-
-      <BlogContent body={content} />
-
-      {/* Footer */}
-      <footer className='mt-16 pt-8 border-t border-textSecondary border-opacity-20'>
-        <Link href='/blog' className='text-primary hover:underline'>
-          ← Back to all posts
-        </Link>
-      </footer>
-    </main>
+      </main>
+    </>
   );
 };
 

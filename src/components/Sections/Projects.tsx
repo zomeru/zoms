@@ -5,97 +5,91 @@ import Image from 'next/image';
 import { AiOutlineArrowUp } from 'react-icons/ai';
 import { FiGithub } from 'react-icons/fi';
 
+import { CodeEditorCard, TechBadge } from '@/components/ui';
 import { projects } from '@/constants';
 
-const Projects = (): React.JSX.Element => {
+const Projects: React.FC = (): React.JSX.Element => {
   const [perPage, setPerPage] = useState(4);
 
   const filteredProjects = useMemo(() => {
     return projects.slice(0, perPage);
   }, [perPage]);
 
-  const handleShowMore = (): void => {
-    if (filteredProjects.length === projects.length) return;
-    setPerPage((prev) => prev + 4);
-  };
-
-  const handleShowLess = (): void => {
-    setPerPage(4);
-  };
-
-  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
-    e.preventDefault();
-
-    if (filteredProjects.length < projects.length) {
-      handleShowMore();
+  const handleButtonClick = (): void => {
+    if (filteredProjects.length === projects.length) {
+      setPerPage(4);
     } else {
-      handleShowLess();
+      setPerPage((prev) => prev + 4);
     }
   };
 
   return (
-    <section id='projects' className='mb-24 sm:mb-32'>
+    <section id='projects' className='py-20'>
       <h2 className='section-title'>Projects</h2>
-      <ol className='group/list space-y-12 sm:space-y-6 mb-10'>
+
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
         {filteredProjects.map(({ name, alt, image, info, techs, links }) => (
-          <li
+          <CodeEditorCard
             key={name}
-            className='group lg:group-hover/list:opacity-50 lg:hover:!opacity-100 transition-all duration-300 ease-in-out hover:after:bg-[#ad5aff0a]  after:content-[""] after:z-[-1] relative after:absolute after:w-full after:h-full after:top-0 after:left-0 after:transform after:scale-105 after:rounded-lg after:transition-colors after:duration-300 after:ease-in-out after:drop-shadow-md hover:after:shadow-[inset_0_1px_0_0_rgba(148,163,184,0.1)]'
+            filename={`${name.toLowerCase().replace(/\s+/g, '-')}.tsx`}
+            language='tsx'
+            className='hover:border-border-hover transition-all duration-300 hover:-translate-y-1'
           >
-            <div className='grid  grid-cols-8 z-10'>
-              <div className='col-span-8 sm:col-span-2 relative w-[200px] sm:w-full h-[100px] lg:h-[70px] mt-1 rounded-md overflow-hidden border border-gray-400 order-last sm:order-first'>
-                <Image
-                  src={`/assets/images/projects/${image}`}
-                  fill
-                  className='w-full h-full object-cover object-center'
-                  alt={alt}
-                  sizes='(max-width: 768px) 100vw'
-                  loading='lazy'
-                />
-              </div>
-              <div className='ml-0 sm:ml-4 col-span-8 sm:col-span-6'>
-                <h3 className='text-base group-hover:text-primary mb-2'>{name}</h3>
-                <div className='mb-2 flex space-x-4'>
-                  <a
-                    href={links.github}
-                    className='flex items-center text-textSecondary text-sm space-x-1 transition-colors duration-300 ease-in-out hover:text-primary'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                  >
-                    <span>Github</span>
-                    <FiGithub />
-                  </a>
-                  <a
-                    href={links.demo}
-                    className='flex items-center text-textSecondary text-sm space-x-1 transition-colors duration-300 ease-in-out hover:text-primary'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                  >
-                    <span>Link</span>
-                    <AiOutlineArrowUp className='transform rotate-45' />
-                  </a>
-                </div>
-                <p className='text-sm text-textSecondary mb-3'>{info}</p>
-                <ul className='flex flex-wrap'>
-                  {techs.map((tech) => (
-                    <li
-                      key={tech}
-                      className='mr-3 items-center mb-3 px-3 rounded-full bg-[#ad5aff1f]'
-                    >
-                      <span className='text-xs text-textSecondary text-center'>{tech}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            <div className='relative w-full h-32 mb-4 rounded overflow-hidden border border-code-border'>
+              <Image
+                src={`/assets/images/projects/${image}`}
+                fill
+                className='size-full object-cover object-center'
+                alt={alt}
+                sizes='(max-width: 768px) 100vw, 50vw'
+                loading='lazy'
+              />
             </div>
-          </li>
+            <div className='mb-3'>
+              <h3 className='font-medium text-terminal-green'>{name}</h3>
+            </div>
+            <p className='text-text-secondary text-sm mb-4'>{info}</p>
+            <div className='flex flex-wrap gap-2 mb-4'>
+              {techs.slice(0, 4).map((tech) => (
+                <TechBadge key={tech}>{tech}</TechBadge>
+              ))}
+              {techs.length > 4 && (
+                <span className='text-xs text-muted px-2 py-1'>+{techs.length - 4}</span>
+              )}
+            </div>
+            <div className='flex gap-4 pt-3 border-t border-code-border'>
+              <a
+                href={links.github}
+                className='inline-flex items-center gap-1 text-primary hover:underline text-sm'
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                <FiGithub className='size-4' />
+                <span>Source</span>
+              </a>
+              <a
+                href={links.demo}
+                className='inline-flex items-center gap-1 text-primary hover:underline text-sm'
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                <span>Live Demo</span>
+                <AiOutlineArrowUp className='size-3 rotate-45' />
+              </a>
+            </div>
+          </CodeEditorCard>
         ))}
-      </ol>
-      <button className='outline-none cursor-pointer' type='button' onClick={handleButtonClick}>
-        <span className='link-primary'>
-          {filteredProjects.length < projects.length ? 'Show more' : 'Show less'}
-        </span>
-      </button>
+      </div>
+
+      <div className='mt-8 text-center'>
+        <button
+          type='button'
+          onClick={handleButtonClick}
+          className='text-primary hover:underline font-mono text-sm'
+        >
+          {filteredProjects.length < projects.length ? '// load more' : '// show less'}
+        </button>
+      </div>
     </section>
   );
 };
