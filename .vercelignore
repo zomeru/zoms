@@ -2,6 +2,7 @@ studio
 .agents
 .claude
 .github
+.husky
 .opencode
 .qwen
 .vscode

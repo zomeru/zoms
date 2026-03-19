@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "pnpm run test-all && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint . --fix",
     "check-types": "tsc --pretty --noEmit",
