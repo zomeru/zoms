@@ -12,7 +12,7 @@ if (!siteUrl) {
 export const SITE_URL = siteUrl;
 export const title = 'Zomer Gregorio';
 export const description =
-  'Hi 👋, I am Zomer, a Software Engineer based in the Philippines with a demonstrated history of working in the information technology and services industry. Skilled in React, Node, Typescript, and other web technologies with 2 years of professional experience in Full Stack Development.';
+  'Hi 👋, I am Zomer, a Software Engineer based in the Philippines with a demonstrated history of working in the full-stack development. Skilled in React, Typescript, and other web technologies over 4 years of professional experience.';
 
 export const seo: Metadata = {
   title,
