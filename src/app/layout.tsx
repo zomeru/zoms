@@ -7,7 +7,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
-import { ParticleBackground } from '@/components';
+import { Navbar, ParticleBackground } from '@/components';
 import { seo } from '@/configs';
 
 const geist = Geist({
@@ -39,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
     <html lang='en' className={`${geist.variable} ${geistMono.variable}`}>
       <body suppressHydrationWarning={true} className='bg-background text-primary min-h-screen'>
         <ParticleBackground />
+        <Navbar />
         <div id='my-root'>
           <React.Fragment>{children}</React.Fragment>
         </div>
