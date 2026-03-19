@@ -88,7 +88,7 @@ const About = async (): Promise<React.JSX.Element> => {
         </div>
 
         {/* Right column — NodeSection owns fade cycle + random positions */}
-        <div className='hidden md:block relative min-h-105'>
+        <div className='relative min-h-105'>
           <NodeSection initialGitHubData={ghData} />
         </div>
       </div>
