@@ -40,10 +40,6 @@ export const navigation = [
     url: '/#about'
   },
   {
-    name: 'Technologies',
-    url: '/#technologies'
-  },
-  {
     name: 'Experience',
     url: '/#experience'
   },
