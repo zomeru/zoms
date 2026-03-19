@@ -12,14 +12,16 @@ const About: React.FC = (): React.JSX.Element => {
     <section id='about' className='min-h-screen flex flex-col justify-center py-20'>
       <div className='grid grid-cols-1 md:grid-cols-2 gap-y-8 md:gap-y-0 md:gap-x-12'>
         <div>
-          <div className='mb-12'>
+          <div className='mb-12 text-center md:text-left'>
             <h1 className='text-4xl md:text-5xl lg:text-6xl font-light mb-4 text-primary'>
               Zomer Gregorio
             </h1>
             <p className='text-lg text-text-secondary mb-6'>
               Software Engineer based in Philippines
             </p>
-            <Socials />
+            <div className='flex justify-center md:justify-start'>
+              <Socials />
+            </div>
           </div>
 
           <TerminalHero
@@ -33,8 +35,10 @@ const About: React.FC = (): React.JSX.Element => {
           />
 
           <div className='mt-10'>
-            <p className='text-xs text-text-muted mb-4 font-mono'>Tech Stack</p>
-            <div className='flex flex-wrap gap-2'>
+            <p className='text-xs text-text-muted mb-4 font-mono text-center md:text-left'>
+              Tech Stack
+            </p>
+            <div className='flex flex-wrap gap-2 justify-center md:justify-start'>
               {technologies.map((tech) => (
                 <TechBadge
                   key={tech.name}
@@ -48,7 +52,7 @@ const About: React.FC = (): React.JSX.Element => {
             </div>
           </div>
 
-          <div className='mt-12 flex flex-wrap gap-4'>
+          <div className='mt-12 flex flex-wrap gap-4 justify-center md:justify-start'>
             <Link
               href='#projects'
               className='inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-medium transition-all duration-300 hover:bg-primary-hover hover:shadow-[0_0_20px_var(--color-accent-glow)] hover:-translate-y-0.5'
