@@ -1,5 +1,5 @@
 echo "🔎 Checking ESLint Standards..."
-npx lint-staged ||
+pnpm lint-staged ||
     (
         echo "❌ ESLint Check Failed. Make the required changes listed above, add changes and try to commit again."
         false
@@ -7,7 +7,7 @@ npx lint-staged ||
 
 # Check tsconfig standards
 echo "🔎 Checking tsconfig standards..."
-npm run check-types ||
+pnpm run check-types ||
     (
         echo "❌ Failed Type check. Check your typescript types."
         false
