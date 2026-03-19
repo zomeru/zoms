@@ -8,3 +8,7 @@ public
 .agents
 .claude
 .qwen
+.opencode
+.serena
+.playwright-mcp
+vercel.json
