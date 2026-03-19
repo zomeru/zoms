@@ -11,11 +11,11 @@ import BlogGenerateButton from './BlogGenerateButton';
 import BlogListClient from './BlogListClient';
 
 export const metadata: Metadata = {
-  title: 'Blog | Zomer Gregorio',
+  title: 'Blog',
   description:
     'Read articles about web development, React, TypeScript, Next.js, and other software engineering topics.',
   openGraph: {
-    title: 'Blog | Zomer Gregorio',
+    title: 'Blog',
     description:
       'Read articles about web development, React, TypeScript, Next.js, and other software engineering topics.',
     url: `${SITE_URL}/blog`,
@@ -23,12 +23,12 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Blog | Zomer Gregorio',
+    title: 'Blog',
     description:
       'Read articles about web development, React, TypeScript, Next.js, and other software engineering topics.'
   },
   alternates: {
-    canonical: '/blog'
+    canonical: `${SITE_URL}/blog`
   }
 };
 

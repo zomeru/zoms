@@ -114,6 +114,38 @@ export async function getLatestBlogPosts(limit = 3): Promise<BlogPostListItem[]>
   return await getBlogPosts(limit, 0);
 }
 
+export interface BlogPostSitemapItem {
+  slug: string;
+  publishedAt: string;
+  modifiedAt?: string;
+}
+
+/**
+ * Fetch all published blog post slugs and dates for sitemap generation.
+ * Intentionally minimal — only requests fields needed by the sitemap.
+ */
+export async function getBlogPostsForSitemap(): Promise<BlogPostSitemapItem[]> {
+  try {
+    const posts = await client.fetch<BlogPostSitemapItem[]>(
+      `*[_type == "blogPost"] | order(publishedAt desc) {
+        "slug": slug.current,
+        publishedAt,
+        modifiedAt
+      }`,
+      {},
+      { next: { revalidate: 3600 } }
+    );
+
+    return posts;
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console -- Allow console in development for debugging
+      console.error('Error fetching blog posts for sitemap:', error);
+    }
+    return [];
+  }
+}
+
 /**
  * Get total count of blog posts
  * @returns Total number of blog posts

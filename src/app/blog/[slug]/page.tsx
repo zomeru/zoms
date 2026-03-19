@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import { TechBadge, TerminalCard } from '@/components/ui';
 import { SITE_URL } from '@/configs/seo';
 import { getBlogPostBySlug } from '@/lib/blog';
+import { client } from '@/lib/sanity';
 import { processMarkdown } from '@/lib/unified';
 import { formatDateWithTime } from '@/lib/utils';
 
@@ -17,13 +18,22 @@ interface BlogPostPageProps {
   }>;
 }
 
+export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+  const slugs = await client.fetch<Array<{ slug: string }>>(
+    `*[_type == "blogPost"]{ "slug": slug.current }`,
+    {},
+    { next: { revalidate: 3600 } }
+  );
+  return slugs;
+}
+
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
   const post = await getBlogPostBySlug(slug);
 
   if (!post) {
     return {
-      title: 'Post Not Found | Zomer Gregorio',
+      title: 'Post Not Found',
       description: 'The blog post you are looking for could not be found.'
     };
   }
@@ -32,7 +42,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   const modifiedTime = post.modifiedAt ? new Date(post.modifiedAt).toISOString() : publishedTime;
 
   return {
-    title: `${post.title} | Zomer Gregorio`,
+    title: post.title,
     description: post.summary,
     openGraph: {
       title: post.title,
@@ -50,7 +60,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       description: post.summary
     },
     alternates: {
-      canonical: `/blog/${slug}`
+      canonical: `${SITE_URL}/blog/${slug}`
     },
     keywords: post.tags
   };
@@ -68,8 +78,30 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
 
   const content = await processMarkdown(post.body);
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.summary,
+    datePublished: new Date(post.publishedAt).toISOString(),
+    dateModified: post.modifiedAt
+      ? new Date(post.modifiedAt).toISOString()
+      : new Date(post.publishedAt).toISOString(),
+    author: {
+      '@type': 'Person',
+      name: 'Zomer Gregorio',
+      url: SITE_URL
+    },
+    url: `${SITE_URL}/blog/${post.slug.current}`,
+    keywords: post.tags?.join(', ')
+  };
+
   return (
     <>
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <main className='relative z-10 min-h-screen'>
         <div className='max-w-7xl mx-auto px-6 md:px-12 pb-16 pt-20'>
           <Link

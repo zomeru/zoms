@@ -11,7 +11,6 @@ export default [
       '*.config.js',
       '*.config.mjs',
       'next-env.d.ts',
-      'next-sitemap.config.js',
       '**/pnpm-lock.yaml'
     ]
   },

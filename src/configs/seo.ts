@@ -15,7 +15,10 @@ export const description =
   'Hi 👋, I am Zomer, a Software Engineer based in the Philippines with a demonstrated history of working in the full-stack development. Skilled in React, Typescript, and other web technologies over 4 years of professional experience.';
 
 export const seo: Metadata = {
-  title,
+  title: {
+    default: title,
+    template: `%s | ${title}`
+  },
   description,
   metadataBase: new URL(SITE_URL),
   alternates: {
