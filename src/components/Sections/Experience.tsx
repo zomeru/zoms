@@ -56,7 +56,7 @@ const Experience: React.FC = async (): Promise<React.JSX.Element> => {
   const experience = await getExperience();
 
   return (
-    <section id='experience' className='py-20'>
+    <section id='experience' className='pb-20'>
       <h2 className='section-title'>Experience</h2>
 
       <div className='space-y-6'>

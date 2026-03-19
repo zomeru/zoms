@@ -25,16 +25,16 @@ const TerminalHero: React.FC<TerminalHeroProps> = ({ name, role, descriptions })
       { type: 'variable', content: ' developer ' },
       { type: 'operator', content: '=' },
       { type: 'bracket', content: ' {' },
-      { type: 'property', content: 'name' },
-      { type: 'operator', content: ':' },
+      { type: 'property', content: ' name' },
+      { type: 'operator', content: ': ' },
       { type: 'string', content: `"${name}"` },
       { type: 'comma', content: ',' },
       { type: 'property', content: ' role' },
-      { type: 'operator', content: ':' },
+      { type: 'operator', content: ': ' },
       { type: 'string', content: `"${role}"` },
       { type: 'comma', content: ',' },
       { type: 'property', content: ' passion' },
-      { type: 'operator', content: ':' },
+      { type: 'operator', content: ': ' },
       { type: 'string', content: '"building elegant solutions"' },
       { type: 'bracket', content: ' };' }
     ],
@@ -87,6 +87,8 @@ const TerminalHero: React.FC<TerminalHeroProps> = ({ name, role, descriptions })
     return base + Math.random() * variance - variance / 2;
   }, []);
 
+  const [isDescriptionActive, setIsDescriptionActive] = useState(false);
+
   useEffect(() => {
     let charIndex = 0;
     let isMounted = true;
@@ -111,6 +113,7 @@ const TerminalHero: React.FC<TerminalHeroProps> = ({ name, role, descriptions })
 
     const typeDescription = () => {
       if (!isMounted) return;
+      setIsDescriptionActive(true);
       const currentDescription = descriptions[localDescIndex];
       if (charIndex < currentDescription.length) {
         charIndex += 1;
@@ -148,7 +151,7 @@ const TerminalHero: React.FC<TerminalHeroProps> = ({ name, role, descriptions })
   }, [fullCode, descriptions, getRandomDelay]);
 
   const isCodeComplete = displayedCode.length === fullCode.length;
-  const showDescription = isCodeComplete && displayedDescription.length > 0;
+  const showDescription = isCodeComplete && isDescriptionActive;
 
   return (
     <div className='w-full max-w-2xl'>
@@ -166,7 +169,7 @@ const TerminalHero: React.FC<TerminalHeroProps> = ({ name, role, descriptions })
         <div className='p-6 font-mono text-sm leading-relaxed overflow-x-auto'>
           <pre className='whitespace-pre-wrap'>
             <code>{renderCode()}</code>
-            {isCodeComplete && <span className='text-terminal-green'>|</span>}
+            {!isCodeComplete && <span className='text-terminal-green'>|</span>}
           </pre>
           {showDescription && (
             <div className='mt-4 text-text-muted text-xs'>
