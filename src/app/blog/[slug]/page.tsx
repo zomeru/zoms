@@ -83,7 +83,7 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
           </Link>
 
           <article className='bg-code-bg border border-code-border rounded-lg overflow-hidden'>
-            <div className='bg-surface-elevated border-b border-code-border px-3 py-2 flex items-center gap-2'>
+            <div className='bg-surface-elevated/65 border-b border-code-border px-3 py-2 flex items-center gap-2'>
               <div className='flex gap-1.5'>
                 <div className='size-3 rounded-full bg-terminal-red' />
                 <div className='size-3 rounded-full bg-terminal-yellow' />
