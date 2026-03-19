@@ -29,19 +29,19 @@ const Footer: React.FC = (): React.JSX.Element => {
               <span className='text-secondary'>const</span>{' '}
               <span className='text-terminal-green'>year</span>{' '}
               <span className='text-[#e2e8f0]'>=</span>{' '}
-              <span className='text-terminal-purple'>{currentYear}</span>
+              <span className='text-terminal-purple'>{currentYear};</span>
             </span>
             <span>
               <span className='text-secondary'>const</span>{' '}
               <span className='text-terminal-green'>builtWith</span>{' '}
               <span className='text-[#e2e8f0]'>=</span>{' '}
-              <span className='text-terminal-purple'>["Next.js", "Tailwind"]</span>
+              <span className='text-terminal-purple'>["Next.js", "Tailwind"];</span>
             </span>
             <span>
               <span className='text-secondary'>const</span>{' '}
               <span className='text-terminal-green'>deployed</span>{' '}
               <span className='text-[#e2e8f0]'>=</span>{' '}
-              <span className='text-terminal-purple'>"Vercel"</span>
+              <span className='text-terminal-purple'>"Vercel";</span>
             </span>
           </div>
         </div>

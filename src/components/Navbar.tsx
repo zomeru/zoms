@@ -87,11 +87,12 @@ const Navbar = (): React.JSX.Element => {
           {navigation.map(({ name, url }) => {
             const sectionId = url.replace('/#', '');
             const isActive = activeSection === sectionId;
+            const _url = !isHomePage && name === 'Blog' ? '/blog' : url;
 
             return (
               <Link
                 key={url}
-                href={url}
+                href={_url}
                 onClick={(e) => handleNavClick(e, sectionId)}
                 className={`text-sm px-3 py-1.5 rounded-full transition-colors ${
                   isActive
@@ -178,11 +179,12 @@ const MobileMenu = ({
             {navigation.map(({ name, url }) => {
               const sectionId = url.replace('/#', '');
               const isActive = isHomePage && activeSection === sectionId;
+              const _url = !isHomePage && name === 'Blog' ? '/blog' : url;
 
               return (
                 <li key={url}>
                   <Link
-                    href={url}
+                    href={_url}
                     onClick={(e) => {
                       onNavClick(e, sectionId);
                       setIsOpen(false);

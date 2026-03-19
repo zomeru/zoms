@@ -40,7 +40,7 @@ const BlogPageContent: React.FC = async (): Promise<React.JSX.Element> => {
   return (
     <>
       <main className='relative z-10 min-h-screen'>
-        <div className='max-w-6xl mx-auto px-6 py-16'>
+        <div className='max-w-6xl mx-auto px-6 pb-16 pt-20'>
           <div className='mb-12'>
             <Link
               href='/'
@@ -53,7 +53,7 @@ const BlogPageContent: React.FC = async (): Promise<React.JSX.Element> => {
             </Link>
 
             <div className='bg-code-bg border border-code-border rounded-lg overflow-hidden'>
-              <div className='bg-linear-to-b from-border to-surface-elevated border-b border-code-border px-3 py-2 flex items-center gap-2'>
+              <div className='bg-surface-elevated border-b border-code-border px-3 py-2 flex items-center gap-2'>
                 <div className='flex gap-1.5'>
                   <div className='size-3 rounded-full bg-terminal-red' />
                   <div className='size-3 rounded-full bg-terminal-yellow' />
@@ -70,7 +70,7 @@ const BlogPageContent: React.FC = async (): Promise<React.JSX.Element> => {
                   <span className='text-terminal-green'>description</span>{' '}
                   <span className='text-[#e2e8f0]'>=</span>{' '}
                   <span className='text-terminal-purple'>
-                    "Technical articles about web development"
+                    "Technical articles about web development";
                   </span>
                 </p>
               </div>

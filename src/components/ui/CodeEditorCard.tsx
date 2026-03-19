@@ -24,7 +24,7 @@ const CodeEditorCard: React.FC<CodeEditorCardProps> = ({
         ${className}
       `}
     >
-      <div className='bg-linear-to-b from-border to-surface-elevated border-b border-code-border px-3 py-2 flex items-center justify-between'>
+      <div className='bg-surface-elevated border-b border-code-border px-3 py-2 flex items-center justify-between'>
         <div className='flex items-center gap-2'>
           <div className='flex gap-1.5'>
             <div className='size-3 rounded-full bg-terminal-red' />
