@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 
 import { TechBadge, TerminalCard } from '@/components/ui';
 import { SITE_URL } from '@/configs/seo';
+import { TITLE } from '@/constants';
 import { getBlogPostBySlug } from '@/lib/blog';
 import { client } from '@/lib/sanity';
 import { processMarkdown } from '@/lib/unified';
@@ -51,7 +52,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       type: 'article',
       publishedTime,
       modifiedTime,
-      authors: ['Zomer Gregorio'],
+      authors: [TITLE],
       tags: post.tags
     },
     twitter: {
@@ -89,7 +90,7 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
       : new Date(post.publishedAt).toISOString(),
     author: {
       '@type': 'Person',
-      name: 'Zomer Gregorio',
+      name: TITLE,
       url: SITE_URL
     },
     url: `${SITE_URL}/blog/${post.slug.current}`,

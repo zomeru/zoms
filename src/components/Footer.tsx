@@ -1,6 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 
+import { TITLE } from '@/constants';
+
 const Footer: React.FC = (): React.JSX.Element => {
   const currentYear = new Date().getFullYear();
 
@@ -51,7 +53,7 @@ const Footer: React.FC = (): React.JSX.Element => {
         <div className='text-sm text-text-muted font-mono'>
           <span className='text-terminal-green'>©</span>{' '}
           <Link href='/' className='hover:text-primary transition-colors'>
-            Zomer Gregorio
+            {TITLE}
           </Link>
           <span className='text-muted'>{'// All rights reserved'}</span>
         </div>

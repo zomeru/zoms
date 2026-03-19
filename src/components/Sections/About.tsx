@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-import { technologies } from '@/constants';
+import { technologies, TITLE } from '@/constants';
 import { getGitHubDevStats } from '@/lib/github';
 import { getWakaTimeStats } from '@/lib/wakatime';
 
@@ -32,7 +32,7 @@ const About = async (): Promise<React.JSX.Element> => {
         <div>
           <div className='mb-12 text-center md:text-left'>
             <h1 className='text-4xl md:text-5xl lg:text-6xl font-light mb-4 text-primary'>
-              Dev Name
+              {TITLE}
             </h1>
             <p className='text-lg text-text-secondary mb-6'>
               Software Engineer based in Philippines
@@ -43,7 +43,7 @@ const About = async (): Promise<React.JSX.Element> => {
           </div>
 
           <TerminalHero
-            name='Zomer Gregorio'
+            name={TITLE}
             role='Software Engineer'
             descriptions={[
               'Building the future, one line at a time.',

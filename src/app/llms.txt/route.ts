@@ -1,4 +1,5 @@
 import { SITE_URL } from '@/configs/seo';
+import { TITLE } from '@/constants';
 import { getLatestBlogPosts } from '@/lib/blog';
 
 export async function GET(): Promise<Response> {
@@ -8,9 +9,9 @@ export async function GET(): Promise<Response> {
     .map((post) => `- [${post.title}](${SITE_URL}/blog/${post.slug.current})`)
     .join('\n');
 
-  const content = `# Zomer Gregorio
+  const content = `# ${TITLE}
 
-> Personal portfolio and technical blog of Zomer Gregorio, a Software Engineer based in the Philippines specialising in full-stack web development with React, TypeScript, Next.js, and modern web technologies.
+> Personal portfolio and technical blog of ${TITLE}, a Software Engineer based in the Philippines specialising in full-stack web development with React, TypeScript, Next.js, and modern web technologies.
 
 ## Key Sections
 

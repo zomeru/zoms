@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 
+import { TITLE } from '@/constants';
+
 // Enforce SITE_URL to be set in environment; fallback to localhost in development only
 let siteUrl = process.env.SITE_URL;
 if (!siteUrl) {
@@ -10,14 +12,14 @@ if (!siteUrl) {
   }
 }
 export const SITE_URL = siteUrl;
-export const title = 'Zomer Gregorio';
+
 export const description =
   'Hi 👋, I am Zomer, a Software Engineer based in the Philippines with a demonstrated history of working in the full-stack development. Skilled in React, Typescript, and other web technologies over 4 years of professional experience.';
 
 export const seo: Metadata = {
   title: {
-    default: title,
-    template: `%s | ${title}`
+    default: TITLE,
+    template: `%s | ${TITLE}`
   },
   description,
   metadataBase: new URL(SITE_URL),
@@ -27,10 +29,10 @@ export const seo: Metadata = {
       'en-US': '/en-US'
     }
   },
-  applicationName: title,
+  applicationName: TITLE,
   appleWebApp: {
     capable: true,
-    title,
+    title: TITLE,
     statusBarStyle: 'default'
   },
   icons: {
@@ -42,11 +44,11 @@ export const seo: Metadata = {
     icon: '/favicon.ico',
     apple: '/assets/icons/apple-icon.png'
   },
-  creator: title,
-  authors: [{ name: title, url: SITE_URL }],
+  creator: TITLE,
+  authors: [{ name: TITLE, url: SITE_URL }],
   openGraph: {
     url: SITE_URL,
-    title,
+    title: TITLE,
     description,
     images: [
       {
@@ -54,7 +56,7 @@ export const seo: Metadata = {
       }
     ],
     type: 'website',
-    siteName: title
+    siteName: TITLE
   },
   formatDetection: {
     telephone: false
@@ -65,17 +67,17 @@ export const seo: Metadata = {
     site: SITE_URL,
     card: 'summary_large_image',
     description,
-    title,
+    title: TITLE,
     images: ['/assets/icons/opengraph-image.png']
   },
   keywords: [
     'Zomer',
     'Zomeru',
-    title,
-    `${title} | Software Engineer`,
-    `${title} | Front End Engineer`,
-    `${title} | Full Stack Engineer`,
-    `${title} | Web Developer`,
-    `${title} | React Developer`
+    TITLE,
+    `${TITLE} | Software Engineer`,
+    `${TITLE} | Front End Engineer`,
+    `${TITLE} | Full Stack Engineer`,
+    `${TITLE} | Web Developer`,
+    `${TITLE} | React Developer`
   ]
 };
