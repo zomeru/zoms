@@ -21,16 +21,16 @@ const Blog: React.FC = async (): Promise<React.JSX.Element> => {
           <span className='text-text-secondary'>)</span>
         </TerminalCard>
       ) : (
-        <div className='space-y-4'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           {posts.map(({ _id, title, slug, summary, publishedAt, tags }) => {
             const date = formatDate(publishedAt);
 
             return (
-              <Link key={_id} href={`/blog/${slug.current}`} className='block'>
+              <Link key={_id} href={`/blog/${slug.current}`} className='block h-full'>
                 <TerminalCard
                   title={`${slug.current}.md`}
                   showHeader={true}
-                  className='hover:border-primary/30 transition-colors cursor-pointer group'
+                  className='hover:border-primary/30 transition-colors cursor-pointer group h-full'
                 >
                   <div className='flex flex-col gap-2'>
                     <div className='flex items-center gap-3 text-xs text-muted font-mono'>

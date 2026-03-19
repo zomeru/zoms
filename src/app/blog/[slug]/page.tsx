@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { TechBadge } from '@/components/ui';
+import { TechBadge, TerminalCard } from '@/components/ui';
 import { SITE_URL } from '@/configs/seo';
 import { getBlogPostBySlug } from '@/lib/blog';
 import { processMarkdown } from '@/lib/unified';
@@ -82,57 +82,42 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
             <span>blog</span>
           </Link>
 
-          <article className='bg-code-bg border border-code-border rounded-lg overflow-hidden'>
-            <div className='bg-surface-elevated/65 border-b border-code-border px-3 py-2 flex items-center gap-2'>
-              <div className='flex gap-1.5'>
-                <div className='size-3 rounded-full bg-terminal-red' />
-                <div className='size-3 rounded-full bg-terminal-yellow' />
-                <div className='size-3 rounded-full bg-terminal-green' />
-              </div>
-              <div className='flex-1 text-center'>
-                <span className='text-xs text-text-muted font-mono'>{slug}.md</span>
-              </div>
-            </div>
+          <TerminalCard title={`${slug}.md`} bodyClassName='p-8'>
+            <header className='mb-8'>
+              <h1 className='text-3xl md:text-4xl font-semibold mb-4 text-primary'>{post.title}</h1>
 
-            <div className='p-8'>
-              <header className='mb-8'>
-                <h1 className='text-3xl md:text-4xl font-semibold mb-4 text-primary'>
-                  {post.title}
-                </h1>
-
-                <div className='flex flex-wrap items-center gap-3 text-sm text-text-muted font-mono mb-6'>
+              <div className='flex flex-wrap items-center gap-3 text-sm text-text-muted font-mono mb-6'>
+                <span>
+                  <span className='text-secondary'>const</span>{' '}
+                  <span className='text-terminal-green'>published</span>{' '}
+                  <span className='text-text-secondary'>=</span>{' '}
+                  <span className='text-terminal-purple'>"{publishedDate}";</span>
+                </span>
+                {post.readTime && (
                   <span>
                     <span className='text-secondary'>const</span>{' '}
-                    <span className='text-terminal-green'>published</span>{' '}
+                    <span className='text-terminal-green'>readTime</span>{' '}
                     <span className='text-text-secondary'>=</span>{' '}
-                    <span className='text-terminal-purple'>"{publishedDate}";</span>
+                    <span className='text-terminal-purple'>{post.readTime} min;</span>
                   </span>
-                  {post.readTime && (
-                    <span>
-                      <span className='text-secondary'>const</span>{' '}
-                      <span className='text-terminal-green'>readTime</span>{' '}
-                      <span className='text-text-secondary'>=</span>{' '}
-                      <span className='text-terminal-purple'>{post.readTime} min;</span>
-                    </span>
-                  )}
-                </div>
-
-                {post.tags && post.tags.length > 0 && (
-                  <div className='flex flex-wrap gap-2 mb-6'>
-                    {post.tags.map((tag) => (
-                      <TechBadge key={tag}>{tag}</TechBadge>
-                    ))}
-                  </div>
                 )}
-
-                <div className='text-text-secondary text-lg leading-relaxed'>{post.summary}</div>
-              </header>
-
-              <div className='prose prose-invert max-w-none'>
-                <BlogContent body={content} />
               </div>
+
+              {post.tags && post.tags.length > 0 && (
+                <div className='flex flex-wrap gap-2 mb-6'>
+                  {post.tags.map((tag) => (
+                    <TechBadge key={tag}>{tag}</TechBadge>
+                  ))}
+                </div>
+              )}
+
+              <div className='text-text-secondary text-lg leading-relaxed'>{post.summary}</div>
+            </header>
+
+            <div className='prose prose-invert max-w-none'>
+              <BlogContent body={content} />
             </div>
-          </article>
+          </TerminalCard>
 
           <footer className='mt-8 pt-8 border-t border-border'>
             <Link

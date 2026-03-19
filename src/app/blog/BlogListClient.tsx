@@ -80,9 +80,9 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
   }, [hasMore, loading, loadMore]);
 
   return (
-    <div className='space-y-4'>
+    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
       {error && (
-        <div className='bg-terminal-red/10 border border-terminal-red/30 rounded-lg p-4'>
+        <div className='col-span-full bg-terminal-red/10 border border-terminal-red/30 rounded-lg p-4'>
           <p className='text-terminal-red text-sm font-mono'>Error: {error}</p>
         </div>
       )}
@@ -91,8 +91,8 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
         const date = formatDate(post.publishedAt);
 
         return (
-          <Link key={post._id} href={`/blog/${post.slug.current}`} className='block'>
-            <article className='bg-code-bg border border-code-border rounded-lg p-5 hover:border-primary/30 transition-all duration-300 group'>
+          <Link key={post._id} href={`/blog/${post.slug.current}`} className='block h-full'>
+            <article className='bg-code-bg border border-code-border rounded-lg p-5 hover:border-primary/30 transition-all duration-300 group h-full'>
               <div className='flex flex-col gap-3'>
                 <div className='flex flex-wrap items-center gap-3 text-xs text-text-muted font-mono'>
                   <span>{date}</span>
@@ -121,7 +121,7 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
       })}
 
       {hasMore && (
-        <div ref={loadMoreRef} className='py-8 flex justify-center'>
+        <div ref={loadMoreRef} className='col-span-full py-8 flex justify-center'>
           {loading ? (
             <div className='flex items-center gap-2 text-text-muted font-mono text-sm'>
               <span className='size-4 border-2 border-primary border-t-transparent rounded-full animate-spin' />
@@ -141,7 +141,7 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
         </div>
       )}
 
-      <div className='text-center text-text-muted text-sm font-mono pt-8 border-t border-code-border'>
+      <div className='col-span-full text-center text-text-muted text-sm font-mono pt-8 border-t border-code-border'>
         Showing <span className='text-terminal-blue'>{posts.length}</span> of{' '}
         <span className='text-terminal-blue'>{initialTotal}</span> posts
       </div>

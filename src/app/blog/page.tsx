@@ -2,6 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { TerminalCard } from '@/components/ui';
 import { SITE_URL } from '@/configs/seo';
 import { BLOG_POSTS_PAGE_SIZE } from '@/constants';
 import { getBlogPostCount, getBlogPosts } from '@/lib/blog';
@@ -52,40 +53,28 @@ const BlogPageContent: React.FC = async (): Promise<React.JSX.Element> => {
               <span>home</span>
             </Link>
 
-            <div className='bg-code-bg border border-code-border rounded-lg overflow-hidden'>
-              <div className='bg-surface-elevated/65 border-b border-code-border px-3 py-2 flex items-center gap-2'>
-                <div className='flex gap-1.5'>
-                  <div className='size-3 rounded-full bg-terminal-red' />
-                  <div className='size-3 rounded-full bg-terminal-yellow' />
-                  <div className='size-3 rounded-full bg-terminal-green' />
-                </div>
-                <div className='flex-1 text-center'>
-                  <span className='text-xs text-text-muted font-mono'>blog.ts</span>
-                </div>
-              </div>
-              <div className='p-8'>
-                <h1 className='text-3xl md:text-4xl font-semibold mb-4 text-primary'>Blog</h1>
-                <p className='text-text-secondary font-mono text-sm'>
-                  <span className='text-secondary'>const</span>{' '}
-                  <span className='text-terminal-green'>description</span>{' '}
-                  <span className='text-[#e2e8f0]'>=</span>{' '}
-                  <span className='text-terminal-purple'>
-                    "Technical articles about web development";
-                  </span>
-                </p>
-              </div>
-            </div>
+            <TerminalCard title='blog.ts' bodyClassName='p-8'>
+              <h1 className='text-3xl md:text-4xl font-semibold mb-4 text-primary'>Blog</h1>
+              <p className='text-text-secondary font-mono text-sm'>
+                <span className='text-secondary'>const</span>{' '}
+                <span className='text-terminal-green'>description</span>{' '}
+                <span className='text-[#e2e8f0]'>=</span>{' '}
+                <span className='text-terminal-purple'>
+                  "Technical articles about web development";
+                </span>
+              </p>
+            </TerminalCard>
           </div>
 
           <BlogGenerateButton />
 
           {posts.length === 0 ? (
-            <div className='bg-code-bg border border-code-border rounded-lg p-8 font-mono text-sm'>
+            <TerminalCard showHeader={false} bodyClassName='p-8 font-mono text-sm'>
               <span className='text-terminal-yellow'>console</span>
               <span className='text-text-secondary'>.log(</span>
               <span className='text-terminal-purple'>"No posts yet. Check back soon!"</span>
               <span className='text-text-secondary'>)</span>
-            </div>
+            </TerminalCard>
           ) : (
             <BlogListClient initialPosts={posts} initialTotal={total} />
           )}

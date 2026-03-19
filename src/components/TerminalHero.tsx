@@ -2,6 +2,8 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import TerminalCard from './ui/TerminalCard';
+
 interface TerminalHeroProps {
   name: string;
   role: string;
@@ -155,31 +157,23 @@ const TerminalHero: React.FC<TerminalHeroProps> = ({ name, role, descriptions })
 
   return (
     <div className='w-full max-w-2xl'>
-      <div className='bg-code-bg border border-code-border rounded-lg overflow-hidden shadow-2xl'>
-        <div className='bg-surface-elevated/65 border-b border-code-border px-3 py-2 flex items-center gap-2'>
-          <div className='flex gap-1.5'>
-            <div className='size-3 rounded-full bg-terminal-red' />
-            <div className='size-3 rounded-full bg-terminal-yellow' />
-            <div className='size-3 rounded-full bg-terminal-green' />
+      <TerminalCard
+        title='about.ts'
+        className='shadow-2xl'
+        bodyClassName='p-6 font-mono text-sm leading-relaxed overflow-x-auto'
+      >
+        <pre className='whitespace-pre-wrap'>
+          <code>{renderCode()}</code>
+          {!isCodeComplete && <span className='text-terminal-green'>|</span>}
+        </pre>
+        {showDescription && (
+          <div className='mt-4 text-text-muted text-xs'>
+            <span className='text-primary'>➜</span>{' '}
+            <span className='text-text-secondary'>{displayedDescription}</span>
+            <span className='text-terminal-green animate-blink'>|</span>
           </div>
-          <div className='flex-1 text-center'>
-            <span className='text-xs text-text-muted font-mono'>about.ts</span>
-          </div>
-        </div>
-        <div className='p-6 font-mono text-sm leading-relaxed overflow-x-auto'>
-          <pre className='whitespace-pre-wrap'>
-            <code>{renderCode()}</code>
-            {!isCodeComplete && <span className='text-terminal-green'>|</span>}
-          </pre>
-          {showDescription && (
-            <div className='mt-4 text-text-muted text-xs'>
-              <span className='text-primary'>➜</span>{' '}
-              <span className='text-text-secondary'>{displayedDescription}</span>
-              <span className='text-terminal-green animate-blink'>|</span>
-            </div>
-          )}
-        </div>
-      </div>
+        )}
+      </TerminalCard>
     </div>
   );
 };

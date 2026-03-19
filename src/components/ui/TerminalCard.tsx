@@ -4,6 +4,7 @@ interface TerminalCardProps {
   children: React.ReactNode;
   title?: string;
   className?: string;
+  bodyClassName?: string;
   showHeader?: boolean;
 }
 
@@ -11,6 +12,7 @@ const TerminalCard: React.FC<TerminalCardProps> = ({
   children,
   title = 'terminal',
   className = '',
+  bodyClassName = 'p-4 font-mono text-sm',
   showHeader = true
 }) => {
   return (
@@ -28,11 +30,11 @@ const TerminalCard: React.FC<TerminalCardProps> = ({
             <div className='size-3 rounded-full bg-terminal-green' />
           </div>
           <div className='flex-1 text-center'>
-            <span className='text-xs text-muted font-mono'>{title}</span>
+            <span className='text-xs text-text-secondary font-mono'>{title}</span>
           </div>
         </div>
       )}
-      <div className='p-4 font-mono text-sm'>{children}</div>
+      <div className={bodyClassName}>{children}</div>
     </div>
   );
 };
