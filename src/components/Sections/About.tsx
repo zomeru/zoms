@@ -28,7 +28,7 @@ const About = async (): Promise<React.JSX.Element> => {
   return (
     <section id='about' className='min-h-screen flex flex-col justify-center py-20'>
       <WakaTimeTicker initialLanguages={wakaLanguages} />
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-y-8 md:gap-y-0 md:gap-x-12'>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-y-8 md:gap-y-0 md:gap-x-12 mt-20 md:mt-0'>
         <div>
           <div className='mb-12 text-center md:text-left'>
             <h1 className='text-4xl md:text-5xl lg:text-6xl font-light mb-4 text-primary'>

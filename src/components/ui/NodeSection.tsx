@@ -50,7 +50,7 @@ const NodeSection: React.FC<NodeSectionProps> = ({ initialGitHubData }) => {
   }, []);
 
   return (
-    <div className='w-full h-full flex items-center justify-center relative'>
+    <div className='absolute inset-0 flex items-center justify-center'>
       {/* Canvas fades in/out on each cycle */}
       <div
         className='absolute inset-0'

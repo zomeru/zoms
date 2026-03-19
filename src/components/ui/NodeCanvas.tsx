@@ -97,8 +97,6 @@ const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = '', seed = 0 }) => 
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
     const draw = (ts: number) => {
       animStartRef.current ??= ts;
       const ae = ts - animStartRef.current;
@@ -160,20 +158,21 @@ const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = '', seed = 0 }) => 
     };
 
     const resize = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-      if (prefersReduced) draw(TOTAL_ANIM_MS + 1000);
+      const parent = canvas.parentElement;
+      const width = parent?.clientWidth ?? canvas.offsetWidth;
+      const height = parent?.clientHeight ?? canvas.offsetHeight;
+
+      canvas.width = Math.max(1, width);
+      canvas.height = Math.max(1, height);
     };
 
     resize();
 
-    if (!prefersReduced) {
-      const loop = (ts: number) => {
-        draw(ts);
-        rafRef.current = requestAnimationFrame(loop);
-      };
+    const loop = (ts: number) => {
+      draw(ts);
       rafRef.current = requestAnimationFrame(loop);
-    }
+    };
+    rafRef.current = requestAnimationFrame(loop);
 
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
