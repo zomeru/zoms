@@ -51,3 +51,7 @@ yarn-error.log*
 /studio/dist
 /studio/node_modules
 /studio/.sanity
+
+# AI
+.serena
+.playwright-mcp

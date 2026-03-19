@@ -40,7 +40,7 @@ const BlogPageContent: React.FC = async (): Promise<React.JSX.Element> => {
   return (
     <>
       <main className='relative z-10 min-h-screen'>
-        <div className='max-w-7xl mx-auto px-6 pb-16 pt-20'>
+        <div className='max-w-7xl mx-auto px-6 md:px-12 pb-16 pt-20'>
           <div className='mb-12'>
             <Link
               href='/'

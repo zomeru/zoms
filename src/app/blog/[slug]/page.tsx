@@ -71,7 +71,7 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
   return (
     <>
       <main className='relative z-10 min-h-screen'>
-        <div className='max-w-7xl mx-auto px-6 pb-16 pt-20'>
+        <div className='max-w-7xl mx-auto px-6 md:px-12 pb-16 pt-20'>
           <Link
             href='/blog'
             className='inline-flex items-center gap-2 text-primary hover:underline font-mono text-sm mb-8'
