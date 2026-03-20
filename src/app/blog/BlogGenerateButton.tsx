@@ -80,7 +80,6 @@ const BlogGenerateButton: React.FC = () => {
         />
       )}
 
-      {/* Generate Blog Button */}
       <div className='mb-8 flex justify-center'>
         <button
           onClick={() => {
@@ -89,7 +88,7 @@ const BlogGenerateButton: React.FC = () => {
           className='px-4 py-2 bg-secondary text-backgroundPrimary rounded-lg hover:bg-opacity-80 transition-all text-sm font-medium flex items-center gap-2 hover:cursor-pointer'
         >
           <span>🤖</span>
-          <span>Generate Blog with AI</span>
+          <span>Generate a blog with AI</span>
         </button>
       </div>
     </>

@@ -2,7 +2,8 @@ export function formatDate(dateString: string): string {
   const date = new Date(dateString).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
+    timeZone: 'UTC'
   });
 
   return date;
@@ -15,7 +16,8 @@ export function formatDateWithTime(dateString: string): string {
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-    hour12: true
+    hour12: true,
+    timeZone: 'UTC'
   });
   return date;
 }

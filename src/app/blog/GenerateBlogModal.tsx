@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
 
+import TerminalCard from '@/components/ui/TerminalCard';
 import { CLIENT_ERROR_MESSAGES, getClientErrorMessage } from '@/lib/errorMessages';
 
 interface GenerateBlogModalProps {
@@ -51,7 +52,7 @@ const GenerateBlogModal: React.FC<GenerateBlogModalProps> = ({ isOpen, onClose, 
     <Modal
       isOpen={isOpen}
       onRequestClose={handleClose}
-      className='max-w-md mx-auto mt-20 bg-backgroundSecondary rounded-lg p-6 outline-none animate-modalSlideIn'
+      className='max-w-xl mx-auto mt-16 outline-none animate-modalSlideIn'
       overlayClassName='fixed inset-0 bg-black bg-opacity-90 backdrop-blur-md flex items-start justify-center px-4 z-50 animate-fadeIn'
       ariaHideApp={false}
       closeTimeoutMS={200}
@@ -61,54 +62,74 @@ const GenerateBlogModal: React.FC<GenerateBlogModalProps> = ({ isOpen, onClose, 
         }
       }}
     >
-      <div className='mb-4'>
-        <h2 className='text-2xl font-bold text-textPrimary mb-2'>Generate Blog with AI</h2>
-        <p className='text-textSecondary text-sm'>Enter the blog generation secret token.</p>
-      </div>
-
-      <form onSubmit={handleSubmit}>
-        <div className='mb-4'>
-          <label htmlFor='token' className='block text-textPrimary mb-2 text-sm font-medium'>
-            Secret Token
-          </label>
-          <input
-            type='password'
-            id='token'
-            value={token}
-            onChange={(e) => {
-              setToken(e.target.value);
-            }}
-            disabled={isGenerating}
-            className='w-full px-4 py-2 bg-backgroundPrimary text-textPrimary border border-textSecondary border-opacity-20 rounded-lg focus:outline-none focus:border-primary focus:border-opacity-50 transition-colors disabled:opacity-50'
-            placeholder='Enter your token'
-            autoComplete='off'
-          />
-        </div>
-
-        {error && (
-          <div className='mb-4 p-3 bg-red-500 bg-opacity-10 border border-red-500 rounded-lg'>
-            <p className='text-white text-sm'>{error}</p>
+      <TerminalCard
+        title='blog-generator.sh'
+        className='shadow-[0_24px_80px_rgba(0,0,0,0.45)]'
+        bodyClassName='p-5 font-mono text-sm'
+      >
+        <div className='mb-5 border-b border-code-border pb-4'>
+          <div className='flex items-center gap-3 text-sm text-textPrimary'>
+            <span className='text-terminal-green'>$</span>
+            <span>generate_blog --provider ai --publish draft</span>
           </div>
-        )}
-
-        <div className='flex gap-3 justify-end'>
-          <button
-            type='button'
-            onClick={handleClose}
-            disabled={isGenerating}
-            className='px-4 py-2 text-textSecondary hover:text-textPrimary transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer'
-          >
-            Cancel
-          </button>
-          <button
-            type='submit'
-            disabled={isGenerating}
-            className='px-6 py-2 bg-primary text-textPrimary rounded-lg hover:bg-opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium hover:cursor-pointer'
-          >
-            {isGenerating ? 'Generating...' : 'Generate'}
-          </button>
+          <p className='mt-3 text-xs leading-relaxed text-text-muted'>
+            Authenticate the generator with your secret token to create a draft blog post.
+          </p>
         </div>
-      </form>
+
+        <form onSubmit={handleSubmit}>
+          <div className='mb-4'>
+            <label
+              htmlFor='token'
+              className='mb-2 block text-xs uppercase tracking-[0.18em] text-text-muted'
+            >
+              Secret Token
+            </label>
+            <input
+              type='password'
+              id='token'
+              value={token}
+              onChange={(e) => {
+                setToken(e.target.value);
+              }}
+              disabled={isGenerating}
+              className='w-full rounded-md border border-code-border bg-surface-elevated/45 px-4 py-3 text-textPrimary outline-none transition-colors placeholder:text-text-muted focus:border-terminal-green/60 disabled:opacity-50'
+              placeholder='sk_live_****************'
+              autoComplete='off'
+            />
+          </div>
+
+          {error && (
+            <div className='mb-4 rounded-md border border-terminal-red/40 bg-terminal-red/10 px-4 py-3'>
+              <p className='text-xs leading-relaxed text-terminal-red'>{error}</p>
+            </div>
+          )}
+
+          <div className='flex items-center justify-between gap-3 border-t border-code-border pt-4'>
+            <span className='text-xs text-text-muted'>
+              {isGenerating ? 'Running generation job...' : 'Ready to start generation job.'}
+            </span>
+
+            <div className='flex gap-3'>
+              <button
+                type='button'
+                onClick={handleClose}
+                disabled={isGenerating}
+                className='rounded-md border border-code-border px-4 py-2 text-xs uppercase tracking-[0.18em] text-text-muted transition-colors hover:cursor-pointer hover:border-textSecondary hover:text-textPrimary disabled:cursor-not-allowed disabled:opacity-50'
+              >
+                Cancel
+              </button>
+              <button
+                type='submit'
+                disabled={isGenerating}
+                className='rounded-md border border-terminal-green/40 bg-terminal-green/10 px-4 py-2 text-xs uppercase tracking-[0.18em] text-terminal-green transition-colors hover:cursor-pointer hover:bg-terminal-green/15 disabled:cursor-not-allowed disabled:opacity-50'
+              >
+                {isGenerating ? 'Generating...' : 'Run'}
+              </button>
+            </div>
+          </div>
+        </form>
+      </TerminalCard>
     </Modal>
   );
 };
