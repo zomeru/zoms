@@ -23,7 +23,7 @@
     "@portabletext/react": "^6.0.3",
     "@portabletext/types": "^4.0.2",
     "@rehype-pretty/transformers": "^0.13.2",
-    "@sanity/client": "^7.19.0",
+    "@sanity/client": "^7.20.0",
     "@tsparticles/engine": "^3.9.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.9.1",
