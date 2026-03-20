@@ -7,7 +7,6 @@ import { SITE_URL } from '@/configs/seo';
 import { BLOG_POSTS_PAGE_SIZE } from '@/constants';
 import { getBlogPostCount, getBlogPosts } from '@/lib/blog';
 
-import BlogGenerateButton from './BlogGenerateButton';
 import BlogListClient from './BlogListClient';
 
 export const metadata: Metadata = {
@@ -65,8 +64,6 @@ const BlogPageContent: React.FC = async (): Promise<React.JSX.Element> => {
               </p>
             </TerminalCard>
           </div>
-
-          <BlogGenerateButton />
 
           {posts.length === 0 ? (
             <TerminalCard showHeader={false} bodyClassName='p-8 font-mono text-sm'>

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient, type SanityClient } from '@sanity/client';
 
+import { isValidBlogGenerationSession } from '@/lib/blogGenerationAuth';
 import { ApiError, handleApiError, validateSchema } from '@/lib/errorHandler';
 import { getErrorMessage } from '@/lib/errorMessages';
 import { generateBlogContent, type GeneratedBlogPost } from '@/lib/generateBlog';
@@ -13,13 +14,18 @@ export const maxDuration = 60; // Vercel serverless function timeout
 
 async function validateSecret(request: NextRequest): Promise<void> {
   const authHeader = request.headers.get('authorization');
-  const secret = process.env.CRON_SECRET;
+  const cronSecret = process.env.CRON_SECRET;
+  const blogGenerationSecret = process.env.BLOG_GENERATION_SECRET ?? cronSecret;
+  const hasValidCookie = isValidBlogGenerationSession(request.cookies);
+  const hasValidBearer =
+    (cronSecret !== undefined && authHeader === `Bearer ${cronSecret}`) ||
+    (blogGenerationSecret !== undefined && authHeader === `Bearer ${blogGenerationSecret}`);
 
-  // Only enforce in non-development environments
-  if ((!secret || authHeader !== `Bearer ${secret}`) && process.env.NODE_ENV !== 'development') {
+  if (!hasValidCookie && !hasValidBearer) {
     log.warn('Unauthorized blog generation attempt', {
       hasAuthHeader: !!authHeader,
-      hasSecret: !!secret
+      hasCookie: hasValidCookie,
+      hasSecret: !!blogGenerationSecret
     });
     throw new ApiError(getErrorMessage('UNAUTHORIZED'), 401, 'UNAUTHORIZED');
   }

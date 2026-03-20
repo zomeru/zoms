@@ -4,13 +4,89 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 
-import { getClientErrorMessage } from '@/lib/errorMessages';
+import TerminalCard from '@/components/ui/TerminalCard';
+import { CLIENT_ERROR_MESSAGES, getClientErrorMessage } from '@/lib/errorMessages';
 
-import GenerateBlogModal from './GenerateBlogModal';
+interface BlogGenerateButtonProps {
+  initialAuthorized: boolean;
+}
 
-const BlogGenerateButton: React.FC = () => {
+async function getResponseErrorMessage(
+  response: Response,
+  fallbackMessage: string
+): Promise<string> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- API response is validated by backend
+    const errorData = (await response.json()) as { error?: string };
+    return errorData.error ?? fallbackMessage;
+  } catch {
+    return fallbackMessage;
+  }
+}
+
+// eslint-disable-next-line complexity -- This component intentionally manages the terminal auth state machine inline.
+const BlogGenerateButton: React.FC<BlogGenerateButtonProps> = ({ initialAuthorized }) => {
   const router = useRouter();
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [secret, setSecret] = useState('');
+  const [isAuthorized, setIsAuthorized] = useState(initialAuthorized);
+  const [isUnlocking, setIsUnlocking] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [statusMessage, setStatusMessage] = useState(
+    initialAuthorized
+      ? 'Session restored from secure local cookie. Generator unlocked.'
+      : 'Enter the blog generation secret, then press Enter to unlock the run command.'
+  );
+  const [error, setError] = useState<string | null>(null);
+
+  const handleUnlock = async (event: React.SyntheticEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault();
+    setError(null);
+
+    if (!secret.trim()) {
+      setError(CLIENT_ERROR_MESSAGES.TOKEN_REQUIRED);
+      return;
+    }
+
+    setIsUnlocking(true);
+
+    try {
+      const response = await fetch('/api/blog/generate/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ secret })
+      });
+
+      if (!response.ok) {
+        throw new Error(await getResponseErrorMessage(response, 'Failed to unlock blog generator'));
+      }
+
+      setIsAuthorized(true);
+      setSecret('');
+      setStatusMessage('Session authorized. Run command unlocked and persisted for this browser.');
+    } catch (err) {
+      const errorMessage = getClientErrorMessage(err);
+      setError(errorMessage);
+      setStatusMessage('Authorization failed. The session remains locked.');
+    } finally {
+      setIsUnlocking(false);
+    }
+  };
+
+  const handleForget = async (): Promise<void> => {
+    setError(null);
+
+    try {
+      await fetch('/api/blog/generate/auth', {
+        method: 'DELETE'
+      });
+    } finally {
+      setIsAuthorized(false);
+      setSecret('');
+      setStatusMessage('Session cleared. Enter the secret again to unlock the run command.');
+    }
+  };
 
   const handleGenerateBlog = async (token: string): Promise<void> => {
     const toastId = toast.loading('Generating blog post with AI...');
@@ -20,7 +96,7 @@ const BlogGenerateButton: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
         body: JSON.stringify({
           aiGenerated: false
@@ -28,9 +104,7 @@ const BlogGenerateButton: React.FC = () => {
       });
 
       if (!response.ok) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- API response is validated by backend
-        const errorData = (await response.json()) as { error?: string };
-        throw new Error(errorData.error ?? 'Failed to generate blog post');
+        throw new Error(await getResponseErrorMessage(response, 'Failed to generate blog post'));
       }
 
       toast.success('Blog post generated successfully!', { id: toastId });
@@ -42,6 +116,28 @@ const BlogGenerateButton: React.FC = () => {
       toast.error(errorMessage, { id: toastId });
       throw err;
     }
+  };
+
+  const handleRun = async (): Promise<void> => {
+    setError(null);
+    setIsGenerating(true);
+
+    try {
+      await handleGenerateBlog('');
+      setStatusMessage('Generation job completed. Blog list refreshed.');
+    } catch (err) {
+      const errorMessage = getClientErrorMessage(err);
+      setError(errorMessage);
+      setStatusMessage('Generation job failed. Review the output and try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleUnlockSubmit = (event: React.SyntheticEvent<HTMLFormElement>): void => {
+    handleUnlock(event).catch(() => {
+      // Errors are handled within handleUnlock.
+    });
   };
 
   return (
@@ -70,26 +166,93 @@ const BlogGenerateButton: React.FC = () => {
         }}
       />
 
-      {isModalOpen && (
-        <GenerateBlogModal
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-          }}
-          onGenerate={handleGenerateBlog}
-        />
-      )}
-
       <div className='mb-8 flex justify-center'>
-        <button
-          onClick={() => {
-            setIsModalOpen(true);
-          }}
-          className='px-4 py-2 bg-secondary text-backgroundPrimary rounded-lg hover:bg-opacity-80 transition-all text-sm font-medium flex items-center gap-2 hover:cursor-pointer'
+        <TerminalCard
+          title='blog-generator.sh'
+          className='w-full max-w-3xl shadow-[0_24px_80px_rgba(0,0,0,0.28)]'
+          bodyClassName='p-5 font-mono text-sm'
         >
-          <span>🤖</span>
-          <span>Generate a blog with AI</span>
-        </button>
+          <div className='mb-5 border-b border-code-border pb-4'>
+            <div className='flex items-center gap-3 text-sm text-textPrimary'>
+              <span className='text-terminal-green'>$</span>
+              <span>generate_blog --provider ai --publish draft</span>
+            </div>
+            <p className='mt-3 text-xs leading-relaxed text-text-muted'>
+              Authenticate once in this terminal to unlock blog generation on this browser.
+            </p>
+          </div>
+
+          <form onSubmit={handleUnlockSubmit}>
+            <label htmlFor='blog-generator-secret' className='sr-only'>
+              Blog generation secret
+            </label>
+            <div className='flex flex-col gap-3 md:flex-row md:items-center'>
+              <div className='flex min-w-0 flex-1 items-center gap-3 rounded-md border border-code-border bg-surface-elevated/45 px-4 py-3'>
+                <span className='text-terminal-green'>&gt;</span>
+                <input
+                  id='blog-generator-secret'
+                  type='password'
+                  value={secret}
+                  onChange={(event) => {
+                    setSecret(event.target.value);
+                  }}
+                  disabled={isUnlocking || isGenerating || isAuthorized}
+                  placeholder={isAuthorized ? 'session unlocked' : 'enter blog generation secret'}
+                  autoComplete='off'
+                  className='min-w-0 flex-1 bg-transparent text-textPrimary outline-none placeholder:text-text-muted disabled:cursor-not-allowed'
+                />
+              </div>
+
+              {!isAuthorized && (
+                <button
+                  type='submit'
+                  disabled={isUnlocking || isGenerating}
+                  className='rounded-md border border-code-border px-4 py-3 text-xs uppercase tracking-[0.18em] text-text-muted transition-colors hover:cursor-pointer hover:border-terminal-green/50 hover:text-terminal-green disabled:cursor-not-allowed disabled:opacity-50'
+                >
+                  {isUnlocking ? 'Authorizing...' : 'Enter'}
+                </button>
+              )}
+            </div>
+          </form>
+
+          {error && (
+            <div className='mt-4 rounded-md border border-terminal-red/40 bg-terminal-red/10 px-4 py-3'>
+              <p className='text-xs leading-relaxed text-terminal-red'>{error}</p>
+            </div>
+          )}
+
+          <div className='mt-4 border-t border-code-border pt-4'>
+            <div className='flex items-start gap-3 text-xs leading-relaxed text-text-muted'>
+              <span className='pt-0.5 text-terminal-blue'>//</span>
+              <p>{statusMessage}</p>
+            </div>
+
+            {isAuthorized && (
+              <div className='mt-4 flex flex-wrap items-center gap-3'>
+                <button
+                  type='button'
+                  onClick={() => {
+                    void handleRun();
+                  }}
+                  disabled={isGenerating || isUnlocking}
+                  className='rounded-md border border-terminal-green/40 bg-terminal-green/10 px-4 py-2 text-xs uppercase tracking-[0.18em] text-terminal-green transition-colors hover:cursor-pointer hover:bg-terminal-green/15 disabled:cursor-not-allowed disabled:opacity-50'
+                >
+                  {isGenerating ? 'Running...' : 'Run'}
+                </button>
+                <button
+                  type='button'
+                  onClick={() => {
+                    void handleForget();
+                  }}
+                  disabled={isGenerating || isUnlocking}
+                  className='rounded-md border border-code-border px-4 py-2 text-xs uppercase tracking-[0.18em] text-text-muted transition-colors hover:cursor-pointer hover:border-textSecondary hover:text-textPrimary disabled:cursor-not-allowed disabled:opacity-50'
+                >
+                  Forget
+                </button>
+              </div>
+            )}
+          </div>
+        </TerminalCard>
       </div>
     </>
   );

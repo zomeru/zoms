@@ -59,6 +59,10 @@ export const blogGenerateRequestSchema = z.object({
   aiGenerated: z.boolean().optional().default(true)
 });
 
+export const blogGenerateAuthRequestSchema = z.object({
+  secret: z.string().min(1)
+});
+
 // API Response Schemas
 export const paginationSchema = z.object({
   limit: z.number(),
@@ -102,6 +106,7 @@ export type BlogPostListItem = z.infer<typeof blogPostListItemSchema>;
 export type BlogPostFull = z.infer<typeof blogPostFullSchema>;
 export type BlogListQuery = z.infer<typeof blogListQuerySchema>;
 export type BlogGenerateRequest = z.infer<typeof blogGenerateRequestSchema>;
+export type BlogGenerateAuthRequest = z.infer<typeof blogGenerateAuthRequestSchema>;
 export type BlogListResponse = z.infer<typeof blogListResponseSchema>;
 export type BlogGenerateResponse = z.infer<typeof blogGenerateResponseSchema>;
 export type ErrorResponse = z.infer<typeof errorResponseSchema>;
