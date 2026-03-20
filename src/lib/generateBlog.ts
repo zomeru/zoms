@@ -3,7 +3,7 @@ import { GoogleGenAI } from '@google/genai';
 import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
 
 import { getErrorMessage } from './errorMessages';
-import { selectCombinationOfTopics, tryParseAIJSON } from './generateBlogHelpers';
+import { tryParseAIJSON } from './generateBlogHelpers';
 import log from './logger';
 
 export interface GeneratedBlogPost {
@@ -20,53 +20,82 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
  * Generate blog post content using Gemini AI
  */
 export async function generateBlogContent(): Promise<GeneratedBlogPost> {
-  const topics = selectCombinationOfTopics();
-  const topicsList = topics.map((t) => t).join(', ');
-  const year = new Date().getFullYear();
-
-  // Log selected topics
-  log.info('Selected topics for blog generation', { topics: topicsList });
+  const currentDate = new Date().toISOString().slice(0, 10);
+  const recentWindow = '~3 weeks';
 
   const prompt = `
-Write a comprehensive, technically detailed blog post that demonstrates how the following web development topics can be integrated within a single application context:
-${topicsList}
+Generate ONE production-ready technical blog post for software engineers.
 
-All examples, explanations, and code snippets must use TypeScript as the primary language.
+Current date context:
+- Today is ${currentDate}
+- Topic and examples must be fresh within ${recentWindow} of this date.
 
-The article must be written for intermediate to advanced web developers, offering practical examples, best practices, and actionable insights. Ensure content is current as of ${year}.
+Topic Selection Rules:
+- Do NOT select from a static or predefined internal list.
+- Dynamically generate a topic based on recent trends, releases, or real-world problems.
+- Keep topic practical, realistic, and slightly optimistic (not hypey).
+- The topic must fit at least one of:
+  - AI / LLMs
+  - Web development (TypeScript-first)
+  - Frontend / backend frameworks in the TypeScript ecosystem
+  - AI stack (TypeScript or Python SDKs)
+  - Mobile development (React Native, Expo)
+  - AI technologies (RAG, embeddings, agents, memory)
+  - AI tools (including OpenClaw and alternatives)
+  - AI providers (OpenAI, Anthropic, Gemini, etc.)
+  - On-device AI
+  - Security for web/mobile
+  - Best practices
 
-Writing Guidelines:
-1. Include relevant code snippets and technical explanations.
-2. Word count: 550–750 words (optimized for faster generation).
-3. Structure clearly using Markdown headings (## for major sections).
-4. Use valid Markdown formatting: headers (#, ##, ###), bullet points, **bold**, \`inline code\`, and fenced code blocks.
-5. Explain why each tool, library, or framework is used, how it fits into the architecture, and include hyperlinks to official documentation. (2 sentences max per explanation)
-6. Keep explanations brief (1–2 sentences per section) and focus on practical code examples.
+Content Style Rules:
+- Voice: senior engineer, practical, concise, insightful.
+- Focus on real-world use cases, tradeoffs, decisions, and architecture/implementation insights.
+- Avoid generic topics without a fresh angle.
+- Avoid fluff, filler, and obvious AI-generated phrasing.
 
-CRITICAL OUTPUT FORMAT:
-Respond with ONLY valid JSON in this exact structure:
+Code Rules:
+- Code is optional and contextual.
+- Include code ONLY if it materially improves understanding.
+- Multiple code blocks are allowed, minimal code is allowed, and no code is allowed.
+- Prefer TypeScript-first. Use Python only when clearly beneficial for AI-specific sections.
+
+Length:
+- Target 900–1000 words for the markdown content.
+
+SEO Rules (STRICT):
+- Title must be highly SEO-optimized, clear, keyword-rich, and not clickbait.
+- Body/content must include strong keyword presence in the first 1–2 paragraphs.
+- Use proper H1–H3 hierarchy and descriptive subheadings.
+- Distribute keywords naturally without stuffing.
+- Make content scannable with short paragraphs and lists where useful.
+
+Freshness Rules:
+- Reflect recent ecosystem changes from approximately the last 3 weeks.
+- Include new tools, APIs, patterns, or active discussions when possible.
+- If there is no exact recent release, frame the article around current trends and evolving best practices.
+- Avoid outdated patterns and deprecated tools.
+
+CRITICAL OUTPUT FORMAT (STRICT):
+Return ONLY valid JSON matching this exact shape:
 {
-  "title": "Compelling and concise blog title (40–80 characters total, including spaces — REQUIRED)",
-  "summary": "SEO-friendly summary (100–150 characters total, including spaces — REQUIRED; no backticks or quotes)",
-  "body": "Full blog post content in Markdown format. Escape all internal double quotes with a backslash (\\").",
-  "tags": ["tag1", "tag2", "tag3"],
-  "readTime": 5
+  "title": "SEO-optimized title",
+  "slug": "kebab-case-seo-friendly-slug",
+  "excerpt": "1-2 sentence SEO-friendly summary",
+  "tags": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"],
+  "content": "Full markdown blog post with H1-H3 hierarchy and code blocks only when needed."
 }
 
 JSON VALIDATION RULES:
 - Use double quotes for all strings
-- No backticks (\`) in the summary — use single quotes instead for code references
 - Escape any double quotes inside strings
 - No trailing commas or comments
-- The body field must contain valid Markdown
-- Include 2–5 relevant tags (lowercase, no special characters)
-- Calculate readTime as total words ÷ 200 (rounded up)
-
-Final Quality Requirements:
-- Writing should be well-structured, clear, and valuable to professionals
-- Include concise code examples where relevant
-- Provide meaningful insights developers can apply immediately
+- tags must contain 5–8 relevant SEO keywords
+- content must be valid Markdown and production-ready
+- No placeholders and no meta commentary
+- Every section must provide concrete value
 `;
+
+  log.info('Generating blog content with dynamic topic prompt', { currentDate });
 
   const result = await ai.models.generateContent({
     model: process.env.GEMINI_MODEL ?? 'gemini-3-flash-preview',
@@ -89,16 +118,21 @@ Final Quality Requirements:
     const parsed = tryParseAIJSON(text);
 
     // Validate required fields
-    if (!parsed.title || !parsed.summary || !parsed.body) {
+    if (!parsed.title || !parsed.excerpt || !parsed.content) {
       throw new Error(getErrorMessage('MISSING_REQUIRED_FIELDS'));
     }
 
+    const readTime = Math.max(
+      1,
+      Math.ceil(parsed.content.split(/\s+/).filter(Boolean).length / 200)
+    );
+
     return {
       title: parsed.title.slice(0, MAX_TITLE_LENGTH), // Ensure title length limit
-      summary: parsed.summary.slice(0, MAX_SUMMARY_LENGTH), // Ensure summary length limit
-      body: parsed.body, // Store raw markdown
-      tags: Array.isArray(parsed.tags) ? parsed.tags.slice(0, 5) : [],
-      readTime: parsed.readTime ?? 5 // Default to 5 minutes if not provided
+      summary: parsed.excerpt.slice(0, MAX_SUMMARY_LENGTH), // Ensure summary length limit
+      body: parsed.content, // Store raw markdown
+      tags: Array.isArray(parsed.tags) ? parsed.tags.slice(0, 8) : [],
+      readTime
     };
   } catch (error) {
     throw new Error(getErrorMessage('AI_GENERATION_FAILED'), { cause: error });
