@@ -218,8 +218,20 @@ interface GeneratedBlogPost {
   title: string; // truncated to MAX_TITLE_LENGTH
   summary: string; // truncated to MAX_SUMMARY_LENGTH
   body: string; // raw markdown
-  tags: string[]; // 3–5 tags
-  readTime: number; // words / 200 (ceil) fallback 5
+  tags: string[]; // up to 8 tags
+  readTime: number; // words / 200 (ceil)
+}
+```
+
+AI model output schema expected by parser (`tryParseAIJSON`) is:
+
+```ts
+interface AIResponseShape {
+  title: string;
+  slug: string;
+  excerpt: string;
+  tags: string[]; // 5–8 tags
+  content: string; // markdown body
 }
 ```
 

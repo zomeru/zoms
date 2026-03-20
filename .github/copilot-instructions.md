@@ -125,8 +125,20 @@ interface GeneratedBlogPost {
   title: string; // truncated to MAX_TITLE_LENGTH
   summary: string; // truncated to MAX_SUMMARY_LENGTH
   body: string; // raw markdown content
-  tags: string[]; // 3-5 relevant tags
+  tags: string[]; // up to 8 relevant tags
   readTime: number; // estimated read time in minutes
+}
+```
+
+The AI parser expects this JSON shape from the model:
+
+```typescript
+interface AIResponseShape {
+  title: string;
+  slug: string;
+  excerpt: string;
+  tags: string[]; // 5-8 tags
+  content: string; // markdown body
 }
 ```
 
@@ -134,7 +146,7 @@ interface GeneratedBlogPost {
 
 - `src/lib/generateBlog.ts` - Main generation logic
 - `src/lib/generateBlogHelpers.ts` - JSON parsing utilities
-- `src/constants/topics.ts` - Topic selection for AI prompts
+- `src/app/api/blog/generate/route.ts` - API endpoint that persists generated posts
 
 ## File Organization
 
