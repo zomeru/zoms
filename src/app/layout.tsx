@@ -1,4 +1,4 @@
-import type { Viewport } from 'next';
+import type { Metadata, Viewport } from 'next';
 
 import '../styles/globals.css';
 
@@ -22,9 +22,7 @@ const geistMono = Geist_Mono({
   display: 'swap'
 });
 
-export const metadata = {
-  ...seo
-};
+export const metadata: Metadata = seo;
 
 export const viewport: Viewport = {
   width: 'device-width',

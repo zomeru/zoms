@@ -58,15 +58,6 @@ export const seo: Metadata = {
     title: TITLE,
     statusBarStyle: 'default'
   },
-  icons: {
-    other: [
-      { url: '/assets/icons/favicon-16x16.png', sizes: '16x16' },
-      { url: '/assets/icons/favicon-32x32.png', sizes: '32x32' },
-      { url: '/assets/icons/safari-pinned-tab.svg', rel: 'mask-icon' }
-    ],
-    icon: '/favicon.ico',
-    apple: '/assets/icons/apple-icon.png'
-  },
   creator: TITLE,
   authors: [{ name: TITLE, url: SITE_URL }],
   openGraph: {
@@ -87,7 +78,6 @@ export const seo: Metadata = {
   formatDetection: {
     telephone: false
   },
-  manifest: '/manifest.json',
   twitter: {
     creator: '@zomeru_sama',
     site: SITE_URL,
