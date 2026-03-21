@@ -16,6 +16,7 @@ export const PRIMARY_BLOG_DOMAINS = [
 
 export const SECONDARY_BLOG_DOMAINS = [
   'AI tooling and platforms (evaluation tools, orchestration frameworks, tracing systems)',
+  'Databases and data management (SQL/NoSQL, vector databases, data modeling, ORMs such as Prisma, Drizzle, TypeORM)',
   'Cloud and infrastructure (deployment patterns, scaling, edge computing)',
   'Data layer (databases, caching, vector stores, streaming)',
   'Performance optimization (rendering, networking, runtime efficiency)'

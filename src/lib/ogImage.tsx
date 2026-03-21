@@ -24,7 +24,6 @@ const background = [
 export function createOgImage(content: OgImageContent): ImageResponse {
   const tags = content.tags?.slice(0, 3) ?? [];
   const shouldShowFooter = content.footerKey !== undefined && content.footerValue !== undefined;
-  const shouldShowAuthorName = content.showAuthorName ?? true;
 
   return new ImageResponse(
     <div
@@ -181,7 +180,7 @@ export function createOgImage(content: OgImageContent): ImageResponse {
           ) : null}
         </div>
 
-        {shouldShowFooter || shouldShowAuthorName ? (
+        {shouldShowFooter ? (
           <div
             style={{
               display: 'flex',
@@ -191,15 +190,10 @@ export function createOgImage(content: OgImageContent): ImageResponse {
               fontSize: '24px'
             }}
           >
-            {shouldShowFooter ? (
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <span style={{ color: '#22c55e' }}>{content.footerKey}</span>
-                <span>{content.footerValue}</span>
-              </div>
-            ) : (
-              <div style={{ display: 'flex' }} />
-            )}
-            {shouldShowAuthorName ? <div style={{ display: 'flex' }}>{TITLE}</div> : null}
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <span style={{ color: '#22c55e' }}>{content.footerKey}</span>
+              <span>{content.footerValue}</span>
+            </div>
           </div>
         ) : null}
       </div>

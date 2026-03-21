@@ -34,7 +34,7 @@ export const staticOgImages: Record<'home' | 'blog', StaticOgImageContent> = {
     eyebrow: 'Blog',
     title: 'Engineering Notes and Technical Articles',
     description:
-      'Read articles about web development, React, TypeScript, Next.js, and practical software engineering.',
+      'Read articles about web development, React, TypeScript, Next.js, AI, and practical software engineering.',
     footerLabel: `${siteUrl}/blog`
   }
 };
