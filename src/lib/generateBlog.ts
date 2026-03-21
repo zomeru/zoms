@@ -27,10 +27,11 @@ export async function generateBlogContent(): Promise<GeneratedBlogPost> {
   const currentDate = new Date().toISOString().slice(0, 10);
   const recentWindow = '~3 weeks';
   const primaryDomain = pickPrimaryBlogDomain();
-  const secondaryDomain = pickSecondaryBlogDomain();
-  const secondaryDomainLine = secondaryDomain
-    ? `- Selected secondary domain: ${secondaryDomain}`
-    : '- Secondary domain: none (only primary domain will be used for topic selection)';
+  const secondaryDomains = pickSecondaryBlogDomain();
+  const secondaryDomainLine =
+    secondaryDomains.length > 0
+      ? `- Selected secondary domains: ${secondaryDomains.join(' | ')}`
+      : '- Secondary domains: none (only primary domain will be used for topic selection)';
 
   const prompt = `
 Generate ONE production-ready technical blog post for software engineers.
@@ -43,7 +44,7 @@ Topic Selection Rules:
 - Dynamically generate a topic based on recent trends, releases, or real-world problems.
 - Keep the topic practical, realistic, and slightly optimistic (avoid hype).
 - The topic must center on the selected primary domain for this generation.
-- If a secondary domain is selected, use it only as supporting context when it materially sharpens the article.
+- If secondary domains are selected, use them only as supporting context when they materially sharpen the article.
 - Choose one specific, current engineering problem, migration, implementation pattern, tradeoff, or architectural decision within the selected domain.
 - Avoid generic domain overviews, broad trend roundups, and vague "state of the ecosystem" articles.
 
@@ -117,7 +118,7 @@ JSON VALIDATION RULES:
   log.info('Generating blog content with dynamic topic prompt', {
     currentDate,
     primaryDomain,
-    secondaryDomain: secondaryDomain ?? null
+    secondaryDomains
   });
 
   const systemInstruction = `

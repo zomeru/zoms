@@ -34,8 +34,11 @@ const About = async (): Promise<React.JSX.Element> => {
             <h1 className='text-4xl md:text-5xl lg:text-6xl font-light mb-4 text-primary'>
               {TITLE}
             </h1>
-            <p className='text-lg text-text-secondary mb-6'>
-              Software Engineer based in Philippines
+            <p className='mb-6 text-lg text-text-secondary'>
+              Software Engineer based in the Philippines, building modern web experiences with{' '}
+              <span className='font-medium text-terminal-green'>Next.js</span>,{' '}
+              <span className='font-medium text-terminal-purple'>TypeScript</span>, and practical{' '}
+              <span className='font-medium text-terminal-green'>AI</span> integrations.
             </p>
             <div className='flex justify-center md:justify-start'>
               <Socials />
@@ -73,16 +76,17 @@ const About = async (): Promise<React.JSX.Element> => {
           <div className='mt-12 flex flex-wrap gap-4 justify-center md:justify-start'>
             <Link
               href='#projects'
-              className='inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-medium transition-all duration-300 hover:bg-primary-hover hover:shadow-[0_0_20px_var(--color-accent-glow)] hover:-translate-y-0.5'
+              className='inline-flex items-center gap-2 rounded-md border border-terminal-green/40 bg-terminal-green/10 px-4 py-3 font-mono text-xs uppercase tracking-[0.18em] text-terminal-green transition-colors hover:bg-terminal-green/15'
             >
-              View Projects
-              <span className='text-sm'>→</span>
+              <span className='text-terminal-blue'>./</span>
+              <span>View Projects</span>
             </Link>
             <Link
               href='#contact'
-              className='inline-flex items-center gap-2 px-6 py-3 border border-border text-primary rounded-lg font-medium transition-all duration-300 hover:border-primary hover:text-primary'
+              className='inline-flex items-center gap-2 rounded-md border border-code-border px-4 py-3 font-mono text-xs uppercase tracking-[0.18em] text-text-muted transition-colors hover:border-textSecondary hover:text-textPrimary'
             >
-              Get in Touch
+              <span className='text-terminal-green'>cd</span>
+              <span>Get in Touch</span>
             </Link>
           </div>
         </div>

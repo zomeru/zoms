@@ -38,15 +38,29 @@ function pickRandomItem<T>(items: readonly T[]): T {
   return items[index];
 }
 
+function pickRandomItems<T>(items: readonly T[], count: number): T[] {
+  const pool = [...items];
+
+  for (let index = pool.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [pool[index], pool[swapIndex]] = [pool[swapIndex], pool[index]];
+  }
+
+  return pool.slice(0, count);
+}
+
 export function pickPrimaryBlogDomain(): (typeof PRIMARY_BLOG_DOMAINS)[number] {
   return pickRandomItem(PRIMARY_BLOG_DOMAINS);
 }
 
-export function pickSecondaryBlogDomain(): (typeof SECONDARY_BLOG_DOMAINS)[number] | undefined {
-  const shouldPick = Math.random() >= 0.5;
-  if (!shouldPick) return undefined;
+export function pickSecondaryBlogDomain(): Array<(typeof SECONDARY_BLOG_DOMAINS)[number]> {
+  const selectionCount = Math.floor(Math.random() * 3);
 
-  return pickRandomItem(SECONDARY_BLOG_DOMAINS);
+  if (selectionCount === 0) {
+    return [];
+  }
+
+  return pickRandomItems(SECONDARY_BLOG_DOMAINS, selectionCount);
 }
 
 export function tryParseAIJSON(text: string): AiResponseType {
