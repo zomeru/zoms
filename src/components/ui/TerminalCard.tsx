@@ -29,8 +29,8 @@ const TerminalCard: React.FC<TerminalCardProps> = ({
             <div className='size-3 rounded-full bg-terminal-yellow' />
             <div className='size-3 rounded-full bg-terminal-green' />
           </div>
-          <div className='flex-1 text-center'>
-            <span className='text-xs text-text-secondary font-mono'>{title}</span>
+          <div className='min-w-0 flex-1 text-center'>
+            <span className='block truncate text-xs text-text-secondary font-mono'>{title}</span>
           </div>
         </div>
       )}

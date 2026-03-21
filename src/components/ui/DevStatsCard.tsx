@@ -18,7 +18,11 @@ const MetricRow: React.FC<MetricRowProps> = ({ filled, label, value }) => (
       </span>
       <span className='text-text-secondary text-xs'>{label}</span>
     </span>
-    <span className='text-text-primary text-xs font-mono tabular-nums'>{value}</span>
+    <span
+      className={`text-xs font-mono tabular-nums ${filled ? 'text-terminal-green' : 'text-text-primary'}`}
+    >
+      {value}
+    </span>
   </div>
 );
 
@@ -37,7 +41,7 @@ const CardBody: React.FC<CardBodyProps> = ({ gh }) => (
       <MetricRow filled={false} label='longest streak (days)' value={gh.longestStreak} />
     </div>
     <div className='px-4 py-2 border-t border-border'>
-      <span className='text-[10px] text-text-muted'>{`updated ${gh.lastUpdated}`}</span>
+      <span className='text-[10px] text-terminal-yellow'>{`updated ${gh.lastUpdated}`}</span>
     </div>
   </>
 );
@@ -78,7 +82,7 @@ const DevStatsCard: React.FC<DevStatsCardProps> = ({ className = '', initialData
           </span>
           <span className='text-xs text-text-muted tracking-widest uppercase'>Dev Metrics</span>
         </div>
-        <span className='text-xs text-text-muted'>@{gh.username}</span>
+        <span className='text-xs text-secondary'>@{gh.username}</span>
       </div>
 
       {/* Body */}

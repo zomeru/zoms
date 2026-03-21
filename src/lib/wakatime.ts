@@ -20,11 +20,7 @@ const SELECTED_LANGUAGES = [
   'YAML',
   'JSX',
   'SQL',
-  'Docker',
-  'Lua',
-  'SCSS',
-  'Rust',
-  'Prisma'
+  'Docker'
 ];
 
 export interface WakaTimeLanguage {

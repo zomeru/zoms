@@ -93,14 +93,16 @@ const About = async (): Promise<React.JSX.Element> => {
         </div>
 
         {/* Right column — NodeSection owns fade cycle + random positions */}
-        <div className='relative min-h-105'>
-          <div className='absolute inset-0 flex items-center justify-center'>
+        <div className='relative min-h-105 overflow-visible'>
+          <div className='absolute inset-0 flex items-center justify-center overflow-visible'>
             {/* Canvas fades in/out on each cycle */}
-            <NodeSection />
+            <div className='relative mx-auto flex w-full h-full items-center p-5 justify-center overflow-visible'>
+              <NodeSection />
 
-            {/* Card stays still — never fades */}
-            <div className='relative z-10 flex justify-center'>
-              <DevStatsCard initialData={ghStats} />
+              {/* Card stays still — never fades */}
+              <div className='relative z-10 flex justify-center'>
+                <DevStatsCard initialData={ghStats} />
+              </div>
             </div>
           </div>
         </div>

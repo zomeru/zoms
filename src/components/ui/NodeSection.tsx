@@ -40,7 +40,7 @@ const NodeSection: React.FC = () => {
 
   return (
     <div
-      className='absolute inset-0'
+      className='pointer-events-none absolute inset-0 overflow-visible'
       style={{
         opacity: canvasVisible ? 1 : 0,
         transition: `opacity ${FADE_MS}ms ease-in-out`
