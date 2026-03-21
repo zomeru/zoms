@@ -1,19 +1,6 @@
-'use client';
-
 import React from 'react';
 
-import AnimatedCounter from './AnimatedCounter';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export interface GitHubData {
-  totalCommits: number;
-  totalPRs: number;
-  totalRepos: number;
-  username: string;
-  lastUpdated: string;
-  unavailable?: boolean;
-}
+import type { GitHubDevStats } from '@/lib/github';
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -21,10 +8,9 @@ interface MetricRowProps {
   filled: boolean;
   label: string;
   value: number;
-  unavailable?: boolean;
 }
 
-const MetricRow: React.FC<MetricRowProps> = ({ filled, label, value, unavailable = false }) => (
+const MetricRow: React.FC<MetricRowProps> = ({ filled, label, value }) => (
   <div className='flex items-center justify-between gap-8 py-0.75'>
     <span className='flex items-center gap-2'>
       <span className={filled ? 'text-terminal-green' : 'text-text-muted'} aria-hidden='true'>
@@ -32,71 +18,49 @@ const MetricRow: React.FC<MetricRowProps> = ({ filled, label, value, unavailable
       </span>
       <span className='text-text-secondary text-xs'>{label}</span>
     </span>
-    {unavailable ? (
-      <span className='text-text-muted text-xs font-mono tabular-nums'>—</span>
-    ) : (
-      <AnimatedCounter
-        target={value}
-        duration={2200}
-        className='text-text-primary text-xs font-mono tabular-nums'
-      />
-    )}
+    <span className='text-text-primary text-xs font-mono tabular-nums'>{value}</span>
   </div>
 );
 
 interface CardBodyProps {
-  gh: GitHubData;
-  unavailable: boolean;
+  gh: GitHubDevStats;
 }
 
-const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-
-const CardBody: React.FC<CardBodyProps> = ({ gh, unavailable }) => (
+const CardBody: React.FC<CardBodyProps> = ({ gh }) => (
   <>
     <div className='px-4 pt-3 pb-2'>
       <p className='text-[10px] text-text-muted mb-1.5 tracking-wider'>// github</p>
-      <MetricRow filled label='commits' value={gh.totalCommits} unavailable={unavailable} />
-      <MetricRow
-        filled={false}
-        label='pull requests'
-        value={gh.totalPRs}
-        unavailable={unavailable}
-      />
-      <MetricRow
-        filled={false}
-        label='repositories'
-        value={gh.totalRepos}
-        unavailable={unavailable}
-      />
+      <MetricRow filled label='contributions' value={gh.totalContributions} />
+      <MetricRow filled label='commits' value={gh.totalCommits} />
+      <MetricRow filled={false} label='pull requests' value={gh.totalPRs} />
+      <MetricRow filled={false} label='repositories' value={gh.totalRepos} />
+      <MetricRow filled={false} label='longest streak (days)' value={gh.longestStreak} />
     </div>
     <div className='px-4 py-2 border-t border-border'>
-      <span className='text-[10px] text-text-muted'>
-        {unavailable ? 'temporarily unavailable' : `updated ${formatDate(gh.lastUpdated)}`}
-      </span>
+      <span className='text-[10px] text-text-muted'>{`updated ${gh.lastUpdated}`}</span>
     </div>
   </>
 );
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-const UNAVAILABLE: GitHubData = {
+const UNAVAILABLE: GitHubDevStats = {
   totalCommits: 0,
   totalPRs: 0,
   totalRepos: 0,
   username: 'zomeru',
-  lastUpdated: new Date().toISOString(),
-  unavailable: true
+  totalContributions: 0,
+  longestStreak: 0,
+  lastUpdated: new Date().toISOString()
 };
 
 interface DevStatsCardProps {
   className?: string;
-  initialData?: GitHubData;
+  initialData?: GitHubDevStats;
 }
 
 const DevStatsCard: React.FC<DevStatsCardProps> = ({ className = '', initialData }) => {
   const gh = initialData ?? UNAVAILABLE;
-  const unavailable = gh.unavailable === true;
 
   return (
     <div
@@ -118,7 +82,7 @@ const DevStatsCard: React.FC<DevStatsCardProps> = ({ className = '', initialData
       </div>
 
       {/* Body */}
-      <CardBody gh={gh} unavailable={unavailable} />
+      <CardBody gh={gh} />
     </div>
   );
 };

@@ -22,6 +22,10 @@ export function formatDateWithTime(dateString: string): string {
   return date;
 }
 
+export function formatIsoDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+}
+
 export function pickOneOrNone<T>(arr: T[], forcePick = false, chance = 0.65): T | undefined {
   if (arr.length === 0) return undefined;
 

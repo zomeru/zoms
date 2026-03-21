@@ -3,27 +3,28 @@ import Link from 'next/link';
 
 import { technologies, TITLE } from '@/constants';
 import { getGitHubDevStats } from '@/lib/github';
+import { formatIsoDate } from '@/lib/utils';
 import { getWakaTimeStats } from '@/lib/wakatime';
 
 import Socials from '../Socials';
 import TerminalHero from '../TerminalHero';
-import { NodeSection, TechBadge, WakaTimeTicker } from '../ui';
+import { DevStatsCard, NodeSection, TechBadge, WakaTimeTicker } from '../ui';
 
 const About = async (): Promise<React.JSX.Element> => {
   const [wakaStats, ghStats] = await Promise.all([
     getWakaTimeStats(),
-    getGitHubDevStats('zomeru').catch(() => null)
+    getGitHubDevStats('zomeru').catch(() => ({
+      totalCommits: 0,
+      totalPRs: 0,
+      totalRepos: 0,
+      username: 'zomeru',
+      totalContributions: 0,
+      longestStreak: 0,
+      lastUpdated: formatIsoDate(new Date().toISOString())
+    }))
   ]);
+
   const wakaLanguages = wakaStats?.languages.map((l) => ({ name: l.name, hours: l.hours })) ?? [];
-  const ghData = ghStats
-    ? {
-        totalCommits: ghStats.totalCommits,
-        totalPRs: ghStats.totalPRs,
-        totalRepos: ghStats.totalRepos,
-        username: ghStats.username,
-        lastUpdated: ghStats.lastUpdated
-      }
-    : undefined;
 
   return (
     <section id='about' className='min-h-screen flex flex-col justify-center py-20'>
@@ -93,7 +94,15 @@ const About = async (): Promise<React.JSX.Element> => {
 
         {/* Right column — NodeSection owns fade cycle + random positions */}
         <div className='relative min-h-105'>
-          <NodeSection initialGitHubData={ghData} />
+          <div className='absolute inset-0 flex items-center justify-center'>
+            {/* Canvas fades in/out on each cycle */}
+            <NodeSection />
+
+            {/* Card stays still — never fades */}
+            <div className='relative z-10 flex justify-center'>
+              <DevStatsCard initialData={ghStats} />
+            </div>
+          </div>
         </div>
       </div>
     </section>
