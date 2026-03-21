@@ -29,6 +29,18 @@ export interface BlogPostListItem {
   readTime?: number;
 }
 
+export interface BlogPostSeo {
+  _id: string;
+  title: string;
+  slug: {
+    current: string;
+  };
+  summary: string;
+  publishedAt: string;
+  modifiedAt?: string;
+  tags?: string[];
+}
+
 /**
  * Fetch blog posts with pagination
  * @param limit - Number of posts to fetch (default: 25)
@@ -100,6 +112,39 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line no-console -- Allow console in development for debugging
       console.error('Error fetching blog post from Sanity:', error);
+    }
+    return null;
+  }
+}
+
+/**
+ * Fetch a single blog post with only the fields needed for metadata and OG image generation.
+ * @param slug - The slug of the blog post
+ * @returns Lightweight blog post metadata or null if not found
+ */
+export async function getBlogPostSeoBySlug(slug: string): Promise<BlogPostSeo | null> {
+  try {
+    const post = await client.fetch<BlogPostSeo | null>(
+      `*[_type == "blogPost" && slug.current == $slug][0] {
+        _id,
+        title,
+        slug,
+        summary,
+        publishedAt,
+        modifiedAt,
+        tags
+      }`,
+      { slug },
+      {
+        next: { revalidate: 60 }
+      }
+    );
+
+    return post;
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console -- Allow console in development for debugging
+      console.error('Error fetching blog post SEO data from Sanity:', error);
     }
     return null;
   }

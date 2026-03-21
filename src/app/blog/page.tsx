@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { TerminalCard } from '@/components/ui';
-import { SITE_URL } from '@/configs/seo';
+import { SITE_URL, staticOgImages } from '@/configs/seo';
 import { BLOG_POSTS_PAGE_SIZE } from '@/constants';
 import { getBlogPostCount, getBlogPosts } from '@/lib/blog';
 
@@ -11,20 +11,26 @@ import BlogListClient from './BlogListClient';
 
 export const metadata: Metadata = {
   title: 'Blog',
-  description:
-    'Read articles about web development, React, TypeScript, Next.js, and other software engineering topics.',
+  description: staticOgImages.blog.description,
   openGraph: {
     title: 'Blog',
-    description:
-      'Read articles about web development, React, TypeScript, Next.js, and other software engineering topics.',
+    description: staticOgImages.blog.description,
     url: `${SITE_URL}/blog`,
-    type: 'website'
+    type: 'website',
+    images: [
+      {
+        url: `${SITE_URL}/blog/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: 'Blog index Open Graph image'
+      }
+    ]
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Blog',
-    description:
-      'Read articles about web development, React, TypeScript, Next.js, and other software engineering topics.'
+    description: staticOgImages.blog.description,
+    images: [`${SITE_URL}/blog/opengraph-image`]
   },
   alternates: {
     canonical: `${SITE_URL}/blog`

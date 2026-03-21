@@ -55,3 +55,4 @@ yarn-error.log*
 # AI
 .serena/**
 .playwright-mcp
+docs/

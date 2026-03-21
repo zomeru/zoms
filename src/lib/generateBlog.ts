@@ -1,9 +1,13 @@
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 
 import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
 
 import { getErrorMessage } from './errorMessages';
-import { tryParseAIJSON } from './generateBlogHelpers';
+import {
+  pickPrimaryBlogDomain,
+  pickSecondaryBlogDomain,
+  tryParseAIJSON
+} from './generateBlogHelpers';
 import log from './logger';
 
 export interface GeneratedBlogPost {
@@ -22,6 +26,11 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 export async function generateBlogContent(): Promise<GeneratedBlogPost> {
   const currentDate = new Date().toISOString().slice(0, 10);
   const recentWindow = '~3 weeks';
+  const primaryDomain = pickPrimaryBlogDomain();
+  const secondaryDomain = pickSecondaryBlogDomain();
+  const secondaryDomainLine = secondaryDomain
+    ? `- Selected secondary domain: ${secondaryDomain}`
+    : '- Secondary domain: none (only primary domain will be used for topic selection)';
 
   const prompt = `
 Generate ONE production-ready technical blog post for software engineers.
@@ -31,46 +40,56 @@ Current date context:
 - Topic and examples must be fresh within ${recentWindow} of this date.
 
 Topic Selection Rules:
-- Do NOT select from a static or predefined internal list.
 - Dynamically generate a topic based on recent trends, releases, or real-world problems.
-- Keep topic practical, realistic, and slightly optimistic (not hypey).
-- The topic must fit at least one of:
-  - AI / LLMs
-  - Web development (TypeScript-first)
-  - Frontend / backend frameworks in the TypeScript ecosystem
-  - AI stack (TypeScript or Python SDKs)
-  - Mobile development (React Native, Expo)
-  - AI technologies (RAG, embeddings, agents, memory)
-  - AI tools (including OpenClaw and alternatives)
-  - AI providers (OpenAI, Anthropic, Gemini, etc.)
-  - On-device AI
-  - Security for web/mobile
-  - Best practices
+- Keep the topic practical, realistic, and slightly optimistic (avoid hype).
+- The topic must center on the selected primary domain for this generation.
+- If a secondary domain is selected, use it only as supporting context when it materially sharpens the article.
+- Choose one specific, current engineering problem, migration, implementation pattern, tradeoff, or architectural decision within the selected domain.
+- Avoid generic domain overviews, broad trend roundups, and vague "state of the ecosystem" articles.
+
+Selected domains for this generation:
+- Selected primary domain: ${primaryDomain}
+${secondaryDomainLine}
+
+Tooling Rules:
+- Do NOT anchor the article around a single specific tool or product unless it is genuinely central to the problem.
+- If tools are mentioned, include 2–4 relevant options or keep it tool-agnostic.
+- Prefer patterns, architecture, implementation tradeoffs, and real-world constraints over tool promotion.
+- Do not let the selected domain force a product-list article or comparison unless that format is clearly the best fit for the problem.
+
+Freshness Rules:
+- Reflect ecosystem changes, discussions, or emerging patterns from the last ${recentWindow}.
+- Prioritize:
+  - New APIs or SDK capabilities
+  - Shifts in best practices
+  - Real-world engineering problems gaining attention
+- If no major release exists, focus on evolving patterns, practical lessons, or current implementation decisions inside the selected domain.
 
 Content Style Rules:
-- Voice: senior engineer, practical, concise, insightful.
-- Focus on real-world use cases, tradeoffs, decisions, and architecture/implementation insights.
-- Avoid generic topics without a fresh angle.
-- Avoid fluff, filler, and obvious AI-generated phrasing.
+- Voice: senior engineer — practical, concise, insightful.
+- Focus on real-world use cases, tradeoffs, and implementation decisions.
+- Avoid generic topics unless a strong fresh angle is introduced.
+- Avoid filler, fluff, and obvious AI-generated phrasing.
 
-Code Rules:
+Code Rules (optional, only include if it materially improves understanding):
 - Code is optional and contextual.
-- Include code ONLY if it materially improves understanding.
-- Multiple code blocks are allowed, minimal code is allowed, and no code is allowed.
-- Prefer TypeScript-first. Use Python only when clearly beneficial for AI-specific sections.
+- Include code ONLY if it clarifies a concept or implementation.
+- Prefer TypeScript.
+- Use Python only when clearly beneficial for AI-related sections.
+- Keep examples realistic and production-oriented.
 
 Length:
-- Target 900–1000 words for the markdown content.
+- Target 900–1200 words for the markdown content.
 
 SEO Rules (STRICT):
-- Title must be highly SEO-optimized, clear, keyword-rich, and not clickbait.
+- Title must be highly SEO-optimized, clear, keyword-rich, and not clickbait (must not exceed ${MAX_TITLE_LENGTH} characters).
 - Body/content must include strong keyword presence in the first 1–2 paragraphs.
 - Use proper H1–H3 hierarchy and descriptive subheadings.
 - Distribute keywords naturally without stuffing.
 - Make content scannable with short paragraphs and lists where useful.
 
 Freshness Rules:
-- Reflect recent ecosystem changes from approximately the last 3 weeks.
+- Reflect recent ecosystem changes from approximately the last ${recentWindow}.
 - Include new tools, APIs, patterns, or active discussions when possible.
 - If there is no exact recent release, frame the article around current trends and evolving best practices.
 - Avoid outdated patterns and deprecated tools.
@@ -78,9 +97,9 @@ Freshness Rules:
 CRITICAL OUTPUT FORMAT (STRICT):
 Return ONLY valid JSON matching this exact shape:
 {
-  "title": "SEO-optimized title",
+  "title": "SEO-optimized title (max ${MAX_TITLE_LENGTH} characters)",
   "slug": "kebab-case-seo-friendly-slug",
-  "excerpt": "1-2 sentence SEO-friendly summary",
+  "excerpt": "1-2 sentence SEO-friendly summary with keywords (max ${MAX_SUMMARY_LENGTH} characters)",
   "tags": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"],
   "content": "Full markdown blog post with H1-H3 hierarchy and code blocks only when needed."
 }
@@ -89,21 +108,109 @@ JSON VALIDATION RULES:
 - Use double quotes for all strings
 - Escape any double quotes inside strings
 - No trailing commas or comments
-- tags must contain 5–8 relevant SEO keywords
+- tags must contain 3–5 relevant SEO keywords
 - content must be valid Markdown and production-ready
 - No placeholders and no meta commentary
 - Every section must provide concrete value
 `;
 
-  log.info('Generating blog content with dynamic topic prompt', { currentDate });
+  log.info('Generating blog content with dynamic topic prompt', {
+    currentDate,
+    primaryDomain,
+    secondaryDomain: secondaryDomain ?? null
+  });
+
+  const systemInstruction = `
+You are a senior full-stack engineer and expert technical writer.
+
+Generate exactly one production-ready technical blog post for software engineers.
+
+Your writing must be:
+- Practical, concise, insightful, and technically credible
+- Focused on real engineering problems, tradeoffs, architecture, implementation details, or evolving best practices
+- Free of hype, fluff, filler, generic advice, and obvious AI-generated phrasing
+- Written for experienced developers, not beginners
+
+Topic requirements:
+- Choose a fresh, relevant topic in AI engineering, TypeScript/JavaScript web development, frontend, backend, fullstack meta frameworks, mobile development, security, performance, developer tooling, or modern software engineering practices
+- Prefer topics connected to recent releases, API changes, ecosystem shifts, or current real-world engineering problems
+- Avoid broad or stale topics unless there is a strong fresh angle
+- Do not over-focus on any single vendor, framework, SDK, or tool unless it is clearly central to the article
+- Prefer patterns, tradeoffs, and implementation insights over product promotion
+
+Code requirements:
+- Include code only when it materially improves understanding
+- Code may be minimal, multiple examples, or omitted entirely
+- Prefer TypeScript when code is useful
+- Use Python only when clearly beneficial for AI-specific topics
+- Keep code realistic and production-oriented
+
+SEO and structure requirements:
+- Optimize for clear SEO-friendly structure and discoverability without clickbait
+- Use strong, descriptive headings and a scannable flow
+- Make the opening immediately clear, relevant, and keyword-aware
+- Prioritize clarity, specificity, and concrete value in every section
+
+Output requirements:
+- Return strict JSON only
+- Do not include commentary, explanations, markdown fences, or extra text outside the JSON
+- Ensure the content is polished, publication-ready, and directly usable
+`;
 
   const result = await ai.models.generateContent({
     model: process.env.GEMINI_MODEL ?? 'gemini-3-flash-preview',
     contents: prompt,
     config: {
-      systemInstruction:
-        'You are an experienced full-stack engineer and expert technical writer who produces clear, concise, and engaging content for professional web developers.',
-      temperature: 0.6
+      systemInstruction,
+      responseMimeType: 'application/json',
+      responseSchema: {
+        type: 'object',
+        required: ['title', 'slug', 'excerpt', 'tags', 'content'],
+        properties: {
+          title: {
+            type: 'string',
+            description: `SEO-optimized title, max ${MAX_TITLE_LENGTH} characters`
+          },
+          slug: {
+            type: 'string',
+            description: 'kebab-case SEO-friendly slug'
+          },
+          excerpt: {
+            type: 'string',
+            description: `1-2 sentence SEO-friendly summary, max ${MAX_SUMMARY_LENGTH} characters`
+          },
+          tags: {
+            type: 'array',
+            minItems: 3,
+            maxItems: 5,
+            items: {
+              type: 'string'
+            },
+            description: 'Relevant SEO keywords'
+          },
+          content: {
+            type: 'string',
+            description:
+              'Full production-ready markdown blog post with H1-H3 hierarchy, concise and practical, targeting about 900-1200 words'
+          }
+        }
+      },
+
+      // Keep one candidate for consistency and lower cost
+      candidateCount: 1,
+
+      // Good for deterministic-ish behavior, but still not perfect
+      temperature: 0.2,
+      topP: 0.9,
+      seed: 42,
+
+      // Rough cap for ~1200 words of markdown + JSON wrapper.
+      // Adjust upward if you see truncation.
+      maxOutputTokens: 3000,
+
+      thinkingConfig: {
+        thinkingLevel: ThinkingLevel.LOW
+      }
     }
   });
 

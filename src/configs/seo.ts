@@ -2,6 +2,13 @@ import type { Metadata } from 'next';
 
 import { TITLE } from '@/constants';
 
+export interface StaticOgImageContent {
+  eyebrow: string;
+  title: string;
+  description: string;
+  footerLabel: string;
+}
+
 // Enforce SITE_URL to be set in environment; fallback to localhost in development only
 let siteUrl = process.env.SITE_URL;
 if (!siteUrl) {
@@ -14,14 +21,30 @@ if (!siteUrl) {
 export const SITE_URL = siteUrl;
 
 export const description =
-  'Hi 👋, I am Zomer, a Software Engineer based in the Philippines with a demonstrated history of working in the full-stack development. Skilled in React, Typescript, and other web technologies over 4 years of professional experience.';
+  'Software Engineer from the Philippines building full-stack products with React, TypeScript, Next.js, and AI.';
+
+export const staticOgImages: Record<'home' | 'blog', StaticOgImageContent> = {
+  home: {
+    eyebrow: 'Portfolio',
+    title: TITLE,
+    description,
+    footerLabel: siteUrl
+  },
+  blog: {
+    eyebrow: 'Blog',
+    title: 'Engineering Notes and Technical Articles',
+    description:
+      'Read articles about web development, React, TypeScript, Next.js, and practical software engineering.',
+    footerLabel: `${siteUrl}/blog`
+  }
+};
 
 export const seo: Metadata = {
   title: {
     default: TITLE,
     template: `%s | ${TITLE}`
   },
-  description,
+  description: `Hi, I'm ${TITLE}, a ${description}`,
   metadataBase: new URL(SITE_URL),
   alternates: {
     canonical: '/',
@@ -52,7 +75,10 @@ export const seo: Metadata = {
     description,
     images: [
       {
-        url: '/assets/icons/opengraph-image.png'
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: `${TITLE} Open Graph image`
       }
     ],
     type: 'website',
@@ -68,7 +94,7 @@ export const seo: Metadata = {
     card: 'summary_large_image',
     description,
     title: TITLE,
-    images: ['/assets/icons/opengraph-image.png']
+    images: ['/opengraph-image']
   },
   keywords: [
     'Zomer',

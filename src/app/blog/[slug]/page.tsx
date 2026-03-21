@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 import { TechBadge, TerminalCard } from '@/components/ui';
 import { SITE_URL } from '@/configs/seo';
 import { TITLE } from '@/constants';
-import { getBlogPostBySlug } from '@/lib/blog';
+import { getBlogPostBySlug, getBlogPostSeoBySlug } from '@/lib/blog';
 import { client } from '@/lib/sanity';
 import { processMarkdown } from '@/lib/unified';
 import { formatDateWithTime } from '@/lib/utils';
@@ -30,7 +30,7 @@ export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getBlogPostBySlug(slug);
+  const post = await getBlogPostSeoBySlug(slug);
 
   if (!post) {
     return {
@@ -41,6 +41,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
   const publishedTime = new Date(post.publishedAt).toISOString();
   const modifiedTime = post.modifiedAt ? new Date(post.modifiedAt).toISOString() : publishedTime;
+  const ogImageUrl = `${SITE_URL}/blog/${slug}/opengraph-image`;
 
   return {
     title: post.title,
@@ -53,12 +54,21 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       publishedTime,
       modifiedTime,
       authors: [TITLE],
-      tags: post.tags
+      tags: post.tags,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${post.title} Open Graph image`
+        }
+      ]
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
-      description: post.summary
+      description: post.summary,
+      images: [ogImageUrl]
     },
     alternates: {
       canonical: `${SITE_URL}/blog/${slug}`
