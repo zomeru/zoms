@@ -2,6 +2,8 @@
 
 import React, { useEffect, useRef } from 'react';
 
+import { getTrimmedLinePoints } from './NodeCanvas.geometry';
+
 interface NodeCanvasProps {
   className?: string;
   seed?: number;
@@ -56,6 +58,12 @@ interface Node {
 }
 
 const clamp = (v: number) => Math.max(0.04, Math.min(0.96, v));
+const getGrowProgress = (elapsedMs: number, revealTime: number) =>
+  Math.min(1, Math.max(0, (elapsedMs - revealTime) / NODE_GROW_MS));
+const getGrowEase = (elapsedMs: number, revealTime: number) => {
+  const growRaw = getGrowProgress(elapsedMs, revealTime);
+  return growRaw <= 0 ? 0 : 1 - (1 - growRaw) ** 3;
+};
 
 // Place a child at a random angle/distance from its hub
 function childNear(hx: number, hy: number): { x: number; y: number } {
@@ -122,14 +130,20 @@ const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = '', seed = 0 }) => 
 
           const drawEase = 1 - (1 - drawRaw) ** 2; // easeOutQuad
           const isHubHub = from <= 2 && to <= 2;
-          const dist = Math.hypot(pts[from].px - pts[to].px, pts[from].py - pts[to].py);
+          const fromRadius = pts[from].r * getGrowEase(ae, NODE_REVEAL[from] ?? 0);
+          const toRadius = pts[to].r * getGrowEase(ae, NODE_REVEAL[to] ?? 0);
+          const { startX, startY, endX, endY } = getTrimmedLinePoints(
+            { x: pts[from].px, y: pts[from].py, radius: fromRadius },
+            { x: pts[to].px, y: pts[to].py, radius: toRadius }
+          );
+          const dist = Math.hypot(startX - endX, startY - endY);
 
           ctx.save();
           ctx.setLineDash([dist * drawEase, dist]);
           ctx.lineDashOffset = 0;
           ctx.beginPath();
-          ctx.moveTo(pts[from].px, pts[from].py);
-          ctx.lineTo(pts[to].px, pts[to].py);
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(endX, endY);
           ctx.strokeStyle = `rgba(148, 163, 184, ${(isHubHub ? 0.35 : 0.25) * pulse})`;
           ctx.lineWidth = 2;
           ctx.stroke();
@@ -141,14 +155,14 @@ const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = '', seed = 0 }) => 
       const paintNodes = () => {
         for (let i = 0; i < pts.length; i += 1) {
           const revealTime = NODE_REVEAL[i] ?? 0;
-          const growRaw = Math.min(1, Math.max(0, (ae - revealTime) / NODE_GROW_MS));
+          const growRaw = getGrowProgress(ae, revealTime);
           if (growRaw <= 0) continue;
 
-          const growEase = 1 - (1 - growRaw) ** 3; // easeOutCubic
+          const growEase = getGrowEase(ae, revealTime);
           const [r, g, b] = pts[i].rgb;
           ctx.beginPath();
           ctx.arc(pts[i].px, pts[i].py, pts[i].r * growEase, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.85 * pulse})`;
+          ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
           ctx.fill();
         }
       };
