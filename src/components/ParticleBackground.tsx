@@ -1,7 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { MoveDirection, OutMode, type ISourceOptions } from '@tsparticles/engine';
+import {
+  InteractivityDetect,
+  MoveDirection,
+  OutMode,
+  type ISourceOptions
+} from '@tsparticles/engine';
 import Particles, { initParticlesEngine } from '@tsparticles/react';
 import { loadSlim } from '@tsparticles/slim';
 
@@ -20,6 +25,27 @@ const ParticleBackground = () => {
     () => ({
       background: {
         color: { value: 'transparent' }
+      },
+      interactivity: {
+        detectsOn: InteractivityDetect.window,
+        events: {
+          onHover: {
+            enable: true,
+            mode: 'repulse'
+          },
+          resize: {
+            enable: true
+          }
+        },
+        modes: {
+          repulse: {
+            distance: 140,
+            duration: 0.5,
+            factor: 120,
+            maxSpeed: 18,
+            speed: 1
+          }
+        }
       },
       fpsLimit: 120,
       particles: {
