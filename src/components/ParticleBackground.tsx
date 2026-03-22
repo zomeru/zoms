@@ -26,6 +26,9 @@ const ParticleBackground = () => {
       background: {
         color: { value: 'transparent' }
       },
+      fullScreen: {
+        enable: false
+      },
       interactivity: {
         detectsOn: InteractivityDetect.window,
         events: {
@@ -79,7 +82,13 @@ const ParticleBackground = () => {
   );
 
   if (init) {
-    return <Particles id='tsparticles' className='pointer-events-none' options={options} />;
+    return (
+      <Particles
+        id='tsparticles'
+        className='pointer-events-none absolute inset-0 block h-full w-full'
+        options={options}
+      />
+    );
   }
 
   return null;

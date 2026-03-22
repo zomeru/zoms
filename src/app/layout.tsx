@@ -36,9 +36,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
   return (
     <html lang='en' className={`${geist.variable} ${geistMono.variable}`}>
       <body suppressHydrationWarning={true} className='bg-background text-primary min-h-screen'>
-        <ParticleBackground />
         <Navbar />
-        <div id='my-root'>
+        <div id='my-root' className='relative min-h-screen'>
+          <ParticleBackground />
           <React.Fragment>{children}</React.Fragment>
         </div>
         <Analytics />
