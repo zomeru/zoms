@@ -33,6 +33,10 @@ export function validateAiReindexSecret(secret: string): boolean {
   return timingSafeEqual(providedBuffer, configuredBuffer);
 }
 
+export function hasAiReindexSecret(): boolean {
+  return getConfiguredSecret() !== null;
+}
+
 export function isValidAiReindexSession(cookieStore: Pick<ReadonlyRequestCookies, 'get'>): boolean {
   const configuredSecret = getConfiguredSecret();
 
@@ -84,5 +88,19 @@ export function getAiReindexSessionCookie() {
       secure: process.env.NODE_ENV === 'production'
     },
     value: createSessionValue(configuredSecret)
+  };
+}
+
+export function getClearedAiReindexSessionCookie() {
+  return {
+    name: AI_REINDEX_COOKIE_NAME,
+    options: {
+      httpOnly: true,
+      maxAge: 0,
+      path: '/',
+      sameSite: 'lax' as const,
+      secure: process.env.NODE_ENV === 'production'
+    },
+    value: ''
   };
 }

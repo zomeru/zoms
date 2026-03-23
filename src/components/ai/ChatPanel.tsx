@@ -44,9 +44,9 @@ export default function ChatPanel({
         <header className='border-b border-border bg-surface/95 px-4 py-4'>
           <div className='flex items-start justify-between gap-4'>
             <div>
-              <h2 className='text-lg font-semibold text-text-primary'>Ask the site</h2>
+              <h2 className='text-lg font-semibold text-text-primary'>Chat with Zomer</h2>
               <p className='mt-1 text-sm text-text-secondary'>
-                Grounded answers from the portfolio, blog, and local profile content.
+                An AI version of Zomer grounded in the portfolio, blog, and profile content.
               </p>
             </div>
             <button

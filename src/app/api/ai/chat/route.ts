@@ -5,7 +5,9 @@ import { z } from 'zod';
 
 import { buildRelatedContent, streamGroundedAnswer } from '@/lib/ai/chat';
 import { getDirectAssistantAnswer } from '@/lib/ai/directAnswers';
+import { filterResponseDecorations } from '@/lib/ai/responseDecorations';
 import type { Citation, RelatedContentItem } from '@/lib/ai/schemas';
+import { appendStreamText } from '@/lib/ai/streaming';
 import { repositories } from '@/lib/db/repositories';
 import { handleApiError, validateSchema } from '@/lib/errorHandler';
 import { toPrismaJsonValue } from '@/lib/json';
@@ -162,12 +164,23 @@ async function resolveGroundedAnswer(input: {
   });
 
   if (directAnswer) {
+    const visibleDecorations = filterResponseDecorations({
+      citations: directAnswer.citations,
+      classification: input.classification,
+      query: input.question,
+      relatedContent: directAnswer.relatedContent
+    });
+
     return {
-      groundedAnswer: directAnswer,
+      groundedAnswer: {
+        ...directAnswer,
+        citations: visibleDecorations.citations,
+        relatedContent: visibleDecorations.relatedContent
+      },
       retrievalMetadata: {
         classification: input.classification,
         directAnswer: true,
-        matchCount: directAnswer.citations.length,
+        matchCount: visibleDecorations.citations.length,
         matches: []
       }
     };
@@ -182,13 +195,19 @@ async function resolveGroundedAnswer(input: {
   const relatedContent = buildRelatedContent(
     retrieval.matches.filter((match) => match.slug !== input.blogSlug)
   );
-  const groundedAnswer = await streamGroundedAnswer({
+  const visibleDecorations = filterResponseDecorations({
     citations: retrieval.citations,
+    classification: retrieval.classification,
+    query: input.question,
+    relatedContent
+  });
+  const groundedAnswer = await streamGroundedAnswer({
+    citations: visibleDecorations.citations,
     classification: retrieval.classification,
     conversationHistory: input.conversationHistory,
     currentBlogSlug: input.blogSlug,
     query: input.question,
-    relatedContent,
+    relatedContent: visibleDecorations.relatedContent,
     shouldRefuse: retrieval.shouldRefuse,
     supportingChunks: retrieval.matches
   });
@@ -233,7 +252,7 @@ function createStreamingChatResponse(input: {
             continue;
           }
 
-          answerText += part;
+          answerText = appendStreamText(answerText, part);
           sendEvent({ text: part, type: 'chunk' });
         }
 

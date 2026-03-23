@@ -4,7 +4,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import ChatComposer from '@/components/ai/ChatComposer';
+import ChatLauncher from '@/components/ai/ChatLauncher';
 import ChatMessageList from '@/components/ai/ChatMessageList';
+import ChatPanel from '@/components/ai/ChatPanel';
 import FeedbackControls from '@/components/ai/FeedbackControls';
 import { useChatAssistant } from '@/components/ai/useChatAssistant';
 
@@ -74,6 +76,53 @@ describe('chat UI behaviors', () => {
     });
   });
 
+  it('shows a persistent welcome message for a fresh conversation with no history', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(null, { status: 404 }))
+    );
+
+    render(<HookHarness />);
+
+    expect(await screen.findByText(/thanks for visiting my website/i)).toBeTruthy();
+    expect(screen.getByText(/ask me about my projects, experience, blogs/i)).toBeTruthy();
+  });
+
+  it('does not prepend the synthetic welcome message when persisted history exists', async () => {
+    window.localStorage.setItem('ai-chat-session', 'session-key');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              messages: [
+                {
+                  content: 'Earlier question',
+                  id: 'user-1',
+                  role: 'user'
+                }
+              ],
+              sessionKey: 'session-key'
+            }),
+            {
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              status: 200
+            }
+          )
+      )
+    );
+
+    render(<HookHarness />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Earlier question')).toBeTruthy();
+    });
+    expect(screen.queryByText(/thanks for visiting my website/i)).toBeNull();
+  });
+
   it('shows feedback controls only after a completed assistant response with a message id', () => {
     const { rerender } = render(
       <FeedbackControls
@@ -135,5 +184,29 @@ describe('chat UI behaviors', () => {
     );
 
     expect(screen.getByLabelText('Assistant is responding')).toBeTruthy();
+  });
+
+  it('updates the launcher and panel copy to chat with Zomer', () => {
+    render(<ChatLauncher onClick={() => undefined} />);
+
+    expect(screen.getByText('Chat with Zomer')).toBeTruthy();
+    expect(screen.getByText('AI Persona')).toBeTruthy();
+    expect(screen.queryByText('Ask the site')).toBeNull();
+    expect(screen.queryByText('AI Personal')).toBeNull();
+
+    render(
+      <ChatPanel
+        isOpen={true}
+        isWorking={false}
+        messages={[]}
+        onCitationClick={() => undefined}
+        onClose={() => undefined}
+        onFeedback={async () => undefined}
+        onSend={async () => undefined}
+        onTransform={async () => undefined}
+      />
+    );
+
+    expect(screen.getAllByText('Chat with Zomer').length).toBeGreaterThan(0);
   });
 });

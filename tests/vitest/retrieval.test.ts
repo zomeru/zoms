@@ -175,7 +175,7 @@ describe('retrieval ranking heuristics', () => {
           id: 'experience-1',
           metadata: {
             contentType: 'experience',
-            documentId: 'experience:evelan-gmbh',
+            documentId: 'experience:full-stack-web-developer:evelan-gmbh',
             sectionId: 'responsibilities',
             sectionTitle: 'Responsibilities',
             slug: 'evelan-gmbh',

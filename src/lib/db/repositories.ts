@@ -148,6 +148,14 @@ export const repositories = {
     });
   },
 
+  async deleteIndexedDocument(documentId: string) {
+    await getDb().indexedDocument.deleteMany({
+      where: {
+        documentId
+      }
+    });
+  },
+
   async getChatSession(sessionKey: string) {
     return await getDb().chatSession.findUnique({
       where: {

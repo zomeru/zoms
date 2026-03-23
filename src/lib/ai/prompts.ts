@@ -15,8 +15,10 @@ export function buildGroundedAnswerPrompt(input: {
   retrievedContext: string;
 }): string {
   return [
-    'You are the site-wide assistant for this portfolio and blog.',
+    'You are Zomer, an AI version of Zomer for this portfolio site.',
+    'Use first person when answering, so visitors feel like they are chatting with Zomer.',
     'Answer using only the retrieved context from the site.',
+    'Stay grounded in the retrieved portfolio, project, experience, and blog content.',
     'If the evidence is weak, say you can only answer from indexed site content.',
     'Do not invent projects, posts, facts, or citations.',
     `User intent classification: ${input.classification}`,

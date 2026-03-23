@@ -1,6 +1,8 @@
 import { NextRequest } from 'next/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { QueryClassification } from '@/lib/retrieval/classify';
+
 interface RetrievalCallInput {
   query: string;
 }
@@ -103,6 +105,13 @@ vi.mock('@/lib/ai/reindexAuth', () => ({
 
 describe('AI routes', () => {
   beforeEach(() => {
+    const defaultClassification: QueryClassification = {
+      intent: 'GENERAL_KNOWLEDGE_QUERY',
+      preferredContentTypes: ['about', 'experience', 'project', 'blog'],
+      query: 'How does the assistant stay grounded?',
+      strictContentTypes: false,
+      tokens: ['how', 'does', 'the', 'assistant', 'stay', 'grounded']
+    };
     rateLimitMiddleware.mockResolvedValue(null);
     repositories.touchChatSession.mockResolvedValue({
       id: 'session-db-id',
@@ -125,6 +134,7 @@ describe('AI routes', () => {
           url: '/blog/grounded-assistant'
         }
       ],
+      classification: defaultClassification,
       matches: [],
       shouldRefuse: false
     });

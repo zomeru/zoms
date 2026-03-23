@@ -46,7 +46,7 @@ export default function ChatMessageList({
             }
           >
             <p className='mb-2 font-mono text-[11px] uppercase tracking-[0.22em] text-text-muted'>
-              {message.role === 'user' ? 'You' : 'Assistant'}
+              {message.role === 'user' ? 'You' : 'Zomer'}
             </p>
             <p className='whitespace-pre-wrap text-sm leading-6 text-text-primary'>
               {message.content}

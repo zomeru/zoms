@@ -1,53 +1,45 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 import {
-  getBlogGenerationSessionCookie,
-  getClearedBlogGenerationSessionCookie,
-  hasBlogGenerationSecret,
-  isValidBlogGenerationSession,
-  validateBlogGenerationSecret
-} from '@/lib/blogGenerationAuth';
+  getAiReindexSessionCookie,
+  getClearedAiReindexSessionCookie,
+  hasAiReindexSecret,
+  validateAiReindexSecret
+} from '@/lib/ai/reindexAuth';
 import { ApiError, handleApiError, validateSchema } from '@/lib/errorHandler';
 import { getErrorMessage } from '@/lib/errorMessages';
 import { blogGenerateAuthRequestSchema } from '@/lib/schemas';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  return NextResponse.json({
-    authorized: hasBlogGenerationSecret() && isValidBlogGenerationSession(request.cookies),
-    success: true
-  });
-}
-
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    if (!hasBlogGenerationSecret()) {
+    if (!hasAiReindexSecret()) {
       throw new ApiError(getErrorMessage('UNAUTHORIZED'), 401, 'UNAUTHORIZED');
     }
 
     const body: unknown = await request.json();
     const { secret } = validateSchema(blogGenerateAuthRequestSchema, body);
 
-    if (!validateBlogGenerationSecret(secret)) {
+    if (!validateAiReindexSecret(secret)) {
       throw new ApiError(getErrorMessage('UNAUTHORIZED'), 401, 'UNAUTHORIZED');
     }
 
     const response = NextResponse.json({ success: true, authorized: true });
-    const cookie = getBlogGenerationSessionCookie();
+    const cookie = getAiReindexSessionCookie();
     response.cookies.set(cookie.name, cookie.value, cookie.options);
     return response;
   } catch (error) {
     return handleApiError(error, {
       method: 'POST',
-      path: '/api/blog/generate/auth'
+      path: '/api/ai/reindex/auth'
     });
   }
 }
 
 export async function DELETE(): Promise<NextResponse> {
   const response = NextResponse.json({ success: true, authorized: false });
-  const cookie = getClearedBlogGenerationSessionCookie();
+  const cookie = getClearedAiReindexSessionCookie();
   response.cookies.set(cookie.name, cookie.value, cookie.options);
   return response;
 }

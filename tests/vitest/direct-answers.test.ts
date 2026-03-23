@@ -118,4 +118,28 @@ describe('direct assistant answers', () => {
       url: '/#projects'
     });
   });
+
+  it('answers assistant identity questions directly without citations or related content', async () => {
+    const { getDirectAssistantAnswer } = await import('@/lib/ai/directAnswers');
+
+    const answer = await getDirectAssistantAnswer({
+      classification: classifyQueryIntent('Who are you?'),
+      query: 'Who are you?'
+    });
+
+    expect(answer).not.toBeNull();
+    expect(answer?.citations).toEqual([]);
+    expect(answer?.relatedContent).toEqual([]);
+
+    let text = '';
+    if (answer) {
+      for await (const chunk of answer.textStream) {
+        text += chunk;
+      }
+    }
+
+    expect(text).toContain("I'm Zomer, a Software Engineer.");
+    expect(text).toContain('personal background');
+    expect(text).toContain('general question');
+  });
 });

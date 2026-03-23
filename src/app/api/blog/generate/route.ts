@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createClient, type SanityClient } from '@sanity/client';
 
 import { isValidBlogGenerationSession } from '@/lib/blogGenerationAuth';
+import { scheduleBlogReindex } from '@/lib/blogReindex';
 import { ApiError, handleApiError, validateSchema } from '@/lib/errorHandler';
 import { getErrorMessage } from '@/lib/errorMessages';
 import { generateBlogContent, type GeneratedBlogPost } from '@/lib/generateBlog';
@@ -125,6 +126,7 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
     });
 
     const newPost = await createBlogPost(writeClient, content, aiGenerated);
+    scheduleBlogReindex(newPost.slug.current);
 
     const duration = Date.now() - startTime;
     log.response(method, path, 200, {

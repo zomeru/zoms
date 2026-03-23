@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 
+import BlogDeleteMenu from '@/components/blog/BlogDeleteMenu';
 import { TechBadge, TerminalCard } from '@/components/ui';
 import { MAX_PORTFOLIO_BLOG_POSTS } from '@/constants';
 import { getLatestBlogPosts } from '@/lib/blog';
@@ -26,30 +27,34 @@ const Blog: React.FC = async (): Promise<React.JSX.Element> => {
             const date = formatDate(publishedAt);
 
             return (
-              <Link key={_id} href={`/blog/${slug.current}`} className='block h-full'>
-                <TerminalCard
-                  title={`${slug.current}.md`}
-                  showHeader={true}
-                  className='hover:border-primary/30 transition-colors cursor-pointer group h-full'
-                >
-                  <div className='flex flex-col gap-2'>
-                    <div className='flex items-center gap-3 text-xs text-muted font-mono'>
-                      <span>{date}</span>
-                    </div>
-                    <h3 className='font-medium text-primary group-hover:text-primary-hover transition-colors'>
-                      {title}
-                    </h3>
-                    <p className='text-text-secondary text-sm line-clamp-2'>{summary}</p>
-                    {tags && tags.length > 0 && (
-                      <div className='flex flex-wrap gap-2 mt-2'>
-                        {tags.slice(0, 3).map((tag) => (
-                          <TechBadge key={tag}>{tag}</TechBadge>
-                        ))}
+              <TerminalCard
+                key={_id}
+                title={`${slug.current}.md`}
+                showHeader={true}
+                className='group h-full transition-colors hover:border-primary/30'
+              >
+                <div className='flex h-full gap-3'>
+                  <Link href={`/blog/${slug.current}`} className='block min-w-0 flex-1'>
+                    <div className='flex flex-col gap-2'>
+                      <div className='flex items-center gap-3 font-mono text-xs text-muted'>
+                        <span>{date}</span>
                       </div>
-                    )}
-                  </div>
-                </TerminalCard>
-              </Link>
+                      <h3 className='font-medium text-primary transition-colors group-hover:text-primary-hover'>
+                        {title}
+                      </h3>
+                      <p className='line-clamp-2 text-sm text-text-secondary'>{summary}</p>
+                      {tags && tags.length > 0 && (
+                        <div className='mt-2 flex flex-wrap gap-2'>
+                          {tags.slice(0, 3).map((tag) => (
+                            <TechBadge key={tag}>{tag}</TechBadge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                  <BlogDeleteMenu slug={slug.current} title={title} />
+                </div>
+              </TerminalCard>
             );
           })}
         </div>

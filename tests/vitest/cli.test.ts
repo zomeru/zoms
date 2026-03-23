@@ -9,4 +9,19 @@ describe('AI reindex CLI', () => {
     expect(source).toContain("from 'dotenv'");
     expect(source).toContain("loadEnv({ path: '.env.local'");
   });
+
+  it('routes prisma and reindex production wrappers through the shared script helper', () => {
+    const helperSource = readFileSync('scripts/_helpers.ts', 'utf8');
+    const prismaGenerateSource = readFileSync('scripts/prisma-generate-prod.ts', 'utf8');
+    const prismaMigrateSource = readFileSync('scripts/prisma-migrate-prod.ts', 'utf8');
+    const reindexSource = readFileSync('scripts/ai-reindex-prod.ts', 'utf8');
+
+    expect(helperSource).toContain('loadEnv({ path, override: false, quiet: true })');
+    expect(prismaGenerateSource).toContain("from './_helpers'");
+    expect(prismaGenerateSource).toContain("loadScriptEnv('.env.production.local')");
+    expect(prismaMigrateSource).toContain("from './_helpers'");
+    expect(prismaMigrateSource).toContain("loadScriptEnv('.env.production.local')");
+    expect(reindexSource).toContain("from './_helpers'");
+    expect(reindexSource).toContain("loadScriptEnv('.env.production.local')");
+  });
 });

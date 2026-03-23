@@ -37,6 +37,12 @@ export interface ReindexDocumentsResult {
   updated: number;
 }
 
+function getSourceMetaString(sourceMeta: Record<string, unknown>, key: string): string | undefined {
+  const value = sourceMeta[key];
+
+  return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
 function toVectorRecords(
   document: NormalizedContentDocument,
   chunks: Awaited<ReturnType<typeof chunkDocument>>
@@ -99,18 +105,24 @@ export async function reindexDocuments(
 }
 
 export async function loadNormalizedDocuments(): Promise<NormalizedContentDocument[]> {
-  const [{ loadAboutDocuments }, { loadProjectDocuments }, { loadBlogDocuments }] =
-    await Promise.all([
-      import('@/lib/content/about'),
-      import('@/lib/content/projects'),
-      import('@/lib/content/blog')
-    ]);
-  const [aboutDocuments, blogDocuments] = await Promise.all([
+  const [
+    { loadAboutDocuments },
+    { loadExperienceDocuments },
+    { loadProjectDocuments },
+    { loadBlogDocuments }
+  ] = await Promise.all([
+    import('@/lib/content/about'),
+    import('@/lib/content/experience'),
+    import('@/lib/content/projects'),
+    import('@/lib/content/blog')
+  ]);
+  const [aboutDocuments, experienceDocuments, blogDocuments] = await Promise.all([
     loadAboutDocuments(),
+    loadExperienceDocuments(),
     loadBlogDocuments()
   ]);
 
-  return [...aboutDocuments, ...loadProjectDocuments(), ...blogDocuments];
+  return [...aboutDocuments, ...experienceDocuments, ...loadProjectDocuments(), ...blogDocuments];
 }
 
 export async function runSiteReindex(
@@ -121,11 +133,13 @@ export async function runSiteReindex(
   const [
     { IndexedContentType, IngestionMode, IngestionStatus },
     { repositories },
-    { getVectorIndexClient }
+    { getVectorIndexClient },
+    { getLegacyExperienceDocumentId }
   ] = await Promise.all([
     import('@prisma/client'),
     import('@/lib/db/repositories'),
-    import('@/lib/vector/index')
+    import('@/lib/vector/index'),
+    import('@/lib/content/experience')
   ]);
   const documents = await loadNormalizedDocuments();
   const filteredDocuments =
@@ -154,6 +168,24 @@ export async function runSiteReindex(
   });
 
   try {
+    const legacyExperienceDocumentIds = filteredDocuments
+      .filter((document) => document.contentType === 'experience')
+      .map((document) => {
+        const title = getSourceMetaString(document.sourceMeta, 'title');
+        const company = getSourceMetaString(document.sourceMeta, 'company');
+
+        return title && company ? getLegacyExperienceDocumentId(title, company) : undefined;
+      })
+      .filter((documentId): documentId is string => Boolean(documentId));
+    const vectorClient = getVectorIndexClient();
+
+    await Promise.all(
+      legacyExperienceDocumentIds.map(async (documentId) => {
+        await vectorClient.deleteByPrefix(createDocumentVectorPrefix(documentId));
+        await repositories.deleteIndexedDocument(documentId);
+      })
+    );
+
     const result = await reindexDocuments({
       documents: filteredDocuments,
       indexedDocumentStore: {
@@ -182,7 +214,7 @@ export async function runSiteReindex(
           });
         }
       },
-      vectorClient: getVectorIndexClient()
+      vectorClient
     });
 
     await repositories.finishIngestionRun({

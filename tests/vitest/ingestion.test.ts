@@ -2,6 +2,12 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { loadAboutDocuments } from '@/lib/content/about';
 import { normalizeBlogPostRecord } from '@/lib/content/blog';
+import {
+  getExperienceDocumentId,
+  getLegacyExperienceDocumentId,
+  loadExperienceDocuments,
+  normalizeExperienceRecord
+} from '@/lib/content/experience';
 import { normalizeProjectRecord } from '@/lib/content/projects';
 import { chunkDocument } from '@/lib/ingestion/chunk';
 import { createChunkId, createDocumentHash } from '@/lib/ingestion/hash';
@@ -62,17 +68,11 @@ describe('content normalization and ingestion', () => {
     expect(document.sections[2]?.content).toContain('https://example.com/demo');
   });
 
-  it('normalizes local about, skills, and experience content without reading JSX at retrieval time', async () => {
+  it('normalizes local about content without inlining experience documents into the about index', async () => {
     const documents = await loadAboutDocuments();
-    const aboutDocument = documents.find((document) => document.documentId === 'about:profile');
-    const experienceDocuments = documents.filter((document) =>
-      document.documentId.startsWith('about:experience:')
-    );
-    const experiencePlainText = experienceDocuments
-      .map((document) => document.plainText)
-      .join('\n');
+    const aboutDocument = documents.at(0);
 
-    expect(aboutDocument).toBeDefined();
+    expect(documents).toHaveLength(1);
     expect(aboutDocument?.documentId).toBe('about:profile');
     expect(aboutDocument?.sections.map((section) => section.id)).toEqual([
       'intro',
@@ -80,13 +80,40 @@ describe('content normalization and ingestion', () => {
       'experience'
     ]);
     expect(aboutDocument?.plainText).toContain('Software Engineer based in the Philippines');
-    expect(experienceDocuments.length).toBeGreaterThan(0);
-    expect(experienceDocuments.every((document) => document.contentType === 'experience')).toBe(
-      true
-    );
+  });
+
+  it('normalizes experience content into dedicated experience documents', async () => {
+    const documents = await loadExperienceDocuments();
+    const experiencePlainText = documents.map((document) => document.plainText).join('\n');
+
+    expect(documents.length).toBeGreaterThan(0);
+    expect(documents.every((document) => document.contentType === 'experience')).toBe(true);
+    expect(
+      documents.every((document) => /^experience:[a-z0-9-]+:[a-z0-9-]+$/.test(document.documentId))
+    ).toBe(true);
     expect(experiencePlainText).toContain('Seansoft Corporation');
     expect(experiencePlainText).toContain('Makati City, Philippines (Remote)');
     expect(experiencePlainText).toContain('Prisma');
+  });
+
+  it('uses stable current and legacy experience document ids for migration-safe reindexing', () => {
+    const document = normalizeExperienceRecord({
+      company: 'Evelan GmbH',
+      companyWebsite: 'https://example.com',
+      duties: [],
+      location: 'Hamburg, Germany (Remote)',
+      order: 1,
+      range: 'Aug 2023 – Dec 2023',
+      title: 'Full Stack Web Developer'
+    });
+
+    expect(document.documentId).toBe(
+      getExperienceDocumentId('Full Stack Web Developer', 'Evelan GmbH')
+    );
+    expect(document.documentId).toBe('experience:full-stack-web-developer:evelan-gmbh');
+    expect(getLegacyExperienceDocumentId('Full Stack Web Developer', 'Evelan GmbH')).toBe(
+      'about:experience:evelan-gmbh-full-stack-web-developer'
+    );
   });
 
   it('splits sections before generic chunking and preserves code fences', async () => {

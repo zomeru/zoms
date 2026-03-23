@@ -8,6 +8,7 @@ import type {
   TransformMode,
   TransformResult
 } from '@/lib/ai/schemas';
+import { appendStreamText } from '@/lib/ai/streaming';
 
 export interface AssistantMessage {
   citations?: Citation[];
@@ -25,6 +26,14 @@ interface ChatHistoryResponse {
   messages: AssistantMessage[];
   sessionKey: string | null;
 }
+
+const WELCOME_MESSAGE_ID = 'assistant-welcome';
+const WELCOME_MESSAGE: AssistantMessage = {
+  content:
+    'Hi there! Thanks for visiting my website. Feel free to ask me about my projects, experience, blogs, or even a general question.',
+  id: WELCOME_MESSAGE_ID,
+  role: 'assistant'
+};
 
 function createId(prefix: string): string {
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
@@ -97,7 +106,7 @@ function appendAssistantChunk(messageId: string, text: string) {
       message.id === messageId
         ? {
             ...message,
-            content: `${message.content}${text}`
+            content: appendStreamText(message.content, text)
           }
         : message
     );
@@ -160,15 +169,25 @@ export function useChatAssistant(input: { pathname: string }) {
   const [messages, setMessages] = useState<AssistantMessage[]>([]);
   const [sessionKey, setSessionKey] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
+  const [historyHydrationState, setHistoryHydrationState] = useState<
+    'checking' | 'empty' | 'ready'
+  >('checking');
   const hasHydratedHistory = useRef(false);
 
   const blogSlug = useMemo(() => getBlogSlugFromPathname(input.pathname), [input.pathname]);
+  const displayedMessages = useMemo(
+    () => (historyHydrationState === 'empty' ? [WELCOME_MESSAGE, ...messages] : messages),
+    [historyHydrationState, messages]
+  );
 
   useEffect(() => {
     const storedSessionKey = window.localStorage.getItem('ai-chat-session');
     if (storedSessionKey) {
       setSessionKey(storedSessionKey);
+      return;
     }
+
+    setHistoryHydrationState('empty');
   }, []);
 
   useEffect(() => {
@@ -204,8 +223,12 @@ export function useChatAssistant(input: { pathname: string }) {
 
         hasHydratedHistory.current = true;
         setMessages(payload.messages);
+        setHistoryHydrationState(payload.messages.length > 0 ? 'ready' : 'empty');
       } catch {
         // Ignore hydration failures and let the next send start fresh.
+        if (!cancelled) {
+          setHistoryHydrationState('empty');
+        }
       }
     }
 
@@ -424,7 +447,7 @@ export function useChatAssistant(input: { pathname: string }) {
     error,
     isOpen,
     isWorking,
-    messages,
+    messages: displayedMessages,
     reportCitationClick,
     reportFeedback,
     requestTransform,

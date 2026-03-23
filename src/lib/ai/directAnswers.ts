@@ -6,6 +6,7 @@ import { getExperience } from '@/lib/experience';
 import type { QueryClassification } from '@/lib/retrieval/classify';
 import { formatDate } from '@/lib/utils';
 
+import { isIdentityQuery } from './responseDecorations';
 import type { Citation, RelatedContentItem } from './schemas';
 
 interface DirectAssistantAnswer {
@@ -178,6 +179,13 @@ export async function getDirectAssistantAnswer(input: {
   classification: QueryClassification;
   query: string;
 }): Promise<DirectAssistantAnswer | null> {
+  if (isIdentityQuery(input.query)) {
+    return createDirectAnswer(
+      "I'm Zomer, a Software Engineer. I can help with questions about my projects, experience, blog posts, personal background, or even a general question.",
+      []
+    );
+  }
+
   const direction = detectTemporalDirection(input.query);
 
   if (!direction) {
