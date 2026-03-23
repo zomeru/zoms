@@ -34,10 +34,7 @@ function isGroundedAnswerCallInput(value: unknown): value is GroundedAnswerCallI
 
 const rateLimitMiddleware = vi.fn();
 const repositories = {
-  createAnswerFeedback: vi.fn(),
   createChatMessage: vi.fn(),
-  createCitationClick: vi.fn(),
-  createNoResultEvent: vi.fn(),
   createRetrievalEvent: vi.fn(),
   getChatSession: vi.fn(),
   touchChatSession: vi.fn()
@@ -48,7 +45,7 @@ const retrieveExperience = retrieveRelevantChunks;
 const retrievePortfolio = retrieveRelevantChunks;
 const retrieveProjects = retrieveRelevantChunks;
 const getDirectAssistantAnswer = vi.fn();
-const buildRelatedContent = vi.fn();
+const streamGeneralAnswer = vi.fn();
 const streamGroundedAnswer = vi.fn();
 const generateBlogTransform = vi.fn();
 const runSiteReindex = vi.fn();
@@ -78,7 +75,7 @@ vi.mock('@/lib/ai/directAnswers', () => ({
 }));
 
 vi.mock('@/lib/ai/chat', () => ({
-  buildRelatedContent,
+  streamGeneralAnswer,
   streamGroundedAnswer
 }));
 
@@ -139,14 +136,6 @@ describe('AI routes', () => {
       shouldRefuse: false
     });
     getDirectAssistantAnswer.mockResolvedValue(null);
-    buildRelatedContent.mockReturnValue([
-      {
-        contentType: 'project',
-        reason: 'Relevant project connection',
-        title: 'Batibot',
-        url: '/#projects'
-      }
-    ]);
     streamGroundedAnswer.mockResolvedValue({
       citations: [
         {
@@ -158,18 +147,18 @@ describe('AI routes', () => {
           url: '/blog/grounded-assistant'
         }
       ],
-      relatedContent: [
-        {
-          contentType: 'project',
-          reason: 'Relevant project connection',
-          title: 'Batibot',
-          url: '/#projects'
-        }
-      ],
       supported: true,
       textStream: (async function* () {
         yield 'Grounded ';
         yield 'response text.';
+      })()
+    });
+    streamGeneralAnswer.mockResolvedValue({
+      citations: [],
+      supported: true,
+      textStream: (async function* () {
+        yield 'Rust is ';
+        yield 'a systems programming language.';
       })()
     });
     generateBlogTransform.mockResolvedValue({
@@ -209,15 +198,72 @@ describe('AI routes', () => {
     vi.clearAllMocks();
   });
 
+  it('does not persist no-result analytics when the assistant cannot support an answer', async () => {
+    const { POST } = await import('@/app/api/ai/chat/route');
+    retrieveRelevantChunks.mockResolvedValueOnce({
+      citations: [],
+      classification: {
+        intent: 'EXPERIENCE_QUERY',
+        preferredContentTypes: ['experience'],
+        query: 'What did Zomer do at unknown company?',
+        strictContentTypes: true,
+        tokens: ['what', 'did', 'zomer', 'do', 'at', 'unknown', 'company']
+      },
+      matches: [],
+      shouldRefuse: true
+    });
+    streamGroundedAnswer.mockResolvedValueOnce({
+      citations: [],
+      supported: false,
+      textStream: (async function* () {
+        yield 'I can only answer from content that is currently indexed on this site.';
+      })()
+    });
+
+    const response = await POST(
+      new NextRequest('http://localhost/api/ai/chat', {
+        body: JSON.stringify({
+          question: 'What did Zomer do at unknown company?'
+        }),
+        method: 'POST'
+      })
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.text()).resolves.toContain('indexed on this site');
+    expect('createNoResultEvent' in repositories).toBe(false);
+  });
+
   it('creates a chat session, validates the request, and streams a grounded answer', async () => {
     const { POST } = await import('@/app/api/ai/chat/route');
+    retrieveRelevantChunks.mockResolvedValueOnce({
+      citations: [
+        {
+          contentType: 'blog',
+          id: 'citation-1',
+          sectionTitle: 'Summary',
+          snippet: 'deterministic retrieval',
+          title: 'Grounded assistant',
+          url: '/blog/grounded-assistant'
+        }
+      ],
+      classification: {
+        intent: 'BLOG_QUERY',
+        preferredContentTypes: ['blog'],
+        query: 'What does the blog post say about grounded retrieval?',
+        strictContentTypes: true,
+        tokens: ['what', 'does', 'the', 'blog', 'post', 'say', 'about', 'grounded', 'retrieval']
+      },
+      matches: [],
+      shouldRefuse: false
+    });
 
     const response = await POST(
       new NextRequest('http://localhost/api/ai/chat', {
         body: JSON.stringify({
           blogSlug: 'grounded-assistant',
           pathname: '/blog/grounded-assistant',
-          question: 'How does the assistant stay grounded?'
+          question: 'What does the blog post say about grounded retrieval?'
         }),
         method: 'POST'
       })
@@ -234,48 +280,6 @@ describe('AI routes', () => {
     expect(body).toContain('"text":"response text."');
   });
 
-  it('answers latest blog queries through the deterministic recency path instead of retrieval', async () => {
-    getDirectAssistantAnswer.mockResolvedValue({
-      citations: [
-        {
-          contentType: 'blog',
-          id: 'direct:blog:latest',
-          sectionTitle: 'Summary',
-          snippet: 'Backpressure, Web Streams, and Node.js 24.x.',
-          title:
-            'Optimizing Node.js 24.x Streams: High-Performance Data Processing with Web Streams and Backpressure',
-          url: '/blog/node-streams'
-        }
-      ],
-      relatedContent: [],
-      supported: true,
-      textStream: (async function* () {
-        yield 'The latest blog post is ';
-        yield '"Optimizing Node.js 24.x Streams: High-Performance Data Processing with Web Streams and Backpressure".';
-      })()
-    });
-
-    const { POST } = await import('@/app/api/ai/chat/route');
-
-    const response = await POST(
-      new NextRequest('http://localhost/api/ai/chat', {
-        body: JSON.stringify({
-          question: 'What is the latest blog?'
-        }),
-        method: 'POST'
-      })
-    );
-
-    expect(response.status).toBe(200);
-    expect(getDirectAssistantAnswer).toHaveBeenCalledTimes(1);
-    expect(retrieveRelevantChunks).not.toHaveBeenCalled();
-    expect(streamGroundedAnswer).not.toHaveBeenCalled();
-
-    const body = await response.text();
-    expect(body).toContain('The latest blog post is');
-    expect(body).toContain('Optimizing Node.js 24.x Streams');
-  });
-
   it('uses prior session messages as memory and exposes history for reload hydration', async () => {
     repositories.getChatSession.mockResolvedValueOnce({
       id: 'session-db-id',
@@ -285,7 +289,6 @@ describe('AI routes', () => {
           content: 'Tell me about Batibot.',
           groundedAnswer: null,
           id: 'user-1',
-          relatedContent: null,
           role: 'USER'
         },
         {
@@ -295,7 +298,6 @@ describe('AI routes', () => {
             supported: true
           },
           id: 'assistant-1',
-          relatedContent: [],
           role: 'ASSISTANT'
         }
       ],
@@ -321,7 +323,6 @@ describe('AI routes', () => {
           content: 'Batibot is an AI-powered messaging companion.',
           id: 'assistant-1',
           messageId: 'assistant-1',
-          relatedContent: [],
           role: 'assistant',
           supported: true
         }
@@ -337,7 +338,6 @@ describe('AI routes', () => {
           content: 'Tell me about Batibot.',
           groundedAnswer: null,
           id: 'user-1',
-          relatedContent: null,
           role: 'USER'
         },
         {
@@ -347,7 +347,6 @@ describe('AI routes', () => {
             supported: true
           },
           id: 'assistant-1',
-          relatedContent: [],
           role: 'ASSISTANT'
         }
       ],
@@ -406,26 +405,6 @@ describe('AI routes', () => {
     expect(response.status).toBe(429);
   });
 
-  it('returns related content for the current blog page', async () => {
-    const { GET } = await import('@/app/api/ai/related/route');
-
-    const response = await GET(
-      new NextRequest('http://localhost/api/ai/related?blogSlug=grounded-assistant')
-    );
-
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({
-      relatedContent: [
-        {
-          contentType: 'project',
-          reason: 'Relevant project connection',
-          title: 'Batibot',
-          url: '/#projects'
-        }
-      ]
-    });
-  });
-
   it('validates transform requests and returns grounded transforms', async () => {
     const { POST } = await import('@/app/api/ai/transform/route');
 
@@ -453,25 +432,6 @@ describe('AI routes', () => {
 
     expect(validResponse.status).toBe(200);
     expect(generateBlogTransform).toHaveBeenCalledTimes(1);
-  });
-
-  it('persists feedback events', async () => {
-    const { POST } = await import('@/app/api/ai/feedback/route');
-
-    const response = await POST(
-      new NextRequest('http://localhost/api/ai/feedback', {
-        body: JSON.stringify({
-          messageId: 'message-id',
-          sessionKey: 'session-key',
-          type: 'thumbs',
-          value: 'up'
-        }),
-        method: 'POST'
-      })
-    );
-
-    expect(response.status).toBe(200);
-    expect(repositories.createAnswerFeedback).toHaveBeenCalledTimes(1);
   });
 
   it('rejects unauthorized reindex requests and accepts authorized ones', async () => {

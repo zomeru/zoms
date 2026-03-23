@@ -3,24 +3,13 @@
 import { useEffect, useRef } from 'react';
 
 import CitationList from './CitationList';
-import FeedbackControls from './FeedbackControls';
-import RelatedContentCards from './RelatedContentCards';
 import type { AssistantMessage } from './useChatAssistant';
 
 interface ChatMessageListProps {
   messages: AssistantMessage[];
-  onCitationClick: (
-    message: AssistantMessage,
-    citation: NonNullable<AssistantMessage['citations']>[number]
-  ) => void;
-  onFeedback: (message: AssistantMessage, value: 'down' | 'up') => Promise<void>;
 }
 
-export default function ChatMessageList({
-  messages,
-  onCitationClick,
-  onFeedback
-}: ChatMessageListProps) {
+export default function ChatMessageList({ messages }: ChatMessageListProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -73,18 +62,8 @@ export default function ChatMessageList({
               </ul>
             )}
             {message.citations && message.citations.length > 0 && (
-              <CitationList
-                citations={message.citations}
-                onCitationClick={(citation) => onCitationClick(message, citation)}
-              />
+              <CitationList citations={message.citations} />
             )}
-            {message.relatedContent && message.relatedContent.length > 0 && (
-              <RelatedContentCards items={message.relatedContent} title='You might also want' />
-            )}
-            <FeedbackControls
-              message={message}
-              onFeedback={async (value) => await onFeedback(message, value)}
-            />
           </article>
         ))}
       </div>

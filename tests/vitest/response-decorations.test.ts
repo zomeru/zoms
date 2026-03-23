@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { filterResponseDecorations } from '@/lib/ai/responseDecorations';
-import type { Citation, RelatedContentItem } from '@/lib/ai/schemas';
+import { filterChatCitations } from '@/lib/ai/responseDecorations';
+import type { Citation } from '@/lib/ai/schemas';
 import { classifyQueryIntent } from '@/lib/retrieval/classify';
 
 const citations: Citation[] = [
@@ -23,75 +23,44 @@ const citations: Citation[] = [
   }
 ];
 
-const relatedContent: RelatedContentItem[] = [
-  {
-    contentType: 'about',
-    reason: 'About match',
-    title: 'About',
-    url: '/#about'
-  },
-  {
-    contentType: 'blog',
-    reason: 'Blog match',
-    title: 'A Blog',
-    url: '/blog/a-blog'
-  }
-];
-
-describe('response decoration filtering', () => {
-  it('suppresses citations and related content for assistant identity questions', () => {
+describe('chat citation filtering', () => {
+  it('suppresses citations for assistant identity questions', () => {
     expect(
-      filterResponseDecorations({
+      filterChatCitations({
         citations,
         classification: classifyQueryIntent('Who are you?'),
-        query: 'Who are you?',
-        relatedContent
+        query: 'Who are you?'
       })
-    ).toEqual({
-      citations: [],
-      relatedContent: []
-    });
+    ).toEqual([]);
   });
 
-  it('keeps only blog decorations for blog questions', () => {
+  it('keeps only blog citations for blog questions', () => {
     expect(
-      filterResponseDecorations({
+      filterChatCitations({
         citations,
         classification: classifyQueryIntent('What is the latest blog?'),
-        query: 'What is the latest blog?',
-        relatedContent
+        query: 'What is the latest blog?'
       })
-    ).toEqual({
-      citations: [citations[1]],
-      relatedContent: [relatedContent[1]]
-    });
+    ).toEqual([citations[1]]);
   });
 
-  it('keeps general knowledge questions undecorated when there is no related blog content', () => {
+  it('keeps general knowledge questions undecorated when no related blog citation exists', () => {
     expect(
-      filterResponseDecorations({
+      filterChatCitations({
         citations: [citations[0]],
         classification: classifyQueryIntent('Who is the president of the US?'),
-        query: 'Who is the president of the US?',
-        relatedContent: [relatedContent[0]]
+        query: 'Who is the president of the US?'
       })
-    ).toEqual({
-      citations: [],
-      relatedContent: []
-    });
+    ).toEqual([]);
   });
 
-  it('allows blog decorations for general knowledge questions when the answer is connected to a blog post', () => {
+  it('allows blog citations for general knowledge questions when a relevant blog exists', () => {
     expect(
-      filterResponseDecorations({
+      filterChatCitations({
         citations,
         classification: classifyQueryIntent('What is PHP programming language?'),
-        query: 'What is PHP programming language?',
-        relatedContent
+        query: 'What is PHP programming language?'
       })
-    ).toEqual({
-      citations: [citations[1]],
-      relatedContent: [relatedContent[1]]
-    });
+    ).toEqual([citations[1]]);
   });
 });

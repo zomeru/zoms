@@ -3,10 +3,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { ChatMessageRole } from '@prisma/client';
 import { z } from 'zod';
 
-import { buildRelatedContent, streamGroundedAnswer } from '@/lib/ai/chat';
+import { streamGeneralAnswer, streamGroundedAnswer } from '@/lib/ai/chat';
 import { getDirectAssistantAnswer } from '@/lib/ai/directAnswers';
-import { filterResponseDecorations } from '@/lib/ai/responseDecorations';
-import type { Citation, RelatedContentItem } from '@/lib/ai/schemas';
+import { filterChatCitations } from '@/lib/ai/responseDecorations';
+import type { Citation } from '@/lib/ai/schemas';
 import { appendStreamText } from '@/lib/ai/streaming';
 import { repositories } from '@/lib/db/repositories';
 import { handleApiError, validateSchema } from '@/lib/errorHandler';
@@ -41,7 +41,6 @@ interface ClientMessage {
   content: string;
   id: string;
   messageId?: string;
-  relatedContent?: RelatedContentItem[];
   role: 'assistant' | 'user';
   supported?: boolean;
 }
@@ -77,11 +76,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function mapStoredMessages(
   messages: Array<{
-    citations?: unknown;
     content: string;
     groundedAnswer?: unknown;
     id: string;
-    relatedContent?: unknown;
+    citations?: unknown;
     role: ChatMessageRole;
   }>
 ): ClientMessage[] {
@@ -100,7 +98,6 @@ function mapStoredMessages(
         content: message.content,
         id: message.id,
         messageId: message.role === ChatMessageRole.ASSISTANT ? message.id : undefined,
-        relatedContent: Array.isArray(message.relatedContent) ? message.relatedContent : undefined,
         role: message.role === ChatMessageRole.USER ? 'user' : 'assistant',
         supported
       }
@@ -164,24 +161,54 @@ async function resolveGroundedAnswer(input: {
   });
 
   if (directAnswer) {
-    const visibleDecorations = filterResponseDecorations({
+    const visibleCitations = filterChatCitations({
       citations: directAnswer.citations,
       classification: input.classification,
-      query: input.question,
-      relatedContent: directAnswer.relatedContent
+      query: input.question
     });
 
     return {
       groundedAnswer: {
         ...directAnswer,
-        citations: visibleDecorations.citations,
-        relatedContent: visibleDecorations.relatedContent
+        citations: visibleCitations
       },
       retrievalMetadata: {
         classification: input.classification,
         directAnswer: true,
-        matchCount: visibleDecorations.citations.length,
+        matchCount: visibleCitations.length,
         matches: []
+      }
+    };
+  }
+
+  if (input.classification.intent === 'GENERAL_KNOWLEDGE_QUERY') {
+    const retrieval = await retrieveBlogs({
+      currentBlogSlug: input.blogSlug,
+      query: buildRetrievalQuery(input.question, input.conversationHistory),
+      vectorQuery: async ({ filter, query, topK }) =>
+        await getVectorIndexClient().query({ filter, query, topK })
+    });
+    const visibleCitations = filterChatCitations({
+      citations: retrieval.citations,
+      classification: input.classification,
+      query: input.question
+    });
+    const generalAnswer = await streamGeneralAnswer({
+      conversationHistory: input.conversationHistory,
+      query: input.question,
+      relatedBlogChunks: retrieval.matches
+    });
+
+    return {
+      groundedAnswer: {
+        ...generalAnswer,
+        citations: visibleCitations
+      },
+      retrievalMetadata: {
+        classification: input.classification,
+        directAnswer: false,
+        matchCount: retrieval.matches.length,
+        matches: retrieval.matches
       }
     };
   }
@@ -192,22 +219,17 @@ async function resolveGroundedAnswer(input: {
     vectorQuery: async ({ filter, query, topK }) =>
       await getVectorIndexClient().query({ filter, query, topK })
   });
-  const relatedContent = buildRelatedContent(
-    retrieval.matches.filter((match) => match.slug !== input.blogSlug)
-  );
-  const visibleDecorations = filterResponseDecorations({
+  const visibleCitations = filterChatCitations({
     citations: retrieval.citations,
     classification: retrieval.classification,
-    query: input.question,
-    relatedContent
+    query: input.question
   });
   const groundedAnswer = await streamGroundedAnswer({
-    citations: visibleDecorations.citations,
+    citations: visibleCitations,
     classification: retrieval.classification,
     conversationHistory: input.conversationHistory,
     currentBlogSlug: input.blogSlug,
     query: input.question,
-    relatedContent: visibleDecorations.relatedContent,
     shouldRefuse: retrieval.shouldRefuse,
     supportingChunks: retrieval.matches
   });
@@ -261,14 +283,12 @@ function createStreamingChatResponse(input: {
             answerText.trim() ||
             'I can only answer from content that is currently indexed on this site.',
           citations: input.groundedAnswer.citations,
-          relatedContent: input.groundedAnswer.relatedContent,
           supported: input.groundedAnswer.supported
         };
         const assistantMessage = await repositories.createChatMessage({
           citations: finalAnswer.citations,
           content: finalAnswer.answer,
           groundedAnswer: finalAnswer,
-          relatedContent: finalAnswer.relatedContent,
           role: ChatMessageRole.ASSISTANT,
           sessionId: input.sessionId
         });
@@ -290,15 +310,6 @@ function createStreamingChatResponse(input: {
           userMessageId: input.userMessageId
         });
 
-        if (!finalAnswer.supported) {
-          await repositories.createNoResultEvent({
-            pagePath: input.input.pathname,
-            pageSlug: input.input.blogSlug,
-            question: input.input.question,
-            sessionId: input.sessionId
-          });
-        }
-
         sendEvent({ answer: finalAnswer, messageId: assistantMessage.id, type: 'done' });
       } catch (error) {
         sendEvent({
@@ -306,24 +317,10 @@ function createStreamingChatResponse(input: {
             answer:
               answerText.trim() || 'Unable to complete the assistant response. Please try again.',
             citations: [],
-            relatedContent: [],
             supported: false
           },
           type: 'done'
         });
-
-        if (!answerText.trim()) {
-          await repositories.createNoResultEvent({
-            pagePath: input.input.pathname,
-            pageSlug: input.input.blogSlug,
-            payload: toPrismaJsonValue({
-              classification: input.retrievalMetadata.classification,
-              error: error instanceof Error ? error.message : String(error)
-            }),
-            question: input.input.question,
-            sessionId: input.sessionId
-          });
-        }
       } finally {
         controller.close();
       }

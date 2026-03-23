@@ -1,7 +1,6 @@
 import {
   IngestionStatus,
   type ChatMessageRole,
-  type FeedbackValue,
   type IndexedContentType,
   type IngestionMode,
   type Prisma
@@ -21,7 +20,6 @@ export interface ChatMessageInput {
   groundedAnswer?: Prisma.InputJsonValue;
   model?: string;
   providerMessageId?: string;
-  relatedContent?: Prisma.InputJsonValue;
   role: ChatMessageRole;
   sessionId: string;
   transformMode?: string;
@@ -52,29 +50,6 @@ function getDb() {
 }
 
 export const repositories = {
-  async createAnswerFeedback(input: {
-    messageId?: string;
-    payload?: Prisma.InputJsonValue;
-    sessionId: string;
-    value: FeedbackValue;
-  }) {
-    return await getDb().answerFeedback.create({
-      data: input
-    });
-  },
-
-  async createCitationClick(input: {
-    citationId: string;
-    messageId?: string;
-    payload?: Prisma.InputJsonValue;
-    sessionId: string;
-    url: string;
-  }) {
-    return await getDb().citationClick.create({
-      data: input
-    });
-  },
-
   async createChatMessage(input: ChatMessageInput) {
     return await getDb().chatMessage.create({
       data: input
@@ -88,18 +63,6 @@ export const repositories = {
         status: IngestionStatus.RUNNING,
         targetDocumentId: input.targetDocumentId
       }
-    });
-  },
-
-  async createNoResultEvent(input: {
-    pagePath?: string;
-    pageSlug?: string;
-    payload?: Prisma.InputJsonValue;
-    question: string;
-    sessionId?: string;
-  }) {
-    return await getDb().noResultEvent.create({
-      data: input
     });
   },
 

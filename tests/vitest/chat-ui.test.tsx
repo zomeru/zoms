@@ -7,7 +7,6 @@ import ChatComposer from '@/components/ai/ChatComposer';
 import ChatLauncher from '@/components/ai/ChatLauncher';
 import ChatMessageList from '@/components/ai/ChatMessageList';
 import ChatPanel from '@/components/ai/ChatPanel';
-import FeedbackControls from '@/components/ai/FeedbackControls';
 import { useChatAssistant } from '@/components/ai/useChatAssistant';
 
 function HookHarness() {
@@ -123,35 +122,23 @@ describe('chat UI behaviors', () => {
     expect(screen.queryByText(/thanks for visiting my website/i)).toBeNull();
   });
 
-  it('shows feedback controls only after a completed assistant response with a message id', () => {
-    const { rerender } = render(
-      <FeedbackControls
-        message={{
-          content: 'Streaming...',
-          id: 'assistant-pending',
-          role: 'assistant'
-        }}
-        onFeedback={async () => undefined}
+  it('does not render feedback controls for assistant messages', () => {
+    render(
+      <ChatMessageList
+        messages={[
+          {
+            content: 'Completed answer',
+            id: 'assistant-done',
+            messageId: 'assistant-done',
+            role: 'assistant',
+            supported: true
+          }
+        ]}
       />
     );
 
     expect(screen.queryByRole('button', { name: 'Helpful' })).toBeNull();
-
-    rerender(
-      <FeedbackControls
-        message={{
-          content: 'Completed answer',
-          id: 'assistant-done',
-          messageId: 'assistant-done',
-          role: 'assistant',
-          supported: true
-        }}
-        onFeedback={async () => undefined}
-      />
-    );
-
-    expect(screen.getByRole('button', { name: 'Helpful' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Not helpful' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Not helpful' })).toBeNull();
   });
 
   it('submits the composer when Enter is pressed without Shift', async () => {
@@ -178,12 +165,55 @@ describe('chat UI behaviors', () => {
             role: 'assistant'
           }
         ]}
-        onCitationClick={() => undefined}
-        onFeedback={async () => undefined}
       />
     );
 
     expect(screen.getByLabelText('Assistant is responding')).toBeTruthy();
+  });
+
+  it('does not render the related content section inside chat messages', () => {
+    render(
+      <ChatMessageList
+        messages={[
+          {
+            content: 'Here is an answer.',
+            id: 'assistant-1',
+            role: 'assistant'
+          }
+        ]}
+      />
+    );
+
+    expect(screen.queryByText('You might also want')).toBeNull();
+    expect(screen.queryByText('Related blog post')).toBeNull();
+  });
+
+  it('renders blog citations using the blog title as the card content', () => {
+    render(
+      <ChatMessageList
+        messages={[
+          {
+            citations: [
+              {
+                contentType: 'blog',
+                id: 'blog-citation-1',
+                sectionTitle: 'Summary',
+                snippet: 'Building a grounded assistant',
+                title: 'Building a grounded assistant',
+                url: '/blog/grounded-assistant'
+              }
+            ],
+            content: 'Here is an answer.',
+            id: 'assistant-1',
+            role: 'assistant'
+          }
+        ]}
+      />
+    );
+
+    expect(screen.getByRole('link', { name: 'Building a grounded assistant' })).toBeTruthy();
+    expect(screen.queryByText('Summary')).toBeNull();
+    expect(screen.getAllByText('Building a grounded assistant')).toHaveLength(1);
   });
 
   it('updates the launcher and panel copy to chat with Zomer', () => {
@@ -199,9 +229,7 @@ describe('chat UI behaviors', () => {
         isOpen={true}
         isWorking={false}
         messages={[]}
-        onCitationClick={() => undefined}
         onClose={() => undefined}
-        onFeedback={async () => undefined}
         onSend={async () => undefined}
         onTransform={async () => undefined}
       />

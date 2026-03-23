@@ -4,10 +4,9 @@ import type { Citation } from '@/lib/ai/schemas';
 
 interface CitationListProps {
   citations: Citation[];
-  onCitationClick?: (citation: Citation) => void;
 }
 
-export default function CitationList({ citations, onCitationClick }: CitationListProps) {
+export default function CitationList({ citations }: CitationListProps) {
   if (citations.length === 0) {
     return null;
   }
@@ -22,12 +21,17 @@ export default function CitationList({ citations, onCitationClick }: CitationLis
           <a
             key={citation.id}
             href={citation.url}
-            onClick={() => onCitationClick?.(citation)}
             className='block rounded-xl border border-border/80 bg-surface/80 px-3 py-2 text-sm text-text-primary transition hover:border-primary/40'
           >
-            <span className='block font-medium'>{citation.title}</span>
-            <span className='block text-xs text-text-muted'>{citation.sectionTitle}</span>
-            <span className='mt-1 block text-xs text-text-secondary'>{citation.snippet}</span>
+            {citation.contentType === 'blog' ? (
+              <span className='block font-medium'>{citation.snippet}</span>
+            ) : (
+              <>
+                <span className='block font-medium'>{citation.title}</span>
+                <span className='block text-xs text-text-muted'>{citation.sectionTitle}</span>
+                <span className='mt-1 block text-xs text-text-secondary'>{citation.snippet}</span>
+              </>
+            )}
           </a>
         ))}
       </div>

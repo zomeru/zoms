@@ -21,6 +21,7 @@ const EXPERIENCE_KEYWORDS = [
   'companies',
   'employment',
   'experience',
+  'experiences',
   'job',
   'jobs',
   'position',
@@ -71,13 +72,17 @@ function hasKeyword(tokens: string[], keywords: string[]): boolean {
   return keywords.some((keyword) => tokens.includes(keyword));
 }
 
+function hasExperienceSignal(tokens: string[]): boolean {
+  return tokens.some((token) => EXPERIENCE_KEYWORDS.includes(token) || token.startsWith('exper'));
+}
+
 export function classifyQueryIntent(query: string): QueryClassification {
   const tokens = tokenize(query);
   const mentionsCompany = tokens.some((token) => COMPANY_SUFFIXES.includes(token));
 
   if (
     mentionsCompany ||
-    hasKeyword(tokens, EXPERIENCE_KEYWORDS) ||
+    hasExperienceSignal(tokens) ||
     /\bwhat did .* do at\b/i.test(query) ||
     /\bwhere did .* work\b/i.test(query)
   ) {

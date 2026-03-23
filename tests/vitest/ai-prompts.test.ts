@@ -9,7 +9,6 @@ describe('AI prompts', () => {
       classification: 'GENERAL_PORTFOLIO_QUERY',
       conversationHistory: [],
       query: 'What did you work on at Evelan?',
-      relatedContent: [],
       retrievedContext: 'Experience context'
     });
 

@@ -10,12 +10,7 @@ interface ChatPanelProps {
   isOpen: boolean;
   isWorking: boolean;
   messages: AssistantMessage[];
-  onCitationClick: (
-    message: AssistantMessage,
-    citation: NonNullable<AssistantMessage['citations']>[number]
-  ) => void;
   onClose: () => void;
-  onFeedback: (message: AssistantMessage, value: 'down' | 'up') => Promise<void>;
   onSend: (question: string) => Promise<void>;
   onTransform: (mode: 'advanced' | 'beginner' | 'tldr') => Promise<void>;
 }
@@ -26,9 +21,7 @@ export default function ChatPanel({
   isOpen,
   isWorking,
   messages,
-  onCitationClick,
   onClose,
-  onFeedback,
   onSend,
   onTransform
 }: ChatPanelProps) {
@@ -82,12 +75,7 @@ export default function ChatPanel({
             {error}
           </div>
         )}
-
-        <ChatMessageList
-          messages={messages}
-          onCitationClick={onCitationClick}
-          onFeedback={onFeedback}
-        />
+        <ChatMessageList messages={messages} />
         <ChatComposer disabled={isWorking} onSubmit={onSend} />
       </section>
     </div>

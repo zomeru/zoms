@@ -12,11 +12,6 @@ enum ChatMessageRole {
   SYSTEM
 }
 
-enum FeedbackValue {
-  UP
-  DOWN
-}
-
 enum IngestionMode {
   FULL
   TARGETED
@@ -44,9 +39,6 @@ model ChatSession {
   updatedAt      DateTime         @updatedAt
   lastActiveAt   DateTime         @default(now())
   messages       ChatMessage[]
-  feedbackEvents AnswerFeedback[]
-  citationClicks CitationClick[]
-  noResultEvents NoResultEvent[]
   retrievalEvents RetrievalEvent[]
 
   @@index([lastActiveAt(sort: Desc)])
@@ -59,62 +51,16 @@ model ChatMessage {
   content                   String            @db.Text
   citations                 Json?
   groundedAnswer            Json?
-  relatedContent            Json?
   transformMode             String?
   providerMessageId         String?
   model                     String?
   createdAt                 DateTime          @default(now())
   updatedAt                 DateTime          @updatedAt
   session                   ChatSession       @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  feedbackEvents            AnswerFeedback[]
-  citationClicks            CitationClick[]
   retrievalEventsAsUser     RetrievalEvent[]  @relation("RetrievalUserMessage")
   retrievalEventsAsAssistant RetrievalEvent[] @relation("RetrievalAssistantMessage")
 
   @@index([sessionId, createdAt])
-}
-
-model AnswerFeedback {
-  id        String        @id @default(cuid())
-  sessionId String
-  messageId String?
-  value     FeedbackValue
-  payload   Json?
-  createdAt DateTime      @default(now())
-  session   ChatSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  message   ChatMessage?  @relation(fields: [messageId], references: [id], onDelete: SetNull)
-
-  @@index([sessionId, createdAt])
-  @@index([messageId])
-}
-
-model CitationClick {
-  id         String       @id @default(cuid())
-  sessionId  String
-  messageId  String?
-  citationId String
-  url        String
-  payload    Json?
-  createdAt  DateTime     @default(now())
-  session    ChatSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  message    ChatMessage? @relation(fields: [messageId], references: [id], onDelete: SetNull)
-
-  @@index([sessionId, createdAt])
-  @@index([messageId])
-}
-
-model NoResultEvent {
-  id        String       @id @default(cuid())
-  sessionId String?
-  question  String       @db.Text
-  pagePath  String?
-  pageSlug  String?
-  payload   Json?
-  createdAt DateTime     @default(now())
-  session   ChatSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
-
-  @@index([createdAt(sort: Desc)])
-  @@index([pageSlug])
 }
 
 model RetrievalEvent {

@@ -1,6 +1,6 @@
 import type { QueryIntent } from '@/lib/retrieval/classify';
 
-import type { Citation, RelatedContentItem, TransformMode } from './schemas';
+import type { Citation, TransformMode } from './schemas';
 
 export function buildGroundedAnswerPrompt(input: {
   citations: Citation[];
@@ -11,7 +11,6 @@ export function buildGroundedAnswerPrompt(input: {
   }>;
   currentBlogSlug?: string;
   query: string;
-  relatedContent: RelatedContentItem[];
   retrievedContext: string;
 }): string {
   return [
@@ -31,7 +30,34 @@ export function buildGroundedAnswerPrompt(input: {
     `User question: ${input.query}`,
     `Retrieved context:\n${input.retrievedContext}`,
     `Citations you may rely on:\n${JSON.stringify(input.citations, null, 2)}`,
-    `Related content candidates:\n${JSON.stringify(input.relatedContent, null, 2)}`,
+    'Respond with plain text only. Do not wrap the answer in JSON or markdown fences.'
+  ]
+    .filter(Boolean)
+    .join('\n\n');
+}
+
+export function buildGeneralAnswerPrompt(input: {
+  conversationHistory: Array<{
+    content: string;
+    role: 'assistant' | 'user';
+  }>;
+  query: string;
+  relatedBlogContext: string;
+}): string {
+  return [
+    'You are Zomer, an AI version of Zomer for this portfolio site.',
+    'Use first person when it feels natural, but answer clearly and directly.',
+    'For general knowledge questions, you are not limited to the portfolio content.',
+    'If relevant blog context from the site is provided below, you may briefly mention that there is a related post.',
+    input.conversationHistory.length > 0
+      ? `Prior conversation:\n${input.conversationHistory
+          .map((message) => `${message.role === 'user' ? 'User' : 'Assistant'}: ${message.content}`)
+          .join('\n')}`
+      : '',
+    `User question: ${input.query}`,
+    input.relatedBlogContext.length > 0
+      ? `Related site blog context:\n${input.relatedBlogContext}`
+      : '',
     'Respond with plain text only. Do not wrap the answer in JSON or markdown fences.'
   ]
     .filter(Boolean)

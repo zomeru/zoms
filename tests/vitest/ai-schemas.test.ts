@@ -1,13 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  groundedAnswerSchema,
-  relatedContentItemSchema,
-  transformResultSchema
-} from '@/lib/ai/schemas';
+import { groundedAnswerSchema, transformResultSchema } from '@/lib/ai/schemas';
 
 describe('AI schemas', () => {
-  it('accepts grounded answer payloads with citations and related content', () => {
+  it('accepts grounded answer payloads with citations only', () => {
     const result = groundedAnswerSchema.parse({
       answer: 'The site uses deterministic retrieval with explicit citations.',
       citations: [
@@ -20,30 +16,11 @@ describe('AI schemas', () => {
           url: '/blog/grounded-assistant'
         }
       ],
-      relatedContent: [
-        {
-          contentType: 'project',
-          reason: 'Relevant project connection',
-          title: 'Batibot',
-          url: '/#projects'
-        }
-      ],
       supported: true
     });
 
     expect(result.supported).toBe(true);
     expect(result.citations).toHaveLength(1);
-  });
-
-  it('rejects unsupported related content payloads', () => {
-    expect(() =>
-      relatedContentItemSchema.parse({
-        contentType: 'podcast',
-        reason: 'Invalid type',
-        title: 'Unsupported',
-        url: '/unsupported'
-      })
-    ).toThrow();
   });
 
   it('accepts transform payloads for assistant-only blog transforms', () => {

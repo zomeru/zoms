@@ -18,11 +18,7 @@ export default function ChatAssistantShell() {
         isOpen={assistant.isOpen}
         isWorking={assistant.isWorking}
         messages={assistant.messages}
-        onCitationClick={(message, citation) => {
-          assistant.reportCitationClick(message, citation).catch(() => undefined);
-        }}
         onClose={() => assistant.setIsOpen(false)}
-        onFeedback={async (message, value) => await assistant.reportFeedback(message, value)}
         onSend={assistant.sendQuestion}
         onTransform={assistant.requestTransform}
       />

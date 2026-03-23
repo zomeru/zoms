@@ -7,8 +7,8 @@ import type { QueryClassification } from '@/lib/retrieval/classify';
 import type { RetrievedChunk } from '@/lib/retrieval/types';
 
 import { getAiEnv } from './env';
-import { buildGroundedAnswerPrompt } from './prompts';
-import type { Citation, RelatedContentItem } from './schemas';
+import { buildGeneralAnswerPrompt, buildGroundedAnswerPrompt } from './prompts';
+import type { Citation } from './schemas';
 
 function getOpenRouterProvider() {
   const env = getAiEnv();
@@ -42,27 +42,6 @@ function formatRetrievedContext(chunks: RetrievedChunk[]): string {
     .join('\n\n---\n\n');
 }
 
-export function buildRelatedContent(matches: RetrievedChunk[], limit = 3): RelatedContentItem[] {
-  const seen = new Set<string>();
-
-  return matches
-    .filter((match) => {
-      if (seen.has(match.documentId)) {
-        return false;
-      }
-
-      seen.add(match.documentId);
-      return true;
-    })
-    .slice(0, limit)
-    .map((match) => ({
-      contentType: match.contentType,
-      reason: `Relevant ${match.contentType} content from the ${match.sectionTitle} section.`,
-      title: match.title,
-      url: match.url
-    }));
-}
-
 export async function streamGroundedAnswer(input: {
   citations: Citation[];
   classification: QueryClassification;
@@ -72,19 +51,16 @@ export async function streamGroundedAnswer(input: {
   }>;
   currentBlogSlug?: string;
   query: string;
-  relatedContent: RelatedContentItem[];
   shouldRefuse: boolean;
   supportingChunks: RetrievedChunk[];
 }): Promise<{
   citations: Citation[];
-  relatedContent: RelatedContentItem[];
   supported: boolean;
   textStream: AsyncIterable<string>;
 }> {
   if (input.shouldRefuse) {
     return {
       citations: [],
-      relatedContent: [],
       supported: false,
       textStream: createStaticTextStream(
         'I can only answer from content that is currently indexed on this site.'
@@ -103,7 +79,6 @@ export async function streamGroundedAnswer(input: {
       conversationHistory: input.conversationHistory,
       currentBlogSlug: input.currentBlogSlug,
       query: input.query,
-      relatedContent: input.relatedContent,
       retrievedContext: formatRetrievedContext(input.supportingChunks)
     }),
     temperature: 0
@@ -111,7 +86,38 @@ export async function streamGroundedAnswer(input: {
 
   return {
     citations: input.citations,
-    relatedContent: input.relatedContent,
+    supported: true,
+    textStream: result.textStream
+  };
+}
+
+export async function streamGeneralAnswer(input: {
+  conversationHistory: Array<{
+    content: string;
+    role: 'assistant' | 'user';
+  }>;
+  query: string;
+  relatedBlogChunks: RetrievedChunk[];
+}): Promise<{
+  citations: Citation[];
+  supported: boolean;
+  textStream: AsyncIterable<string>;
+}> {
+  const env = getAiEnv();
+  const provider = getOpenRouterProvider();
+  const result = streamText({
+    experimental_transform: smoothStream({ chunking: 'word' }),
+    model: provider.chat(env.OPENROUTER_CHAT_MODEL),
+    prompt: buildGeneralAnswerPrompt({
+      conversationHistory: input.conversationHistory,
+      query: input.query,
+      relatedBlogContext: formatRetrievedContext(input.relatedBlogChunks)
+    }),
+    temperature: 0.3
+  });
+
+  return {
+    citations: [],
     supported: true,
     textStream: result.textStream
   };

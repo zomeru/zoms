@@ -2,12 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 
-import type {
-  Citation,
-  RelatedContentItem,
-  TransformMode,
-  TransformResult
-} from '@/lib/ai/schemas';
+import type { Citation, TransformMode, TransformResult } from '@/lib/ai/schemas';
 import { appendStreamText } from '@/lib/ai/streaming';
 
 export interface AssistantMessage {
@@ -16,7 +11,6 @@ export interface AssistantMessage {
   id: string;
   isPending?: boolean;
   messageId?: string;
-  relatedContent?: RelatedContentItem[];
   role: 'assistant' | 'user';
   supported?: boolean;
   transform?: TransformResult;
@@ -48,7 +42,6 @@ interface StreamEvent {
   answer?: {
     answer: string;
     citations: Citation[];
-    relatedContent: RelatedContentItem[];
     supported: boolean;
   };
   messageId?: string;
@@ -122,7 +115,6 @@ function finalizeAssistantMessage(messageId: string, event: StreamEvent) {
             content: event.answer.answer,
             isPending: false,
             messageId: event.messageId,
-            relatedContent: event.answer.relatedContent,
             supported: event.answer.supported
           }
         : message
@@ -251,45 +243,6 @@ export function useChatAssistant(input: { pathname: string }) {
     }
 
     return fallbackMessage;
-  }
-
-  async function reportFeedback(message: AssistantMessage, value: 'down' | 'up'): Promise<void> {
-    if (!sessionKey || !message.messageId) {
-      return;
-    }
-
-    await fetch('/api/ai/feedback', {
-      body: JSON.stringify({
-        messageId: message.messageId,
-        sessionKey,
-        type: 'thumbs',
-        value
-      }),
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      method: 'POST'
-    });
-  }
-
-  async function reportCitationClick(message: AssistantMessage, citation: Citation): Promise<void> {
-    if (!sessionKey || !message.messageId) {
-      return;
-    }
-
-    await fetch('/api/ai/feedback', {
-      body: JSON.stringify({
-        citationId: citation.id,
-        messageId: message.messageId,
-        sessionKey,
-        type: 'citation_click',
-        url: citation.url
-      }),
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      method: 'POST'
-    });
   }
 
   async function processStreamChunk(
@@ -448,8 +401,6 @@ export function useChatAssistant(input: { pathname: string }) {
     isOpen,
     isWorking,
     messages: displayedMessages,
-    reportCitationClick,
-    reportFeedback,
     requestTransform,
     sendQuestion,
     sessionKey,

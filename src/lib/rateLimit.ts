@@ -71,11 +71,6 @@ export const RATE_LIMIT_CONFIGS = {
     windowMs: 60 * 1000,
     message: 'Too many AI chat requests. Please try again later.'
   },
-  AI_FEEDBACK: {
-    maxRequests: 80,
-    windowMs: 60 * 1000,
-    message: 'Too many AI feedback events. Please try again later.'
-  },
   AI_REINDEX: {
     maxRequests: 10,
     windowMs: 60 * 1000,

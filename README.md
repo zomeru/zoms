@@ -95,7 +95,7 @@ Core concerns separated by responsibility:
 - **`src/constants`**: Static lists (projects, topics, experience metadata)
 - **`studio/`**: Sanity Studio workspace & schema definitions
 - **`src/components`**: Presentation + interactive client components
-- **`src/components/ai`**: Root-mounted assistant shell, panel, feedback, citations, and related-content UI
+- **`src/components/ai`**: Root-mounted assistant shell, panel, citations, and chat UI
 - **Caching / ISR**: All Sanity fetches set `revalidate: 60`
 
 ---
@@ -202,9 +202,7 @@ Topics are pseudo-randomly combined from curated lists (`src/constants/topics.ts
 | GET      | `/api/blog/[slug]`   | Single post by slug                                                         | `BLOG_API`              |
 | GET/POST | `/api/blog/generate` | AI generate + persist blog (POST optional body `{ aiGenerated?: boolean }`) | `BLOG_GENERATE` (5/min) |
 | POST     | `/api/ai/chat`       | Streams grounded assistant answers with citations                           | `AI_CHAT`               |
-| GET      | `/api/ai/related`    | Returns related posts/projects for a page context                           | `AI_RELATED`            |
 | POST     | `/api/ai/transform`  | Generates grounded `tldr`, `beginner`, or `advanced` transforms             | `AI_TRANSFORM`          |
-| POST     | `/api/ai/feedback`   | Stores thumbs feedback, citation clicks, and no-result events               | `AI_FEEDBACK`           |
 | POST     | `/api/ai/reindex`    | Protected reindex endpoint for full or targeted assistant indexing          | `AI_REINDEX`            |
 
 Error responses follow shape:
@@ -240,7 +238,7 @@ The assistant is mounted once in the root layout and stays alive across navigati
 
 1. Content is normalized from Sanity blog posts plus local about/project sources into a shared document shape.
 2. Documents are split into section-aware chunks, hashed, and written to Upstash Vector using the index's hosted embedding model.
-3. Prisma stores sessions, messages, ingestion runs, retrieval events, citation clicks, feedback, and no-result analytics in Neon PostgreSQL.
+3. Prisma stores sessions, messages, ingestion runs, retrieval events, and indexed-document metadata in Neon PostgreSQL.
 4. Query-time retrieval embeds the user question, fetches vector matches, applies deterministic reranking heuristics, builds citations, and refuses unsupported answers.
 5. The assistant calls the Vercel AI SDK only after retrieval and only with retrieved site content in the prompt.
 

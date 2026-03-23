@@ -32,6 +32,19 @@ describe('retrieval ranking heuristics', () => {
     });
   });
 
+  it('classifies plural and lightly misspelled experience queries as experience questions', () => {
+    expect(classifyQueryIntent("show me all zomer's experiences")).toMatchObject({
+      intent: 'EXPERIENCE_QUERY',
+      preferredContentTypes: ['experience'],
+      strictContentTypes: true
+    });
+    expect(classifyQueryIntent("show 3 latest zomer's expereience")).toMatchObject({
+      intent: 'EXPERIENCE_QUERY',
+      preferredContentTypes: ['experience'],
+      strictContentTypes: true
+    });
+  });
+
   it('boosts exact title, slug, tag, section heading, page hint, and recency matches', () => {
     const matches = rankRetrievedChunks({
       classification: classifyQueryIntent('grounded assistant retrieval ai'),
@@ -111,9 +124,9 @@ describe('retrieval ranking heuristics', () => {
     expect(citations[0]).toMatchObject({
       id: 'citation-1',
       sectionTitle: 'Summary',
+      snippet: 'Building a grounded assistant',
       url: '/blog/grounded-assistant'
     });
-    expect(citations[0]?.snippet).toContain('explicit citations');
     expect(citations[1]).toMatchObject({
       id: 'citation-2',
       sectionTitle: 'Retrieval'

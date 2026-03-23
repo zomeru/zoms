@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import RelatedContentCards from '@/components/ai/RelatedContentCards';
 import BlogDeleteMenu from '@/components/blog/BlogDeleteMenu';
 import { TechBadge, TerminalCard } from '@/components/ui';
 import { SITE_URL } from '@/configs/seo';
@@ -183,13 +182,6 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
               <span>back to blog</span>
             </Link>
           </footer>
-
-          <RelatedContentCards
-            blogSlug={slug}
-            pathname={`/blog/${slug}`}
-            title='Related content'
-            variant='page'
-          />
         </div>
       </main>
     </>

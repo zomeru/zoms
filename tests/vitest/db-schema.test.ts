@@ -17,14 +17,15 @@ describe('Prisma AI assistant schema', () => {
     for (const modelName of [
       'ChatSession',
       'ChatMessage',
-      'AnswerFeedback',
-      'CitationClick',
-      'NoResultEvent',
       'RetrievalEvent',
       'IngestionRun',
       'IndexedDocument'
     ]) {
       expect(schema).toMatch(new RegExp(`model\\s+${modelName}\\s+\\{`));
+    }
+
+    for (const removedModelName of ['AnswerFeedback', 'CitationClick', 'NoResultEvent']) {
+      expect(schema).not.toMatch(new RegExp(`model\\s+${removedModelName}\\s+\\{`));
     }
   });
 
@@ -35,6 +36,9 @@ describe('Prisma AI assistant schema', () => {
     expect(schema).toMatch(/session\s+ChatSession/);
     expect(schema).toMatch(/indexedDocuments\s+IndexedDocument\[\]/);
     expect(schema).toMatch(/ingestionRun\s+IngestionRun\?/);
+    expect(schema).not.toMatch(/feedbackEvents\s+/);
+    expect(schema).not.toMatch(/citationClicks\s+/);
+    expect(schema).not.toMatch(/noResultEvents\s+/);
   });
 
   it('keeps IndexedDocument unique by documentId, not by shared page url', () => {

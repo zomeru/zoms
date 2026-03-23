@@ -29,7 +29,7 @@ export function buildCitations(
     contentType: match.contentType,
     id: match.id,
     sectionTitle: match.sectionTitle,
-    snippet: match.content.slice(0, 220),
+    snippet: match.contentType === 'blog' ? match.title : match.content.slice(0, 220),
     title: match.title,
     url: match.url
   }));

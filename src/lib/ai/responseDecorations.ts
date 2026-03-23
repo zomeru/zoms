@@ -1,4 +1,4 @@
-import type { Citation, RelatedContentItem } from '@/lib/ai/schemas';
+import type { Citation } from '@/lib/ai/schemas';
 import type { ContentType } from '@/lib/content/types';
 import type { QueryClassification } from '@/lib/retrieval/classify';
 
@@ -43,54 +43,29 @@ function filterByContentType<T extends { contentType: ContentType }>(
   return values.filter((value) => value.contentType === contentType);
 }
 
-export function filterResponseDecorations(input: {
+export function filterChatCitations(input: {
   citations: Citation[];
   classification: QueryClassification;
   query: string;
-  relatedContent: RelatedContentItem[];
-}): {
-  citations: Citation[];
-  relatedContent: RelatedContentItem[];
-} {
+}): Citation[] {
   if (isIdentityQuery(input.query)) {
-    return {
-      citations: [],
-      relatedContent: []
-    };
+    return [];
   }
 
   switch (input.classification.intent) {
     case 'BLOG_QUERY':
-      return {
-        citations: filterByContentType(input.citations, 'blog'),
-        relatedContent: filterByContentType(input.relatedContent, 'blog')
-      };
+      return filterByContentType(input.citations, 'blog');
     case 'EXPERIENCE_QUERY':
-      return {
-        citations: filterByContentType(input.citations, 'experience'),
-        relatedContent: filterByContentType(input.relatedContent, 'experience')
-      };
+      return filterByContentType(input.citations, 'experience');
     case 'PROJECT_QUERY':
-      return {
-        citations: filterByContentType(input.citations, 'project'),
-        relatedContent: filterByContentType(input.relatedContent, 'project')
-      };
+      return filterByContentType(input.citations, 'project');
     case 'GENERAL_KNOWLEDGE_QUERY':
-      return {
-        citations: filterByContentType(input.citations, 'blog'),
-        relatedContent: filterByContentType(input.relatedContent, 'blog')
-      };
+      return filterByContentType(input.citations, 'blog');
     default:
       if (isAboutPortfolioQuery(input.query)) {
-        return {
-          citations: filterByContentType(input.citations, 'about'),
-          relatedContent: filterByContentType(input.relatedContent, 'about')
-        };
+        return filterByContentType(input.citations, 'about');
       }
 
-      return {
-        citations: [],
-        relatedContent: []
-      };
+      return [];
   }
 }
