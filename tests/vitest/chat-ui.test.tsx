@@ -216,6 +216,45 @@ describe('chat UI behaviors', () => {
     expect(screen.getAllByText('Building a grounded assistant')).toHaveLength(1);
   });
 
+  it('renders fenced code blocks as code snippets inside assistant messages', () => {
+    render(
+      <ChatMessageList
+        messages={[
+          {
+            content:
+              'Here is some TypeScript:\n```ts\nconst greeting: string = "hello";\nconsole.log(greeting);\n```',
+            id: 'assistant-code',
+            role: 'assistant'
+          }
+        ]}
+      />
+    );
+
+    expect(screen.getByText('Here is some TypeScript:')).toBeTruthy();
+    expect(screen.getByText('TS')).toBeTruthy();
+    expect(screen.getByText(/const greeting: string = "hello";/)).toBeTruthy();
+    expect(screen.queryByText('```ts')).toBeNull();
+  });
+
+  it('streams an open fenced code block before the closing fence arrives', () => {
+    render(
+      <ChatMessageList
+        messages={[
+          {
+            content: 'Streaming code:\n```typescript\nexport const answer = 42;',
+            id: 'assistant-code-stream',
+            role: 'assistant'
+          }
+        ]}
+      />
+    );
+
+    expect(screen.getByText('Streaming code:')).toBeTruthy();
+    expect(screen.getByText('TYPESCRIPT')).toBeTruthy();
+    expect(screen.getByText(/export const answer = 42;/)).toBeTruthy();
+    expect(screen.queryByText('```typescript')).toBeNull();
+  });
+
   it('updates the launcher and panel copy to chat with Zomer', () => {
     render(<ChatLauncher onClick={() => undefined} />);
 

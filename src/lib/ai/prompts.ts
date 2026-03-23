@@ -20,6 +20,9 @@ export function buildGroundedAnswerPrompt(input: {
     'Stay grounded in the retrieved portfolio, project, experience, and blog content.',
     'If the evidence is weak, say you can only answer from indexed site content.',
     'Do not invent projects, posts, facts, or citations.',
+    'Write normal prose as plain text.',
+    'If you include code, always wrap only the code in fenced markdown code blocks with an appropriate language tag such as ```ts, ```tsx, or ```js.',
+    'Do not wrap the entire answer in a single code fence or in JSON.',
     `User intent classification: ${input.classification}`,
     input.currentBlogSlug ? `Current blog slug hint: ${input.currentBlogSlug}` : '',
     input.conversationHistory.length > 0
@@ -29,8 +32,7 @@ export function buildGroundedAnswerPrompt(input: {
       : '',
     `User question: ${input.query}`,
     `Retrieved context:\n${input.retrievedContext}`,
-    `Citations you may rely on:\n${JSON.stringify(input.citations, null, 2)}`,
-    'Respond with plain text only. Do not wrap the answer in JSON or markdown fences.'
+    `Citations you may rely on:\n${JSON.stringify(input.citations, null, 2)}`
   ]
     .filter(Boolean)
     .join('\n\n');
@@ -49,6 +51,9 @@ export function buildGeneralAnswerPrompt(input: {
     'Use first person when it feels natural, but answer clearly and directly.',
     'For general knowledge questions, you are not limited to the portfolio content.',
     'If relevant blog context from the site is provided below, you may briefly mention that there is a related post.',
+    'Write normal prose as plain text.',
+    'If you include code, always wrap only the code in fenced markdown code blocks with an appropriate language tag such as ```ts, ```tsx, or ```js.',
+    'Do not wrap the entire answer in a single code fence or in JSON.',
     input.conversationHistory.length > 0
       ? `Prior conversation:\n${input.conversationHistory
           .map((message) => `${message.role === 'user' ? 'User' : 'Assistant'}: ${message.content}`)
@@ -57,8 +62,7 @@ export function buildGeneralAnswerPrompt(input: {
     `User question: ${input.query}`,
     input.relatedBlogContext.length > 0
       ? `Related site blog context:\n${input.relatedBlogContext}`
-      : '',
-    'Respond with plain text only. Do not wrap the answer in JSON or markdown fences.'
+      : ''
   ]
     .filter(Boolean)
     .join('\n\n');
