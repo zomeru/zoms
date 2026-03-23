@@ -125,7 +125,9 @@
       "sharp",
       "unrs-resolver",
       "@tsparticles/engine",
-      "protobufjs"
+      "protobufjs",
+      "@prisma/engines",
+      "prisma"
     ]
   }
 }
