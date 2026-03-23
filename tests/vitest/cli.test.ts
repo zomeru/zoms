@@ -24,4 +24,14 @@ describe('AI reindex CLI', () => {
     expect(reindexSource).toContain("from './_helpers'");
     expect(reindexSource).toContain("loadScriptEnv('.env.production.local')");
   });
+
+  it('defines a local reset script that resets prisma, redis, vector, then reindexes', () => {
+    const source = readFileSync('scripts/ai-reset.ts', 'utf8');
+
+    expect(source).toContain("loadScriptEnv('.env.local')");
+    expect(source).toContain("prisma', 'migrate', 'reset', '--force'");
+    expect(source).toContain('redis.flushdb()');
+    expect(source).toContain('vectorIndex.reset({ all: true })');
+    expect(source).toContain("tsx', 'src/lib/ingestion/cli.ts");
+  });
 });

@@ -231,8 +231,16 @@ describe('chat UI behaviors', () => {
     );
 
     expect(screen.getByText('Here is some TypeScript:')).toBeTruthy();
-    expect(screen.getByText('TS')).toBeTruthy();
-    expect(screen.getByText(/const greeting: string = "hello";/)).toBeTruthy();
+    expect(screen.getByText('TypeScript')).toBeTruthy();
+    expect(
+      screen.getByText(
+        (_, element) =>
+          element !== null &&
+          element.tagName === 'CODE' &&
+          typeof element.textContent === 'string' &&
+          element.textContent.includes('const greeting: string = "hello";')
+      )
+    ).toBeTruthy();
     expect(screen.queryByText('```ts')).toBeNull();
   });
 
@@ -243,6 +251,7 @@ describe('chat UI behaviors', () => {
           {
             content: 'Streaming code:\n```typescript\nexport const answer = 42;',
             id: 'assistant-code-stream',
+            isPending: true,
             role: 'assistant'
           }
         ]}
@@ -250,9 +259,32 @@ describe('chat UI behaviors', () => {
     );
 
     expect(screen.getByText('Streaming code:')).toBeTruthy();
-    expect(screen.getByText('TYPESCRIPT')).toBeTruthy();
+    expect(screen.getByText('TypeScript')).toBeTruthy();
+    expect(screen.getByText('Streaming')).toBeTruthy();
     expect(screen.getByText(/export const answer = 42;/)).toBeTruthy();
     expect(screen.queryByText('```typescript')).toBeNull();
+  });
+
+  it('renders assistant markdown with inline code, lists, and links', () => {
+    render(
+      <ChatMessageList
+        messages={[
+          {
+            content:
+              'Use `TypeScript` for this.\n\n- Strong typing\n- Great tooling\n\n[Read more](https://www.typescriptlang.org/)',
+            id: 'assistant-markdown',
+            role: 'assistant'
+          }
+        ]}
+      />
+    );
+
+    expect(screen.getByText('TypeScript')).toBeTruthy();
+    expect(screen.getByText('Strong typing')).toBeTruthy();
+    expect(screen.getByText('Great tooling')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Read more' }).getAttribute('href')).toBe(
+      'https://www.typescriptlang.org/'
+    );
   });
 
   it('updates the launcher and panel copy to chat with Zomer', () => {

@@ -38,7 +38,7 @@ export default function ChatMessageList({ messages }: ChatMessageListProps) {
             <p className='mb-2 font-mono text-[11px] uppercase tracking-[0.22em] text-text-muted'>
               {message.role === 'user' ? 'You' : 'Zomer'}
             </p>
-            <ChatMessageContent content={message.content} />
+            <ChatMessageContent content={message.content} isStreaming={message.isPending} />
             {message.role === 'assistant' && message.isPending && (
               <div
                 aria-label='Assistant is responding'
