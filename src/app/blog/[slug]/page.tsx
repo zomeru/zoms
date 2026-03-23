@@ -3,11 +3,12 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import RelatedContentCards from '@/components/ai/RelatedContentCards';
 import { TechBadge, TerminalCard } from '@/components/ui';
 import { SITE_URL } from '@/configs/seo';
 import { TITLE } from '@/constants';
 import { getBlogPostBySlug, getBlogPostSeoBySlug } from '@/lib/blog';
-import { client } from '@/lib/sanity';
+import { getSanityClient } from '@/lib/sanity';
 import { processMarkdown } from '@/lib/unified';
 import { formatDateWithTime } from '@/lib/utils';
 
@@ -20,7 +21,7 @@ interface BlogPostPageProps {
 }
 
 export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
-  const slugs = await client.fetch<Array<{ slug: string }>>(
+  const slugs = await getSanityClient().fetch<Array<{ slug: string }>>(
     `*[_type == "blogPost"]{ "slug": slug.current }`,
     {},
     { next: { revalidate: 3600 } }
@@ -173,6 +174,13 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
               <span>back to blog</span>
             </Link>
           </footer>
+
+          <RelatedContentCards
+            blogSlug={slug}
+            pathname={`/blog/${slug}`}
+            title='Related content'
+            variant='page'
+          />
         </div>
       </main>
     </>

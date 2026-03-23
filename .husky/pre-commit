@@ -7,7 +7,7 @@ pnpm lint-staged ||
 
 # Check tsconfig standards
 echo "🔎 Checking tsconfig standards..."
-pnpm run check-types ||
+pnpm run check:types ||
     (
         echo "❌ Failed Type check. Check your typescript types."
         false
@@ -17,4 +17,4 @@ pnpm run check-types ||
 echo "✅ All checks passed."
 
 # If everything passes... Now we can commit
-echo "✏ Commiting your changes."
+echo "✏ Committing your changes."

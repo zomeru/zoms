@@ -1,6 +1,6 @@
 # Zoms Portfolio & AI Blog
 
-Modern personal portfolio + AI-assisted technical blog. Built with **Next.js 15 App Router**, **React 19**, **TypeScript (strict)**, **TailwindCSS v4**, **Sanity CMS**, and **Google Gemini** for automated post generation. Includes structured logging, centralized error handling, and adaptive rate limiting (Upstash Redis + in-memory fallback).
+Modern personal portfolio + AI-assisted technical blog. Built with **Next.js 16 App Router**, **React 19**, **TypeScript (strict)**, **TailwindCSS v4**, **Sanity CMS**, and **Google Gemini** for automated post generation. Includes a site-wide grounded AI assistant backed by **OpenRouter**, **Upstash Vector**, **Upstash Redis**, and **Prisma + Neon PostgreSQL**, plus structured logging, centralized error handling, and adaptive rate limiting.
 
 ---
 
@@ -14,14 +14,15 @@ Modern personal portfolio + AI-assisted technical blog. Built with **Next.js 15 
 6. [Scripts](#scripts)
 7. [Content Model & Flow](#content-model--flow)
 8. [API Endpoints](#api-endpoints)
-9. [AI Blog Generation Contract](#ai-blog-generation-contract)
-10. [Quality & Tooling](#quality--tooling)
-11. [Development Guidelines](#development-guidelines)
-12. [Performance & Observability](#performance--observability)
-13. [Security](#security)
-14. [Project Structure](#project-structure)
-15. [Contributing](#contributing)
-16. [License](#license)
+9. [AI Assistant](#ai-assistant)
+10. [AI Blog Generation Contract](#ai-blog-generation-contract)
+11. [Quality & Tooling](#quality--tooling)
+12. [Development Guidelines](#development-guidelines)
+13. [Performance & Observability](#performance--observability)
+14. [Security](#security)
+15. [Project Structure](#project-structure)
+16. [Contributing](#contributing)
+17. [License](#license)
 
 ---
 
@@ -53,6 +54,7 @@ Two modes currently supported:
 - Structured & sanitized logging (no raw secrets / emails obfuscated)
 - Centralized error handling & Zod validation
 - Topic selection randomness with weighted combination logic
+- Site-wide AI assistant with grounded answers, citations, related content, and blog transforms
 
 ### Developer Experience
 
@@ -66,13 +68,15 @@ Two modes currently supported:
 
 | Layer                         | Tools                                                                       |
 | ----------------------------- | --------------------------------------------------------------------------- |
-| Framework                     | Next.js 15 (App Router)                                                     |
+| Framework                     | Next.js 16 (App Router)                                                     |
 | Language                      | TypeScript 5.9 (strict)                                                     |
 | UI                            | React 19, TailwindCSS v4                                                    |
 | CMS                           | Sanity (`@sanity/client`, `next-sanity`)                                    |
-| AI                            | Google Gemini (`@google/generative-ai`)                                     |
+| AI                            | Google Gemini (`@google/generative-ai`), OpenRouter + Vercel AI SDK         |
 | Validation                    | Zod                                                                         |
 | Rate Limiting                 | Upstash Redis (`@upstash/ratelimit`, `@upstash/redis`) + in-memory fallback |
+| Vector Search                 | Upstash Vector                                                              |
+| Database                      | Prisma ORM + Neon PostgreSQL                                                |
 | Markdown (optional processor) | unified, remark-gfm, rehype-pretty-code, rehype-external-links, rehype-slug |
 | Logging                       | Custom logger (structured JSON / pretty dev)                                |
 | Tooling                       | ESLint (love config + prettier), Prettier, Husky, lint-staged               |
@@ -86,9 +90,12 @@ Core concerns separated by responsibility:
 
 - **`src/app`**: Routing, layouts, API handlers
 - **`src/lib`**: Pure utilities (AI generation, rate limiting, logging, error handling, sanity client, schemas)
+- **`src/lib/ai`, `src/lib/retrieval`, `src/lib/ingestion`**: Assistant prompting, grounded retrieval, indexing, vector orchestration
+- **`src/lib/db`, `src/lib/cache`, `src/lib/vector`**: Prisma repositories, Redis query caching, Upstash Vector access
 - **`src/constants`**: Static lists (projects, topics, experience metadata)
 - **`studio/`**: Sanity Studio workspace & schema definitions
 - **`src/components`**: Presentation + interactive client components
+- **`src/components/ai`**: Root-mounted assistant shell, panel, feedback, citations, and related-content UI
 - **Caching / ISR**: All Sanity fetches set `revalidate: 60`
 
 ---
@@ -97,7 +104,7 @@ Core concerns separated by responsibility:
 
 ### Prerequisites
 
-- Node.js 22.x
+- Node.js 24.x
 - pnpm 10.x
 - Sanity account & project (for dynamic content)
 
@@ -134,8 +141,15 @@ pnpm studio:dev # Sanity Studio (http://localhost:3333)
 | `NEXT_PUBLIC_SANITY_DATASET`    | Yes               | Sanity dataset (e.g. production)                                |
 | `SANITY_API_TOKEN`              | Yes (write ops)   | Token for create/update from server routes                      |
 | `GEMINI_API_KEY`                | For AI generation | Google Gemini key for `/api/blog/generate`                      |
+| `DATABASE_URL`                  | For AI assistant  | Prisma connection string for Neon/Postgres                      |
+| `DIRECT_URL`                    | For migrations    | Direct Postgres URL used by Prisma migrate                      |
+| `OPENROUTER_API_KEY`            | For AI assistant  | OpenRouter API key for grounded answers and transforms          |
+| `OPENROUTER_CHAT_MODEL`         | For AI assistant  | Chat model used for grounded answers and transforms             |
 | `UPSTASH_REDIS_REST_URL`        | Optional          | Enables distributed rate limiting                               |
 | `UPSTASH_REDIS_REST_TOKEN`      | Optional          | Token for Upstash Redis                                         |
+| `UPSTASH_VECTOR_REST_URL`       | For AI assistant  | Upstash Vector REST endpoint for the hosted-embedding index     |
+| `UPSTASH_VECTOR_REST_TOKEN`     | For AI assistant  | Token for Upstash Vector                                        |
+| `AI_REINDEX_SECRET`             | For AI assistant  | Protects `/api/ai/reindex` and admin-triggered indexing         |
 | `NEXLOG_LEVEL`                  | Optional          | Default log level (debug/info etc.)                             |
 | `NEXLOG_STRUCTURED`             | Optional          | `true` for JSON logs (defaults structured in prod)              |
 | `SITE_URL`                      | Optional          | Explicit canonical URL                                          |
@@ -156,6 +170,10 @@ pnpm check-format      # Prettier check only
 pnpm check-lint        # ESLint check only
 pnpm test-all          # format + lint + types
 pnpm test-all:build    # test-all + build
+pnpm prisma:generate   # generate Prisma client
+pnpm prisma:migrate    # create/update SQL migration artifacts
+pnpm ai:reindex        # index blog/about/project content into Upstash Vector
+pnpm test:unit         # run Vitest suite for app and AI assistant infrastructure
 pnpm studio:dev        # Run Sanity Studio locally
 pnpm studio:build      # Build Studio
 pnpm studio:deploy     # Deploy Studio
@@ -183,6 +201,11 @@ Topics are pseudo-randomly combined from curated lists (`src/constants/topics.ts
 | GET      | `/api/blog`          | Paginated list (`limit`, `offset`)                                          | `BLOG_API` (100/min)    |
 | GET      | `/api/blog/[slug]`   | Single post by slug                                                         | `BLOG_API`              |
 | GET/POST | `/api/blog/generate` | AI generate + persist blog (POST optional body `{ aiGenerated?: boolean }`) | `BLOG_GENERATE` (5/min) |
+| POST     | `/api/ai/chat`       | Streams grounded assistant answers with citations                           | `AI_CHAT`               |
+| GET      | `/api/ai/related`    | Returns related posts/projects for a page context                           | `AI_RELATED`            |
+| POST     | `/api/ai/transform`  | Generates grounded `tldr`, `beginner`, or `advanced` transforms             | `AI_TRANSFORM`          |
+| POST     | `/api/ai/feedback`   | Stores thumbs feedback, citation clicks, and no-result events               | `AI_FEEDBACK`           |
+| POST     | `/api/ai/reindex`    | Protected reindex endpoint for full or targeted assistant indexing          | `AI_REINDEX`            |
 
 Error responses follow shape:
 
@@ -206,6 +229,59 @@ Rate limit exceed response:
   "retryAfter": 60
 }
 ```
+
+---
+
+## AI Assistant
+
+The assistant is mounted once in the root layout and stays alive across navigation, so the chat panel keeps its session and message state while the user moves between `/` and blog routes. Blog pages also render a lightweight related-content block from the same retrieval pipeline.
+
+### Architecture
+
+1. Content is normalized from Sanity blog posts plus local about/project sources into a shared document shape.
+2. Documents are split into section-aware chunks, hashed, and written to Upstash Vector using the index's hosted embedding model.
+3. Prisma stores sessions, messages, ingestion runs, retrieval events, citation clicks, feedback, and no-result analytics in Neon PostgreSQL.
+4. Query-time retrieval embeds the user question, fetches vector matches, applies deterministic reranking heuristics, builds citations, and refuses unsupported answers.
+5. The assistant calls the Vercel AI SDK only after retrieval and only with retrieved site content in the prompt.
+
+### Why Upstash Vector
+
+- It keeps vector storage separate from application state, which keeps Postgres focused on relational analytics and session data.
+- REST access fits the existing serverless route-handler architecture without adding another always-on service.
+- The assistant only needs deterministic top-k retrieval and metadata filtering, so a lightweight hosted vector index is sufficient for v1.
+- Using Upstash-hosted embeddings avoids dimension mismatches between external embedding providers and the free-tier index limits.
+
+### Why Neon + Prisma
+
+- Prisma gives typed schema management and repository helpers for assistant analytics and chat persistence.
+- Neon works cleanly with Next.js route handlers and serverless-style connections.
+- The relational layer is used for durable state, not vectors, which keeps query responsibilities clear.
+
+### Retrieval Notes
+
+- Retrieval is deterministic: Upstash-hosted embedding search plus app-side boosting for titles, slugs, tags, section headings, current-page hints, and modest blog recency.
+- v1 intentionally skips reranking models to reduce latency, cost, and operational complexity while the content set is still relatively small.
+- If evidence is weak, the assistant refuses instead of improvising.
+
+### Indexing And Verification
+
+```bash
+pnpm prisma:generate
+pnpm prisma:migrate
+pnpm ai:reindex
+pnpm test:unit
+pnpm test-all:build
+```
+
+`pnpm ai:reindex` supports local indexing without the protected route, while `/api/ai/reindex` exists for authenticated server-triggered reindex flows.
+
+For the current setup, create your Upstash Vector index with a hosted embedding model such as `BAAI/bge-large-en-v1.5`, then provide only the index REST URL and token to the app.
+
+### Future Enhancements
+
+- Add richer admin tooling around ingestion health and stale-document cleanup.
+- Revisit reranking once the corpus grows enough to justify the extra latency/cost.
+- Add richer citation previews and deeper analytics for unsupported questions.
 
 ---
 

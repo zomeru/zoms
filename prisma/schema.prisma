@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ChatMessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum FeedbackValue {
+  UP
+  DOWN
+}
+
+enum IngestionMode {
+  FULL
+  TARGETED
+}
+
+enum IngestionStatus {
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+enum IndexedContentType {
+  BLOG
+  PROJECT
+  ABOUT
+  EXPERIENCE
+}
+
+model ChatSession {
+  id             String           @id @default(cuid())
+  sessionKey     String           @unique
+  pathnameHint   String?
+  blogSlugHint   String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  lastActiveAt   DateTime         @default(now())
+  messages       ChatMessage[]
+  feedbackEvents AnswerFeedback[]
+  citationClicks CitationClick[]
+  noResultEvents NoResultEvent[]
+  retrievalEvents RetrievalEvent[]
+
+  @@index([lastActiveAt(sort: Desc)])
+}
+
+model ChatMessage {
+  id                        String            @id @default(cuid())
+  sessionId                 String
+  role                      ChatMessageRole
+  content                   String            @db.Text
+  citations                 Json?
+  groundedAnswer            Json?
+  relatedContent            Json?
+  transformMode             String?
+  providerMessageId         String?
+  model                     String?
+  createdAt                 DateTime          @default(now())
+  updatedAt                 DateTime          @updatedAt
+  session                   ChatSession       @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  feedbackEvents            AnswerFeedback[]
+  citationClicks            CitationClick[]
+  retrievalEventsAsUser     RetrievalEvent[]  @relation("RetrievalUserMessage")
+  retrievalEventsAsAssistant RetrievalEvent[] @relation("RetrievalAssistantMessage")
+
+  @@index([sessionId, createdAt])
+}
+
+model AnswerFeedback {
+  id        String        @id @default(cuid())
+  sessionId String
+  messageId String?
+  value     FeedbackValue
+  payload   Json?
+  createdAt DateTime      @default(now())
+  session   ChatSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  message   ChatMessage?  @relation(fields: [messageId], references: [id], onDelete: SetNull)
+
+  @@index([sessionId, createdAt])
+  @@index([messageId])
+}
+
+model CitationClick {
+  id         String       @id @default(cuid())
+  sessionId  String
+  messageId  String?
+  citationId String
+  url        String
+  payload    Json?
+  createdAt  DateTime     @default(now())
+  session    ChatSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  message    ChatMessage? @relation(fields: [messageId], references: [id], onDelete: SetNull)
+
+  @@index([sessionId, createdAt])
+  @@index([messageId])
+}
+
+model NoResultEvent {
+  id        String       @id @default(cuid())
+  sessionId String?
+  question  String       @db.Text
+  pagePath  String?
+  pageSlug  String?
+  payload   Json?
+  createdAt DateTime     @default(now())
+  session   ChatSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt(sort: Desc)])
+  @@index([pageSlug])
+}
+
+model RetrievalEvent {
+  id               String       @id @default(cuid())
+  sessionId        String?
+  userMessageId    String?
+  assistantMessageId String?
+  query            String       @db.Text
+  pagePath         String?
+  pageSlug         String?
+  matchCount       Int          @default(0)
+  noAnswer         Boolean      @default(false)
+  payload          Json
+  createdAt        DateTime     @default(now())
+  session          ChatSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  userMessage      ChatMessage? @relation("RetrievalUserMessage", fields: [userMessageId], references: [id], onDelete: SetNull)
+  assistantMessage ChatMessage? @relation("RetrievalAssistantMessage", fields: [assistantMessageId], references: [id], onDelete: SetNull)
+
+  @@index([sessionId, createdAt])
+  @@index([pageSlug, createdAt])
+}
+
+model IngestionRun {
+  id              String          @id @default(cuid())
+  mode            IngestionMode
+  status          IngestionStatus @default(RUNNING)
+  targetDocumentId String?
+  summary         Json?
+  errorMessage    String?         @db.Text
+  startedAt       DateTime        @default(now())
+  finishedAt      DateTime?
+  indexedDocuments IndexedDocument[]
+
+  @@index([startedAt(sort: Desc)])
+  @@index([status, startedAt(sort: Desc)])
+}
+
+model IndexedDocument {
+  id            String             @id @default(cuid())
+  documentId    String             @unique
+  contentType   IndexedContentType
+  title         String
+  slug          String?
+  url           String
+  publishedAt   DateTime?
+  tags          String[]           @default([])
+  contentHash   String
+  chunkCount    Int                @default(0)
+  sourceMeta    Json
+  lastIndexedAt DateTime           @default(now())
+  ingestionRunId String?
+  ingestionRun  IngestionRun?      @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@index([contentType, publishedAt(sort: Desc)])
+  @@index([slug])
+  @@index([url])
+}

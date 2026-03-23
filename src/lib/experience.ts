@@ -2,7 +2,7 @@ import type { PortableTextBlock } from '@portabletext/types';
 
 import { experience as fallbackExperience } from '@/constants/experience';
 
-import { client } from './sanity';
+import { getSanityClient } from './sanity';
 
 export interface Experience {
   _id?: string;
@@ -17,7 +17,7 @@ export interface Experience {
 
 export async function getExperience(): Promise<Experience[]> {
   try {
-    const experiences = await client.fetch<Experience[]>(
+    const experiences = await getSanityClient().fetch<Experience[]>(
       `*[_type == "experience"] | order(order asc) {
         _id,
         title,

@@ -57,6 +57,22 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.assistant-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-hover) transparent;
+}
+
+.assistant-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.assistant-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.3);
+  border: 2px solid transparent;
+  border-radius: 9999px;
+  background-clip: padding-box;
+}
+
 /* === CUSTOM UTILITIES === */
 @utility highlight {
   color: var(--color-text-primary);

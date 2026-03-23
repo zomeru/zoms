@@ -66,6 +66,31 @@ class InMemoryRateLimiter {
 
 // Configuration for different endpoints
 export const RATE_LIMIT_CONFIGS = {
+  AI_CHAT: {
+    maxRequests: 20,
+    windowMs: 60 * 1000,
+    message: 'Too many AI chat requests. Please try again later.'
+  },
+  AI_FEEDBACK: {
+    maxRequests: 80,
+    windowMs: 60 * 1000,
+    message: 'Too many AI feedback events. Please try again later.'
+  },
+  AI_REINDEX: {
+    maxRequests: 10,
+    windowMs: 60 * 1000,
+    message: 'Too many reindex requests. Please try again later.'
+  },
+  AI_RELATED: {
+    maxRequests: 60,
+    windowMs: 60 * 1000,
+    message: 'Too many related-content lookups. Please try again later.'
+  },
+  AI_TRANSFORM: {
+    maxRequests: 20,
+    windowMs: 60 * 1000,
+    message: 'Too many transform requests. Please try again later.'
+  },
   // Stricter limit for blog generation endpoint
   BLOG_GENERATE: {
     maxRequests: 5,

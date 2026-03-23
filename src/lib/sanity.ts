@@ -1,9 +1,28 @@
 import { createClient } from 'next-sanity';
 
-export const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
-  apiVersion: '2025-10-08',
-  useCdn: process.env.NODE_ENV === 'production',
-  perspective: 'published'
-});
+let clientInstance: ReturnType<typeof createClient> | undefined = undefined;
+
+export function getSanityClient(): ReturnType<typeof createClient> {
+  if (clientInstance) {
+    return clientInstance;
+  }
+
+  const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+  const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
+
+  if (!projectId || !dataset) {
+    throw new Error(
+      'Sanity client requires NEXT_PUBLIC_SANITY_PROJECT_ID and NEXT_PUBLIC_SANITY_DATASET.'
+    );
+  }
+
+  clientInstance = createClient({
+    projectId,
+    dataset,
+    apiVersion: '2025-10-08',
+    useCdn: process.env.NODE_ENV === 'production',
+    perspective: 'published'
+  });
+
+  return clientInstance;
+}
