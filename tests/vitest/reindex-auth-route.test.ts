@@ -1,10 +1,18 @@
 import { NextRequest } from 'next/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+const checkBotId = vi.fn();
 const getAiReindexSessionCookie = vi.fn();
 const getClearedAiReindexSessionCookie = vi.fn();
 const hasAiReindexSecret = vi.fn();
 const validateAiReindexSecret = vi.fn();
+const log = {
+  error: vi.fn()
+};
+
+vi.mock('botid/server', () => ({
+  checkBotId
+}));
 
 vi.mock('@/lib/ai/reindexAuth', () => ({
   getAiReindexSessionCookie,
@@ -13,8 +21,18 @@ vi.mock('@/lib/ai/reindexAuth', () => ({
   validateAiReindexSecret
 }));
 
+vi.mock('@/lib/logger', () => ({
+  default: log
+}));
+
 describe('AI reindex auth route', () => {
   beforeEach(() => {
+    checkBotId.mockResolvedValue({
+      bypassed: false,
+      isBot: false,
+      isHuman: true,
+      isVerifiedBot: false
+    });
     hasAiReindexSecret.mockReturnValue(true);
     validateAiReindexSecret.mockReturnValue(true);
     getAiReindexSessionCookie.mockReturnValue({
@@ -55,6 +73,14 @@ describe('AI reindex auth route', () => {
     );
 
     expect(unauthorized.status).toBe(401);
+    expect(log.error).toHaveBeenCalledWith(
+      'API Error',
+      expect.objectContaining({
+        code: 'UNAUTHORIZED',
+        path: '/api/ai/reindex/auth',
+        statusCode: 401
+      })
+    );
 
     const authorized = await POST(
       new NextRequest('http://localhost/api/ai/reindex/auth', {

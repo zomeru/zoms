@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+const checkBotId = vi.fn();
 const rateLimitMiddleware = vi.fn();
 const repositories = {
   createChatMessage: vi.fn(),
@@ -10,6 +11,10 @@ const repositories = {
 const getDirectAssistantAnswer = vi.fn();
 const streamGeneralAnswer = vi.fn();
 const streamGroundedAnswer = vi.fn();
+
+vi.mock('botid/server', () => ({
+  checkBotId
+}));
 
 vi.mock('@/lib/rateLimit', () => ({
   rateLimitMiddleware
@@ -44,6 +49,12 @@ vi.mock('@/lib/vector/index', () => ({
 describe('direct answer chat route', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    checkBotId.mockResolvedValue({
+      bypassed: false,
+      isBot: false,
+      isHuman: true,
+      isVerifiedBot: false
+    });
     rateLimitMiddleware.mockResolvedValue(null);
     repositories.touchChatSession.mockResolvedValue({
       id: 'session-db-id',

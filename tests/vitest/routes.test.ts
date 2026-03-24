@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { QueryClassification } from '@/lib/retrieval/classify';
 
+const checkBotId = vi.fn();
 interface RetrievalCallInput {
   query: string;
 }
@@ -75,6 +76,13 @@ const isAuthorizedAiReindexRequest = vi.fn();
 const getAiReindexSessionCookie = vi.fn();
 const searchSessionMemory = vi.fn();
 const storeSessionMemory = vi.fn();
+const log = {
+  error: vi.fn()
+};
+
+vi.mock('botid/server', () => ({
+  checkBotId
+}));
 
 vi.mock('@/lib/rateLimit', () => ({
   rateLimitMiddleware
@@ -127,6 +135,10 @@ vi.mock('@/lib/ai/reindexAuth', () => ({
   isAuthorizedAiReindexRequest
 }));
 
+vi.mock('@/lib/logger', () => ({
+  default: log
+}));
+
 describe('AI routes', () => {
   beforeEach(() => {
     const defaultClassification: QueryClassification = {
@@ -137,6 +149,12 @@ describe('AI routes', () => {
       tokens: ['how', 'does', 'the', 'assistant', 'stay', 'grounded']
     };
     rateLimitMiddleware.mockResolvedValue(null);
+    checkBotId.mockResolvedValue({
+      bypassed: false,
+      isBot: false,
+      isHuman: true,
+      isVerifiedBot: false
+    });
     repositories.touchChatSession.mockResolvedValue({
       id: 'session-db-id',
       sessionKey: 'session-key'
@@ -540,6 +558,14 @@ describe('AI routes', () => {
     );
 
     expect(invalidResponse.status).toBe(400);
+    expect(log.error).toHaveBeenCalledWith(
+      'API Error',
+      expect.objectContaining({
+        code: 'VALIDATION_ERROR',
+        path: '/api/ai/transform',
+        statusCode: 400
+      })
+    );
 
     const validResponse = await POST(
       new NextRequest('http://localhost/api/ai/transform', {

@@ -1,9 +1,14 @@
 import { NextRequest } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+const checkBotId = vi.fn();
 const repositories = {
   getChatHistoryPage: vi.fn()
 };
+
+vi.mock('botid/server', () => ({
+  checkBotId
+}));
 
 vi.mock('@/lib/db/repositories', () => ({
   repositories
@@ -44,6 +49,12 @@ vi.mock('@/lib/vector/index', () => ({
 describe('AI chat history route', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    checkBotId.mockResolvedValue({
+      bypassed: false,
+      isBot: false,
+      isHuman: true,
+      isVerifiedBot: false
+    });
   });
 
   it('returns the newest history page first and supports older-message pagination', async () => {
