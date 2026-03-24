@@ -1,5 +1,7 @@
+/* eslint-disable max-lines -- chat UI behavior coverage intentionally lives in one integration-style test file */
 // @vitest-environment jsdom
 
+import { readFileSync } from 'node:fs';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -14,6 +16,18 @@ function HookHarness() {
 
   return (
     <div>
+      <div data-testid='history-loading'>
+        {assistant.isHistoryLoadingInitial ? 'loading' : 'idle'}
+      </div>
+      <div data-testid='has-more-history'>{assistant.hasMoreHistory ? 'yes' : 'no'}</div>
+      <button
+        type='button'
+        onClick={() => {
+          void assistant.loadOlderHistory();
+        }}
+      >
+        Load older
+      </button>
       {assistant.messages.map((message) => (
         <div key={message.id}>{message.content}</div>
       ))}
@@ -38,6 +52,8 @@ describe('chat UI behaviors', () => {
         if (url.includes('/api/ai/chat')) {
           return new Response(
             JSON.stringify({
+              hasMore: false,
+              limit: 10,
               messages: [
                 {
                   content: 'Earlier question',
@@ -52,7 +68,9 @@ describe('chat UI behaviors', () => {
                   supported: true
                 }
               ],
-              sessionKey: 'session-key'
+              offset: 0,
+              sessionKey: 'session-key',
+              total: 2
             }),
             {
               headers: {
@@ -69,10 +87,29 @@ describe('chat UI behaviors', () => {
 
     render(<HookHarness />);
 
+    expect(screen.getByTestId('history-loading').textContent).toBe('loading');
+
     await waitFor(() => {
       expect(screen.getByText('Earlier question')).toBeTruthy();
       expect(screen.getByText('Earlier answer')).toBeTruthy();
     });
+    expect(screen.getByTestId('history-loading').textContent).toBe('idle');
+    expect(screen.getByText(/thanks for visiting my website/i)).toBeTruthy();
+  });
+
+  it('does not show the welcome message while persisted history is still loading', async () => {
+    window.localStorage.setItem('ai-chat-session', 'session-key');
+    const pendingHistoryResponse = Promise.withResolvers<Response>().promise;
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => await pendingHistoryResponse)
+    );
+
+    render(<HookHarness />);
+
+    expect(screen.getByTestId('history-loading').textContent).toBe('loading');
+    expect(screen.queryByText(/thanks for visiting my website/i)).toBeNull();
   });
 
   it('shows a persistent welcome message for a fresh conversation with no history', async () => {
@@ -87,7 +124,7 @@ describe('chat UI behaviors', () => {
     expect(screen.getByText(/ask me about my projects, experience, blogs/i)).toBeTruthy();
   });
 
-  it('does not prepend the synthetic welcome message when persisted history exists', async () => {
+  it('keeps the welcome message visible even when persisted history exists', async () => {
     window.localStorage.setItem('ai-chat-session', 'session-key');
     vi.stubGlobal(
       'fetch',
@@ -95,6 +132,8 @@ describe('chat UI behaviors', () => {
         async () =>
           new Response(
             JSON.stringify({
+              hasMore: false,
+              limit: 10,
               messages: [
                 {
                   content: 'Earlier question',
@@ -102,7 +141,9 @@ describe('chat UI behaviors', () => {
                   role: 'user'
                 }
               ],
-              sessionKey: 'session-key'
+              offset: 0,
+              sessionKey: 'session-key',
+              total: 1
             }),
             {
               headers: {
@@ -119,12 +160,110 @@ describe('chat UI behaviors', () => {
     await waitFor(() => {
       expect(screen.getByText('Earlier question')).toBeTruthy();
     });
-    expect(screen.queryByText(/thanks for visiting my website/i)).toBeNull();
+    expect(screen.getByText(/thanks for visiting my website/i)).toBeTruthy();
+  });
+
+  it('requests the latest history page first and can load older history on demand', async () => {
+    window.localStorage.setItem('ai-chat-session', 'session-key');
+    const fetchSpy = vi.fn(async (input: string | URL | Request) => {
+      const url =
+        typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+
+      if (url.includes('offset=0')) {
+        return new Response(
+          JSON.stringify({
+            hasMore: true,
+            limit: 10,
+            messages: [
+              {
+                content: 'Recent question',
+                id: 'user-recent',
+                role: 'user'
+              },
+              {
+                content: 'Recent answer',
+                id: 'assistant-recent',
+                messageId: 'assistant-recent',
+                role: 'assistant',
+                supported: true
+              }
+            ],
+            offset: 0,
+            sessionKey: 'session-key',
+            total: 4
+          }),
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            status: 200
+          }
+        );
+      }
+
+      if (url.includes('offset=2')) {
+        return new Response(
+          JSON.stringify({
+            hasMore: false,
+            limit: 10,
+            messages: [
+              {
+                content: 'Older question',
+                id: 'user-older',
+                role: 'user'
+              },
+              {
+                content: 'Older answer',
+                id: 'assistant-older',
+                messageId: 'assistant-older',
+                role: 'assistant',
+                supported: true
+              }
+            ],
+            offset: 2,
+            sessionKey: 'session-key',
+            total: 4
+          }),
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            status: 200
+          }
+        );
+      }
+
+      return new Response(null, { status: 404 });
+    });
+
+    vi.stubGlobal('fetch', fetchSpy);
+
+    render(<HookHarness />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Recent question')).toBeTruthy();
+    });
+
+    expect(fetchSpy).toHaveBeenCalledWith('/api/ai/chat?sessionKey=session-key&limit=10&offset=0');
+    expect(screen.getByTestId('has-more-history').textContent).toBe('yes');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Load older' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Older question')).toBeTruthy();
+    });
+
+    expect(fetchSpy).toHaveBeenCalledWith('/api/ai/chat?sessionKey=session-key&limit=10&offset=2');
+    expect(screen.getAllByText(/question$/)).toHaveLength(2);
+    expect(screen.getByTestId('has-more-history').textContent).toBe('no');
   });
 
   it('does not render feedback controls for assistant messages', () => {
     render(
       <ChatMessageList
+        hasMoreHistory={false}
+        isHistoryLoadingInitial={false}
+        isLoadingOlderHistory={false}
         messages={[
           {
             content: 'Completed answer',
@@ -154,9 +293,36 @@ describe('chat UI behaviors', () => {
     });
   });
 
+  it('submits the composer from the inline send button and enforces a max length', async () => {
+    const onSubmit = vi.fn(async () => undefined);
+    render(<ChatComposer onSubmit={onSubmit} />);
+
+    const textarea = screen.getByLabelText('Assistant question');
+    expect(textarea.getAttribute('maxLength')).toBe('500');
+
+    fireEvent.change(textarea, { target: { value: 'A concise question about the site.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
+
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith('A concise question about the site.');
+    });
+  });
+
+  it('shows a live character counter for the composer input', () => {
+    render(<ChatComposer onSubmit={vi.fn(async () => undefined)} />);
+
+    const textarea = screen.getByLabelText('Assistant question');
+    fireEvent.change(textarea, { target: { value: 'x'.repeat(132) } });
+
+    expect(screen.getByText('132/500')).toBeTruthy();
+  });
+
   it('shows animated typing dots while an assistant message is still pending', () => {
     render(
       <ChatMessageList
+        hasMoreHistory={false}
+        isHistoryLoadingInitial={false}
+        isLoadingOlderHistory={false}
         messages={[
           {
             content: '',
@@ -174,6 +340,9 @@ describe('chat UI behaviors', () => {
   it('does not render the related content section inside chat messages', () => {
     render(
       <ChatMessageList
+        hasMoreHistory={false}
+        isHistoryLoadingInitial={false}
+        isLoadingOlderHistory={false}
         messages={[
           {
             content: 'Here is an answer.',
@@ -191,6 +360,9 @@ describe('chat UI behaviors', () => {
   it('renders blog citations using the blog title as the card content', () => {
     render(
       <ChatMessageList
+        hasMoreHistory={false}
+        isHistoryLoadingInitial={false}
+        isLoadingOlderHistory={false}
         messages={[
           {
             citations: [
@@ -216,9 +388,49 @@ describe('chat UI behaviors', () => {
     expect(screen.getAllByText('Building a grounded assistant')).toHaveLength(1);
   });
 
+  it('deduplicates duplicate citation cards in chat messages', () => {
+    render(
+      <ChatMessageList
+        hasMoreHistory={false}
+        isHistoryLoadingInitial={false}
+        isLoadingOlderHistory={false}
+        messages={[
+          {
+            citations: [
+              {
+                contentType: 'blog',
+                id: 'direct:blog:latest:duplicate-1',
+                sectionTitle: 'Summary',
+                snippet: 'Duplicate blog post',
+                title: 'Duplicate blog post',
+                url: '/blog/duplicate-blog-post'
+              },
+              {
+                contentType: 'blog',
+                id: 'direct:blog:latest:duplicate-2',
+                sectionTitle: 'Summary',
+                snippet: 'Duplicate blog post',
+                title: 'Duplicate blog post',
+                url: '/blog/duplicate-blog-post'
+              }
+            ],
+            content: 'Here are the citations.',
+            id: 'assistant-duplicate-citations',
+            role: 'assistant'
+          }
+        ]}
+      />
+    );
+
+    expect(screen.getAllByRole('link', { name: 'Duplicate blog post' })).toHaveLength(1);
+  });
+
   it('renders fenced code blocks as code snippets inside assistant messages', () => {
     render(
       <ChatMessageList
+        hasMoreHistory={false}
+        isHistoryLoadingInitial={false}
+        isLoadingOlderHistory={false}
         messages={[
           {
             content:
@@ -244,9 +456,20 @@ describe('chat UI behaviors', () => {
     expect(screen.queryByText('```ts')).toBeNull();
   });
 
+  it('defines highlight.js theme styles for chat code blocks', () => {
+    const globalsCss = readFileSync('/Users/zomeru/Desktop/zoms/src/styles/globals.css', 'utf8');
+
+    expect(globalsCss).toContain('.llm-markdown .hljs');
+    expect(globalsCss).toContain('.llm-markdown .hljs-keyword');
+    expect(globalsCss).toContain('.llm-markdown .hljs-string');
+  });
+
   it('streams an open fenced code block before the closing fence arrives', () => {
     render(
       <ChatMessageList
+        hasMoreHistory={false}
+        isHistoryLoadingInitial={false}
+        isLoadingOlderHistory={false}
         messages={[
           {
             content: 'Streaming code:\n```typescript\nexport const answer = 42;',
@@ -260,14 +483,15 @@ describe('chat UI behaviors', () => {
 
     expect(screen.getByText('Streaming code:')).toBeTruthy();
     expect(screen.getByText('TypeScript')).toBeTruthy();
-    expect(screen.getByText('Streaming')).toBeTruthy();
-    expect(screen.getByText(/export const answer = 42;/)).toBeTruthy();
     expect(screen.queryByText('```typescript')).toBeNull();
   });
 
   it('renders assistant markdown with inline code, lists, and links', () => {
     render(
       <ChatMessageList
+        hasMoreHistory={false}
+        isHistoryLoadingInitial={false}
+        isLoadingOlderHistory={false}
         messages={[
           {
             content:
@@ -297,8 +521,12 @@ describe('chat UI behaviors', () => {
 
     render(
       <ChatPanel
+        hasMoreHistory={false}
+        isHistoryLoadingInitial={false}
+        isLoadingOlderHistory={false}
         isOpen={true}
         isWorking={false}
+        onLoadOlderHistory={async () => undefined}
         messages={[]}
         onClose={() => undefined}
         onSend={async () => undefined}

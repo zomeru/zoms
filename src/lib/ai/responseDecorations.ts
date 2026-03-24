@@ -43,27 +43,53 @@ function filterByContentType<T extends { contentType: ContentType }>(
   return values.filter((value) => value.contentType === contentType);
 }
 
+function dedupeCitations<T extends Citation>(citations: T[]): T[] {
+  const seen = new Set<string>();
+
+  return citations.filter((citation) => {
+    const key =
+      citation.contentType === 'blog'
+        ? `blog:${citation.url}`
+        : [
+            citation.contentType,
+            citation.url,
+            citation.title,
+            citation.sectionTitle,
+            citation.snippet
+          ].join('::');
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
+
 export function filterChatCitations(input: {
   citations: Citation[];
   classification: QueryClassification;
   query: string;
 }): Citation[] {
+  const citations = dedupeCitations(input.citations);
+
   if (isIdentityQuery(input.query)) {
     return [];
   }
 
   switch (input.classification.intent) {
     case 'BLOG_QUERY':
-      return filterByContentType(input.citations, 'blog');
+      return filterByContentType(citations, 'blog');
     case 'EXPERIENCE_QUERY':
-      return filterByContentType(input.citations, 'experience');
+      return filterByContentType(citations, 'experience');
     case 'PROJECT_QUERY':
-      return filterByContentType(input.citations, 'project');
+      return filterByContentType(citations, 'project');
     case 'GENERAL_KNOWLEDGE_QUERY':
-      return filterByContentType(input.citations, 'blog');
+      return filterByContentType(citations, 'blog');
     default:
       if (isAboutPortfolioQuery(input.query)) {
-        return filterByContentType(input.citations, 'about');
+        return filterByContentType(citations, 'about');
       }
 
       return [];

@@ -6,8 +6,34 @@ interface CitationListProps {
   citations: Citation[];
 }
 
+function dedupeCitations(citations: Citation[]): Citation[] {
+  const seen = new Set<string>();
+
+  return citations.filter((citation) => {
+    const key =
+      citation.contentType === 'blog'
+        ? `blog:${citation.url}`
+        : [
+            citation.contentType,
+            citation.url,
+            citation.title,
+            citation.sectionTitle,
+            citation.snippet
+          ].join('::');
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
+
 export default function CitationList({ citations }: CitationListProps) {
-  if (citations.length === 0) {
+  const uniqueCitations = dedupeCitations(citations);
+
+  if (uniqueCitations.length === 0) {
     return null;
   }
 
@@ -17,9 +43,19 @@ export default function CitationList({ citations }: CitationListProps) {
         Citations
       </p>
       <div className='space-y-2'>
-        {citations.map((citation) => (
+        {uniqueCitations.map((citation) => (
           <a
-            key={citation.id}
+            key={
+              citation.contentType === 'blog'
+                ? `blog:${citation.url}`
+                : [
+                    citation.contentType,
+                    citation.url,
+                    citation.title,
+                    citation.sectionTitle,
+                    citation.snippet
+                  ].join('::')
+            }
             href={citation.url}
             className='block rounded-xl border border-border/80 bg-surface/80 px-3 py-2 text-sm text-text-primary transition hover:border-primary/40'
           >

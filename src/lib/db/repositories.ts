@@ -134,6 +134,60 @@ export const repositories = {
     });
   },
 
+  async getChatHistoryPage(sessionKey: string, input: { limit: number; offset: number }) {
+    const where = {
+      session: {
+        sessionKey
+      }
+    } as const;
+
+    const [messages, total] = await Promise.all([
+      getDb().chatMessage.findMany({
+        orderBy: [
+          {
+            createdAt: 'desc'
+          },
+          {
+            id: 'desc'
+          }
+        ],
+        skip: input.offset,
+        take: input.limit,
+        where
+      }),
+      getDb().chatMessage.count({
+        where
+      })
+    ]);
+
+    return {
+      hasMore: input.offset + messages.length < total,
+      messages: messages.reverse(),
+      total
+    };
+  },
+
+  async getRecentChatMessages(sessionKey: string, limit: number) {
+    const messages = await getDb().chatMessage.findMany({
+      orderBy: [
+        {
+          createdAt: 'desc'
+        },
+        {
+          id: 'desc'
+        }
+      ],
+      take: limit,
+      where: {
+        session: {
+          sessionKey
+        }
+      }
+    });
+
+    return messages.reverse();
+  },
+
   async getIndexedDocument(documentId: string) {
     return await getDb().indexedDocument.findUnique({
       where: {

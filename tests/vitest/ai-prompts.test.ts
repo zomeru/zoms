@@ -16,8 +16,9 @@ describe('AI prompts', () => {
     expect(prompt).toContain('AI version of Zomer');
     expect(prompt).toContain('Answer using only the retrieved context from the site.');
     expect(prompt).toContain('Use first person');
-    expect(prompt).toContain('use the exact relative path from the provided context');
-    expect(prompt).toContain('Never invent, expand, or rewrite the domain for site links.');
+    expect(prompt).toContain('use markdown links');
+    expect(prompt).toContain('[link text](/blog/example-post)');
+    expect(prompt).toContain('Do not output bare site paths by themselves');
   });
 
   it('allows fenced code blocks for code examples in grounded answers', () => {
@@ -29,11 +30,11 @@ describe('AI prompts', () => {
       retrievedContext: 'TypeScript context'
     });
 
-    expect(prompt).toContain(
-      'If you include code, always wrap only the code in fenced markdown code blocks'
-    );
-    expect(prompt).toContain('```ts');
-    expect(prompt).not.toContain('Do not wrap the answer in JSON or markdown fences.');
+    expect(prompt).toContain('CODE BLOCK RULES (CRITICAL');
+    expect(prompt).toContain('- Only wrap actual code in fenced markdown blocks.');
+    expect(prompt).toContain('Every code block MUST start with ```<language>');
+    expect(prompt).toContain('for example ```ts, ```tsx, ```js, ```json, ```bash');
+    expect(prompt).toContain('Ensure markdown remains valid even when the response is streamed.');
   });
 
   it('allows fenced code blocks for code examples in general answers', () => {
@@ -43,11 +44,12 @@ describe('AI prompts', () => {
       relatedBlogContext: ''
     });
 
-    expect(prompt).toContain(
-      'If you include code, always wrap only the code in fenced markdown code blocks'
-    );
-    expect(prompt).toContain('```tsx');
-    expect(prompt).not.toContain('Do not wrap the answer in JSON or markdown fences.');
-    expect(prompt).toContain('use the exact relative path from the provided context');
+    expect(prompt).toContain('CODE BLOCK RULES (CRITICAL');
+    expect(prompt).toContain('- Only wrap actual code in fenced markdown blocks.');
+    expect(prompt).toContain('Every code block MUST start with (3 backticks + language)');
+    expect(prompt).toContain('for example ```ts, ```tsx, ```js, ```json, ```bash');
+    expect(prompt).toContain('Every code block MUST end with ``` (3 backticks) on its own line.');
+    expect(prompt).toContain('use markdown links');
+    expect(prompt).toContain('[link text](/blog/example-post)');
   });
 });

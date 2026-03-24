@@ -13,6 +13,14 @@ function getDefaultClassification(): QueryClassification {
   };
 }
 
+function getCitationKey(match: RetrievedChunk): string {
+  if (match.contentType === 'blog') {
+    return `blog:${match.url}`;
+  }
+
+  return `${match.contentType}:${match.id}`;
+}
+
 export function buildCitations(
   matches: RetrievedChunk[],
   classification: QueryClassification = getDefaultClassification(),
@@ -24,13 +32,26 @@ export function buildCitations(
       (!classification.strictContentTypes ||
         classification.preferredContentTypes.includes(match.contentType))
   );
+  const seen = new Set<string>();
 
-  return relevantMatches.slice(0, limit).map((match) => ({
-    contentType: match.contentType,
-    id: match.id,
-    sectionTitle: match.sectionTitle,
-    snippet: match.contentType === 'blog' ? match.title : match.content.slice(0, 220),
-    title: match.title,
-    url: match.url
-  }));
+  return relevantMatches
+    .filter((match) => {
+      const key = getCitationKey(match);
+
+      if (seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true;
+    })
+    .slice(0, limit)
+    .map((match) => ({
+      contentType: match.contentType,
+      id: match.id,
+      sectionTitle: match.sectionTitle,
+      snippet: match.contentType === 'blog' ? match.title : match.content.slice(0, 220),
+      title: match.title,
+      url: match.url
+    }));
 }

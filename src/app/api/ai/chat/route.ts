@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- this route owns the chat transport flow and related helpers */
 import { randomUUID } from 'node:crypto';
 import { NextResponse, type NextRequest } from 'next/server';
 import { ChatMessageRole } from '@prisma/client';
@@ -5,6 +6,7 @@ import { z } from 'zod';
 
 import { streamGeneralAnswer, streamGroundedAnswer } from '@/lib/ai/chat';
 import { getDirectAssistantAnswer } from '@/lib/ai/directAnswers';
+import { searchSessionMemory, storeSessionMemory } from '@/lib/ai/memory';
 import { filterChatCitations } from '@/lib/ai/responseDecorations';
 import type { Citation } from '@/lib/ai/schemas';
 import { appendStreamText } from '@/lib/ai/streaming';
@@ -14,6 +16,7 @@ import { toPrismaJsonValue } from '@/lib/json';
 import { rateLimitMiddleware } from '@/lib/rateLimit';
 import {
   classifyQueryIntent,
+  isFollowUpQuery,
   type QueryClassification,
   type QueryIntent
 } from '@/lib/retrieval/classify';
@@ -34,6 +37,10 @@ const chatRequestSchema = z.object({
   blogSlug: z.string().trim().optional(),
   pathname: z.string().trim().optional(),
   question: z.string().trim().min(1)
+});
+const chatHistoryQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(50).default(10),
+  offset: z.coerce.number().int().min(0).default(0)
 });
 
 interface ClientMessage {
@@ -109,7 +116,7 @@ function buildConversationHistory(messages: ClientMessage[]): Array<{
   content: string;
   role: 'assistant' | 'user';
 }> {
-  return messages.slice(-6).map((message) => ({
+  return messages.slice(-4).map((message) => ({
     content: message.content,
     role: message.role
   }));
@@ -149,12 +156,15 @@ async function resolveGroundedAnswer(input: {
   blogSlug?: string;
   classification: QueryClassification;
   conversationHistory: ReturnType<typeof buildConversationHistory>;
+  memoryContext?: string;
   pathname?: string;
   question: string;
 }): Promise<{
   groundedAnswer: GroundedAnswerStream;
   retrievalMetadata: RetrievalMetadata;
 }> {
+  const followUpQuery = isFollowUpQuery(input.question);
+
   const directAnswer = await getDirectAssistantAnswer({
     classification: input.classification,
     query: input.question
@@ -181,8 +191,30 @@ async function resolveGroundedAnswer(input: {
     };
   }
 
+  if (input.classification.intent === 'GENERAL_KNOWLEDGE_QUERY' && !followUpQuery) {
+    const generalAnswer = await streamGeneralAnswer({
+      conversationHistory: input.conversationHistory,
+      memoryContext: input.memoryContext,
+      query: input.question,
+      relatedBlogChunks: []
+    });
+
+    return {
+      groundedAnswer: {
+        ...generalAnswer,
+        citations: []
+      },
+      retrievalMetadata: {
+        classification: input.classification,
+        directAnswer: false,
+        matchCount: 0,
+        matches: []
+      }
+    };
+  }
+
   if (input.classification.intent === 'GENERAL_KNOWLEDGE_QUERY') {
-    const retrieval = await retrieveBlogs({
+    const retrieval = await retrievePortfolio({
       currentBlogSlug: input.blogSlug,
       query: buildRetrievalQuery(input.question, input.conversationHistory),
       vectorQuery: async ({ filter, query, topK }) =>
@@ -193,19 +225,24 @@ async function resolveGroundedAnswer(input: {
       classification: input.classification,
       query: input.question
     });
-    const generalAnswer = await streamGeneralAnswer({
+    const groundedAnswer = await streamGroundedAnswer({
+      citations: visibleCitations,
+      classification: retrieval.classification,
       conversationHistory: input.conversationHistory,
+      currentBlogSlug: input.blogSlug,
+      memoryContext: input.memoryContext,
       query: input.question,
-      relatedBlogChunks: retrieval.matches
+      shouldRefuse: retrieval.shouldRefuse,
+      supportingChunks: retrieval.matches
     });
 
     return {
       groundedAnswer: {
-        ...generalAnswer,
+        ...groundedAnswer,
         citations: visibleCitations
       },
       retrievalMetadata: {
-        classification: input.classification,
+        classification: retrieval.classification,
         directAnswer: false,
         matchCount: retrieval.matches.length,
         matches: retrieval.matches
@@ -229,6 +266,7 @@ async function resolveGroundedAnswer(input: {
     classification: retrieval.classification,
     conversationHistory: input.conversationHistory,
     currentBlogSlug: input.blogSlug,
+    memoryContext: input.memoryContext,
     query: input.question,
     shouldRefuse: retrieval.shouldRefuse,
     supportingChunks: retrieval.matches
@@ -309,9 +347,16 @@ function createStreamingChatResponse(input: {
           sessionId: input.sessionId,
           userMessageId: input.userMessageId
         });
+        try {
+          await storeSessionMemory({
+            answer: finalAnswer.answer,
+            question: input.input.question,
+            sessionKey: input.sessionKey
+          });
+        } catch {}
 
         sendEvent({ answer: finalAnswer, messageId: assistantMessage.id, type: 'done' });
-      } catch (error) {
+      } catch {
         sendEvent({
           answer: {
             answer:
@@ -347,19 +392,34 @@ export async function GET(request: NextRequest): Promise<Response> {
     const sessionKey =
       request.nextUrl.searchParams.get('sessionKey') ??
       request.cookies.get(AI_CHAT_COOKIE_NAME)?.value;
+    const { limit, offset } = validateSchema(
+      chatHistoryQuerySchema,
+      Object.fromEntries(request.nextUrl.searchParams.entries())
+    );
 
     if (!sessionKey) {
       return NextResponse.json({
+        hasMore: false,
+        limit,
         messages: [],
-        sessionKey: null
+        offset,
+        sessionKey: null,
+        total: 0
       });
     }
 
-    const session = await repositories.getChatSession(sessionKey);
+    const page = await repositories.getChatHistoryPage(sessionKey, {
+      limit,
+      offset
+    });
 
     return NextResponse.json({
-      messages: mapStoredMessages(session?.messages ?? []),
-      sessionKey
+      hasMore: page.hasMore,
+      limit,
+      messages: mapStoredMessages(page.messages),
+      offset,
+      sessionKey,
+      total: page.total
     });
   } catch (error) {
     return handleApiError(error, {
@@ -385,11 +445,25 @@ export async function POST(request: NextRequest): Promise<Response> {
       pathnameHint: input.pathname,
       sessionKey
     });
-    const previousSession =
-      isNew || sessionKey.length === 0 ? null : await repositories.getChatSession(sessionKey);
-    const conversationHistory = buildConversationHistory(
-      mapStoredMessages(previousSession?.messages ?? [])
-    );
+    const previousMessages =
+      isNew || sessionKey.length === 0
+        ? []
+        : await repositories.getRecentChatMessages(sessionKey, 4);
+    const conversationHistory = buildConversationHistory(mapStoredMessages(previousMessages));
+    const followUpQuery = isFollowUpQuery(input.question);
+    let memoryContext = '';
+
+    if (conversationHistory.length > 0 && followUpQuery) {
+      try {
+        const sessionMemories = await searchSessionMemory({
+          limit: 3,
+          query: input.question,
+          sessionKey
+        });
+
+        memoryContext = sessionMemories.join('\n');
+      } catch {}
+    }
 
     const userMessage = await repositories.createChatMessage({
       content: input.question,
@@ -401,6 +475,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       blogSlug: input.blogSlug,
       classification,
       conversationHistory,
+      memoryContext,
       pathname: input.pathname,
       question: input.question
     });

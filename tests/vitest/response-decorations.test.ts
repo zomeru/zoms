@@ -63,4 +63,59 @@ describe('chat citation filtering', () => {
       })
     ).toEqual([citations[1]]);
   });
+
+  it('deduplicates repeated citations before returning them to chat', () => {
+    const duplicateBlogCitation: Citation = {
+      contentType: 'blog',
+      id: 'direct:blog:latest:duplicate-post',
+      sectionTitle: 'Summary',
+      snippet: 'Duplicate post',
+      title: 'Duplicate post',
+      url: '/blog/duplicate-post'
+    };
+
+    expect(
+      filterChatCitations({
+        citations: [duplicateBlogCitation, duplicateBlogCitation, duplicateBlogCitation],
+        classification: classifyQueryIntent('What is the latest blog?'),
+        query: 'What is the latest blog?'
+      })
+    ).toEqual([duplicateBlogCitation]);
+  });
+
+  it('deduplicates equivalent blog citations even when their ids differ', () => {
+    expect(
+      filterChatCitations({
+        citations: [
+          {
+            contentType: 'blog',
+            id: 'direct:blog:latest:duplicate-post:1',
+            sectionTitle: 'Summary',
+            snippet: 'Duplicate post',
+            title: 'Duplicate post',
+            url: '/blog/duplicate-post'
+          },
+          {
+            contentType: 'blog',
+            id: 'direct:blog:latest:duplicate-post:2',
+            sectionTitle: 'Body',
+            snippet: 'Duplicate post',
+            title: 'Duplicate post',
+            url: '/blog/duplicate-post'
+          }
+        ],
+        classification: classifyQueryIntent('What is the latest blog?'),
+        query: 'What is the latest blog?'
+      })
+    ).toEqual([
+      {
+        contentType: 'blog',
+        id: 'direct:blog:latest:duplicate-post:1',
+        sectionTitle: 'Summary',
+        snippet: 'Duplicate post',
+        title: 'Duplicate post',
+        url: '/blog/duplicate-post'
+      }
+    ]);
+  });
 });

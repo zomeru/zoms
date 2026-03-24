@@ -15,6 +15,7 @@ const aiEnvSchema = z.object({
   NEXT_PUBLIC_SITE_URL: z.string().trim().min(1).optional(),
   OPENROUTER_API_KEY: requiredString('OPENROUTER_API_KEY'),
   OPENROUTER_CHAT_MODEL: requiredString('OPENROUTER_CHAT_MODEL'),
+  SUPERMEMORY_API_KEY: z.string().trim().min(1).optional(),
   UPSTASH_REDIS_REST_TOKEN: requiredString('UPSTASH_REDIS_REST_TOKEN'),
   UPSTASH_REDIS_REST_URL: requiredString('UPSTASH_REDIS_REST_URL'),
   UPSTASH_VECTOR_REST_TOKEN: requiredString('UPSTASH_VECTOR_REST_TOKEN'),

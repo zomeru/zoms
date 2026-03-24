@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- route coverage intentionally exercises many POST/GET branches in one file */
 import { NextRequest } from 'next/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -12,6 +13,11 @@ interface GroundedAnswerCallInput {
     content: string;
     role: 'assistant' | 'user';
   }>;
+  memoryContext?: string;
+}
+
+interface GeneralAnswerCallInput {
+  relatedBlogChunks?: unknown[];
 }
 
 function isRetrievalCallInput(value: unknown): value is RetrievalCallInput {
@@ -32,10 +38,24 @@ function isGroundedAnswerCallInput(value: unknown): value is GroundedAnswerCallI
   );
 }
 
+function isGeneralAnswerCallInput(value: unknown): value is GeneralAnswerCallInput {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  if (!('relatedBlogChunks' in value)) {
+    return true;
+  }
+
+  return Array.isArray(value.relatedBlogChunks);
+}
+
 const rateLimitMiddleware = vi.fn();
 const repositories = {
   createChatMessage: vi.fn(),
   createRetrievalEvent: vi.fn(),
+  getChatHistoryPage: vi.fn(),
+  getRecentChatMessages: vi.fn(),
   getChatSession: vi.fn(),
   touchChatSession: vi.fn()
 };
@@ -53,6 +73,8 @@ const withQueryCache = vi.fn();
 const getBlogPostBySlug = vi.fn();
 const isAuthorizedAiReindexRequest = vi.fn();
 const getAiReindexSessionCookie = vi.fn();
+const searchSessionMemory = vi.fn();
+const storeSessionMemory = vi.fn();
 
 vi.mock('@/lib/rateLimit', () => ({
   rateLimitMiddleware
@@ -95,6 +117,11 @@ vi.mock('@/lib/blog', () => ({
   getBlogPostBySlug
 }));
 
+vi.mock('@/lib/ai/memory', () => ({
+  searchSessionMemory,
+  storeSessionMemory
+}));
+
 vi.mock('@/lib/ai/reindexAuth', () => ({
   getAiReindexSessionCookie,
   isAuthorizedAiReindexRequest
@@ -116,6 +143,12 @@ describe('AI routes', () => {
     });
     repositories.createChatMessage.mockResolvedValue({ id: 'message-id' });
     repositories.createRetrievalEvent.mockResolvedValue({ id: 'retrieval-id' });
+    repositories.getChatHistoryPage.mockResolvedValue({
+      hasMore: false,
+      messages: [],
+      total: 0
+    });
+    repositories.getRecentChatMessages.mockResolvedValue([]);
     repositories.getChatSession.mockResolvedValue({
       id: 'session-db-id',
       sessionKey: 'session-key'
@@ -176,6 +209,8 @@ describe('AI routes', () => {
       summary: 'Summary',
       title: 'Grounded assistant'
     });
+    searchSessionMemory.mockResolvedValue([]);
+    storeSessionMemory.mockResolvedValue(undefined);
     isAuthorizedAiReindexRequest.mockReturnValue(true);
     getAiReindexSessionCookie.mockReturnValue({
       name: 'ai_reindex_session',
@@ -280,9 +315,12 @@ describe('AI routes', () => {
     expect(body).toContain('"text":"response text."');
   });
 
-  it('uses prior session messages as memory and exposes history for reload hydration', async () => {
-    repositories.getChatSession.mockResolvedValueOnce({
-      id: 'session-db-id',
+  it('uses recent session messages as memory and exposes history for reload hydration', async () => {
+    searchSessionMemory.mockResolvedValueOnce([
+      'Previous discussion summary: Batibot is an AI-powered messaging companion project.'
+    ]);
+    repositories.getChatHistoryPage.mockResolvedValueOnce({
+      hasMore: false,
       messages: [
         {
           citations: null,
@@ -301,8 +339,26 @@ describe('AI routes', () => {
           role: 'ASSISTANT'
         }
       ],
-      sessionKey: 'session-key'
+      total: 2
     });
+    repositories.getRecentChatMessages.mockResolvedValueOnce([
+      {
+        citations: null,
+        content: 'Tell me about Batibot.',
+        groundedAnswer: null,
+        id: 'user-1',
+        role: 'USER'
+      },
+      {
+        citations: [],
+        content: 'Batibot is an AI-powered messaging companion.',
+        groundedAnswer: {
+          supported: true
+        },
+        id: 'assistant-1',
+        role: 'ASSISTANT'
+      }
+    ]);
 
     const { GET, POST } = await import('@/app/api/ai/chat/route');
 
@@ -312,6 +368,8 @@ describe('AI routes', () => {
 
     expect(historyResponse.status).toBe(200);
     expect(await historyResponse.json()).toEqual({
+      hasMore: false,
+      limit: 10,
       messages: [
         {
           content: 'Tell me about Batibot.',
@@ -327,30 +385,9 @@ describe('AI routes', () => {
           supported: true
         }
       ],
-      sessionKey: 'session-key'
-    });
-
-    repositories.getChatSession.mockResolvedValueOnce({
-      id: 'session-db-id',
-      messages: [
-        {
-          citations: null,
-          content: 'Tell me about Batibot.',
-          groundedAnswer: null,
-          id: 'user-1',
-          role: 'USER'
-        },
-        {
-          citations: [],
-          content: 'Batibot is an AI-powered messaging companion.',
-          groundedAnswer: {
-            supported: true
-          },
-          id: 'assistant-1',
-          role: 'ASSISTANT'
-        }
-      ],
-      sessionKey: 'session-key'
+      offset: 0,
+      sessionKey: 'session-key',
+      total: 2
     });
 
     const response = await POST(
@@ -385,6 +422,90 @@ describe('AI routes', () => {
         })
       ])
     );
+    expect(groundedAnswerInput.memoryContext).toContain('Batibot is an AI-powered messaging');
+    expect(searchSessionMemory).toHaveBeenCalledWith({
+      limit: 3,
+      query: 'What stack did it use?',
+      sessionKey: 'session-key'
+    });
+    expect(repositories.getChatSession).not.toHaveBeenCalled();
+    expect(repositories.getRecentChatMessages).toHaveBeenCalledWith('session-key', 4);
+  });
+
+  it('answers broad general-knowledge questions without site retrieval', async () => {
+    const { POST } = await import('@/app/api/ai/chat/route');
+
+    const response = await POST(
+      new NextRequest('http://localhost/api/ai/chat', {
+        body: JSON.stringify({
+          question: 'What are popular JavaScript frameworks right now?'
+        }),
+        method: 'POST'
+      })
+    );
+
+    expect(response.status).toBe(200);
+    expect(retrieveRelevantChunks).not.toHaveBeenCalled();
+    expect(searchSessionMemory).not.toHaveBeenCalled();
+    expect(streamGeneralAnswer).toHaveBeenCalledTimes(1);
+
+    const generalAnswerInput: unknown = streamGeneralAnswer.mock.calls[0]?.[0];
+
+    expect(isGeneralAnswerCallInput(generalAnswerInput)).toBe(true);
+
+    if (!isGeneralAnswerCallInput(generalAnswerInput)) {
+      throw new TypeError('Expected streamGeneralAnswer to receive a general answer input');
+    }
+
+    expect(generalAnswerInput.relatedBlogChunks).toEqual([]);
+  });
+
+  it('falls back cleanly when session memory lookup fails', async () => {
+    searchSessionMemory.mockRejectedValueOnce(new Error('memory unavailable'));
+    repositories.getRecentChatMessages.mockResolvedValueOnce([
+      {
+        citations: null,
+        content: 'Tell me about Batibot.',
+        groundedAnswer: null,
+        id: 'user-1',
+        role: 'USER'
+      }
+    ]);
+
+    const { POST } = await import('@/app/api/ai/chat/route');
+
+    const response = await POST(
+      new NextRequest('http://localhost/api/ai/chat', {
+        body: JSON.stringify({
+          question: 'What stack did it use?'
+        }),
+        headers: {
+          cookie: 'ai_chat_session=session-key'
+        },
+        method: 'POST'
+      })
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.text()).resolves.toContain('"type":"done"');
+  });
+
+  it('falls back cleanly when session memory storage fails', async () => {
+    storeSessionMemory.mockRejectedValueOnce(new Error('store unavailable'));
+
+    const { POST } = await import('@/app/api/ai/chat/route');
+
+    const response = await POST(
+      new NextRequest('http://localhost/api/ai/chat', {
+        body: JSON.stringify({
+          question: 'What are popular JavaScript frameworks right now?'
+        }),
+        method: 'POST'
+      })
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.text()).resolves.toContain('"type":"done"');
   });
 
   it('returns a rate-limited response when the limiter blocks chat requests', async () => {

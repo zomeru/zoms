@@ -45,6 +45,17 @@ describe('retrieval ranking heuristics', () => {
     });
   });
 
+  it('keeps broad framework questions in general knowledge instead of portfolio retrieval', () => {
+    expect(
+      classifyQueryIntent(
+        'Explain each popular javascript frameworks to me. Frontend, backend, and full stack meta frameworks.'
+      )
+    ).toMatchObject({
+      intent: 'GENERAL_KNOWLEDGE_QUERY',
+      strictContentTypes: false
+    });
+  });
+
   it('boosts exact title, slug, tag, section heading, page hint, and recency matches', () => {
     const matches = rankRetrievedChunks({
       classification: classifyQueryIntent('grounded assistant retrieval ai'),
@@ -117,7 +128,11 @@ describe('retrieval ranking heuristics', () => {
       baseChunk({
         content: 'Rank chunks by title, tags, and page context.',
         id: 'citation-2',
-        sectionTitle: 'Retrieval'
+        contentType: 'project',
+        documentId: 'project:vector-tools',
+        sectionTitle: 'Overview',
+        title: 'Vector tools',
+        url: '/#projects'
       })
     ]);
 
@@ -129,7 +144,33 @@ describe('retrieval ranking heuristics', () => {
     });
     expect(citations[1]).toMatchObject({
       id: 'citation-2',
-      sectionTitle: 'Retrieval'
+      sectionTitle: 'Overview',
+      url: '/#projects'
+    });
+  });
+
+  it('deduplicates blog citations that point to the same post across different sections', () => {
+    const citations = buildCitations([
+      baseChunk({
+        id: 'citation-summary',
+        sectionId: 'summary',
+        sectionTitle: 'Summary',
+        title: 'Building a grounded assistant',
+        url: '/blog/grounded-assistant'
+      }),
+      baseChunk({
+        id: 'citation-body',
+        sectionId: 'body',
+        sectionTitle: 'Body',
+        title: 'Building a grounded assistant',
+        url: '/blog/grounded-assistant'
+      })
+    ]);
+
+    expect(citations).toHaveLength(1);
+    expect(citations[0]).toMatchObject({
+      id: 'citation-summary',
+      url: '/blog/grounded-assistant'
     });
   });
 

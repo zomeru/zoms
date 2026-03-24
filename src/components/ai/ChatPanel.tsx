@@ -7,10 +7,14 @@ import type { AssistantMessage } from './useChatAssistant';
 interface ChatPanelProps {
   blogSlug?: string;
   error?: string;
+  hasMoreHistory: boolean;
+  isHistoryLoadingInitial: boolean;
+  isLoadingOlderHistory: boolean;
   isOpen: boolean;
   isWorking: boolean;
   messages: AssistantMessage[];
   onClose: () => void;
+  onLoadOlderHistory: () => Promise<void>;
   onSend: (question: string) => Promise<void>;
   onTransform: (mode: 'advanced' | 'beginner' | 'tldr') => Promise<void>;
 }
@@ -18,13 +22,21 @@ interface ChatPanelProps {
 export default function ChatPanel({
   blogSlug,
   error,
+  hasMoreHistory,
+  isHistoryLoadingInitial,
+  isLoadingOlderHistory,
   isOpen,
   isWorking,
   messages,
   onClose,
+  onLoadOlderHistory,
   onSend,
   onTransform
 }: ChatPanelProps) {
+  const panelHeightClass = blogSlug
+    ? 'h-[84vh] max-h-[48rem] md:h-[86vh] md:max-h-[50rem]'
+    : 'h-[82vh] max-h-[46rem] md:h-[84vh] md:max-h-[47rem]';
+
   return (
     <div
       className={`fixed inset-x-0 bottom-0 z-[60] transition md:bottom-8 md:right-8 md:left-auto md:w-[28rem] ${
@@ -33,15 +45,12 @@ export default function ChatPanel({
           : 'pointer-events-none translate-y-6 opacity-0'
       }`}
     >
-      <section className='glass-panel mx-3 flex h-[80vh] max-h-[44rem] flex-col overflow-hidden rounded-t-3xl border border-border shadow-[0_20px_60px_rgba(0,0,0,0.45)] md:mx-0 md:rounded-3xl'>
+      <section
+        className={`glass-panel mx-3 flex ${panelHeightClass} flex-col overflow-hidden rounded-t-3xl border border-border shadow-[0_20px_60px_rgba(0,0,0,0.45)] md:mx-0 md:rounded-3xl`}
+      >
         <header className='border-b border-border bg-surface/95 px-4 py-4'>
           <div className='flex items-start justify-between gap-4'>
-            <div>
-              <h2 className='text-lg font-semibold text-text-primary'>Chat with Zomer</h2>
-              <p className='mt-1 text-sm text-text-secondary'>
-                An AI version of Zomer grounded in the portfolio, blog, and profile content.
-              </p>
-            </div>
+            <h2 className='text-lg font-semibold text-text-primary'>Chat with Zomer</h2>
             <button
               type='button'
               aria-label='Minimize assistant'
@@ -75,7 +84,13 @@ export default function ChatPanel({
             {error}
           </div>
         )}
-        <ChatMessageList messages={messages} />
+        <ChatMessageList
+          hasMoreHistory={hasMoreHistory}
+          isHistoryLoadingInitial={isHistoryLoadingInitial}
+          isLoadingOlderHistory={isLoadingOlderHistory}
+          messages={messages}
+          onLoadOlderHistory={onLoadOlderHistory}
+        />
         <ChatComposer disabled={isWorking} onSubmit={onSend} />
       </section>
     </div>

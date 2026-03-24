@@ -218,12 +218,12 @@ export default function ChatMessageContent({
       return (
         <div className='not-prose my-4 overflow-hidden rounded-2xl border border-border bg-background/80'>
           <div className='flex items-center justify-between gap-3 border-b border-border bg-surface/80 px-3 py-2'>
-            <span className='truncate font-mono text-[11px] uppercase tracking-[0.22em] text-text-muted'>
+            <span className='truncate font-mono text-[10px] uppercase tracking-[0.22em] text-text-muted'>
               {getLanguageLabel(language)}
             </span>
-            {rawCode.length > 0 && (
-              <span className='font-mono text-[11px] uppercase tracking-[0.18em] text-text-muted'>
-                {isStreaming ? 'Streaming' : 'Ready'}
+            {rawCode.length > 0 && isStreaming && (
+              <span className='font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted'>
+                Streaming...
               </span>
             )}
           </div>

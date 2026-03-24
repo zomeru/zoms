@@ -4,14 +4,31 @@ import { useEffect, useRef } from 'react';
 
 import ChatMessageContent from './ChatMessageContent';
 import CitationList from './CitationList';
-import type { AssistantMessage } from './useChatAssistant';
+import { WELCOME_MESSAGE_ID, type AssistantMessage } from './useChatAssistant';
 
 interface ChatMessageListProps {
+  hasMoreHistory: boolean;
+  isHistoryLoadingInitial: boolean;
+  isLoadingOlderHistory: boolean;
   messages: AssistantMessage[];
+  onLoadOlderHistory?: () => Promise<void>;
 }
 
-export default function ChatMessageList({ messages }: ChatMessageListProps) {
+export default function ChatMessageList({
+  hasMoreHistory,
+  isHistoryLoadingInitial,
+  isLoadingOlderHistory,
+  messages,
+  onLoadOlderHistory
+}: ChatMessageListProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const realMessageCount = messages.filter((message) => message.id !== WELCOME_MESSAGE_ID).length;
+  const previousMetricsRef = useRef<{
+    count: number;
+    firstId?: string;
+    lastId?: string;
+    scrollHeight: number;
+  } | null>(null);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -20,12 +37,71 @@ export default function ChatMessageList({ messages }: ChatMessageListProps) {
       return;
     }
 
-    container.scrollTop = container.scrollHeight;
+    const previousMetrics = previousMetricsRef.current;
+    const firstId = messages.find((message) => message.id !== WELCOME_MESSAGE_ID)?.id;
+    const lastId = messages.at(-1)?.id;
+
+    if (previousMetrics) {
+      const prependedOlderMessages =
+        previousMetrics.lastId === lastId &&
+        previousMetrics.firstId !== firstId &&
+        messages.length > previousMetrics.count;
+
+      if (prependedOlderMessages) {
+        container.scrollTop += container.scrollHeight - previousMetrics.scrollHeight;
+      } else {
+        container.scrollTop = container.scrollHeight;
+      }
+    } else {
+      container.scrollTop = container.scrollHeight;
+    }
+
+    previousMetricsRef.current = {
+      count: messages.length,
+      firstId,
+      lastId,
+      scrollHeight: container.scrollHeight
+    };
   }, [messages]);
 
+  function handleScroll() {
+    const container = scrollContainerRef.current;
+
+    if (
+      !container ||
+      !hasMoreHistory ||
+      isHistoryLoadingInitial ||
+      isLoadingOlderHistory ||
+      !onLoadOlderHistory
+    ) {
+      return;
+    }
+
+    if (container.scrollTop <= 24) {
+      onLoadOlderHistory().catch(() => undefined);
+    }
+  }
+
   return (
-    <div ref={scrollContainerRef} className='assistant-scrollbar min-h-0 flex-1 overflow-y-auto'>
+    <div
+      ref={scrollContainerRef}
+      aria-label='Chat conversation history'
+      className='assistant-scrollbar min-h-0 flex-1 overflow-y-auto'
+      onScroll={handleScroll}
+    >
       <div className='flex min-h-full flex-col justify-end gap-4 p-4'>
+        {isHistoryLoadingInitial && realMessageCount === 0 ? (
+          <div className='mx-auto my-auto flex h-full min-h-32 items-center justify-center'>
+            <div className='rounded-2xl border border-border bg-surface/80 px-4 py-3 text-sm text-text-secondary'>
+              Loading conversation history...
+            </div>
+          </div>
+        ) : null}
+        {isLoadingOlderHistory ? (
+          <div className='mx-auto rounded-full border border-border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.18em] text-text-muted'>
+            Loading older messages
+          </div>
+        ) : null}
         {messages.map((message) => (
           <article
             key={message.id}

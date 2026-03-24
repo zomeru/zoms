@@ -153,8 +153,10 @@ export async function retrieveRelevantChunks(
     });
   }
 
+  const citations = buildCitations(matches, classification);
+
   return {
-    citations: buildCitations(matches, classification),
+    citations,
     classification,
     matches,
     shouldRefuse: shouldRefuseAnswer(matches, classification)

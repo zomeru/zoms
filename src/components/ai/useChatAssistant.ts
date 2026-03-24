@@ -17,12 +17,17 @@ export interface AssistantMessage {
 }
 
 interface ChatHistoryResponse {
+  hasMore: boolean;
+  limit: number;
   messages: AssistantMessage[];
+  offset: number;
   sessionKey: string | null;
+  total: number;
 }
 
-const WELCOME_MESSAGE_ID = 'assistant-welcome';
-const WELCOME_MESSAGE: AssistantMessage = {
+const CHAT_HISTORY_PAGE_SIZE = 10;
+export const WELCOME_MESSAGE_ID = 'assistant-welcome';
+export const WELCOME_MESSAGE: AssistantMessage = {
   content:
     'Hi there! Thanks for visiting my website. Feel free to ask me about my projects, experience, blogs, or even a general question.',
   id: WELCOME_MESSAGE_ID,
@@ -87,8 +92,12 @@ function isAssistantMessage(value: unknown): value is AssistantMessage {
 function isChatHistoryResponse(value: unknown): value is ChatHistoryResponse {
   return (
     isRecord(value) &&
+    typeof value.hasMore === 'boolean' &&
+    typeof value.limit === 'number' &&
     (typeof value.sessionKey === 'string' || value.sessionKey === null) &&
     Array.isArray(value.messages) &&
+    typeof value.offset === 'number' &&
+    typeof value.total === 'number' &&
     value.messages.every(isAssistantMessage)
   );
 }
@@ -161,16 +170,31 @@ export function useChatAssistant(input: { pathname: string }) {
   const [messages, setMessages] = useState<AssistantMessage[]>([]);
   const [sessionKey, setSessionKey] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
+  const [hasMoreHistory, setHasMoreHistory] = useState(false);
   const [historyHydrationState, setHistoryHydrationState] = useState<
-    'checking' | 'empty' | 'ready'
+    'checking' | 'empty' | 'loading' | 'ready'
   >('checking');
+  const [isLoadingOlderHistory, setIsLoadingOlderHistory] = useState(false);
   const hasHydratedHistory = useRef(false);
+  const shouldIgnoreHydrationResult = useRef(false);
 
   const blogSlug = useMemo(() => getBlogSlugFromPathname(input.pathname), [input.pathname]);
-  const displayedMessages = useMemo(
-    () => (historyHydrationState === 'empty' ? [WELCOME_MESSAGE, ...messages] : messages),
-    [historyHydrationState, messages]
-  );
+  const shouldShowWelcomeMessage =
+    historyHydrationState === 'empty' || historyHydrationState === 'ready';
+  const displayedMessages = useMemo(() => {
+    if (!shouldShowWelcomeMessage) {
+      return messages;
+    }
+
+    if (messages.some((message) => message.id === WELCOME_MESSAGE_ID)) {
+      return messages;
+    }
+
+    return [WELCOME_MESSAGE, ...messages];
+  }, [messages, shouldShowWelcomeMessage]);
+  const isHistoryLoadingInitial =
+    (historyHydrationState === 'checking' || historyHydrationState === 'loading') &&
+    messages.length === 0;
 
   useEffect(() => {
     const storedSessionKey = window.localStorage.getItem('ai-chat-session');
@@ -199,26 +223,36 @@ export function useChatAssistant(input: { pathname: string }) {
     let cancelled = false;
 
     async function hydrateHistory() {
+      setHistoryHydrationState('loading');
+
       try {
         const encodedSessionKey = encodeURIComponent(sessionKeyToHydrate);
-        const response = await fetch(`/api/ai/chat?sessionKey=${encodedSessionKey}`);
+        const response = await fetch(
+          `/api/ai/chat?sessionKey=${encodedSessionKey}&limit=${CHAT_HISTORY_PAGE_SIZE}&offset=0`
+        );
 
         if (!response.ok) {
+          if (!cancelled) {
+            setHasMoreHistory(false);
+            setHistoryHydrationState('empty');
+          }
           return;
         }
 
         const payload: unknown = await response.json();
 
-        if (!isChatHistoryResponse(payload) || cancelled) {
+        if (!isChatHistoryResponse(payload) || cancelled || shouldIgnoreHydrationResult.current) {
           return;
         }
 
         hasHydratedHistory.current = true;
         setMessages(payload.messages);
+        setHasMoreHistory(payload.hasMore);
         setHistoryHydrationState(payload.messages.length > 0 ? 'ready' : 'empty');
       } catch {
         // Ignore hydration failures and let the next send start fresh.
         if (!cancelled) {
+          setHasMoreHistory(false);
           setHistoryHydrationState('empty');
         }
       }
@@ -230,6 +264,43 @@ export function useChatAssistant(input: { pathname: string }) {
       cancelled = true;
     };
   }, [messages.length, sessionKey]);
+
+  async function loadOlderHistory(): Promise<void> {
+    if (
+      !sessionKey ||
+      !hasHydratedHistory.current ||
+      !hasMoreHistory ||
+      isLoadingOlderHistory ||
+      isHistoryLoadingInitial
+    ) {
+      return;
+    }
+
+    setIsLoadingOlderHistory(true);
+
+    try {
+      const encodedSessionKey = encodeURIComponent(sessionKey);
+      const response = await fetch(
+        `/api/ai/chat?sessionKey=${encodedSessionKey}&limit=${CHAT_HISTORY_PAGE_SIZE}&offset=${messages.length}`
+      );
+
+      if (!response.ok) {
+        return;
+      }
+
+      const payload: unknown = await response.json();
+
+      if (!isChatHistoryResponse(payload) || payload.messages.length === 0) {
+        setHasMoreHistory(false);
+        return;
+      }
+
+      setMessages((currentMessages) => [...payload.messages, ...currentMessages]);
+      setHasMoreHistory(payload.hasMore);
+    } finally {
+      setIsLoadingOlderHistory(false);
+    }
+  }
 
   async function extractErrorMessage(response: Response, fallbackMessage: string): Promise<string> {
     try {
@@ -289,6 +360,9 @@ export function useChatAssistant(input: { pathname: string }) {
     setError(undefined);
     setIsOpen(true);
     setIsWorking(true);
+    shouldIgnoreHydrationResult.current = true;
+    hasHydratedHistory.current = true;
+    setHistoryHydrationState('ready');
     setMessages((currentMessages) => [
       ...currentMessages,
       {
@@ -350,6 +424,9 @@ export function useChatAssistant(input: { pathname: string }) {
 
     setError(undefined);
     setIsWorking(true);
+    shouldIgnoreHydrationResult.current = true;
+    hasHydratedHistory.current = true;
+    setHistoryHydrationState('ready');
 
     try {
       const response = await fetch('/api/ai/transform', {
@@ -398,8 +475,12 @@ export function useChatAssistant(input: { pathname: string }) {
   return {
     blogSlug,
     error,
+    hasMoreHistory,
+    isHistoryLoadingInitial,
+    isLoadingOlderHistory,
     isOpen,
     isWorking,
+    loadOlderHistory,
     messages: displayedMessages,
     requestTransform,
     sendQuestion,

@@ -50,6 +50,7 @@ export async function streamGroundedAnswer(input: {
     role: 'assistant' | 'user';
   }>;
   currentBlogSlug?: string;
+  memoryContext?: string;
   query: string;
   shouldRefuse: boolean;
   supportingChunks: RetrievedChunk[];
@@ -70,17 +71,19 @@ export async function streamGroundedAnswer(input: {
 
   const env = getAiEnv();
   const provider = getOpenRouterProvider();
+  const prompt = buildGroundedAnswerPrompt({
+    citations: input.citations,
+    classification: input.classification.intent,
+    conversationHistory: input.conversationHistory,
+    currentBlogSlug: input.currentBlogSlug,
+    memoryContext: input.memoryContext,
+    query: input.query,
+    retrievedContext: formatRetrievedContext(input.supportingChunks)
+  });
   const result = streamText({
     experimental_transform: smoothStream({ chunking: 'word' }),
     model: provider.chat(env.OPENROUTER_CHAT_MODEL),
-    prompt: buildGroundedAnswerPrompt({
-      citations: input.citations,
-      classification: input.classification.intent,
-      conversationHistory: input.conversationHistory,
-      currentBlogSlug: input.currentBlogSlug,
-      query: input.query,
-      retrievedContext: formatRetrievedContext(input.supportingChunks)
-    }),
+    prompt,
     temperature: 0
   });
 
@@ -96,6 +99,7 @@ export async function streamGeneralAnswer(input: {
     content: string;
     role: 'assistant' | 'user';
   }>;
+  memoryContext?: string;
   query: string;
   relatedBlogChunks: RetrievedChunk[];
 }): Promise<{
@@ -105,14 +109,16 @@ export async function streamGeneralAnswer(input: {
 }> {
   const env = getAiEnv();
   const provider = getOpenRouterProvider();
+  const prompt = buildGeneralAnswerPrompt({
+    conversationHistory: input.conversationHistory,
+    memoryContext: input.memoryContext,
+    query: input.query,
+    relatedBlogContext: formatRetrievedContext(input.relatedBlogChunks)
+  });
   const result = streamText({
     experimental_transform: smoothStream({ chunking: 'word' }),
     model: provider.chat(env.OPENROUTER_CHAT_MODEL),
-    prompt: buildGeneralAnswerPrompt({
-      conversationHistory: input.conversationHistory,
-      query: input.query,
-      relatedBlogContext: formatRetrievedContext(input.relatedBlogChunks)
-    }),
+    prompt,
     temperature: 0.3
   });
 
