@@ -2,6 +2,7 @@
 // @vitest-environment jsdom
 
 import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -457,7 +458,7 @@ describe('chat UI behaviors', () => {
   });
 
   it('defines highlight.js theme styles for chat code blocks', () => {
-    const globalsCss = readFileSync('/Users/zomeru/Desktop/zoms/src/styles/globals.css', 'utf8');
+    const globalsCss = readFileSync(join(process.cwd(), 'src/styles/globals.css'), 'utf8');
 
     expect(globalsCss).toContain('.llm-markdown .hljs');
     expect(globalsCss).toContain('.llm-markdown .hljs-keyword');
