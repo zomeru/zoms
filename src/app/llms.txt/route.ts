@@ -3,7 +3,7 @@ import { TITLE } from '@/constants';
 import { getLatestBlogPosts } from '@/lib/blog';
 
 export async function GET(): Promise<Response> {
-  const recentPosts = await getLatestBlogPosts(5);
+  const recentPosts = await getLatestBlogPosts(10);
 
   const recentPostLines = recentPosts
     .map((post) => `- [${post.title}](${SITE_URL}/blog/${post.slug.current})`)
@@ -18,7 +18,7 @@ export async function GET(): Promise<Response> {
 - [Home](${SITE_URL}): Portfolio overview with skills, projects, and professional experience
 - [Blog](${SITE_URL}/blog): Long-form technical articles on web development topics
 
-## Recent Blog Posts
+## 10 Recent Blog Posts
 
 ${recentPostLines}
 

@@ -57,6 +57,89 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.assistant-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-hover) transparent;
+}
+
+.assistant-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.assistant-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.3);
+  border: 2px solid transparent;
+  border-radius: 9999px;
+  background-clip: padding-box;
+}
+
+/* === CHAT CODE HIGHLIGHTING === */
+.llm-markdown .hljs {
+  color: #adbac7;
+}
+
+.llm-markdown .hljs-comment,
+.llm-markdown .hljs-quote {
+  color: #768390;
+}
+
+.llm-markdown .hljs-keyword,
+.llm-markdown .hljs-doctag,
+.llm-markdown .hljs-meta .hljs-keyword,
+.llm-markdown .hljs-template-tag,
+.llm-markdown .hljs-tag .hljs-name,
+.llm-markdown .hljs-selector-tag,
+.llm-markdown .hljs-literal,
+.llm-markdown .hljs-name {
+  color: #f47067;
+}
+
+.llm-markdown .hljs-attr,
+.llm-markdown .hljs-attribute,
+.llm-markdown .hljs-selector-id,
+.llm-markdown .hljs-selector-class,
+.llm-markdown .hljs-selector-attr,
+.llm-markdown .hljs-selector-pseudo,
+.llm-markdown .hljs-title,
+.llm-markdown .hljs-section {
+  color: #dcbdfb;
+}
+
+.llm-markdown .hljs-string,
+.llm-markdown .hljs-regexp,
+.llm-markdown .hljs-symbol,
+.llm-markdown .hljs-variable,
+.llm-markdown .hljs-template-variable,
+.llm-markdown .hljs-link,
+.llm-markdown .hljs-deletion {
+  color: #96d0ff;
+}
+
+.llm-markdown .hljs-number,
+.llm-markdown .hljs-built_in,
+.llm-markdown .hljs-builtin-name,
+.llm-markdown .hljs-type,
+.llm-markdown .hljs-params,
+.llm-markdown .hljs-property,
+.llm-markdown .hljs-addition,
+.llm-markdown .hljs-bullet {
+  color: #6cb6ff;
+}
+
+.llm-markdown .hljs-meta,
+.llm-markdown .hljs-code,
+.llm-markdown .hljs-formula {
+  color: #8ddb8c;
+}
+
+.llm-markdown .hljs-emphasis {
+  font-style: italic;
+}
+
+.llm-markdown .hljs-strong {
+  font-weight: 700;
+}
+
 /* === CUSTOM UTILITIES === */
 @utility highlight {
   color: var(--color-text-primary);
@@ -177,6 +260,10 @@ body {
     color: var(--color-primary);
     opacity: 0.7;
   }
+}
+
+button {
+  cursor: pointer;
 }
 
 /* === BUTTONS === */

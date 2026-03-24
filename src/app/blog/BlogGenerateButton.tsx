@@ -169,7 +169,7 @@ const BlogGenerateButton: React.FC<BlogGenerateButtonProps> = ({ initialAuthoriz
       <div className='mb-8 flex justify-center'>
         <TerminalCard
           title='blog-generator.sh'
-          className='w-full max-w-3xl shadow-[0_24px_80px_rgba(0,0,0,0.28)]'
+          className='w-full shadow-[0_24px_80px_rgba(0,0,0,0.28)]'
           bodyClassName='p-5 font-mono text-sm'
         >
           <div className='mb-5 border-b border-code-border pb-4'>

@@ -2,7 +2,7 @@ import type { PortableTextBlock } from '@portabletext/types';
 
 import { experience as fallbackExperience } from '@/constants/experience';
 
-import { client } from './sanity';
+import { getSanityClient } from './sanity';
 
 export interface Experience {
   _id?: string;
@@ -15,9 +15,27 @@ export interface Experience {
   order: number;
 }
 
+function getExperienceKey(experience: Pick<Experience, 'company' | 'title'>): string {
+  return `${experience.title}::${experience.company}`.toLowerCase();
+}
+
+function mergeExperienceEntries(experiences: Experience[]): Experience[] {
+  const merged = new Map<string, Experience>();
+
+  for (const fallbackEntry of fallbackExperience) {
+    merged.set(getExperienceKey(fallbackEntry), fallbackEntry);
+  }
+
+  for (const experience of experiences) {
+    merged.set(getExperienceKey(experience), experience);
+  }
+
+  return [...merged.values()].sort((left, right) => left.order - right.order);
+}
+
 export async function getExperience(): Promise<Experience[]> {
   try {
-    const experiences = await client.fetch<Experience[]>(
+    const experiences = await getSanityClient().fetch<Experience[]>(
       `*[_type == "experience"] | order(order asc) {
         _id,
         title,
@@ -40,7 +58,7 @@ export async function getExperience(): Promise<Experience[]> {
       return fallbackExperience;
     }
 
-    return experiences;
+    return mergeExperienceEntries(experiences);
   } catch (error) {
     // Log error in development
     if (process.env.NODE_ENV === 'development') {

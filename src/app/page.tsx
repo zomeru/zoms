@@ -1,4 +1,4 @@
-import { About, Blog, Experience, Projects } from '@/components/Sections';
+import { About, Blog, Experience, Projects } from '@/components/sections';
 import { Footer } from '@/components';
 
 export default async function Home(): Promise<React.JSX.Element> {

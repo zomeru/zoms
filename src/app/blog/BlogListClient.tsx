@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 
+import BlogDeleteMenu from '@/components/blog/BlogDeleteMenu';
 import { TechBadge } from '@/components/ui';
 import { BLOG_POSTS_PAGE_SIZE } from '@/constants';
 import type { BlogPostListItem } from '@/lib/blog';
@@ -16,12 +17,13 @@ interface BlogListClientProps {
 const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTotal }) => {
   const [posts, setPosts] = useState<BlogPostListItem[]>(initialPosts);
   const [offset, setOffset] = useState<number>(initialPosts.length);
+  const [total, setTotal] = useState<number>(initialTotal);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef<boolean>(false);
 
-  const hasMore = offset < initialTotal;
+  const hasMore = offset < total;
 
   const loadMore = useCallback(async (): Promise<void> => {
     if (isLoadingRef.current || !hasMore) return;
@@ -91,10 +93,13 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
         const date = formatDate(post.publishedAt);
 
         return (
-          <Link key={post._id} href={`/blog/${post.slug.current}`} className='block h-full'>
-            <article className='bg-code-bg border border-code-border rounded-lg p-5 hover:border-primary/30 transition-all duration-300 group h-full'>
+          <article
+            key={post._id}
+            className='group flex h-full gap-3 rounded-lg border border-code-border bg-code-bg p-5 transition-all duration-300 hover:border-primary/30'
+          >
+            <Link href={`/blog/${post.slug.current}`} className='block min-w-0 flex-1'>
               <div className='flex flex-col gap-3'>
-                <div className='flex flex-wrap items-center gap-3 text-xs text-text-muted font-mono'>
+                <div className='flex flex-wrap items-center gap-3 font-mono text-xs text-text-muted'>
                   <span>{date}</span>
                   {post.readTime && (
                     <>
@@ -103,20 +108,32 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
                     </>
                   )}
                 </div>
-                <h2 className='text-primary font-medium text-lg  group-hover:text-primary-hover transition-colors'>
+                <h2 className='text-lg font-medium text-primary transition-colors group-hover:text-primary-hover'>
                   {post.title}
                 </h2>
-                <p className='text-text-secondary text-sm line-clamp-2'>{post.summary}</p>
+                <p className='line-clamp-2 text-sm text-text-secondary'>{post.summary}</p>
                 {post.tags && post.tags.length > 0 && (
-                  <div className='flex flex-wrap gap-2 mt-2'>
+                  <div className='mt-2 flex flex-wrap gap-2'>
                     {post.tags.map((tag) => (
                       <TechBadge key={tag}>{tag}</TechBadge>
                     ))}
                   </div>
                 )}
               </div>
-            </article>
-          </Link>
+            </Link>
+            <BlogDeleteMenu
+              slug={post.slug.current}
+              title={post.title}
+              refreshOnDelete={false}
+              onDeleted={() => {
+                setPosts((currentPosts) =>
+                  currentPosts.filter((candidate) => candidate.slug.current !== post.slug.current)
+                );
+                setOffset((currentOffset) => Math.max(currentOffset - 1, 0));
+                setTotal((currentTotal) => Math.max(currentTotal - 1, 0));
+              }}
+            />
+          </article>
         );
       })}
 
@@ -143,7 +160,7 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
 
       <div className='col-span-full text-center text-text-muted text-sm font-mono pt-8 border-t border-code-border'>
         Showing <span className='text-terminal-blue'>{posts.length}</span> of{' '}
-        <span className='text-terminal-blue'>{initialTotal}</span> posts
+        <span className='text-terminal-blue'>{total}</span> posts
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { client } from './sanity';
+import { getSanityClient } from './sanity';
 
 export interface BlogPost {
   _id: string;
@@ -49,7 +49,7 @@ export interface BlogPostSeo {
  */
 export async function getBlogPosts(limit = 25, offset = 0): Promise<BlogPostListItem[]> {
   try {
-    const posts = await client.fetch<BlogPostListItem[]>(
+    const posts = await getSanityClient().fetch<BlogPostListItem[]>(
       `*[_type == "blogPost"] | order(publishedAt desc) [$offset...$end] {
         _id,
         title,
@@ -85,7 +85,7 @@ export async function getBlogPosts(limit = 25, offset = 0): Promise<BlogPostList
  */
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
   try {
-    const post = await client.fetch<BlogPost | null>(
+    const post = await getSanityClient().fetch<BlogPost | null>(
       `*[_type == "blogPost" && slug.current == $slug][0] {
         _id,
         title,
@@ -124,7 +124,7 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
  */
 export async function getBlogPostSeoBySlug(slug: string): Promise<BlogPostSeo | null> {
   try {
-    const post = await client.fetch<BlogPostSeo | null>(
+    const post = await getSanityClient().fetch<BlogPostSeo | null>(
       `*[_type == "blogPost" && slug.current == $slug][0] {
         _id,
         title,
@@ -151,12 +151,49 @@ export async function getBlogPostSeoBySlug(slug: string): Promise<BlogPostSeo | 
 }
 
 /**
+ * Fetch blog posts in a deterministic published-date order.
+ */
+async function getBoundaryBlogPosts(
+  limit = 1,
+  direction: 'asc' | 'desc' = 'desc'
+): Promise<BlogPostListItem[]> {
+  try {
+    return await getSanityClient().fetch<BlogPostListItem[]>(
+      `*[_type == "blogPost"] | order(publishedAt ${direction}) [0...$limit] {
+        _id,
+        title,
+        slug,
+        summary,
+        publishedAt,
+        tags,
+        generated,
+        readTime
+      }`,
+      { limit },
+      {
+        next: { revalidate: 60 }
+      }
+    );
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console -- Allow console in development for debugging
+      console.error('Error fetching boundary blog posts from Sanity:', error);
+    }
+    return [];
+  }
+}
+
+/**
  * Get the latest blog posts for the home page
  * @param limit - Number of posts to fetch (default: 3)
  * @returns Array of blog posts
  */
 export async function getLatestBlogPosts(limit = 3): Promise<BlogPostListItem[]> {
-  return await getBlogPosts(limit, 0);
+  return await getBoundaryBlogPosts(limit, 'desc');
+}
+
+export async function getOldestBlogPosts(limit = 1): Promise<BlogPostListItem[]> {
+  return await getBoundaryBlogPosts(limit, 'asc');
 }
 
 export interface BlogPostSitemapItem {
@@ -171,7 +208,7 @@ export interface BlogPostSitemapItem {
  */
 export async function getBlogPostsForSitemap(): Promise<BlogPostSitemapItem[]> {
   try {
-    const posts = await client.fetch<BlogPostSitemapItem[]>(
+    const posts = await getSanityClient().fetch<BlogPostSitemapItem[]>(
       `*[_type == "blogPost"] | order(publishedAt desc) {
         "slug": slug.current,
         publishedAt,
@@ -197,7 +234,7 @@ export async function getBlogPostsForSitemap(): Promise<BlogPostSitemapItem[]> {
  */
 export async function getBlogPostCount(): Promise<number> {
   try {
-    const count = await client.fetch<number>(
+    const count = await getSanityClient().fetch<number>(
       `count(*[_type == "blogPost"])`,
       {},
       {

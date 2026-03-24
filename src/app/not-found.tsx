@@ -1,11 +1,16 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { TerminalCard } from '@/components/ui';
 import { seo } from '@/configs';
 
-export const metadata = {
-  ...seo
+export const metadata: Metadata = {
+  ...seo,
+  robots: {
+    index: false,
+    follow: false
+  }
 };
 
 const NotFound = (): React.JSX.Element => {

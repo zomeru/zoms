@@ -3,11 +3,12 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import BlogDeleteMenu from '@/components/blog/BlogDeleteMenu';
 import { TechBadge, TerminalCard } from '@/components/ui';
 import { SITE_URL } from '@/configs/seo';
 import { TITLE } from '@/constants';
 import { getBlogPostBySlug, getBlogPostSeoBySlug } from '@/lib/blog';
-import { client } from '@/lib/sanity';
+import { getSanityClient } from '@/lib/sanity';
 import { processMarkdown } from '@/lib/unified';
 import { formatDateWithTime } from '@/lib/utils';
 
@@ -20,7 +21,7 @@ interface BlogPostPageProps {
 }
 
 export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
-  const slugs = await client.fetch<Array<{ slug: string }>>(
+  const slugs = await getSanityClient().fetch<Array<{ slug: string }>>(
     `*[_type == "blogPost"]{ "slug": slug.current }`,
     {},
     { next: { revalidate: 3600 } }
@@ -127,7 +128,15 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
 
           <TerminalCard title={`${slug}.md`} bodyClassName='p-8'>
             <header className='mb-8'>
-              <h1 className='text-3xl md:text-4xl font-semibold mb-4 text-primary'>{post.title}</h1>
+              <div className='mb-4 flex flex-col gap-4 md:flex-row md:items-start md:justify-between'>
+                <h1 className='text-3xl md:text-4xl font-semibold text-primary'>{post.title}</h1>
+                <BlogDeleteMenu
+                  slug={slug}
+                  title={post.title}
+                  redirectTo='/blog'
+                  refreshOnDelete={false}
+                />
+              </div>
 
               <div className='flex flex-wrap items-center gap-3 text-sm text-text-muted font-mono mb-6'>
                 <span>

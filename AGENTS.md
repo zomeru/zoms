@@ -34,14 +34,14 @@ Run these from the repository root unless a subproject-specific workflow require
 
 - `pnpm dev`: start the Next.js app
 - `pnpm studio:dev`: start Sanity Studio
-- `pnpm check-format`: verify Prettier formatting
+- `pnpm check:format`: verify Prettier formatting
 - `pnpm format`: apply Prettier formatting
 - `pnpm check-lint`: run ESLint without edits
 - `pnpm lint`: run ESLint with `--fix`
 - `pnpm check-types`: run the TypeScript checker
-- `pnpm test-all`: run format, lint, and type checks
+- `pnpm test:all`: run format, lint, and type checks
 - `pnpm build`: build the Next.js app
-- `pnpm test-all:build`: run all checks plus build
+- `pnpm test:all:build`: run all checks plus build
 - `pnpm studio:build`: validate the Studio build
 
 ## Development Workflow
@@ -49,7 +49,7 @@ Run these from the repository root unless a subproject-specific workflow require
 - Prefer small, targeted changes that match the existing architecture.
 - Read nearby code before editing. The repo already separates routing, UI, utilities, and content concerns clearly.
 - Use root scripts instead of ad hoc commands when an existing script already covers the task.
-- When changing app behavior, APIs, rendering, config, or dependency wiring, prefer `pnpm test-all:build` before finishing.
+- When changing app behavior, APIs, rendering, config, or dependency wiring, prefer `pnpm test:all:build` before finishing.
 - When changing only content or docs, lighter verification is acceptable, but state what was and was not checked.
 
 ## Code Style
@@ -64,14 +64,14 @@ Run these from the repository root unless a subproject-specific workflow require
 
 There is no dedicated unit test suite in the root app today. The main automated safety checks are:
 
-- formatting via `pnpm check-format`
-- linting via `pnpm check-lint`
-- type checking via `pnpm check-types`
+- formatting via `pnpm check:format`
+- linting via `pnpm check:lint`
+- type checking via `pnpm check:types`
 - integration/build validation via `pnpm build`
 
 Before concluding substantial code changes:
 
-- Run `pnpm test-all` at minimum for normal app code changes.
+- Run `pnpm test:all` at minimum for normal app code changes.
 - Run `pnpm build` when changes affect routes, metadata, server code, config, or rendering behavior.
 - Run `pnpm studio:build` when changing files inside `studio/`.
 
