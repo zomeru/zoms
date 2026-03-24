@@ -3,11 +3,56 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import AdminConsole from '@/components/admin/AdminConsole';
 import ReindexAdminCard from '@/components/ai/ReindexAdminCard';
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    refresh: vi.fn()
+  })
+}));
 
 describe('admin UI behaviors', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it('waits for the admin access bootstrap before rendering the controls', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: string | URL | Request) => {
+        const url =
+          typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+
+        if (url.includes('/api/admin/access')) {
+          return new Response(
+            JSON.stringify({
+              aiReindexAuthorized: false,
+              blogGenerationAuthorized: true,
+              success: true
+            }),
+            {
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              status: 200
+            }
+          );
+        }
+
+        return new Response(null, { status: 404 });
+      })
+    );
+
+    render(<AdminConsole />);
+
+    expect(screen.queryByRole('button', { name: 'Run' })).toBeNull();
+    expect(screen.getByText(/verifying browser access/i)).toBeTruthy();
+
+    await waitFor(() => {
+      expect(screen.getByText('Admin')).toBeTruthy();
+      expect(screen.getByText(/generator unlocked/i)).toBeTruthy();
+    });
   });
 
   it('unlocks manual reindex and submits a targeted reindex request', async () => {

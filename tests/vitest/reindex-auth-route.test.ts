@@ -66,7 +66,7 @@ describe('AI reindex auth route', () => {
     expect(authorized.status).toBe(200);
     expect(getAiReindexSessionCookie).toHaveBeenCalledTimes(1);
 
-    const cleared = await DELETE();
+    const cleared = await DELETE(new NextRequest('http://localhost/api/ai/reindex/auth'));
 
     expect(cleared.status).toBe(200);
     expect(getClearedAiReindexSessionCookie).toHaveBeenCalledTimes(1);

@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { getBlogPostBySlug } from '@/lib/blog';
 import { scheduleDeletedBlogCleanup } from '@/lib/blogDeleteCleanup';
 import { isValidBlogGenerationSession } from '@/lib/blogGenerationAuth';
+import { verifyBotIdRequest } from '@/lib/botId';
 import { ApiError, handleApiError, validateSchema } from '@/lib/errorHandler';
 import { getErrorMessage } from '@/lib/errorMessages';
 import log from '@/lib/logger';
@@ -71,6 +72,11 @@ export async function GET(
   const path = '/api/blog/[slug]';
 
   try {
+    const botIdResponse = await verifyBotIdRequest(request);
+    if (botIdResponse) {
+      return botIdResponse;
+    }
+
     // Rate limiting
     const rateLimitResponse = await rateLimitMiddleware(request, 'BLOG_API');
     if (rateLimitResponse) {
@@ -122,6 +128,13 @@ export async function DELETE(
   const path = '/api/blog/[slug]';
 
   try {
+    const botIdResponse = await verifyBotIdRequest(request, {
+      allowAuthorizedServiceRequest: true
+    });
+    if (botIdResponse) {
+      return botIdResponse;
+    }
+
     const rateLimitResponse = await rateLimitMiddleware(request, 'BLOG_GENERATE');
     if (rateLimitResponse) {
       return rateLimitResponse;

@@ -10,6 +10,7 @@ import { searchSessionMemory, storeSessionMemory } from '@/lib/ai/memory';
 import { filterChatCitations } from '@/lib/ai/responseDecorations';
 import type { Citation } from '@/lib/ai/schemas';
 import { appendStreamText } from '@/lib/ai/streaming';
+import { verifyBotIdRequest } from '@/lib/botId';
 import { repositories } from '@/lib/db/repositories';
 import { handleApiError, validateSchema } from '@/lib/errorHandler';
 import { toPrismaJsonValue } from '@/lib/json';
@@ -389,6 +390,11 @@ function createStreamingChatResponse(input: {
 
 export async function GET(request: NextRequest): Promise<Response> {
   try {
+    const botIdResponse = await verifyBotIdRequest(request);
+    if (botIdResponse) {
+      return botIdResponse;
+    }
+
     const sessionKey =
       request.nextUrl.searchParams.get('sessionKey') ??
       request.cookies.get(AI_CHAT_COOKIE_NAME)?.value;
@@ -430,6 +436,12 @@ export async function GET(request: NextRequest): Promise<Response> {
 }
 
 export async function POST(request: NextRequest): Promise<Response> {
+  const botIdResponse = await verifyBotIdRequest(request);
+
+  if (botIdResponse) {
+    return botIdResponse;
+  }
+
   const rateLimitResponse = await rateLimitMiddleware(request, 'AI_CHAT');
 
   if (rateLimitResponse) {

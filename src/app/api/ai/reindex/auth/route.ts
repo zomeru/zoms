@@ -6,6 +6,7 @@ import {
   hasAiReindexSecret,
   validateAiReindexSecret
 } from '@/lib/ai/reindexAuth';
+import { verifyBotIdRequest } from '@/lib/botId';
 import { ApiError, handleApiError, validateSchema } from '@/lib/errorHandler';
 import { getErrorMessage } from '@/lib/errorMessages';
 import { blogGenerateAuthRequestSchema } from '@/lib/schemas';
@@ -14,6 +15,11 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const botIdResponse = await verifyBotIdRequest(request);
+    if (botIdResponse) {
+      return botIdResponse;
+    }
+
     if (!hasAiReindexSecret()) {
       throw new ApiError(getErrorMessage('UNAUTHORIZED'), 401, 'UNAUTHORIZED');
     }
@@ -37,7 +43,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 }
 
-export async function DELETE(): Promise<NextResponse> {
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
+  const botIdResponse = await verifyBotIdRequest(request);
+  if (botIdResponse) {
+    return botIdResponse;
+  }
+
   const response = NextResponse.json({ success: true, authorized: false });
   const cookie = getClearedAiReindexSessionCookie();
   response.cookies.set(cookie.name, cookie.value, cookie.options);

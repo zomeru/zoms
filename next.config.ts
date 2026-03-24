@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { withBotId } from 'botid/next/config';
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
@@ -28,4 +29,4 @@ const nextConfig: NextConfig = {
   }
 };
 
-module.exports = nextConfig;
+export default withBotId(nextConfig);

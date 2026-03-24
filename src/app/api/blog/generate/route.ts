@@ -3,6 +3,7 @@ import { createClient, type SanityClient } from '@sanity/client';
 
 import { isValidBlogGenerationSession } from '@/lib/blogGenerationAuth';
 import { scheduleBlogReindex } from '@/lib/blogReindex';
+import { verifyBotIdRequest } from '@/lib/botId';
 import { ApiError, handleApiError, validateSchema } from '@/lib/errorHandler';
 import { getErrorMessage } from '@/lib/errorMessages';
 import { generateBlogContent, type GeneratedBlogPost } from '@/lib/generateBlog';
@@ -80,6 +81,14 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
   const method = request.method === 'GET' ? 'GET' : 'POST';
 
   try {
+    const botIdResponse = await verifyBotIdRequest(request, {
+      allowAuthorizedServiceRequest: true
+    });
+
+    if (botIdResponse) {
+      return botIdResponse;
+    }
+
     // Rate limiting - strict for blog generation
     const rateLimitResponse = await rateLimitMiddleware(request, 'BLOG_GENERATE');
     if (rateLimitResponse) {

@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { generateBlogTransform } from '@/lib/ai/transform';
 import { getBlogPostBySlug } from '@/lib/blog';
+import { verifyBotIdRequest } from '@/lib/botId';
 import { handleApiError, validateSchema } from '@/lib/errorHandler';
 import { rateLimitMiddleware } from '@/lib/rateLimit';
 
@@ -14,6 +15,12 @@ const transformRequestSchema = z.object({
 });
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const botIdResponse = await verifyBotIdRequest(request);
+
+  if (botIdResponse) {
+    return botIdResponse;
+  }
+
   const rateLimitResponse = await rateLimitMiddleware(request, 'AI_TRANSFORM');
 
   if (rateLimitResponse) {

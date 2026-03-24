@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+const checkBotId = vi.fn();
 const rateLimitMiddleware = vi.fn();
 const generateBlogContent = vi.fn();
 const sanityCreate = vi.fn();
@@ -35,8 +36,18 @@ vi.mock('@/lib/logger', () => ({
   default: log
 }));
 
+vi.mock('botid/server', () => ({
+  checkBotId
+}));
+
 describe('blog generation route', () => {
   beforeEach(() => {
+    checkBotId.mockResolvedValue({
+      bypassed: false,
+      isBot: false,
+      isHuman: true,
+      isVerifiedBot: false
+    });
     rateLimitMiddleware.mockResolvedValue(null);
     generateBlogContent.mockResolvedValue({
       body: '# Post body',
@@ -69,6 +80,30 @@ describe('blog generation route', () => {
     delete process.env.SANITY_API_TOKEN;
     delete process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
     delete process.env.NEXT_PUBLIC_SANITY_DATASET;
+  });
+
+  it('rejects unverified bots before processing the request', async () => {
+    checkBotId.mockResolvedValue({
+      bypassed: false,
+      isBot: true,
+      isHuman: false,
+      isVerifiedBot: false
+    });
+
+    const { POST } = await import('@/app/api/blog/generate/route');
+
+    const response = await POST(
+      new NextRequest('http://localhost/api/blog/generate', {
+        body: JSON.stringify({ aiGenerated: true }),
+        method: 'POST'
+      })
+    );
+
+    expect(response.status).toBe(403);
+    expect(await response.json()).toMatchObject({
+      error: 'Bot detected. Access denied.'
+    });
+    expect(generateBlogContent).not.toHaveBeenCalled();
   });
 
   it('schedules a targeted blog reindex after blog generation without changing the success response', async () => {

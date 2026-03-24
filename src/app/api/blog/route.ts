@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 import { BLOG_POSTS_PAGE_SIZE } from '@/constants';
 import { getBlogPostCount, getBlogPosts } from '@/lib/blog';
+import { verifyBotIdRequest } from '@/lib/botId';
 import { handleApiError, validateSchema } from '@/lib/errorHandler';
 import log from '@/lib/logger';
 import { rateLimitMiddleware } from '@/lib/rateLimit';
@@ -21,6 +22,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const path = '/api/blog';
 
   try {
+    const botIdResponse = await verifyBotIdRequest(request);
+    if (botIdResponse) {
+      return botIdResponse;
+    }
+
     // Rate limiting
     const rateLimitResponse = await rateLimitMiddleware(request, 'BLOG_API');
     if (rateLimitResponse) {
