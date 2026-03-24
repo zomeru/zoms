@@ -66,9 +66,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Approve build
-        run: pnpm approve-build -g
-
       - name: Generate Prisma client
         run: pnpm run prisma:generate
 
