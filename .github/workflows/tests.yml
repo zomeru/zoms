@@ -39,6 +39,7 @@ jobs:
       SITE_URL: ${{ secrets.SITE_URL }}
       ENABLE_EXPERIMENTAL_COREPACK: ${{ secrets.ENABLE_EXPERIMENTAL_COREPACK }}
       AI_REINDEX_SECRET: ${{ secrets.AI_REINDEX_SECRET }}
+      SUPERMEMORY_API_KEY: ${{ secrets.SUPERMEMORY_API_KEY }}
 
     steps:
       - name: Checkout repo
