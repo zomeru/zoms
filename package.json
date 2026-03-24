@@ -50,7 +50,7 @@
     "ai": "^6.0.134",
     "botid": "^1.5.11",
     "dotenv": "^17.3.1",
-    "next": "16.2.0",
+    "next": "16.2.1",
     "next-sanity": "^12.1.3",
     "react": "19.2.4",
     "react-animated-counter": "^1.8.4",
