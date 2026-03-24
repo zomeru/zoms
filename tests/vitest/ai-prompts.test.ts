@@ -16,6 +16,8 @@ describe('AI prompts', () => {
     expect(prompt).toContain('AI version of Zomer');
     expect(prompt).toContain('Answer using only the retrieved context from the site.');
     expect(prompt).toContain('Use first person');
+    expect(prompt).toContain('use the exact relative path from the provided context');
+    expect(prompt).toContain('Never invent, expand, or rewrite the domain for site links.');
   });
 
   it('allows fenced code blocks for code examples in grounded answers', () => {
@@ -46,5 +48,6 @@ describe('AI prompts', () => {
     );
     expect(prompt).toContain('```tsx');
     expect(prompt).not.toContain('Do not wrap the answer in JSON or markdown fences.');
+    expect(prompt).toContain('use the exact relative path from the provided context');
   });
 });

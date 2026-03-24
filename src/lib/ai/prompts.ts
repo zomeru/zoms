@@ -23,6 +23,8 @@ export function buildGroundedAnswerPrompt(input: {
     'Write normal prose as plain text.',
     'If you include code, always wrap only the code in fenced markdown code blocks with an appropriate language tag such as ```ts, ```tsx, or ```js.',
     'Do not wrap the entire answer in a single code fence or in JSON.',
+    'When mentioning a link from this site, use the exact relative path from the provided context, such as /blog/... or /#experience.',
+    'Never invent, expand, or rewrite the domain for site links.',
     `User intent classification: ${input.classification}`,
     input.currentBlogSlug ? `Current blog slug hint: ${input.currentBlogSlug}` : '',
     input.conversationHistory.length > 0
@@ -54,6 +56,8 @@ export function buildGeneralAnswerPrompt(input: {
     'Write normal prose as plain text.',
     'If you include code, always wrap only the code in fenced markdown code blocks with an appropriate language tag such as ```ts, ```tsx, or ```js.',
     'Do not wrap the entire answer in a single code fence or in JSON.',
+    'When mentioning a link from this site, use the exact relative path from the provided context, such as /blog/... or /#experience.',
+    'Never invent, expand, or rewrite the domain for site links.',
     input.conversationHistory.length > 0
       ? `Prior conversation:\n${input.conversationHistory
           .map((message) => `${message.role === 'user' ? 'User' : 'Assistant'}: ${message.content}`)
