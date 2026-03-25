@@ -31,7 +31,7 @@ import type { RetrievedChunk } from '@/lib/retrieval/types';
 import { getVectorIndexClient } from '@/lib/vector/index';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 const AI_CHAT_COOKIE_NAME = 'ai_chat_session';
 const chatRequestSchema = z.object({
