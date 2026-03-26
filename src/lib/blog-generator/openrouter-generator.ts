@@ -20,7 +20,7 @@ function getOpenRouterProvider() {
 }
 
 export async function openrouterGenerateBlogContent(): Promise<GeneratedBlogPost> {
-  const model = process.env.OPENROUTER_BLOG_MODEL;
+  const model = process.env.OPENROUTER_BLOG_MODEL ?? 'openrouter/free';
 
   if (!model) {
     throw new Error('OPENROUTER_BLOG_MODEL environment variable is required for blog generation');
