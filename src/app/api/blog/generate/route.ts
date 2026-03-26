@@ -1,12 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient, type SanityClient } from '@sanity/client';
 
+import { generateBlogContent } from '@/lib/blog-generator';
+import type { GeneratedBlogPost } from '@/lib/blog-generator/gemini-generator';
 import { isValidBlogGenerationSession } from '@/lib/blogGenerationAuth';
 import { scheduleBlogReindex } from '@/lib/blogReindex';
 import { verifyBotIdRequest } from '@/lib/botId';
 import { ApiError, handleApiError, validateSchema } from '@/lib/errorHandler';
 import { getErrorMessage } from '@/lib/errorMessages';
-import { generateBlogContent, type GeneratedBlogPost } from '@/lib/generateBlog';
 import log from '@/lib/logger';
 import { rateLimitMiddleware } from '@/lib/rateLimit';
 import { blogGenerateRequestSchema } from '@/lib/schemas';

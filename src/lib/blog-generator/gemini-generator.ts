@@ -2,13 +2,9 @@ import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 
 import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
 
-import { getErrorMessage } from './errorMessages';
-import {
-  pickPrimaryBlogDomain,
-  pickSecondaryBlogDomain,
-  tryParseAIJSON
-} from './generateBlogHelpers';
-import log from './logger';
+import { getErrorMessage } from '../errorMessages';
+import { SYSTEM_INSTRUCTION } from './constants';
+import { generatePrompt, tryParseAIJSON } from './helpers';
 
 export interface GeneratedBlogPost {
   title: string;
@@ -29,72 +25,14 @@ function getGeminiClient(): GoogleGenAI {
 /**
  * Generate blog post content using Gemini AI
  */
-export async function generateBlogContent(): Promise<GeneratedBlogPost> {
-  const currentDate = new Date().toISOString().slice(0, 10);
-  const recentWindow = '~3 weeks';
-  const primaryDomain = pickPrimaryBlogDomain();
-  const secondaryDomains = pickSecondaryBlogDomain();
-  const secondaryDomainLine =
-    secondaryDomains.length > 0
-      ? `- Secondary: ${secondaryDomains.join(' | ')}`
-      : '- Secondary: none';
-
-  const systemInstruction = `
-You are a principal full-stack software engineer and expert technical writer.
-
-Write for experienced software engineers.
-Be practical, concise, technically credible, and specific.
-Avoid hype, filler, generic advice, and obvious AI-generated phrasing.
-Focus on real-world engineering problems, tradeoffs, architecture, and implementation details.
-Use code only when it materially improves understanding.
-Prefer TypeScript when code is useful.
-Return strict JSON only with no extra commentary or markdown fences.
-`;
-
-  const prompt = `
-Generate ONE production-ready technical blog post for software engineers.
-
-Current date:
-- Today is ${currentDate}
-- Topic and examples should feel current within roughly ${recentWindow}
-
-Selected domains:
-- Primary: ${primaryDomain}
-${secondaryDomainLine}
-
-Requirements:
-- Choose one specific, practical, fresh engineering topic centered on the primary domain
-- Secondary domains may be used only if they materially sharpen the article
-- Focus on one real problem, migration, tradeoff, implementation pattern, or architectural decision
-- Avoid broad overviews, vague trend summaries, and stale topics
-- If tools are mentioned, keep them secondary unless one tool is clearly central
-- Target 900–1200 words
-- Optimize for SEO without clickbait
-- Use clear H1–H3 markdown structure
-- Include code only if it materially improves understanding.
-- Include hyperlinks for the mentioned tools/libraries/frameworks to official documentation. (2 sentences max per explanation)
-
-Return valid JSON with this shape:
-{
-  "title": "SEO-optimized title (max ${MAX_TITLE_LENGTH} chars)",
-  "slug": "kebab-case-seo-friendly-slug",
-  "excerpt": "1-2 sentence SEO-friendly summary (max ${MAX_SUMMARY_LENGTH} chars)",
-  "tags": ["keyword1", "keyword2", "keyword3"],
-  "content": "Full markdown blog post"
-}
-`;
-
-  log.info('Generating blog content with dynamic topic prompt', {
-    currentDate,
-    primaryDomain,
-    secondaryDomains
-  });
+export async function geminiGenerateBlogContent(): Promise<GeneratedBlogPost> {
+  const prompt = generatePrompt();
 
   const result = await getGeminiClient().models.generateContent({
     model: process.env.GEMINI_MODEL ?? 'gemini-3-flash-preview',
     contents: prompt,
     config: {
-      systemInstruction,
+      systemInstruction: SYSTEM_INSTRUCTION,
       responseMimeType: 'application/json',
       responseSchema: {
         type: 'object',

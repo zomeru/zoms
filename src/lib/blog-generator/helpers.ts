@@ -2,7 +2,8 @@ import { z } from 'zod';
 
 import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
 
-import { getErrorMessage } from './errorMessages';
+import { getErrorMessage } from '../errorMessages';
+import { log } from '../logger';
 
 export const PRIMARY_BLOG_DOMAINS = [
   `Web development (TypeScript-first: frontend, backend, fullstack)
@@ -54,7 +55,7 @@ export function pickSecondaryBlogDomain(): Array<(typeof SECONDARY_BLOG_DOMAINS)
   return pickRandomItems(SECONDARY_BLOG_DOMAINS, selectionCount);
 }
 
-const AIResponseSchema = z
+export const AIResponseSchema = z
   .object({
     title: z
       .string()
@@ -118,3 +119,55 @@ export function formatLLMText(text: string): string {
       .trim()
   );
 }
+
+export const generatePrompt = (): string => {
+  const currentDate = new Date().toISOString().slice(0, 10);
+  const recentWindow = '~3 weeks';
+  const primaryDomain = pickPrimaryBlogDomain();
+  const secondaryDomains = pickSecondaryBlogDomain();
+  const secondaryDomainLine =
+    secondaryDomains.length > 0
+      ? `- Secondary: ${secondaryDomains.join(' | ')}`
+      : '- Secondary: none';
+
+  const prompt = `
+Generate ONE production-ready technical blog post for software engineers.
+
+Current date:
+- Today is ${currentDate}
+- Topic and examples should feel current within roughly ${recentWindow}
+
+Selected domains:
+- Primary: ${primaryDomain}
+${secondaryDomainLine}
+
+Requirements:
+- Choose one specific, practical, fresh engineering topic centered on the primary domain
+- Secondary domains may be used only if they materially sharpen the article
+- Focus on one real problem, migration, tradeoff, implementation pattern, or architectural decision
+- Avoid broad overviews, vague trend summaries, and stale topics
+- If tools are mentioned, keep them secondary unless one tool is clearly central
+- Target 900–1200 words
+- Optimize for SEO without clickbait
+- Use clear H1–H3 markdown structure
+- Include code only if it materially improves understanding.
+- Include hyperlinks for the mentioned tools/libraries/frameworks to official documentation. (2 sentences max per explanation)
+
+Return valid JSON with this shape:
+{
+  "title": "SEO-optimized title (max ${MAX_TITLE_LENGTH} chars)",
+  "slug": "kebab-case-seo-friendly-slug",
+  "excerpt": "1-2 sentence SEO-friendly summary (max ${MAX_SUMMARY_LENGTH} chars)",
+  "tags": ["keyword1", "keyword2", "keyword3"],
+  "content": "Full markdown blog post"
+}
+`;
+
+  log.info('Generating blog content with dynamic topic prompt', {
+    currentDate,
+    primaryDomain,
+    secondaryDomains
+  });
+
+  return prompt;
+};
