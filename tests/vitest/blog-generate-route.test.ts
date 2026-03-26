@@ -20,7 +20,7 @@ vi.mock('@/lib/rateLimit', () => ({
   rateLimitMiddleware
 }));
 
-vi.mock('@/lib/generateBlog', () => ({
+vi.mock('@/lib/blog-generator', () => ({
   generateBlogContent
 }));
 

@@ -56,6 +56,10 @@ export const ERROR_MESSAGES = {
     dev: 'Could not find the end of body string in AI response.',
     prod: 'Content generation incomplete. Please try again.'
   },
+  AI_GENERATION_TOO_SHORT: {
+    dev: 'AI-generated content is too short to be valid. This may indicate a generation failure.',
+    prod: 'Generated content is incomplete. Please try again.'
+  },
 
   // Network & Server
   FETCH_FAILED: {

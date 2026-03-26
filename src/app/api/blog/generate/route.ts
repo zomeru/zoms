@@ -1,12 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient, type SanityClient } from '@sanity/client';
 
+import { generateBlogContent } from '@/lib/blog-generator';
+import type { GeneratedBlogPost } from '@/lib/blog-generator/gemini-generator';
 import { isValidBlogGenerationSession } from '@/lib/blogGenerationAuth';
 import { scheduleBlogReindex } from '@/lib/blogReindex';
 import { verifyBotIdRequest } from '@/lib/botId';
 import { ApiError, handleApiError, validateSchema } from '@/lib/errorHandler';
 import { getErrorMessage } from '@/lib/errorMessages';
-import { generateBlogContent, type GeneratedBlogPost } from '@/lib/generateBlog';
 import log from '@/lib/logger';
 import { rateLimitMiddleware } from '@/lib/rateLimit';
 import { blogGenerateRequestSchema } from '@/lib/schemas';
@@ -55,11 +56,15 @@ async function createBlogPost(
   content: GeneratedBlogPost,
   aiGenerated = true
 ) {
-  // Store markdown directly instead of converting to blocks
+  const MAX_SLUG_LENGTH = 80;
   const slug = content.title
     .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
+    .replace(/(^-|-$)/g, '')
+    .slice(0, MAX_SLUG_LENGTH)
+    .replace(/-[^-]*$/, '');
 
   return await sanityClient.create({
     _type: 'blogPost',

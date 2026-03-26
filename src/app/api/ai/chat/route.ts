@@ -14,6 +14,7 @@ import { verifyBotIdRequest } from '@/lib/botId';
 import { repositories } from '@/lib/db/repositories';
 import { handleApiError, validateSchema } from '@/lib/errorHandler';
 import { toPrismaJsonValue } from '@/lib/json';
+import log from '@/lib/logger';
 import { rateLimitMiddleware } from '@/lib/rateLimit';
 import {
   classifyQueryIntent,
@@ -37,7 +38,7 @@ const AI_CHAT_COOKIE_NAME = 'ai_chat_session';
 const chatRequestSchema = z.object({
   blogSlug: z.string().trim().optional(),
   pathname: z.string().trim().optional(),
-  question: z.string().trim().min(1)
+  question: z.string().trim().min(1).max(2000)
 });
 const chatHistoryQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).default(10),
@@ -354,7 +355,12 @@ function createStreamingChatResponse(input: {
             question: input.input.question,
             sessionKey: input.sessionKey
           });
-        } catch {}
+        } catch (memoryError) {
+          log.warn('Failed to store session memory', {
+            sessionKey: input.sessionKey,
+            error: memoryError instanceof Error ? memoryError.message : String(memoryError)
+          });
+        }
 
         sendEvent({ answer: finalAnswer, messageId: assistantMessage.id, type: 'done' });
       } catch {
@@ -474,7 +480,12 @@ export async function POST(request: NextRequest): Promise<Response> {
         });
 
         memoryContext = sessionMemories.join('\n');
-      } catch {}
+      } catch (memoryError) {
+        log.warn('Failed to search session memory', {
+          sessionKey,
+          error: memoryError instanceof Error ? memoryError.message : String(memoryError)
+        });
+      }
     }
 
     const userMessage = await repositories.createChatMessage({

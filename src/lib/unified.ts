@@ -11,13 +11,63 @@ import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import { unified } from 'unified';
 
+const sanitizeSchema = {
+  tagNames: [
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'p',
+    'br',
+    'hr',
+    'ul',
+    'ol',
+    'li',
+    'blockquote',
+    'pre',
+    'code',
+    'a',
+    'strong',
+    'em',
+    'del',
+    's',
+    'table',
+    'thead',
+    'tbody',
+    'tr',
+    'th',
+    'td',
+    'img',
+    'figure',
+    'figcaption',
+    'span',
+    'div'
+  ],
+  attributes: {
+    a: ['href', 'title', 'target', 'rel'],
+    img: ['src', 'alt', 'title', 'width', 'height'],
+    code: ['className', 'data-language'],
+    pre: ['className'],
+    span: ['className', 'style'],
+    td: ['align', 'colspan', 'rowspan'],
+    th: ['align', 'colspan', 'rowspan'],
+    '*': ['id']
+  },
+  protocols: {
+    href: ['http', 'https', 'mailto', 'tel'],
+    src: ['http', 'https']
+  }
+};
+
 const processor = unified()
   .use(remarkParse)
   .use(remarkGfm)
   .use(remarkBreaks)
   .use(remarkRehype, { allowDangerousHtml: true })
   .use(rehypeRaw)
-  .use(rehypeSanitize)
+  .use(rehypeSanitize, sanitizeSchema)
   .use(rehypeSlug)
   .use(rehypePrettyCode, {
     theme: 'github-dark-dimmed',

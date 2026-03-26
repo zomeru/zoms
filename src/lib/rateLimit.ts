@@ -10,11 +10,23 @@ import log from './logger';
 // In-memory store for development
 class InMemoryRateLimiter {
   private readonly requests = new Map<string, number[]>();
+  private cleanupTimer: ReturnType<typeof setInterval> | undefined;
 
   constructor(
     private readonly maxRequests: number,
     private readonly windowMs: number
-  ) {}
+  ) {
+    // Run cleanup every 60 seconds instead of probabilistically
+    this.cleanupTimer = setInterval(() => this.cleanup(), 60_000);
+  }
+
+  destroy(): void {
+    if (this.cleanupTimer) {
+      clearInterval(this.cleanupTimer);
+      this.cleanupTimer = undefined;
+    }
+    this.requests.clear();
+  }
 
   async limit(identifier: string): Promise<{ success: boolean; remaining: number }> {
     const now = Date.now();
@@ -37,12 +49,6 @@ class InMemoryRateLimiter {
     // Add current request
     recentRequests.push(now);
     this.requests.set(identifier, recentRequests);
-
-    // Clean up old entries periodically
-    if (Math.random() < 0.01) {
-      // 1% chance to cleanup
-      this.cleanup();
-    }
 
     return {
       success: true,
