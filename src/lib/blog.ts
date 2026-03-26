@@ -1,3 +1,4 @@
+import log from './logger';
 import { getSanityClient } from './sanity';
 
 export interface BlogPost {
@@ -69,11 +70,9 @@ export async function getBlogPosts(limit = 25, offset = 0): Promise<BlogPostList
 
     return posts;
   } catch (error) {
-    // Log error in development
-    if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console -- Allow console in development for debugging
-      console.error('Error fetching blog posts from Sanity:', error);
-    }
+    log.error('Error fetching blog posts from Sanity', {
+      error: error instanceof Error ? error.message : String(error)
+    });
     return [];
   }
 }
@@ -108,11 +107,10 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
 
     return post;
   } catch (error) {
-    // Log error in development
-    if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console -- Allow console in development for debugging
-      console.error('Error fetching blog post from Sanity:', error);
-    }
+    log.error('Error fetching blog post by slug', {
+      slug,
+      error: error instanceof Error ? error.message : String(error)
+    });
     return null;
   }
 }
@@ -142,10 +140,10 @@ export async function getBlogPostSeoBySlug(slug: string): Promise<BlogPostSeo | 
 
     return post;
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console -- Allow console in development for debugging
-      console.error('Error fetching blog post SEO data from Sanity:', error);
-    }
+    log.error('Error fetching blog post SEO data from Sanity', {
+      slug,
+      error: error instanceof Error ? error.message : String(error)
+    });
     return null;
   }
 }
@@ -175,10 +173,11 @@ async function getBoundaryBlogPosts(
       }
     );
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console -- Allow console in development for debugging
-      console.error('Error fetching boundary blog posts from Sanity:', error);
-    }
+    log.error('Error fetching boundary blog posts from Sanity', {
+      limit,
+      direction,
+      error: error instanceof Error ? error.message : String(error)
+    });
     return [];
   }
 }
@@ -220,10 +219,9 @@ export async function getBlogPostsForSitemap(): Promise<BlogPostSitemapItem[]> {
 
     return posts;
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console -- Allow console in development for debugging
-      console.error('Error fetching blog posts for sitemap:', error);
-    }
+    log.error('Error fetching blog posts for sitemap', {
+      error: error instanceof Error ? error.message : String(error)
+    });
     return [];
   }
 }
@@ -245,11 +243,9 @@ export async function getBlogPostCount(): Promise<number> {
 
     return count;
   } catch (error) {
-    // Log error in development
-    if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console -- Allow console in development for debugging
-      console.error('Error fetching blog post count from Sanity:', error);
-    }
+    log.error('Error fetching blog post count from Sanity', {
+      error: error instanceof Error ? error.message : String(error)
+    });
     return 0;
   }
 }

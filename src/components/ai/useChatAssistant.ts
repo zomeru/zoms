@@ -59,6 +59,14 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
+function safeParseJSON(input: string): unknown {
+  try {
+    return JSON.parse(input);
+  } catch {
+    return undefined;
+  }
+}
+
 function isStreamEvent(value: unknown): value is StreamEvent {
   if (!isRecord(value) || typeof value.type !== 'string') {
     return false;
@@ -336,7 +344,10 @@ export function useChatAssistant(input: { pathname: string }) {
         continue;
       }
 
-      const payload: unknown = JSON.parse(line);
+      const payload = safeParseJSON(line);
+      if (!payload) {
+        continue;
+      }
 
       if (!isStreamEvent(payload)) {
         continue;

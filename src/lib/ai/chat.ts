@@ -10,6 +10,12 @@ import { getAiEnv } from './env';
 import { buildGeneralAnswerPrompt, buildGroundedAnswerPrompt } from './prompts';
 import type { Citation } from './schemas';
 
+const AI_REQUEST_TIMEOUT_MS = 30_000;
+
+function createTimeoutSignal(timeoutMs: number): AbortSignal {
+  return AbortSignal.timeout(timeoutMs);
+}
+
 function getOpenRouterProvider() {
   const env = getAiEnv();
 
@@ -81,6 +87,7 @@ export async function streamGroundedAnswer(input: {
     retrievedContext: formatRetrievedContext(input.supportingChunks)
   });
   const result = streamText({
+    abortSignal: createTimeoutSignal(AI_REQUEST_TIMEOUT_MS),
     experimental_transform: smoothStream({ chunking: 'word' }),
     model: provider.chat(env.OPENROUTER_CHAT_MODEL),
     prompt,
@@ -116,6 +123,7 @@ export async function streamGeneralAnswer(input: {
     relatedBlogContext: formatRetrievedContext(input.relatedBlogChunks)
   });
   const result = streamText({
+    abortSignal: createTimeoutSignal(AI_REQUEST_TIMEOUT_MS),
     experimental_transform: smoothStream({ chunking: 'word' }),
     model: provider.chat(env.OPENROUTER_CHAT_MODEL),
     prompt,

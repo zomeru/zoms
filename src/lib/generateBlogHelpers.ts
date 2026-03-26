@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
+
 import { getErrorMessage } from './errorMessages';
 
 export const PRIMARY_BLOG_DOMAINS = [
@@ -21,17 +23,6 @@ export const SECONDARY_BLOG_DOMAINS = [
   'Data layer (databases, caching, vector stores, streaming)',
   'Performance optimization (rendering, networking, runtime efficiency)'
 ] as const;
-
-// 🧩 Define Zod schema for AI JSON output
-const AIResponseSchema = z.object({
-  title: z.string().min(1, 'Missing title'),
-  slug: z.string().min(1, 'Missing slug'),
-  excerpt: z.string().min(1, 'Missing excerpt'),
-  tags: z.array(z.string().min(1)).min(5).max(8),
-  content: z.string().min(1, 'Missing content')
-});
-
-type AiResponseType = z.infer<typeof AIResponseSchema>;
 
 function pickRandomItem<T>(items: readonly T[]): T {
   const index = Math.floor(Math.random() * items.length);
@@ -63,22 +54,67 @@ export function pickSecondaryBlogDomain(): Array<(typeof SECONDARY_BLOG_DOMAINS)
   return pickRandomItems(SECONDARY_BLOG_DOMAINS, selectionCount);
 }
 
+const AIResponseSchema = z
+  .object({
+    title: z
+      .string()
+      .trim()
+      .min(1, 'Missing title')
+      .max(MAX_TITLE_LENGTH, `Title exceeds max length of ${MAX_TITLE_LENGTH}`),
+
+    slug: z
+      .string()
+      .trim()
+      .min(1, 'Missing slug')
+      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be kebab-case'),
+
+    excerpt: z
+      .string()
+      .trim()
+      .min(1, 'Missing excerpt')
+      .max(MAX_SUMMARY_LENGTH, `Excerpt exceeds max length of ${MAX_SUMMARY_LENGTH}`),
+
+    tags: z
+      .array(z.string().trim().min(1, 'Tag cannot be empty'))
+      .min(3, 'At least 3 tags are required')
+      .max(5, 'At most 5 tags are allowed')
+      .refine(
+        (tags) => new Set(tags.map((tag) => tag.toLowerCase())).size === tags.length,
+        'Tags must be unique'
+      ),
+
+    content: z.string()
+  })
+  .strict();
+
+type AiResponseType = z.infer<typeof AIResponseSchema>;
+
 export function tryParseAIJSON(text: string): AiResponseType {
   try {
-    // Remove Markdown wrappers if present
-    const cleaned = text
-      .trim()
-      .replace(/^```json\s*/i, '')
-      .replace(/```$/i, '');
+    const trimmed = text.trim();
+    const parsed = AIResponseSchema.parse(JSON.parse(trimmed));
 
-    // Try parsing directly
-    const parsed: unknown = JSON.parse(cleaned);
+    parsed.content = formatLLMText(parsed.content);
 
-    // Validate against schema
-    const validated = AIResponseSchema.parse(parsed);
-
-    return validated;
+    return parsed;
   } catch (error) {
     throw new Error(getErrorMessage('AI_JSON_PARSE_ERROR'), { cause: error });
   }
+}
+
+export function formatLLMText(text: string): string {
+  return (
+    text
+      // convert escaped newlines -> real newlines
+      .replace(/\\n/g, '\n')
+
+      // normalize Windows line endings
+      .replace(/\r\n/g, '\n')
+
+      // remove extra blank lines (max 2)
+      .replace(/\n{3,}/g, '\n\n')
+
+      // trim outer whitespace
+      .trim()
+  );
 }

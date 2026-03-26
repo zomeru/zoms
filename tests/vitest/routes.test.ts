@@ -77,7 +77,10 @@ const getAiReindexSessionCookie = vi.fn();
 const searchSessionMemory = vi.fn();
 const storeSessionMemory = vi.fn();
 const log = {
-  error: vi.fn()
+  error: vi.fn(),
+  warn: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn()
 };
 
 vi.mock('botid/server', () => ({

@@ -55,11 +55,15 @@ async function createBlogPost(
   content: GeneratedBlogPost,
   aiGenerated = true
 ) {
-  // Store markdown directly instead of converting to blocks
+  const MAX_SLUG_LENGTH = 80;
   const slug = content.title
     .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
+    .replace(/(^-|-$)/g, '')
+    .slice(0, MAX_SLUG_LENGTH)
+    .replace(/-[^-]*$/, '');
 
   return await sanityClient.create({
     _type: 'blogPost',
