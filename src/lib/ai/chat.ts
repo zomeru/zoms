@@ -10,7 +10,7 @@ import { getAiEnv } from './env';
 import { buildGeneralAnswerPrompt, buildGroundedAnswerPrompt } from './prompts';
 import type { Citation } from './schemas';
 
-const AI_REQUEST_TIMEOUT_MS = 30_000;
+const AI_REQUEST_TIMEOUT_MS = 60_000;
 
 function createTimeoutSignal(timeoutMs: number): AbortSignal {
   return AbortSignal.timeout(timeoutMs);
