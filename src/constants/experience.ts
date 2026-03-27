@@ -181,7 +181,7 @@ export const experience = [
   },
   {
     title: 'Full Stack Developer',
-    company: 'Freelance',
+    company: 'Gig',
     location: 'Bulacan, Philippines (Remote)',
     range: 'Apr. 2021 - Feb. 2022',
     duties: [
