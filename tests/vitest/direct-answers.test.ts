@@ -82,7 +82,7 @@ describe('direct assistant answers', () => {
         title: 'Full Stack Web Developer'
       },
       {
-        company: 'Freelance',
+        company: 'Gig',
         duties: [{ _type: 'block' }],
         location: 'Bulacan, Philippines (Remote)',
         order: 3,
@@ -157,7 +157,7 @@ describe('direct assistant answers', () => {
 
     expect(text).toContain('Software Engineer at Seansoft Corporation');
     expect(text).toContain('Full Stack Web Developer at Evelan GmbH');
-    expect(text).toContain('Full Stack Developer at Freelance');
+    expect(text).toContain('Full Stack Developer at Gig');
   });
 
   it('answers oldest experience queries deterministically from ordered experience entries', async () => {
@@ -178,7 +178,7 @@ describe('direct assistant answers', () => {
       }
     }
 
-    expect(text).toContain('Full Stack Developer at Freelance');
+    expect(text).toContain('Full Stack Developer at Gig');
     expect(text).toContain('Apr. 2021 - Feb. 2022');
   });
 

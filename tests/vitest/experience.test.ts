@@ -49,7 +49,7 @@ describe('experience source loading', () => {
       'Seansoft Corporation',
       'Evelan GmbH',
       'Beyonder Inc.',
-      'Freelance'
+      'Gig'
     ]);
   });
 });
