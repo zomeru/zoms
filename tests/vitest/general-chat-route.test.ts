@@ -32,7 +32,7 @@ vi.mock('@/lib/retrieval/search', () => ({
   retrieveProjects: vi.fn()
 }));
 
-vi.mock('@/lib/ai/chat', () => ({
+vi.mock('@/lib/ai/chat-stream', () => ({
   streamGeneralAnswer,
   streamGroundedAnswer
 }));

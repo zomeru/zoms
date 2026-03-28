@@ -14,7 +14,7 @@ vi.mock('@/lib/db/repositories', () => ({
   repositories
 }));
 
-vi.mock('@/lib/ai/chat', () => ({
+vi.mock('@/lib/ai/chat-stream', () => ({
   streamGeneralAnswer: vi.fn(),
   streamGroundedAnswer: vi.fn()
 }));

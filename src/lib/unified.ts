@@ -50,7 +50,7 @@ const sanitizeSchema = {
     img: ['src', 'alt', 'title', 'width', 'height'],
     code: ['className', 'data-language'],
     pre: ['className'],
-    span: ['className', 'style'],
+    span: ['className'],
     td: ['align', 'colspan', 'rowspan'],
     th: ['align', 'colspan', 'rowspan'],
     '*': ['id']

@@ -1,9 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 
+// External store for shared authorization state
 let authorizedSessionDetected = false;
 let pendingAuthorizationRequest: Promise<boolean> | null = null;
+const listeners = new Set<() => void>();
+
+function subscribe(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+function getSnapshot(): boolean {
+  return authorizedSessionDetected;
+}
+
+function setAuthorized(value: boolean): void {
+  if (authorizedSessionDetected !== value) {
+    authorizedSessionDetected = value;
+    for (const listener of listeners) listener();
+  }
+}
 
 async function fetchAuthorizationStatus(): Promise<boolean> {
   const response = await fetch('/api/blog/generate/auth', {
@@ -25,7 +45,7 @@ async function fetchAuthorizationStatus(): Promise<boolean> {
       : false;
 
   if (authorized) {
-    authorizedSessionDetected = true;
+    setAuthorized(true);
   } else {
     pendingAuthorizationRequest = null;
   }
@@ -34,12 +54,11 @@ async function fetchAuthorizationStatus(): Promise<boolean> {
 }
 
 export function useBlogAdminAuthorization(initialAuthorized = false): boolean {
-  const [isAuthorized, setIsAuthorized] = useState(initialAuthorized || authorizedSessionDetected);
+  const storeAuthorized = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
   useEffect(() => {
     if (initialAuthorized || authorizedSessionDetected) {
-      authorizedSessionDetected = true;
-      setIsAuthorized(true);
+      setAuthorized(true);
       return;
     }
 
@@ -51,8 +70,8 @@ export function useBlogAdminAuthorization(initialAuthorized = false): boolean {
     let isCancelled = false;
 
     void pendingAuthorizationRequest.then((authorized) => {
-      if (!isCancelled) {
-        setIsAuthorized(authorized);
+      if (!isCancelled && authorized) {
+        setAuthorized(true);
       }
     });
 
@@ -61,5 +80,5 @@ export function useBlogAdminAuthorization(initialAuthorized = false): boolean {
     };
   }, [initialAuthorized]);
 
-  return isAuthorized;
+  return storeAuthorized || initialAuthorized;
 }

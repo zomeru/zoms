@@ -2,6 +2,7 @@ import type { PortableTextBlock } from '@portabletext/types';
 
 import { experience as fallbackExperience } from '@/constants/experience';
 
+import log from './logger';
 import { getSanityClient } from './sanity';
 
 export interface Experience {
@@ -60,13 +61,9 @@ export async function getExperience(): Promise<Experience[]> {
 
     return mergeExperienceEntries(experiences);
   } catch (error) {
-    // Log error in development
-    if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console -- Allow console in development for debugging
-      console.error('Error fetching experience from Sanity:', error);
-      // eslint-disable-next-line no-console -- Allow console in development for debugging
-      console.log('Using fallback experience data');
-    }
+    log.warn('Error fetching experience from Sanity, using fallback', {
+      error: error instanceof Error ? error.message : String(error)
+    });
     return fallbackExperience;
   }
 }

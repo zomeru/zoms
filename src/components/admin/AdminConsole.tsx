@@ -6,20 +6,11 @@ import Link from 'next/link';
 import ReindexAdminCard from '@/components/ai/ReindexAdminCard';
 import { TerminalCard } from '@/components/ui';
 import BlogGenerateButton from '@/app/blog/BlogGenerateButton';
+import { getResponseErrorMessage } from '@/lib/errorMessages';
 
 interface AdminAccessState {
   aiReindexAuthorized: boolean;
   blogGenerationAuthorized: boolean;
-}
-
-async function getResponseErrorMessage(response: Response): Promise<string> {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- Route returns a small JSON error payload.
-    const body = (await response.json()) as { error?: string };
-    return body.error ?? 'Unable to verify browser access for admin tools.';
-  } catch {
-    return 'Unable to verify browser access for admin tools.';
-  }
 }
 
 const AdminConsole: React.FC = () => {
@@ -34,7 +25,12 @@ const AdminConsole: React.FC = () => {
         const response = await fetch('/api/admin/access');
 
         if (!response.ok) {
-          throw new Error(await getResponseErrorMessage(response));
+          throw new Error(
+            await getResponseErrorMessage(
+              response,
+              'Unable to verify browser access for admin tools.'
+            )
+          );
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- Route response shape is controlled locally.

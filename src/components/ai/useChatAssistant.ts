@@ -1,176 +1,24 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import type { Citation, TransformMode, TransformResult } from '@/lib/ai/schemas';
-import { appendStreamText } from '@/lib/ai/streaming';
+import type { TransformMode } from '@/lib/ai/schemas';
 
-export interface AssistantMessage {
-  citations?: Citation[];
-  content: string;
-  id: string;
-  isPending?: boolean;
-  messageId?: string;
-  role: 'assistant' | 'user';
-  supported?: boolean;
-  transform?: TransformResult;
-}
+import { extractErrorMessage, processStreamChunk } from './chatStreamHelpers';
+import {
+  CHAT_HISTORY_PAGE_SIZE,
+  createId,
+  getBlogSlugFromPathname,
+  isChatHistoryResponse,
+  isTransformResult,
+  WELCOME_MESSAGE,
+  WELCOME_MESSAGE_ID,
+  type AssistantMessage
+} from './chatTypes';
 
-interface ChatHistoryResponse {
-  hasMore: boolean;
-  limit: number;
-  messages: AssistantMessage[];
-  offset: number;
-  sessionKey: string | null;
-  total: number;
-}
-
-const CHAT_HISTORY_PAGE_SIZE = 10;
-export const WELCOME_MESSAGE_ID = 'assistant-welcome';
-export const WELCOME_MESSAGE: AssistantMessage = {
-  content:
-    'Hi there! Thanks for visiting my website. Feel free to ask me about my projects, experience, blogs, or even a general question.',
-  id: WELCOME_MESSAGE_ID,
-  role: 'assistant'
-};
-
-function createId(prefix: string): string {
-  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
-}
-
-export function getBlogSlugFromPathname(pathname: string): string | undefined {
-  const match = /^\/blog\/([^/?#]+)/.exec(pathname);
-  return match?.[1];
-}
-
-interface StreamEvent {
-  answer?: {
-    answer: string;
-    citations: Citation[];
-    supported: boolean;
-  };
-  messageId?: string;
-  sessionKey?: string;
-  text?: string;
-  type: 'chunk' | 'done' | 'session';
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function safeParseJSON(input: string): unknown {
-  try {
-    return JSON.parse(input);
-  } catch {
-    return undefined;
-  }
-}
-
-function isStreamEvent(value: unknown): value is StreamEvent {
-  if (!isRecord(value) || typeof value.type !== 'string') {
-    return false;
-  }
-
-  return value.type === 'chunk' || value.type === 'done' || value.type === 'session';
-}
-
-function isTransformResult(value: unknown): value is TransformResult {
-  return (
-    isRecord(value) &&
-    typeof value.mode === 'string' &&
-    typeof value.title === 'string' &&
-    typeof value.transformedText === 'string' &&
-    Array.isArray(value.bullets)
-  );
-}
-
-function isAssistantMessage(value: unknown): value is AssistantMessage {
-  if (!isRecord(value)) {
-    return false;
-  }
-
-  return (
-    typeof value.id === 'string' &&
-    typeof value.content === 'string' &&
-    (value.role === 'assistant' || value.role === 'user')
-  );
-}
-
-function isChatHistoryResponse(value: unknown): value is ChatHistoryResponse {
-  return (
-    isRecord(value) &&
-    typeof value.hasMore === 'boolean' &&
-    typeof value.limit === 'number' &&
-    (typeof value.sessionKey === 'string' || value.sessionKey === null) &&
-    Array.isArray(value.messages) &&
-    typeof value.offset === 'number' &&
-    typeof value.total === 'number' &&
-    value.messages.every(isAssistantMessage)
-  );
-}
-
-function appendAssistantChunk(messageId: string, text: string) {
-  return (currentMessages: AssistantMessage[]) =>
-    currentMessages.map((message) =>
-      message.id === messageId
-        ? {
-            ...message,
-            content: appendStreamText(message.content, text)
-          }
-        : message
-    );
-}
-
-function finalizeAssistantMessage(messageId: string, event: StreamEvent) {
-  return (currentMessages: AssistantMessage[]) =>
-    currentMessages.map((message) =>
-      message.id === messageId && event.answer
-        ? {
-            ...message,
-            citations: event.answer.citations,
-            content: event.answer.answer,
-            isPending: false,
-            messageId: event.messageId,
-            supported: event.answer.supported
-          }
-        : message
-    );
-}
-
-function parseStreamBuffer(buffer: string): { lines: string[]; remainder: string } {
-  const lines = buffer.split('\n');
-  return {
-    lines,
-    remainder: lines.pop() ?? ''
-  };
-}
-
-function applyStreamEvent(
-  event: StreamEvent,
-  assistantMessageId: string,
-  setAssistantMessages: Dispatch<SetStateAction<AssistantMessage[]>>,
-  setSession: (value: string) => void
-) {
-  switch (event.type) {
-    case 'session':
-      if (event.sessionKey) {
-        setSession(event.sessionKey);
-      }
-      return;
-
-    case 'chunk':
-      if (event.text) {
-        setAssistantMessages(appendAssistantChunk(assistantMessageId, event.text));
-      }
-      return;
-
-    case 'done':
-      if (event.answer) {
-        setAssistantMessages(finalizeAssistantMessage(assistantMessageId, event));
-      }
-  }
-}
+// Re-export for consumers
+export { getBlogSlugFromPathname, WELCOME_MESSAGE, WELCOME_MESSAGE_ID };
+export type { AssistantMessage };
 
 export function useChatAssistant(input: { pathname: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -204,6 +52,7 @@ export function useChatAssistant(input: { pathname: string }) {
     (historyHydrationState === 'checking' || historyHydrationState === 'loading') &&
     messages.length === 0;
 
+  // ── Session persistence ───────────────────────────────────────────────────
   useEffect(() => {
     const storedSessionKey = window.localStorage.getItem('ai-chat-session');
     if (storedSessionKey) {
@@ -222,6 +71,7 @@ export function useChatAssistant(input: { pathname: string }) {
     window.localStorage.setItem('ai-chat-session', sessionKey);
   }, [sessionKey]);
 
+  // ── History hydration ─────────────────────────────────────────────────────
   useEffect(() => {
     if (!sessionKey || hasHydratedHistory.current || messages.length > 0) {
       return;
@@ -258,7 +108,6 @@ export function useChatAssistant(input: { pathname: string }) {
         setHasMoreHistory(payload.hasMore);
         setHistoryHydrationState(payload.messages.length > 0 ? 'ready' : 'empty');
       } catch {
-        // Ignore hydration failures and let the next send start fresh.
         if (!cancelled) {
           setHasMoreHistory(false);
           setHistoryHydrationState('empty');
@@ -273,6 +122,7 @@ export function useChatAssistant(input: { pathname: string }) {
     };
   }, [messages.length, sessionKey]);
 
+  // ── Load older history ────────────────────────────────────────────────────
   async function loadOlderHistory(): Promise<void> {
     if (
       !sessionKey ||
@@ -310,55 +160,7 @@ export function useChatAssistant(input: { pathname: string }) {
     }
   }
 
-  async function extractErrorMessage(response: Response, fallbackMessage: string): Promise<string> {
-    try {
-      const payload: unknown = await response.json();
-
-      if (isRecord(payload) && typeof payload.error === 'string' && payload.error.length > 0) {
-        return payload.error;
-      }
-    } catch {
-      // Fall through to the generic message when the response body is empty or invalid.
-    }
-
-    return fallbackMessage;
-  }
-
-  async function processStreamChunk(
-    reader: ReadableStreamDefaultReader<Uint8Array>,
-    decoder: TextDecoder,
-    buffer: string,
-    assistantMessageId: string
-  ): Promise<void> {
-    const { done, value } = await reader.read();
-
-    if (done) {
-      return;
-    }
-
-    const nextBuffer = `${buffer}${decoder.decode(value, { stream: true })}`;
-    const { lines, remainder } = parseStreamBuffer(nextBuffer);
-
-    for (const line of lines) {
-      if (line.trim().length === 0) {
-        continue;
-      }
-
-      const payload = safeParseJSON(line);
-      if (!payload) {
-        continue;
-      }
-
-      if (!isStreamEvent(payload)) {
-        continue;
-      }
-
-      applyStreamEvent(payload, assistantMessageId, setMessages, setSessionKey);
-    }
-
-    await processStreamChunk(reader, decoder, remainder, assistantMessageId);
-  }
-
+  // ── Send question ─────────────────────────────────────────────────────────
   async function sendQuestion(question: string): Promise<void> {
     const trimmedQuestion = question.trim();
 
@@ -409,10 +211,14 @@ export function useChatAssistant(input: { pathname: string }) {
       }
 
       await processStreamChunk(
-        response.body.getReader(),
-        new TextDecoder(),
-        '',
-        assistantMessageId
+        {
+          reader: response.body.getReader(),
+          decoder: new TextDecoder(),
+          assistantMessageId,
+          setMessages,
+          setSessionKey
+        },
+        ''
       );
     } catch (caughtError) {
       setError(
@@ -428,6 +234,7 @@ export function useChatAssistant(input: { pathname: string }) {
     }
   }
 
+  // ── Request transform ─────────────────────────────────────────────────────
   async function requestTransform(mode: TransformMode): Promise<void> {
     if (!blogSlug || isWorking) {
       return;

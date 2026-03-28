@@ -35,7 +35,7 @@ vi.mock('@/lib/ai/directAnswers', () => ({
   getDirectAssistantAnswer
 }));
 
-vi.mock('@/lib/ai/chat', () => ({
+vi.mock('@/lib/ai/chat-stream', () => ({
   streamGeneralAnswer,
   streamGroundedAnswer
 }));

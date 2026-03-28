@@ -144,6 +144,7 @@ const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = '', seed = 0 }) => 
   const rafRef = useRef<number | null>(null);
   const nodesRef = useRef<Node[]>(randomNodes());
   const animStartRef = useRef<number | null>(null);
+  const isVisibleRef = useRef(true);
 
   // New seed → new random layout + restart animation
   useEffect(() => {
@@ -317,16 +318,33 @@ const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = '', seed = 0 }) => 
 
     const loop = (ts: number) => {
       draw(ts);
-      rafRef.current = requestAnimationFrame(loop);
+      if (isVisibleRef.current) {
+        rafRef.current = requestAnimationFrame(loop);
+      } else {
+        rafRef.current = null;
+      }
     };
     rafRef.current = requestAnimationFrame(loop);
 
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
 
+    // Pause animation when canvas is off-screen
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+        if (entry.isIntersecting && rafRef.current === null) {
+          rafRef.current = requestAnimationFrame(loop);
+        }
+      },
+      { threshold: 0 }
+    );
+    io.observe(canvas);
+
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
       ro.disconnect();
+      io.disconnect();
     };
   }, []);
 

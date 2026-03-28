@@ -106,6 +106,25 @@ export const CLIENT_ERROR_MESSAGES = {
 /**
  * Get user-friendly error message for client-side display
  */
+/**
+ * Extract error message from an API error response, with a fallback
+ */
+export async function getResponseErrorMessage(
+  response: Response,
+  fallbackMessage: string
+): Promise<string> {
+  try {
+    const data: unknown = await response.json();
+    if (typeof data === 'object' && data !== null && 'error' in data) {
+      const errorValue = (data as { error?: unknown }).error;
+      if (typeof errorValue === 'string') return errorValue;
+    }
+    return fallbackMessage;
+  } catch {
+    return fallbackMessage;
+  }
+}
+
 export const getClientErrorMessage = (error: unknown): string => {
   if (error instanceof Error) {
     // Check if error message matches known error patterns

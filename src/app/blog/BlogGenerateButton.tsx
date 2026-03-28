@@ -5,23 +5,14 @@ import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 
 import TerminalCard from '@/components/ui/TerminalCard';
-import { CLIENT_ERROR_MESSAGES, getClientErrorMessage } from '@/lib/errorMessages';
+import {
+  CLIENT_ERROR_MESSAGES,
+  getClientErrorMessage,
+  getResponseErrorMessage
+} from '@/lib/errorMessages';
 
 interface BlogGenerateButtonProps {
   initialAuthorized: boolean;
-}
-
-async function getResponseErrorMessage(
-  response: Response,
-  fallbackMessage: string
-): Promise<string> {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- API response is validated by backend
-    const errorData = (await response.json()) as { error?: string };
-    return errorData.error ?? fallbackMessage;
-  } catch {
-    return fallbackMessage;
-  }
 }
 
 // eslint-disable-next-line complexity -- This component intentionally manages the terminal auth state machine inline.
