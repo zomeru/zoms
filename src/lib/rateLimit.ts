@@ -112,6 +112,42 @@ export const RATE_LIMIT_CONFIGS = {
   }
 } as const;
 
+// Cached Upstash rate limiters for production (avoid recreating per request)
+type UpstashRatelimit = Awaited<ReturnType<typeof createUpstashRateLimiter>>;
+const upstashLimiters = new Map<string, UpstashRatelimit>();
+
+async function createUpstashRateLimiter(
+  config: (typeof RATE_LIMIT_CONFIGS)[keyof typeof RATE_LIMIT_CONFIGS]
+) {
+  const { Ratelimit } = await import('@upstash/ratelimit');
+  const { Redis } = await import('@upstash/redis');
+
+  const redis = new Redis({
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- Checked by caller before invoking
+    url: process.env.UPSTASH_REDIS_REST_URL!,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- Checked by caller before invoking
+    token: process.env.UPSTASH_REDIS_REST_TOKEN!
+  });
+
+  return new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(config.maxRequests, `${config.windowMs}ms`)
+  });
+}
+
+async function getUpstashRateLimiter(
+  configKey: keyof typeof RATE_LIMIT_CONFIGS,
+  config: (typeof RATE_LIMIT_CONFIGS)[keyof typeof RATE_LIMIT_CONFIGS]
+): Promise<UpstashRatelimit> {
+  const key = `${configKey}_${config.maxRequests}_${config.windowMs}`;
+  const existing = upstashLimiters.get(key);
+  if (existing) return existing;
+
+  const limiter = await createUpstashRateLimiter(config);
+  upstashLimiters.set(key, limiter);
+  return limiter;
+}
+
 // In-memory rate limiters for development
 const inMemoryLimiters = new Map<string, InMemoryRateLimiter>();
 
@@ -166,18 +202,7 @@ export const checkRateLimit = async (
     // Try to use Upstash if available
     if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
       try {
-        const { Ratelimit } = await import('@upstash/ratelimit');
-        const { Redis } = await import('@upstash/redis');
-
-        const redis = new Redis({
-          url: process.env.UPSTASH_REDIS_REST_URL,
-          token: process.env.UPSTASH_REDIS_REST_TOKEN
-        });
-
-        const ratelimit = new Ratelimit({
-          redis,
-          limiter: Ratelimit.slidingWindow(config.maxRequests, `${config.windowMs}ms`)
-        });
+        const ratelimit = await getUpstashRateLimiter(configKey, config);
 
         const result = await ratelimit.limit(identifier);
 

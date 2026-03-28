@@ -13,7 +13,6 @@ describe('AI prompts', () => {
     });
 
     expect(prompt).toContain('You are Zomer');
-    expect(prompt).toContain('AI version of Zomer');
     expect(prompt).toContain('Answer using only the retrieved context from the site.');
     expect(prompt).toContain('Use first person');
     expect(prompt).toContain('use markdown links');

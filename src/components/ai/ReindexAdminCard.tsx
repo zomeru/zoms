@@ -3,7 +3,11 @@
 import React, { useState } from 'react';
 
 import TerminalCard from '@/components/ui/TerminalCard';
-import { CLIENT_ERROR_MESSAGES, getClientErrorMessage } from '@/lib/errorMessages';
+import {
+  CLIENT_ERROR_MESSAGES,
+  getClientErrorMessage,
+  getResponseErrorMessage
+} from '@/lib/errorMessages';
 
 interface ReindexAdminCardProps {
   initialAuthorized: boolean;
@@ -14,19 +18,6 @@ interface ReindexResult {
   runId: string;
   skipped: number;
   updated: number;
-}
-
-async function getResponseErrorMessage(
-  response: Response,
-  fallbackMessage: string
-): Promise<string> {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- API response shape is validated server-side
-    const errorData = (await response.json()) as { error?: string };
-    return errorData.error ?? fallbackMessage;
-  } catch {
-    return fallbackMessage;
-  }
 }
 
 // eslint-disable-next-line complexity -- This component intentionally manages the terminal auth and run state machine inline.

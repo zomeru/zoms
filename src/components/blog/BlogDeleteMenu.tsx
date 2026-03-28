@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { HiOutlineDotsHorizontal } from 'react-icons/hi';
 
-import { getClientErrorMessage } from '@/lib/errorMessages';
+import { getClientErrorMessage, getResponseErrorMessage } from '@/lib/errorMessages';
 
 import { useBlogAdminAuthorization } from './useBlogAdminAuthorization';
 
@@ -15,28 +15,6 @@ interface BlogDeleteMenuProps {
   refreshOnDelete?: boolean;
   slug: string;
   title: string;
-}
-
-async function getResponseErrorMessage(
-  response: Response,
-  fallbackMessage: string
-): Promise<string> {
-  try {
-    const data: unknown = await response.json();
-
-    if (
-      typeof data === 'object' &&
-      data !== null &&
-      'error' in data &&
-      typeof data.error === 'string'
-    ) {
-      return data.error;
-    }
-
-    return fallbackMessage;
-  } catch {
-    return fallbackMessage;
-  }
 }
 
 export function BlogDeleteMenu({

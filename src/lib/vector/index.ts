@@ -59,13 +59,18 @@ class UpstashVectorClient implements VectorIndexClient {
   }
 }
 
+let cachedClient: VectorIndexClient | null = null;
+
 export function getVectorIndexClient(): VectorIndexClient {
+  if (cachedClient) return cachedClient;
+
   const env = getAiEnv();
 
-  return new UpstashVectorClient(
+  cachedClient = new UpstashVectorClient(
     new Index<VectorChunkMetadata>({
       token: env.UPSTASH_VECTOR_REST_TOKEN,
       url: env.UPSTASH_VECTOR_REST_URL
     })
   );
+  return cachedClient;
 }
