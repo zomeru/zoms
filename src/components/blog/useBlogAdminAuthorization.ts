@@ -25,6 +25,16 @@ function setAuthorized(value: boolean): void {
   }
 }
 
+export function markBlogAdminAuthorized(): void {
+  pendingAuthorizationRequest = null;
+  setAuthorized(true);
+}
+
+export function clearBlogAdminAuthorization(): void {
+  pendingAuthorizationRequest = null;
+  setAuthorized(false);
+}
+
 async function fetchAuthorizationStatus(): Promise<boolean> {
   const response = await fetch('/api/blog/generate/auth', {
     cache: 'no-store',
@@ -44,9 +54,9 @@ async function fetchAuthorizationStatus(): Promise<boolean> {
       ? data.authorized
       : false;
 
-  if (authorized) {
-    setAuthorized(true);
-  } else {
+  setAuthorized(authorized);
+
+  if (!authorized) {
     pendingAuthorizationRequest = null;
   }
 

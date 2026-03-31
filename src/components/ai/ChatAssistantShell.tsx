@@ -8,6 +8,11 @@ import { useChatAssistant } from './useChatAssistant';
 
 export default function ChatAssistantShell() {
   const pathname = usePathname();
+
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
+
   const assistant = useChatAssistant({ pathname });
 
   return (

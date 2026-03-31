@@ -64,11 +64,14 @@ export default defineType({
       name: 'source',
       title: 'Source',
       type: 'string',
-      description: 'Source of the content (e.g., "automated/gemini", "manual")',
+      description: 'How the post was created (human-authored or AI provider + trigger mode).',
       options: {
         list: [
           { title: 'Manual', value: 'manual' },
-          { title: 'Automated/Gemini', value: 'automated/gemini' }
+          { title: 'Manual / Gemini', value: 'manual/gemini' },
+          { title: 'Manual / OpenRouter', value: 'manual/openrouter' },
+          { title: 'Automated/Gemini', value: 'automated/gemini' },
+          { title: 'Automated / OpenRouter', value: 'automated/openrouter' }
         ]
       }
     }),
@@ -76,7 +79,7 @@ export default defineType({
       name: 'generated',
       title: 'Generated',
       type: 'boolean',
-      description: 'Whether this post was auto-generated',
+      description: 'Whether this post was AI-generated',
       initialValue: false
     }),
     defineField({

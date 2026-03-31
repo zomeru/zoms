@@ -1,6 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const fetch = vi.fn();
+type SanityFetch = (
+  query: string,
+  params: Record<string, unknown>,
+  options: {
+    next: {
+      revalidate: number;
+      tags: string[];
+    };
+  }
+) => Promise<unknown>;
+
+const fetch = vi.fn<SanityFetch>();
 
 vi.mock('@/lib/sanity', () => ({
   getSanityClient: () => ({
@@ -32,6 +43,14 @@ describe('project source loading', () => {
     const results = await getProjects();
 
     expect(results).toHaveLength(1);
+    expect(fetch).toHaveBeenCalledTimes(1);
+
+    const [query, params, options] = fetch.mock.calls[0];
+
+    expect(typeof query).toBe('string');
+    expect(params).toEqual({});
+    expect(options.next.tags).toEqual(['projects']);
+    expect(options.next.revalidate).toBeGreaterThan(0);
     expect(results[0]).toMatchObject({
       info: 'Project content from Sanity.',
       name: 'Sanity Project'

@@ -5,14 +5,7 @@ import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
 import { getErrorMessage } from '../errorMessages';
 import { SYSTEM_INSTRUCTION } from './constants';
 import { generatePrompt, tryParseAIJSON } from './helpers';
-
-export interface GeneratedBlogPost {
-  title: string;
-  summary: string;
-  body: string;
-  tags: string[];
-  readTime: number;
-}
+import type { GeneratedBlogDraft } from './types';
 
 function getGeminiClient(): GoogleGenAI {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -25,7 +18,7 @@ function getGeminiClient(): GoogleGenAI {
 /**
  * Generate blog post content using Gemini AI
  */
-export async function geminiGenerateBlogContent(): Promise<GeneratedBlogPost> {
+export async function geminiGenerateBlogContent(): Promise<GeneratedBlogDraft> {
   const prompt = generatePrompt();
 
   const result = await getGeminiClient().models.generateContent({
@@ -93,8 +86,10 @@ export async function geminiGenerateBlogContent(): Promise<GeneratedBlogPost> {
       title: parsed.title.slice(0, MAX_TITLE_LENGTH),
       summary: parsed.excerpt.slice(0, MAX_SUMMARY_LENGTH),
       body: parsed.content,
+      provider: 'gemini',
       tags: parsed.tags.slice(0, 5),
-      readTime
+      readTime,
+      suggestedSlug: parsed.slug
     };
   } catch (error) {
     throw new Error(getErrorMessage('AI_GENERATION_FAILED'), { cause: error });

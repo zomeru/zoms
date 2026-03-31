@@ -38,9 +38,7 @@ export async function GET(request: NextRequest): Promise<Response> {
       return botIdResponse;
     }
 
-    const sessionKey =
-      request.nextUrl.searchParams.get('sessionKey') ??
-      request.cookies.get(AI_CHAT_COOKIE_NAME)?.value;
+    const sessionKey = request.cookies.get(AI_CHAT_COOKIE_NAME)?.value;
     const { limit, offset } = validateSchema(
       chatHistoryQuerySchema,
       Object.fromEntries(request.nextUrl.searchParams.entries())
@@ -64,7 +62,7 @@ export async function GET(request: NextRequest): Promise<Response> {
       limit,
       messages: mapStoredMessages(page.messages),
       offset,
-      sessionKey,
+      sessionKey: null,
       total: page.total
     });
   } catch (error) {

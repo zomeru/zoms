@@ -1,7 +1,7 @@
 import { About, Blog, Experience, Projects } from '@/components/sections';
 import { Footer } from '@/components';
 
-export default async function Home(): Promise<React.JSX.Element> {
+export default function Home(): React.JSX.Element {
   return (
     <>
       <main className='relative z-10 min-h-screen'>

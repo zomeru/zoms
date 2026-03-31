@@ -8,6 +8,7 @@ import { TechBadge, TerminalCard } from '@/components/ui';
 import { SITE_URL } from '@/configs/seo';
 import { TITLE } from '@/constants';
 import { getBlogPostBySlug, getBlogPostSeoBySlug } from '@/lib/blog';
+import { serializeJsonForScript } from '@/lib/json-script';
 import { getSanityClient } from '@/lib/sanity';
 import { processMarkdown } from '@/lib/unified';
 import { formatDateWithTime } from '@/lib/utils';
@@ -112,7 +113,7 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
     <>
       <script
         type='application/ld+json'
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonForScript(jsonLd) }}
       />
       <main className='relative z-10 min-h-screen'>
         <div className='max-w-7xl mx-auto px-6 md:px-12 pb-16 pt-20'>

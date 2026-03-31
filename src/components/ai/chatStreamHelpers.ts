@@ -51,14 +51,10 @@ function parseStreamBuffer(buffer: string): { lines: string[]; remainder: string
 export function applyStreamEvent(
   event: StreamEvent,
   assistantMessageId: string,
-  setAssistantMessages: Dispatch<SetStateAction<AssistantMessage[]>>,
-  setSession: (value: string) => void
+  setAssistantMessages: Dispatch<SetStateAction<AssistantMessage[]>>
 ) {
   switch (event.type) {
     case 'session':
-      if (event.sessionKey) {
-        setSession(event.sessionKey);
-      }
       return;
 
     case 'chunk':
@@ -79,7 +75,6 @@ interface StreamChunkContext {
   decoder: TextDecoder;
   reader: ReadableStreamDefaultReader<Uint8Array>;
   setMessages: Dispatch<SetStateAction<AssistantMessage[]>>;
-  setSessionKey: (value: string) => void;
 }
 
 export async function processStreamChunk(ctx: StreamChunkContext, buffer: string): Promise<void> {
@@ -106,7 +101,7 @@ export async function processStreamChunk(ctx: StreamChunkContext, buffer: string
       continue;
     }
 
-    applyStreamEvent(payload, ctx.assistantMessageId, ctx.setMessages, ctx.setSessionKey);
+    applyStreamEvent(payload, ctx.assistantMessageId, ctx.setMessages);
   }
 
   await processStreamChunk(ctx, remainder);

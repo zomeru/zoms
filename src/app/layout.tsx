@@ -8,8 +8,8 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { BotIdClient } from 'botid/client';
 
-import ChatAssistantShell from '@/components/ai/ChatAssistantShell';
-import { Navbar, ParticleBackground } from '@/components';
+import GlobalEnhancements from '@/components/GlobalEnhancements';
+import { Navbar } from '@/components';
 import { seo } from '@/configs';
 import { BOTID_PROTECTED_ROUTES } from '@/lib/botId';
 
@@ -41,12 +41,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
       <head>
         <BotIdClient protect={BOTID_PROTECTED_ROUTES} />
       </head>
-      <body suppressHydrationWarning={true} className='bg-background text-primary min-h-screen'>
+      <body className='bg-background text-primary min-h-screen'>
         <Navbar />
         <div id='my-root' className='relative min-h-screen'>
-          <ParticleBackground />
+          <GlobalEnhancements />
           <React.Fragment>{children}</React.Fragment>
-          <ChatAssistantShell />
         </div>
         <Analytics />
         <SpeedInsights />

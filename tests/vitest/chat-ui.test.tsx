@@ -38,12 +38,10 @@ function HookHarness() {
 
 describe('chat UI behaviors', () => {
   beforeEach(() => {
-    window.localStorage.clear();
     vi.restoreAllMocks();
   });
 
-  it('hydrates chat history from the persisted session on reload', async () => {
-    window.localStorage.setItem('ai-chat-session', 'session-key');
+  it('hydrates chat history from the secure session cookie on reload', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async (input: string | URL | Request) => {
@@ -96,10 +94,10 @@ describe('chat UI behaviors', () => {
     });
     expect(screen.getByTestId('history-loading').textContent).toBe('idle');
     expect(screen.getByText(/thanks for visiting my website/i)).toBeTruthy();
+    expect(window.localStorage.getItem('ai-chat-session')).toBeNull();
   });
 
-  it('does not show the welcome message while persisted history is still loading', async () => {
-    window.localStorage.setItem('ai-chat-session', 'session-key');
+  it('does not show the welcome message while cookie-backed history is still loading', async () => {
     const pendingHistoryResponse = Promise.withResolvers<Response>().promise;
 
     vi.stubGlobal(
@@ -126,7 +124,6 @@ describe('chat UI behaviors', () => {
   });
 
   it('keeps the welcome message visible even when persisted history exists', async () => {
-    window.localStorage.setItem('ai-chat-session', 'session-key');
     vi.stubGlobal(
       'fetch',
       vi.fn(
@@ -165,7 +162,6 @@ describe('chat UI behaviors', () => {
   });
 
   it('requests the latest history page first and can load older history on demand', async () => {
-    window.localStorage.setItem('ai-chat-session', 'session-key');
     const fetchSpy = vi.fn(async (input: string | URL | Request) => {
       const url =
         typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
@@ -245,7 +241,7 @@ describe('chat UI behaviors', () => {
       expect(screen.getByText('Recent question')).toBeTruthy();
     });
 
-    expect(fetchSpy).toHaveBeenCalledWith('/api/ai/chat?sessionKey=session-key&limit=10&offset=0');
+    expect(fetchSpy).toHaveBeenCalledWith('/api/ai/chat?limit=10&offset=0');
     expect(screen.getByTestId('has-more-history').textContent).toBe('yes');
 
     fireEvent.click(screen.getByRole('button', { name: 'Load older' }));
@@ -254,7 +250,7 @@ describe('chat UI behaviors', () => {
       expect(screen.getByText('Older question')).toBeTruthy();
     });
 
-    expect(fetchSpy).toHaveBeenCalledWith('/api/ai/chat?sessionKey=session-key&limit=10&offset=2');
+    expect(fetchSpy).toHaveBeenCalledWith('/api/ai/chat?limit=10&offset=2');
     expect(screen.getAllByText(/question$/)).toHaveLength(2);
     expect(screen.getByTestId('has-more-history').textContent).toBe('no');
   });

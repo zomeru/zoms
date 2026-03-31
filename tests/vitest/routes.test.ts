@@ -51,6 +51,22 @@ function isGeneralAnswerCallInput(value: unknown): value is GeneralAnswerCallInp
   return Array.isArray(value.relatedBlogChunks);
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function parseStreamEvents(body: string): Array<Record<string, unknown>> {
+  return body
+    .trim()
+    .split('\n')
+    .filter((line) => line.length > 0)
+    .flatMap((line) => {
+      const payload: unknown = JSON.parse(line);
+
+      return isRecord(payload) ? [payload] : [];
+    });
+}
+
 const rateLimitMiddleware = vi.fn();
 const repositories = {
   createChatMessage: vi.fn(),
@@ -334,6 +350,7 @@ describe('AI routes', () => {
     expect(body).toContain('Grounded response text.');
     expect(body).toContain('"text":"Grounded "');
     expect(body).toContain('"text":"response text."');
+    expect(body).not.toContain('"type":"session"');
   });
 
   it('uses recent session messages as memory and exposes history for reload hydration', async () => {
@@ -384,7 +401,11 @@ describe('AI routes', () => {
     const { GET, POST } = await import('@/app/api/ai/chat/route');
 
     const historyResponse = await GET(
-      new NextRequest('http://localhost/api/ai/chat?sessionKey=session-key')
+      new NextRequest('http://localhost/api/ai/chat', {
+        headers: {
+          cookie: 'ai_chat_session=session-key'
+        }
+      })
     );
 
     expect(historyResponse.status).toBe(200);
@@ -407,7 +428,7 @@ describe('AI routes', () => {
         }
       ],
       offset: 0,
-      sessionKey: 'session-key',
+      sessionKey: null,
       total: 2
     });
 
@@ -451,6 +472,24 @@ describe('AI routes', () => {
     });
     expect(repositories.getChatSession).not.toHaveBeenCalled();
     expect(repositories.getRecentChatMessages).toHaveBeenCalledWith('session-key', 4);
+  });
+
+  it('ignores leaked session keys in the query string and only trusts the chat cookie', async () => {
+    const { GET } = await import('@/app/api/ai/chat/route');
+
+    const response = await GET(
+      new NextRequest('http://localhost/api/ai/chat?sessionKey=leaked-value', {
+        headers: {
+          cookie: 'ai_chat_session=trusted-cookie'
+        }
+      })
+    );
+
+    expect(response.status).toBe(200);
+    expect(repositories.getChatHistoryPage).toHaveBeenCalledWith('trusted-cookie', {
+      limit: 10,
+      offset: 0
+    });
   });
 
   it('answers broad general-knowledge questions without site retrieval', async () => {
@@ -527,6 +566,67 @@ describe('AI routes', () => {
 
     expect(response.status).toBe(200);
     await expect(response.text()).resolves.toContain('"type":"done"');
+  });
+
+  it('keeps the final grounded answer when retrieval analytics fail after assistant persistence', async () => {
+    repositories.createChatMessage
+      .mockResolvedValueOnce({ id: 'user-message-id' })
+      .mockResolvedValueOnce({ id: 'assistant-message-id' });
+    repositories.createRetrievalEvent.mockRejectedValueOnce(new Error('analytics unavailable'));
+
+    const { POST } = await import('@/app/api/ai/chat/route');
+
+    const response = await POST(
+      new NextRequest('http://localhost/api/ai/chat', {
+        body: JSON.stringify({
+          blogSlug: 'grounded-assistant',
+          pathname: '/blog/grounded-assistant',
+          question: 'What does the blog post say about grounded retrieval?'
+        }),
+        method: 'POST'
+      })
+    );
+
+    expect(response.status).toBe(200);
+
+    const events = parseStreamEvents(await response.text());
+    const doneEvent = events.at(-1);
+
+    expect(doneEvent).toMatchObject({
+      answer: {
+        answer: 'Grounded response text.',
+        citations: [
+          expect.objectContaining({
+            id: 'citation-1'
+          })
+        ],
+        supported: true
+      },
+      messageId: 'assistant-message-id',
+      type: 'done'
+    });
+  });
+
+  it('sets a secure chat cookie for new sessions in production', async () => {
+    vi.stubEnv('NODE_ENV', 'production');
+
+    try {
+      const { POST } = await import('@/app/api/ai/chat/route');
+
+      const response = await POST(
+        new NextRequest('http://localhost/api/ai/chat', {
+          body: JSON.stringify({
+            question: 'Tell me about grounded retrieval'
+          }),
+          method: 'POST'
+        })
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get('set-cookie')).toContain('Secure');
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('returns a rate-limited response when the limiter blocks chat requests', async () => {

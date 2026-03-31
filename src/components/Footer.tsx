@@ -10,7 +10,7 @@ const Footer: React.FC = (): React.JSX.Element => {
     <footer id='contact' className='py-16 mt-8 border-t border-border'>
       <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-6'>
         <div>
-          <h3 className='text-lg font-medium tex-primary mb-2'>
+          <h3 className='text-lg font-medium text-primary mb-2'>
             Let&apos;s build something together
           </h3>
           <p className='text-text-secondary text-sm mb-4'>

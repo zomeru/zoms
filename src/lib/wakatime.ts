@@ -15,7 +15,7 @@ const SELECTED_LANGUAGES = [
   'Markdown',
   'Vue.js',
   'CSS',
-  'HMTL',
+  'HTML',
   'Svelte',
   'YAML',
   'JSX',
@@ -40,6 +40,7 @@ export interface WakaTimeStats {
 
 const WAKATIME_API_BASE = 'https://wakatime.com/api/v1';
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
+const WAKATIME_REVALIDATE_SECONDS = CACHE_DURATION_MS / 1000;
 const REQUEST_TIMEOUT_MS = 15000;
 
 interface CacheEntry {
@@ -91,6 +92,10 @@ export async function getWakaTimeStats(): Promise<WakaTimeStats | null> {
       headers: {
         Authorization: `Basic ${encoded}`,
         'User-Agent': 'zoms-portfolio-app'
+      },
+      next: {
+        revalidate: WAKATIME_REVALIDATE_SECONDS,
+        tags: ['wakatime-stats']
       },
       signal: controller.signal
     });

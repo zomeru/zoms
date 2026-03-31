@@ -24,29 +24,8 @@ export const blogPostListItemSchema = z.object({
   readTime: z.number().optional()
 });
 
-export const blogPostBodyBlockSchema = z.object({
-  _type: z.string(),
-  _key: z.string(),
-  style: z.string().optional(),
-  children: z
-    .array(
-      z.object({
-        _type: z.string(),
-        text: z.string().optional(),
-        marks: z.array(z.string()).optional(),
-        code: z.string().optional(),
-        language: z.string().optional()
-      })
-    )
-    .optional(),
-  listItem: z.string().optional(),
-  level: z.number().optional(),
-  code: z.string().optional(),
-  language: z.string().optional()
-});
-
 export const blogPostFullSchema = blogPostListItemSchema.extend({
-  body: z.array(blogPostBodyBlockSchema)
+  body: z.string()
 });
 
 // API Query Schemas
@@ -55,9 +34,14 @@ export const blogListQuerySchema = z.object({
   offset: z.coerce.number().int().min(0).default(0)
 });
 
-export const blogGenerateRequestSchema = z.object({
-  aiGenerated: z.boolean().optional().default(true)
-});
+export const blogGenerateRequestSchema = z
+  .object({
+    aiGenerated: z.boolean().optional(),
+    triggerMode: z.enum(['manual', 'scheduled']).optional()
+  })
+  .transform((input) => ({
+    triggerMode: input.triggerMode ?? 'manual'
+  }));
 
 export const blogGenerateAuthRequestSchema = z.object({
   secret: z.string().min(1)
