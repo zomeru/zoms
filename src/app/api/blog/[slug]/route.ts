@@ -52,7 +52,7 @@ function createSanityWriteClient(): SanityClient {
   }
 
   return createClient({
-    apiVersion: '2025-10-08',
+    apiVersion: '2026-03-31',
     dataset,
     projectId,
     token: apiToken,

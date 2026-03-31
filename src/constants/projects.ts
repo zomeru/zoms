@@ -1,5 +1,27 @@
 export const projects = [
   {
+    name: 'Rezumer AI',
+    image: 'project-rezumer.jpg',
+    alt: 'Rezumer AI home page',
+    info: "Rezumerai is an AI-assisted resume builder for job seekers who want one workspace to draft, refine, tailor, and export resumes. It combines structured resume editing with AI-powered section optimization, job-description matching, and a scope-aware assistant that can answer public, account, or admin questions based on the current user's access.",
+    techs: [
+      'Turborepo',
+      'TypeScript',
+      'Next.js',
+      'React.js',
+      'ElysiaJS',
+      'AI SDK',
+      'Openrouter',
+      'Prisma',
+      'PostgreSQL',
+      'Pgvector'
+    ],
+    links: {
+      demo: 'https://rezumerai.vercel.app/',
+      github: 'https://github.com/zomeru/rezumerai'
+    }
+  },
+  {
     name: 'Batibot',
     image: 'project-batibot.jpg',
     alt: 'Batibot screenshots',

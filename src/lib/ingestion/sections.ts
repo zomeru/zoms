@@ -1,8 +1,8 @@
 import type { PortableTextBlock, PortableTextSpan } from '@portabletext/types';
 
-import type { projects } from '@/constants/projects';
 import type { NormalizedContentSection } from '@/lib/content/types';
 import type { Experience } from '@/lib/experience';
+import type { Project } from '@/lib/projects';
 
 import { slugify } from './normalize';
 
@@ -67,9 +67,7 @@ export function splitMarkdownIntoSections(markdown: string): NormalizedContentSe
       ];
 }
 
-export function createProjectSections(
-  project: (typeof projects)[number]
-): NormalizedContentSection[] {
+export function createProjectSections(project: Project): NormalizedContentSection[] {
   return [
     {
       content: project.info,

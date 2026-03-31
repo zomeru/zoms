@@ -54,6 +54,7 @@ describe('content normalization and ingestion', () => {
       alt: 'Batibot screenshots',
       image: 'project-batibot.jpg',
       info: 'Batibot is an AI-powered messaging companion.',
+      order: 0,
       techs: ['React Native CLI', 'Typescript', 'Supabase'],
       links: {
         demo: 'https://example.com/demo',
@@ -159,6 +160,7 @@ describe('content normalization and ingestion', () => {
       alt: 'Stable IDs screenshot',
       image: 'stable.jpg',
       info: 'A deterministic document.',
+      order: 0,
       techs: ['Next.js'],
       links: {
         demo: 'https://example.com/demo',
@@ -185,6 +187,7 @@ describe('content normalization and ingestion', () => {
       alt: 'No changes',
       image: 'no-changes.jpg',
       info: 'This document should be skipped.',
+      order: 0,
       techs: ['Next.js'],
       links: {
         demo: 'https://example.com/no-changes',
@@ -197,6 +200,7 @@ describe('content normalization and ingestion', () => {
       alt: 'Changed project',
       image: 'changed.jpg',
       info: 'This document should trigger delete and upsert.',
+      order: 1,
       techs: ['Next.js', 'Prisma'],
       links: {
         demo: 'https://example.com/changed',

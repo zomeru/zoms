@@ -121,7 +121,7 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
     const writeClient = createClient({
       projectId,
       dataset,
-      apiVersion: '2025-10-08',
+      apiVersion: '2026-03-31',
       token: apiToken,
       useCdn: false
     });

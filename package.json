@@ -23,6 +23,7 @@
     "ai:reindex": "tsx src/lib/ingestion/cli.ts",
     "ai:reset": "tsx ./scripts/ai-reset.ts",
     "ai:reindex:prod": "tsx ./scripts/ai-reindex-prod.ts",
+    "sanity:seed:projects": "tsx ./scripts/seed-sanity-projects.ts",
     "prepare": "husky",
     "studio:dev": "cd studio && pnpm run dev",
     "studio:build": "cd studio && pnpm run build",

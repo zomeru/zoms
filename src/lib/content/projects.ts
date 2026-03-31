@@ -1,9 +1,9 @@
-import { projects } from '@/constants/projects';
 import type { NormalizedContentDocument } from '@/lib/content/types';
 import { createDocument, slugify } from '@/lib/ingestion/normalize';
 import { createProjectSections } from '@/lib/ingestion/sections';
+import { getProjects, type Project } from '@/lib/projects';
 
-export type ProjectRecord = (typeof projects)[number];
+export type ProjectRecord = Project;
 
 export function normalizeProjectRecord(project: ProjectRecord): NormalizedContentDocument {
   const slug = slugify(project.name);
@@ -24,6 +24,8 @@ export function normalizeProjectRecord(project: ProjectRecord): NormalizedConten
   });
 }
 
-export function loadProjectDocuments(): NormalizedContentDocument[] {
+export async function loadProjectDocuments(): Promise<NormalizedContentDocument[]> {
+  const projects = await getProjects();
+
   return projects.map(normalizeProjectRecord);
 }

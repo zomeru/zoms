@@ -47,7 +47,7 @@ export default defineType({
       name: 'order',
       title: 'Order',
       type: 'number',
-      description: 'Used to order experience entries (lower numbers appear first)',
+      description: 'Used to order experience entries (higher numbers appear first)',
       validation: (Rule) => Rule.required().integer().min(0)
     })
   ],

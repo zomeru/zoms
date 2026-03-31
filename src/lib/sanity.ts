@@ -19,7 +19,7 @@ export function getSanityClient(): ReturnType<typeof createClient> {
   clientInstance = createClient({
     projectId,
     dataset,
-    apiVersion: '2025-10-08',
+    apiVersion: '2026-03-31',
     useCdn: process.env.NODE_ENV === 'production',
     perspective: 'published'
   });

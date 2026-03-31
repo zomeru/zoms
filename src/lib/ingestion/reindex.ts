@@ -116,13 +116,14 @@ export async function loadNormalizedDocuments(): Promise<NormalizedContentDocume
     import('@/lib/content/projects'),
     import('@/lib/content/blog')
   ]);
-  const [aboutDocuments, experienceDocuments, blogDocuments] = await Promise.all([
+  const [aboutDocuments, experienceDocuments, projectDocuments, blogDocuments] = await Promise.all([
     loadAboutDocuments(),
     loadExperienceDocuments(),
+    loadProjectDocuments(),
     loadBlogDocuments()
   ]);
 
-  return [...aboutDocuments, ...experienceDocuments, ...loadProjectDocuments(), ...blogDocuments];
+  return [...aboutDocuments, ...experienceDocuments, ...projectDocuments, ...blogDocuments];
 }
 
 export async function runSiteReindex(

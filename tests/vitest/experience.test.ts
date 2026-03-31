@@ -11,9 +11,10 @@ vi.mock('@/lib/sanity', () => ({
 describe('experience source loading', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.resetModules();
   });
 
-  it('merges fallback experience entries when Sanity returns only a partial list', async () => {
+  it('returns only Sanity experience entries when Sanity returns data', async () => {
     fetch.mockResolvedValueOnce([
       {
         company: 'Seansoft Corporation',
@@ -44,12 +45,21 @@ describe('experience source loading', () => {
     const { getExperience } = await import('@/lib/experience');
     const results = await getExperience();
 
-    expect(results).toHaveLength(4);
+    expect(results).toHaveLength(3);
     expect(results.map((item) => item.company)).toEqual([
       'Seansoft Corporation',
       'Evelan GmbH',
-      'Beyonder Inc.',
-      'Gig'
+      'Beyonder Inc.'
     ]);
+  });
+
+  it('returns fallback experience entries when Sanity returns no rows', async () => {
+    fetch.mockResolvedValueOnce([]);
+
+    const { getExperience } = await import('@/lib/experience');
+    const results = await getExperience();
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(results.some((item) => item.company === 'Gig')).toBe(true);
   });
 });

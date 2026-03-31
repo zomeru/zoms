@@ -5,6 +5,7 @@ import { classifyQueryIntent } from '@/lib/retrieval/classify';
 const getLatestBlogPosts = vi.fn();
 const getOldestBlogPosts = vi.fn();
 const getExperience = vi.fn();
+const getProjects = vi.fn();
 
 vi.mock('@/lib/blog', () => ({
   getLatestBlogPosts,
@@ -13,6 +14,10 @@ vi.mock('@/lib/blog', () => ({
 
 vi.mock('@/lib/experience', () => ({
   getExperience
+}));
+
+vi.mock('@/lib/projects', () => ({
+  getProjects
 }));
 
 describe('direct assistant answers', () => {
@@ -88,6 +93,32 @@ describe('direct assistant answers', () => {
         order: 3,
         range: 'Apr. 2021 - Feb. 2022',
         title: 'Full Stack Developer'
+      }
+    ]);
+    getProjects.mockResolvedValue([
+      {
+        alt: 'Batibot screenshots',
+        image: 'project-batibot.jpg',
+        info: 'Batibot is an AI-powered messaging companion that helps you find the right information and services for your needs.',
+        links: {
+          demo: 'https://play.google.com/store/apps/details?id=com.zomeru.batibot',
+          github: 'https://github.com/zomeru/batibot-app'
+        },
+        name: 'Batibot',
+        order: 2,
+        techs: ['React Native CLI', 'Typescript', 'Supabase']
+      },
+      {
+        alt: 'Zomink website',
+        image: 'project-zomink.png',
+        info: 'Zomink is an open-source link management platform.',
+        links: {
+          demo: 'https://zom.ink/',
+          github: 'https://github.com/zomeru/zom.ink'
+        },
+        name: 'Zomink',
+        order: 1,
+        techs: ['TypeScript', 'Next.js']
       }
     ]);
   });
@@ -191,6 +222,7 @@ describe('direct assistant answers', () => {
     });
 
     expect(answer).not.toBeNull();
+    expect(getProjects).toHaveBeenCalledTimes(1);
     expect(answer?.citations[0]).toMatchObject({
       contentType: 'project',
       title: 'Batibot',

@@ -20,7 +20,7 @@ const CodeEditorCard: React.FC<CodeEditorCardProps> = ({
   return (
     <div
       className={`
-        bg-code-bg border border-code-border rounded-lg overflow-hidden
+        bg-code-bg border border-code-border rounded-lg overflow-hidden flex h-full flex-col
         ${className}
       `}
     >
@@ -37,7 +37,7 @@ const CodeEditorCard: React.FC<CodeEditorCardProps> = ({
         </div>
         <span className='text-xs text-muted font-mono'>{language}</span>
       </div>
-      <div className='p-4 font-mono text-sm overflow-x-auto'>
+      <div className='p-4 font-mono text-sm overflow-x-auto flex-1'>
         {showLineNumbers ? (
           <div className='flex'>
             <div className='text-muted text-right pr-4 select-none border-r border-code-border mr-4'>
@@ -48,7 +48,7 @@ const CodeEditorCard: React.FC<CodeEditorCardProps> = ({
             <div className='text-[#e2e8f0] flex-1'>{children}</div>
           </div>
         ) : (
-          <pre className='text-[#e2e8f0] whitespace-pre-wrap'>{children}</pre>
+          <pre className='text-[#e2e8f0] whitespace-pre-wrap h-full'>{children}</pre>
         )}
       </div>
     </div>

@@ -1,8 +1,8 @@
 import 'server-only';
 
-import { projects } from '@/constants/projects';
 import { getBlogPosts, getLatestBlogPosts, getOldestBlogPosts } from '@/lib/blog';
 import { getExperience } from '@/lib/experience';
+import { getProjects } from '@/lib/projects';
 import type { QueryClassification } from '@/lib/retrieval/classify';
 import { formatDate } from '@/lib/utils';
 
@@ -264,6 +264,7 @@ async function answerProjectBoundaryQuery(
   direction: TemporalDirection,
   quantity: QuantityRequest
 ): Promise<DirectAssistantAnswer | null> {
+  const projects = [...(await getProjects())].sort((left, right) => right.order - left.order);
   const selectedProjects = selectEntriesByDirection(projects, direction, quantity);
   const project = selectedProjects.at(0);
 
@@ -289,8 +290,8 @@ async function answerProjectBoundaryQuery(
 
   const answer =
     direction === 'latest'
-      ? `Based on the current portfolio ordering, the latest featured project is "${project.name}". ${project.info}`
-      : `Based on the current portfolio ordering, the oldest listed project is "${project.name}". ${project.info}`;
+      ? `The most recent project entry is ${project.name}. ${project.info}`
+      : `The oldest project entry is ${project.name}. ${project.info}`;
 
   return createDirectAnswer(answer, citations.slice(0, 1));
 }
