@@ -108,7 +108,7 @@ const Experience: React.FC = async (): Promise<React.JSX.Element> => {
 
       <div className='mt-8'>
         <a
-          href='/assets/resume.pdf'
+          href='/assets/GREGORIO_ZOMER_RESUME.pdf'
           target='_blank'
           rel='noopener noreferrer'
           className='inline-flex items-center gap-2 text-primary hover:underline'
