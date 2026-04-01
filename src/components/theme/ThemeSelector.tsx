@@ -127,6 +127,20 @@ export function ThemeSelector(): React.JSX.Element | null {
     }
   }, [activeOptionId, activeThemeId, isSelectorOpen, visibleThemes]);
 
+  React.useEffect(() => {
+    if (!isSelectorOpen) {
+      return;
+    }
+
+    const selectedOption = optionRefs.current[selectedThemeId];
+
+    if (typeof selectedOption?.scrollIntoView === 'function') {
+      selectedOption.scrollIntoView({
+        block: 'center'
+      });
+    }
+  }, [isSelectorOpen, selectedThemeId]);
+
   if (!isSelectorOpen) {
     return null;
   }
@@ -251,7 +265,7 @@ export function ThemeSelector(): React.JSX.Element | null {
           </div>
         </div>
 
-        <div className='assistant-scrollbar flex-1 overflow-y-auto px-4 py-4'>
+        <div className='assistant-scrollbar flex-1 overflow-y-auto overscroll-contain px-4 py-4'>
           <div role='listbox' aria-label='Theme options' className='space-y-2'>
             {visibleThemes.map((theme) => {
               const isActive = theme.id === activeOptionId;

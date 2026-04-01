@@ -16,6 +16,8 @@ describe('theme system behaviors', () => {
     window.localStorage.clear();
     document.documentElement.removeAttribute('data-theme');
     document.documentElement.style.colorScheme = '';
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
 
     const existingMeta = document.querySelector('meta[name="theme-color"]');
     if (existingMeta) {
@@ -123,5 +125,103 @@ describe('theme system behaviors', () => {
     await waitFor(() => {
       expect(document.documentElement.dataset.theme).toBe('zomeru');
     });
+  });
+
+  it('scrolls the selected theme into view when the selector opens', async () => {
+    const [{ ThemeProvider }, { ThemeRail }, { ThemeSelector }, { THEME_STORAGE_KEY }] =
+      await Promise.all([
+        import('@/components/theme/ThemeProvider'),
+        import('@/components/theme/ThemeRail'),
+        import('@/components/theme/ThemeSelector'),
+        import('@/lib/theme/storage')
+      ]);
+
+    const originalScrollIntoViewDescriptor = Object.getOwnPropertyDescriptor(
+      HTMLElement.prototype,
+      'scrollIntoView'
+    );
+    const scrolledElements: HTMLElement[] = [];
+
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value(this: HTMLElement) {
+        scrolledElements.push(this);
+      }
+    });
+
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, 'tokyo-night-day');
+
+      render(
+        <ThemeProvider>
+          <ThemeRail />
+          <ThemeSelector />
+          <ThemeHarness />
+        </ThemeProvider>
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: /open theme selector/i }));
+
+      const selectedOption = await screen.findByRole('option', { name: /Tokyo Night Day/i });
+      const hoverOption = screen.getByRole('option', { name: /Dracula/i });
+
+      await waitFor(() => {
+        expect(scrolledElements).toContain(selectedOption);
+      });
+
+      const scrollCountAfterOpen = scrolledElements.length;
+      fireEvent.mouseEnter(hoverOption);
+
+      await waitFor(() => {
+        expect(document.documentElement.dataset.theme).toBe('dracula');
+      });
+
+      expect(scrolledElements).toHaveLength(scrollCountAfterOpen);
+    } finally {
+      if (originalScrollIntoViewDescriptor) {
+        Object.defineProperty(
+          HTMLElement.prototype,
+          'scrollIntoView',
+          originalScrollIntoViewDescriptor
+        );
+      } else {
+        Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
+      }
+    }
+  });
+
+  it('locks page scrolling while the theme selector is open and restores it on close', async () => {
+    const [{ ThemeProvider }, { ThemeRail }, { ThemeSelector }] = await Promise.all([
+      import('@/components/theme/ThemeProvider'),
+      import('@/components/theme/ThemeRail'),
+      import('@/components/theme/ThemeSelector')
+    ]);
+
+    document.documentElement.style.overflow = 'clip';
+    document.body.style.overflow = 'auto';
+
+    render(
+      <ThemeProvider>
+        <ThemeRail />
+        <ThemeSelector />
+        <ThemeHarness />
+      </ThemeProvider>
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /open theme selector/i }));
+
+    await screen.findByRole('dialog', { name: 'Theme selector' });
+
+    expect(document.documentElement.style.overflow).toBe('hidden');
+    expect(document.body.style.overflow).toBe('hidden');
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Theme selector' })).toBeNull();
+    });
+
+    expect(document.documentElement.style.overflow).toBe('clip');
+    expect(document.body.style.overflow).toBe('auto');
   });
 });
