@@ -14,6 +14,18 @@ vi.mock('@/components/ai/useChatAssistant', () => ({
   useChatAssistant
 }));
 
+vi.mock('@/components/ai/ChatLauncher', () => ({
+  default: ({ onClick }: { onClick: () => void }) => (
+    <button type='button' aria-label='Open chat with Zomer' onClick={onClick}>
+      launcher
+    </button>
+  )
+}));
+
+vi.mock('@/components/ai/ChatPanel', () => ({
+  default: () => <div aria-label='Chat panel'>panel</div>
+}));
+
 describe('ChatAssistantShell', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -52,5 +64,6 @@ describe('ChatAssistantShell', () => {
     render(<ChatAssistantShell />);
 
     expect(useChatAssistant).toHaveBeenCalledWith({ pathname: '/' });
+    expect(screen.getByLabelText('Open chat with Zomer')).toBeTruthy();
   });
 });

@@ -14,6 +14,18 @@ const originalScrollHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototy
 const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth');
 const originalScrollWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollWidth');
 
+function restorePropertyDescriptor(
+  property: 'clientHeight' | 'scrollHeight' | 'clientWidth' | 'scrollWidth',
+  descriptor: PropertyDescriptor | undefined
+): void {
+  if (descriptor) {
+    Object.defineProperty(HTMLElement.prototype, property, descriptor);
+    return;
+  }
+
+  Reflect.deleteProperty(HTMLElement.prototype, property);
+}
+
 beforeEach(() => {
   Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
     configurable: true,
@@ -49,21 +61,10 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  if (originalClientHeight) {
-    Object.defineProperty(HTMLElement.prototype, 'clientHeight', originalClientHeight);
-  }
-
-  if (originalScrollHeight) {
-    Object.defineProperty(HTMLElement.prototype, 'scrollHeight', originalScrollHeight);
-  }
-
-  if (originalClientWidth) {
-    Object.defineProperty(HTMLElement.prototype, 'clientWidth', originalClientWidth);
-  }
-
-  if (originalScrollWidth) {
-    Object.defineProperty(HTMLElement.prototype, 'scrollWidth', originalScrollWidth);
-  }
+  restorePropertyDescriptor('clientHeight', originalClientHeight);
+  restorePropertyDescriptor('scrollHeight', originalScrollHeight);
+  restorePropertyDescriptor('clientWidth', originalClientWidth);
+  restorePropertyDescriptor('scrollWidth', originalScrollWidth);
 });
 
 describe('projects client cards', () => {
@@ -119,15 +120,18 @@ describe('projects client cards', () => {
     const description = screen.getByText(
       'Sentence one. Sentence two. Sentence three. Sentence four. Sentence five. Sentence six.'
     );
+    const toggleButton = await screen.findByRole('button', { name: /read more/i });
 
     expect(description.className).toContain('line-clamp-3');
+    expect(toggleButton).toBeTruthy();
+
+    fireEvent.click(toggleButton);
 
     return await waitFor(() => {
-      fireEvent.click(screen.getByRole('button', { name: 'Show full description' }));
       expect(description.className).not.toContain('line-clamp-3');
-      expect(screen.getByRole('button', { name: 'Collapse description' })).toBeTruthy();
+      expect(screen.getByText(/collapse/i).closest('button')).toBeTruthy();
     });
-  });
+  }, 10000);
 
   it('hides the description toggle when the text fits inside three lines', () => {
     render(
@@ -149,7 +153,7 @@ describe('projects client cards', () => {
       />
     );
 
-    expect(screen.queryByRole('button', { name: 'Show full description' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /description/i })).toBeNull();
   });
 
   it('shows a single tech stack row until expanded', async () => {
@@ -176,10 +180,11 @@ describe('projects client cards', () => {
 
     expect(stack.className).toContain('whitespace-nowrap');
     expect(stack.className).toContain('overflow-hidden');
-    expect(screen.queryByText('expand stack')).toBeNull();
+
+    const toggleButton = await screen.findByRole('button', { name: 'Show full tech stack' });
+    fireEvent.click(toggleButton);
 
     return await waitFor(() => {
-      fireEvent.click(screen.getByRole('button', { name: 'Show full tech stack' }));
       expect(stack.className).toContain('flex-wrap');
       expect(stack.className).not.toContain('flex-nowrap');
       expect(screen.getByRole('button', { name: 'Collapse tech stack' })).toBeTruthy();

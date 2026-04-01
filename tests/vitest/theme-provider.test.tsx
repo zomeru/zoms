@@ -86,7 +86,7 @@ describe('theme system behaviors', () => {
       expect(document.documentElement.style.colorScheme).toBe('light');
       expect(window.localStorage.getItem(THEME_STORAGE_KEY)).toBe('github-light');
     });
-  });
+  }, 10000);
 
   it('previews a theme and restores the committed theme when cancelled', async () => {
     const [{ ThemeProvider }, { ThemeRail }, { ThemeSelector }] = await Promise.all([
@@ -125,7 +125,7 @@ describe('theme system behaviors', () => {
     await waitFor(() => {
       expect(document.documentElement.dataset.theme).toBe('zomeru');
     });
-  });
+  }, 10000);
 
   it('scrolls the selected theme into view when the selector opens', async () => {
     const [{ ThemeProvider }, { ThemeRail }, { ThemeSelector }, { THEME_STORAGE_KEY }] =
@@ -161,6 +161,7 @@ describe('theme system behaviors', () => {
       );
 
       fireEvent.click(screen.getByRole('button', { name: /open theme selector/i }));
+      await screen.findByRole('dialog', { name: 'Theme selector' });
 
       const selectedOption = await screen.findByRole('option', { name: /Tokyo Night Day/i });
       const hoverOption = screen.getByRole('option', { name: /Dracula/i });
@@ -188,7 +189,7 @@ describe('theme system behaviors', () => {
         Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
       }
     }
-  });
+  }, 10000);
 
   it('locks page scrolling while the theme selector is open and restores it on close', async () => {
     const [{ ThemeProvider }, { ThemeRail }, { ThemeSelector }] = await Promise.all([

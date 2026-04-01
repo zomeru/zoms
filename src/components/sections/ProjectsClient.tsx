@@ -56,10 +56,10 @@ const ProjectDescription: React.FC<ProjectDescriptionProps> = ({
         <button
           type='button'
           onClick={() => setIsExpanded((current) => !current)}
-          aria-label={isExpanded ? 'Collapse description' : 'Show full description'}
           className='mt-2 inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.16em] text-primary transition-colors hover:text-terminal-green'
         >
           <span>{isExpanded ? 'collapse' : 'read more'}</span>
+          <span className='sr-only'>{` for ${name}`}</span>
           <AiOutlineArrowUp
             className={`size-3 transition-transform ${isExpanded ? '' : 'rotate-180'}`}
           />

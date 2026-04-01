@@ -42,6 +42,8 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }): React.JSX.Element {
+  const shouldRenderVercelInsights = process.env.VERCEL === '1';
+
   return (
     <html
       lang='en'
@@ -65,8 +67,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
             <React.Fragment>{children}</React.Fragment>
           </div>
         </ThemeProvider>
-        <Analytics />
-        <SpeedInsights />
+        {shouldRenderVercelInsights ? <Analytics /> : null}
+        {shouldRenderVercelInsights ? <SpeedInsights /> : null}
       </body>
     </html>
   );

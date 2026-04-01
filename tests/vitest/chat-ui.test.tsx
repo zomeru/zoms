@@ -3,6 +3,7 @@
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { useEffect } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -14,6 +15,10 @@ import { useChatAssistant } from '@/components/ai/useChatAssistant';
 
 function HookHarness() {
   const assistant = useChatAssistant({ pathname: '/' });
+
+  useEffect(() => {
+    assistant.setIsOpen(true);
+  }, [assistant.setIsOpen]);
 
   return (
     <div>

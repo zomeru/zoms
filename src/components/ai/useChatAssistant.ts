@@ -53,7 +53,7 @@ export function useChatAssistant(input: { pathname: string }) {
 
   // ── History hydration ─────────────────────────────────────────────────────
   useEffect(() => {
-    if (hasHydratedHistory.current || messages.length > 0) {
+    if (hasHydratedHistory.current || messages.length > 0 || !isOpen) {
       return;
     }
 
@@ -98,7 +98,7 @@ export function useChatAssistant(input: { pathname: string }) {
     return () => {
       cancelled = true;
     };
-  }, [messages.length]);
+  }, [isOpen, messages.length]);
 
   // ── Load older history ────────────────────────────────────────────────────
   async function loadOlderHistory(): Promise<void> {

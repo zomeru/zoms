@@ -1,6 +1,7 @@
 import { getThemeById, resolveThemeId, type ThemeId } from './registry';
 
 export const THEME_CHANGE_EVENT = 'zoms-theme-change';
+const THEME_SWITCH_ATTRIBUTE = 'data-theme-switching';
 
 function ensureThemeColorMeta(documentRef: Document): HTMLMetaElement {
   const existing = documentRef.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
@@ -16,11 +17,40 @@ function ensureThemeColorMeta(documentRef: Document): HTMLMetaElement {
   return meta;
 }
 
+function suppressThemeTransitions(root: HTMLElement, themeId: ThemeId) {
+  root.setAttribute(THEME_SWITCH_ATTRIBUTE, 'true');
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (root.dataset.theme === themeId) {
+        root.removeAttribute(THEME_SWITCH_ATTRIBUTE);
+      }
+    });
+  });
+}
+
+function isThemeDocumentStateUnchanged(
+  root: HTMLElement,
+  meta: HTMLMetaElement,
+  theme: {
+    id: ThemeId;
+    scheme: string;
+    browserThemeColor: string;
+  }
+) {
+  return (
+    root.dataset.theme === theme.id &&
+    root.style.colorScheme === theme.scheme &&
+    meta.content === theme.browserThemeColor
+  );
+}
+
 export function applyThemeToDocument(
   value: string | null | undefined,
   options?: {
     documentRef?: Document;
     dispatchEvent?: boolean;
+    suppressTransitions?: boolean;
   }
 ): ThemeId {
   const resolvedThemeId = resolveThemeId(value);
@@ -32,10 +62,24 @@ export function applyThemeToDocument(
   }
 
   const root = documentRef.documentElement;
+  const meta = ensureThemeColorMeta(documentRef);
+
+  if (
+    isThemeDocumentStateUnchanged(root, meta, {
+      id: resolvedThemeId,
+      scheme: theme.scheme,
+      browserThemeColor: theme.browserThemeColor
+    })
+  ) {
+    return resolvedThemeId;
+  }
+
+  if (options?.suppressTransitions !== false) {
+    suppressThemeTransitions(root, resolvedThemeId);
+  }
+
   root.dataset.theme = resolvedThemeId;
   root.style.colorScheme = theme.scheme;
-
-  const meta = ensureThemeColorMeta(documentRef);
   meta.content = theme.browserThemeColor;
 
   if (options?.dispatchEvent !== false && typeof window !== 'undefined') {

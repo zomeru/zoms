@@ -16,57 +16,61 @@ type ThemeFilter = 'all' | 'dark' | 'light';
 
 const FILTERS: ThemeFilter[] = ['all', 'dark', 'light'];
 
-const ThemeOption = React.forwardRef<
-  HTMLButtonElement,
-  {
-    isActive: boolean;
-    isSelected: boolean;
-    onClick: () => void;
-    onFocus: () => void;
-    onMouseEnter: () => void;
-    theme: ThemeDefinition;
-  }
->(function ThemeOption({ isActive, isSelected, onClick, onFocus, onMouseEnter, theme }, ref) {
-  return (
-    <button
-      ref={ref}
-      type='button'
-      role='option'
-      aria-selected={isSelected}
-      onClick={onClick}
-      onFocus={onFocus}
-      onMouseEnter={onMouseEnter}
-      className={`flex w-full items-center gap-3 rounded-2xl border px-3 py-3 text-left transition-all duration-200 ${
-        isActive
-          ? 'border-primary/45 bg-overlay-strong shadow-[0_0_0_1px_rgb(var(--shadow-rgb)/0.12)]'
-          : isSelected
-            ? 'border-primary/30 bg-primary/8'
-            : 'border-border/70 bg-surface/90 hover:border-primary/25 hover:bg-surface'
-      }`}
-    >
-      <span
-        aria-hidden='true'
-        className='grid h-11 w-11 shrink-0 grid-cols-2 gap-1 rounded-xl border border-border/70 bg-background p-1.5'
+const ThemeOption = React.memo(
+  React.forwardRef<
+    HTMLButtonElement,
+    {
+      isActive: boolean;
+      isSelected: boolean;
+      onActivate: (themeId: ThemeId) => void;
+      onCommit: (themeId: ThemeId) => void;
+      themeId: ThemeId;
+      theme: ThemeDefinition;
+    }
+  >(function ThemeOption({ isActive, isSelected, onActivate, onCommit, theme, themeId }, ref) {
+    return (
+      <button
+        ref={ref}
+        type='button'
+        role='option'
+        aria-selected={isSelected}
+        onClick={() => onCommit(themeId)}
+        onFocus={() => onActivate(themeId)}
+        onMouseEnter={() => onActivate(themeId)}
+        className={`flex w-full items-center gap-3 rounded-2xl border px-3 py-3 text-left transition-all duration-200 ${
+          isActive
+            ? 'border-primary/45 bg-overlay-strong shadow-[0_0_0_1px_rgb(var(--shadow-rgb)/0.12)]'
+            : isSelected
+              ? 'border-primary/30 bg-primary/8'
+              : 'border-border/70 bg-surface/90 hover:border-primary/25 hover:bg-surface'
+        }`}
       >
-        <span className='rounded-[0.45rem]' style={{ backgroundColor: theme.preview.bg }} />
-        <span className='rounded-[0.45rem]' style={{ backgroundColor: theme.preview.surface }} />
-        <span className='rounded-[0.45rem]' style={{ backgroundColor: theme.preview.accent }} />
-        <span className='rounded-[0.45rem]' style={{ backgroundColor: theme.preview.fg }} />
-      </span>
-      <span className='min-w-0 flex-1'>
-        <span className='block truncate text-sm font-medium text-text-primary'>{theme.label}</span>
-        <span className='mt-1 flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-text-muted'>
-          <span>{theme.group === 'builtin' ? 'Pinned' : theme.scheme}</span>
+        <span
+          aria-hidden='true'
+          className='grid h-11 w-11 shrink-0 grid-cols-2 gap-1 rounded-xl border border-border/70 bg-background p-1.5'
+        >
+          <span className='rounded-[0.45rem]' style={{ backgroundColor: theme.preview.bg }} />
+          <span className='rounded-[0.45rem]' style={{ backgroundColor: theme.preview.surface }} />
+          <span className='rounded-[0.45rem]' style={{ backgroundColor: theme.preview.accent }} />
+          <span className='rounded-[0.45rem]' style={{ backgroundColor: theme.preview.fg }} />
         </span>
-      </span>
-      {isSelected && (
-        <span className='rounded-full border border-primary/35 bg-primary/10 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-primary'>
-          Selected
+        <span className='min-w-0 flex-1'>
+          <span className='block truncate text-sm font-medium text-text-primary'>
+            {theme.label}
+          </span>
+          <span className='mt-1 flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-text-muted'>
+            <span>{theme.group === 'builtin' ? 'Pinned' : theme.scheme}</span>
+          </span>
         </span>
-      )}
-    </button>
-  );
-});
+        {isSelected && (
+          <span className='rounded-full border border-primary/35 bg-primary/10 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-primary'>
+            Selected
+          </span>
+        )}
+      </button>
+    );
+  })
+);
 
 export function ThemeSelector(): React.JSX.Element | null {
   const {
@@ -141,6 +145,29 @@ export function ThemeSelector(): React.JSX.Element | null {
     }
   }, [isSelectorOpen, selectedThemeId]);
 
+  const activateTheme = React.useCallback(
+    (nextThemeId: ThemeId) => {
+      setActiveOptionId((currentThemeId) => {
+        if (currentThemeId === nextThemeId) {
+          return currentThemeId;
+        }
+
+        previewTheme(nextThemeId);
+        return nextThemeId;
+      });
+    },
+    [previewTheme]
+  );
+
+  const commitActiveTheme = React.useCallback(
+    (themeId: ThemeId) => {
+      commitTheme(themeId);
+      setQuery('');
+      setFilter('all');
+    },
+    [commitTheme]
+  );
+
   if (!isSelectorOpen) {
     return null;
   }
@@ -149,17 +176,6 @@ export function ThemeSelector(): React.JSX.Element | null {
     visibleThemes.findIndex((theme) => theme.id === activeOptionId),
     0
   );
-
-  const activateTheme = (nextThemeId: ThemeId) => {
-    setActiveOptionId(nextThemeId);
-    previewTheme(nextThemeId);
-  };
-
-  const commitActiveTheme = (themeId: ThemeId) => {
-    commitTheme(themeId);
-    setQuery('');
-    setFilter('all');
-  };
 
   const moveActiveTheme = (direction: -1 | 1) => {
     if (visibleThemes.length === 0) {
@@ -279,9 +295,9 @@ export function ThemeSelector(): React.JSX.Element | null {
                   }}
                   isActive={isActive}
                   isSelected={isSelected}
-                  onClick={() => commitActiveTheme(theme.id)}
-                  onFocus={() => activateTheme(theme.id)}
-                  onMouseEnter={() => activateTheme(theme.id)}
+                  onActivate={activateTheme}
+                  onCommit={commitActiveTheme}
+                  themeId={theme.id}
                   theme={theme}
                 />
               );
