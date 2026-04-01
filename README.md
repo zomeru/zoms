@@ -1,6 +1,6 @@
 # Zoms Portfolio & AI Blog
 
-Modern personal portfolio + AI-assisted technical blog. Built with **Next.js 16 App Router**, **React 19**, **TypeScript (strict)**, **TailwindCSS v4**, **Sanity CMS**, and **Google Gemini** for automated post generation. Includes a site-wide grounded AI assistant backed by **OpenRouter**, **Upstash Vector**, **Upstash Redis**, and **Prisma + Neon PostgreSQL**, plus structured logging, centralized error handling, and adaptive rate limiting.
+Modern personal portfolio + AI-assisted technical blog. Built with **Next.js 16 App Router**, **React 19**, **TypeScript 5.9 (strict)**, **TailwindCSS v4**, **Sanity CMS**, and **Google Gemini** for automated post generation. Includes a site-wide grounded AI assistant backed by **OpenRouter**, **Upstash Vector**, **Upstash Redis**, **Supermemory**, and **Prisma + Neon PostgreSQL**, plus structured logging, centralized error handling, adaptive rate limiting, and bot protection via **botid**.
 
 ---
 
@@ -21,8 +21,7 @@ Modern personal portfolio + AI-assisted technical blog. Built with **Next.js 16 
 13. [Performance & Observability](#performance--observability)
 14. [Security](#security)
 15. [Project Structure](#project-structure)
-16. [Contributing](#contributing)
-17. [License](#license)
+16. [License](#license)
 
 ---
 
@@ -72,7 +71,7 @@ Two modes currently supported:
 | Language                      | TypeScript 5.9 (strict)                                                     |
 | UI                            | React 19, TailwindCSS v4                                                    |
 | CMS                           | Sanity (`@sanity/client`, `next-sanity`)                                    |
-| AI                            | Google Gemini (`@google/generative-ai`), OpenRouter + Vercel AI SDK         |
+| AI                            | Google Gemini (`@google/genai`), OpenRouter + Vercel AI SDK, Supermemory    |
 | Validation                    | Zod                                                                         |
 | Rate Limiting                 | Upstash Redis (`@upstash/ratelimit`, `@upstash/redis`) + in-memory fallback |
 | Vector Search                 | Upstash Vector                                                              |
@@ -80,6 +79,7 @@ Two modes currently supported:
 | Markdown (optional processor) | unified, remark-gfm, rehype-pretty-code, rehype-external-links, rehype-slug |
 | Logging                       | Custom logger (structured JSON / pretty dev)                                |
 | Tooling                       | ESLint (love config + prettier), Prettier, Husky, lint-staged               |
+| Bot Protection                | botid                                                                       |
 | Deployment                    | Vercel + ISR                                                                |
 
 ---
@@ -91,7 +91,7 @@ Core concerns separated by responsibility:
 - **`src/app`**: Routing, layouts, API handlers
 - **`src/lib`**: Pure utilities (AI generation, rate limiting, logging, error handling, sanity client, schemas)
 - **`src/lib/ai`, `src/lib/retrieval`, `src/lib/ingestion`**: Assistant prompting, grounded retrieval, indexing, vector orchestration
-- **`src/lib/db`, `src/lib/cache`, `src/lib/vector`**: Prisma repositories, Redis query caching, Upstash Vector access
+- **`src/lib/db`, `src/lib/vector`**: Prisma repositories, Upstash Vector access
 - **`src/constants`**: Static lists (projects, topics, experience metadata)
 - **`studio/`**: Sanity Studio workspace & schema definitions
 - **`src/components`**: Presentation + interactive client components
@@ -154,26 +154,40 @@ pnpm studio:dev # Sanity Studio (http://localhost:3333)
 | `NEXLOG_STRUCTURED`             | Optional          | `true` for JSON logs (defaults structured in prod)              |
 | `SITE_URL`                      | Optional          | Explicit canonical URL                                          |
 | `CRON_SECRET`                   | Optional          | Required by generate endpoint in non-dev (Authorization Bearer) |
+| `BLOG_GENERATION_SECRET`        | For AI generation | Authenticates POST `/api/blog/generate` requests                |
+| `GEMINI_MODEL`                  | For AI generation | Gemini model ID (e.g. `gemini-2.5-pro`)                         |
+| `OPENROUTER_EMBEDDING_MODEL`    | For AI assistant  | Model ID for embedding content into vector index                |
+| `GITHUB_TOKEN`                  | For dev stats     | Personal access token with `read:user` and `repo` scopes       |
+| `GITHUB_USERNAME`               | For dev stats     | GitHub username for GraphQL contribution queries                |
+| `WAKATIME_API_KEY`              | For dev stats     | WakaTime API key for coding time breakdown                      |
+| `SUPERMEMORY_API_KEY`           | For AI assistant  | Supermemory API key for AI memory features                      |
+| `ENABLE_EXPERIMENTAL_COREPACK`  | For deployment    | Enables pnpm via Node.js Corepack on Vercel                    |
 
 ---
 
 ## Scripts
 
 ```bash
-pnpm dev               # Start dev server
-pnpm build             # Run quality gates then build
+pnpm dev               # Start dev server (webpack)
+pnpm dev:turbo         # Start dev server (Turbopack)
+pnpm build             # Build the Next.js app
 pnpm start             # Start production build
 pnpm lint              # ESLint with auto-fix
 pnpm format            # Prettier write
-pnpm check-types       # TypeScript type check
-pnpm check-format      # Prettier check only
-pnpm check-lint        # ESLint check only
-pnpm test-all          # format + lint + types
-pnpm test-all:build    # test-all + build
-pnpm prisma:generate   # generate Prisma client
-pnpm prisma:migrate    # create/update SQL migration artifacts
-pnpm ai:reindex        # index blog/about/project content into Upstash Vector
-pnpm test:unit         # run Vitest suite for app and AI assistant infrastructure
+pnpm check:types       # TypeScript type check
+pnpm check:format      # Prettier check only
+pnpm check:lint        # ESLint check only
+pnpm test:unit         # Run Vitest suite (~37 test files)
+pnpm test:all          # format + lint + types + unit tests
+pnpm test:all:build    # test:all + build
+pnpm prisma:generate   # Generate Prisma client
+pnpm prisma:migrate    # Create/update SQL migration artifacts
+pnpm prisma:deploy     # Apply pending migrations (production)
+pnpm ai:reindex        # Index blog/about/project content into Upstash Vector
+pnpm ai:reset          # Reset AI/vector state
+pnpm sanity:seed:projects # Seed Sanity with project data
+pnpm security:audit    # Audit production dependencies
+pnpm security:check    # Run audit-ci against .audit-ci.json
 pnpm studio:dev        # Run Sanity Studio locally
 pnpm studio:build      # Build Studio
 pnpm studio:deploy     # Deploy Studio
@@ -196,14 +210,17 @@ Topics are pseudo-randomly combined from curated lists (`src/constants/topics.ts
 
 ## API Endpoints
 
-| Method   | Path                 | Description                                                                 | Rate Limit Config       |
-| -------- | -------------------- | --------------------------------------------------------------------------- | ----------------------- |
-| GET      | `/api/blog`          | Paginated list (`limit`, `offset`)                                          | `BLOG_API` (100/min)    |
-| GET      | `/api/blog/[slug]`   | Single post by slug                                                         | `BLOG_API`              |
-| GET/POST | `/api/blog/generate` | AI generate + persist blog (POST optional body `{ aiGenerated?: boolean }`) | `BLOG_GENERATE` (5/min) |
-| POST     | `/api/ai/chat`       | Streams grounded assistant answers with citations                           | `AI_CHAT`               |
-| POST     | `/api/ai/transform`  | Generates grounded `tldr`, `beginner`, or `advanced` transforms             | `AI_TRANSFORM`          |
-| POST     | `/api/ai/reindex`    | Protected reindex endpoint for full or targeted assistant indexing          | `AI_REINDEX`            |
+| Method   | Path                      | Description                                                                 | Rate Limit Config       |
+| -------- | ------------------------- | --------------------------------------------------------------------------- | ----------------------- |
+| GET      | `/api/blog`               | Paginated list (`limit`, `offset`)                                          | `BLOG_API` (100/min)    |
+| GET/DEL  | `/api/blog/[slug]`        | Single post by slug / delete post                                           | `BLOG_API`              |
+| GET/POST | `/api/blog/generate`      | AI generate + persist blog (POST optional body `{ aiGenerated?: boolean }`) | `BLOG_GENERATE` (5/min) |
+| POST     | `/api/blog/generate/auth` | Auth check for blog generation                                              | —                       |
+| POST     | `/api/ai/chat`            | Streams grounded assistant answers with citations                           | `AI_CHAT`               |
+| POST     | `/api/ai/transform`       | Generates grounded `tldr`, `beginner`, or `advanced` transforms             | `AI_TRANSFORM`          |
+| POST     | `/api/ai/reindex`         | Protected reindex endpoint for full or targeted assistant indexing          | `AI_REINDEX`            |
+| POST     | `/api/ai/reindex/auth`    | Auth check for reindex                                                      | —                       |
+| POST     | `/api/admin/access`       | Admin access verification                                                   | —                       |
 
 Error responses follow shape:
 
@@ -268,7 +285,7 @@ pnpm prisma:generate
 pnpm prisma:migrate
 pnpm ai:reindex
 pnpm test:unit
-pnpm test-all:build
+pnpm test:all:build
 ```
 
 `pnpm ai:reindex` supports local indexing without the protected route, while `/api/ai/reindex` exists for authenticated server-triggered reindex flows.
@@ -309,7 +326,7 @@ interface AIResponseShape {
 }
 ```
 
-If prompt/schema changes: update `generateBlog.ts`, helper parser (`generateBlogHelpers.ts`), this README, and `.github/copilot-instructions.md`.
+If prompt/schema changes: update files in `src/lib/blog-generator/` (generators, helpers, types), this README, and `.github/copilot-instructions.md`.
 
 ---
 
@@ -317,7 +334,7 @@ If prompt/schema changes: update `generateBlog.ts`, helper parser (`generateBlog
 
 - ESLint config based on `eslint-config-love` + custom relaxations
 - Prettier + import sort plugin
-- `test-all` gate blocks build (format, lint, types)
+- `test:all` gate: format + lint + types + unit tests
 - Husky ensures local consistency pre-commit
 
 ---
@@ -362,18 +379,31 @@ If exposing new user-generated markdown: add sanitization before `dangerouslySet
 ```
 src/
   app/
-    api/blog/                # Blog API endpoints
+    api/blog/                # Blog CRUD + generation endpoints
+    api/ai/                  # AI chat, transform, reindex endpoints
+    api/admin/               # Admin access control
     blog/                    # Blog pages (list + slug)
-    layout.tsx               # Root layout
+    admin/                   # Admin page
+    layout.tsx               # Root layout (mounts AI assistant shell)
     page.tsx                 # Home page sections
-  components/                # Reusable UI + sections + portals
+  components/                # Reusable UI + sections + portals + AI chat
   constants/                 # Static datasets (projects, topics, experience)
-  lib/                       # Core utilities (AI, logging, rate limit, sanity, schemas)
+  lib/                       # Core utilities organized by concern
+    ai/                      # Assistant prompts, streaming, transform, memory, schemas
+    blog-generator/          # Gemini + OpenRouter generators, helpers, types
+    retrieval/               # RAG search, rank, dedupe, classify, citations
+    ingestion/               # Vector indexing: chunk, normalize, hash, CLI
+    db/                      # Prisma client + repositories
+    vector/                  # Upstash Vector client
+    github/                  # GitHub API integration
   configs/                   # SEO & shared config
   styles/globals.css         # Tailwind v4 tokens & utilities
-studio/                      # Sanity Studio (schemas + config)
-public/                      # Static assets & sitemaps
-.github/                     # Copilot instructions & workflows (future)
+tests/vitest/                # Vitest unit/integration tests (~37 files)
+scripts/                     # Automation (prisma, AI reindex/reset, vitest runner, sanity seeder)
+prisma/                      # Schema + migrations (Neon PostgreSQL)
+studio/                      # Sanity Studio (schemas: blogPost, project, experience, blockContent)
+public/                      # Static assets, PWA icons, screenshots
+.github/                     # Copilot instructions + CI workflows (tests.yml)
 ```
 
 ---
