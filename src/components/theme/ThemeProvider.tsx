@@ -20,6 +20,8 @@ interface ThemeContextValue {
   isSelectorOpen: boolean;
   openSelector: () => void;
   previewTheme: (themeId: ThemeId) => void;
+  selectedTheme: NonNullable<ReturnType<typeof getThemeById>>;
+  selectedThemeId: ThemeId;
   themes: typeof orderedThemes;
 }
 
@@ -109,8 +111,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
 
   const activeThemeId = previewThemeId ?? committedThemeId;
   const currentTheme = getThemeById(activeThemeId) ?? getThemeById(DEFAULT_THEME_ID);
+  const selectedTheme = getThemeById(committedThemeId) ?? getThemeById(DEFAULT_THEME_ID);
 
-  if (!currentTheme) {
+  if (!currentTheme || !selectedTheme) {
     throw new Error('Default theme is missing from the theme registry.');
   }
 
@@ -124,6 +127,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
         isSelectorOpen,
         openSelector,
         previewTheme,
+        selectedTheme,
+        selectedThemeId: committedThemeId,
         themes: orderedThemes
       }}
     >

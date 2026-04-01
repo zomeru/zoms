@@ -533,4 +533,71 @@ describe('chat UI behaviors', () => {
 
     expect(screen.getAllByText('Chat with Zomer').length).toBeGreaterThan(0);
   });
+
+  it('uses the same floating trigger shell language as the theme widget', async () => {
+    const [{ ThemeProvider }, { ThemeRail }] = await Promise.all([
+      import('@/components/theme/ThemeProvider'),
+      import('@/components/theme/ThemeRail')
+    ]);
+
+    render(
+      <>
+        <ChatLauncher onClick={() => undefined} />
+        <ThemeProvider>
+          <ThemeRail />
+        </ThemeProvider>
+      </>
+    );
+
+    const chatLauncher = screen.getByRole('button', { name: /open chat with zomer/i });
+    const themeTrigger = screen.getByRole('button', { name: /open theme selector/i });
+
+    for (const token of ['rounded-[1.6rem]', 'border-border/80', 'bg-background/92']) {
+      expect(chatLauncher.className).toContain(token);
+      expect(themeTrigger.className).toContain(token);
+    }
+  });
+
+  it('uses the same floating panel shell language as the theme selector', async () => {
+    const [{ ThemeProvider }, { ThemeSelector }, { ThemeRail }] = await Promise.all([
+      import('@/components/theme/ThemeProvider'),
+      import('@/components/theme/ThemeSelector'),
+      import('@/components/theme/ThemeRail')
+    ]);
+
+    render(
+      <>
+        <ThemeProvider>
+          <ThemeRail />
+          <ThemeSelector />
+        </ThemeProvider>
+        <ChatPanel
+          hasMoreHistory={false}
+          isHistoryLoadingInitial={false}
+          isLoadingOlderHistory={false}
+          isOpen={true}
+          isWorking={false}
+          onLoadOlderHistory={async () => undefined}
+          messages={[]}
+          onClose={() => undefined}
+          onSend={async () => undefined}
+          onTransform={async () => undefined}
+        />
+      </>
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /open theme selector/i }));
+
+    const themeSelector = await screen.findByRole('dialog', { name: /theme selector/i });
+    const chatPanel = screen
+      .getByRole('button', { name: /minimize assistant/i })
+      .closest('section');
+
+    expect(chatPanel).toBeTruthy();
+
+    for (const token of ['border-border/80', 'bg-background/96', 'backdrop-blur-2xl']) {
+      expect(themeSelector.className).toContain(token);
+      expect(chatPanel?.className ?? '').toContain(token);
+    }
+  });
 });

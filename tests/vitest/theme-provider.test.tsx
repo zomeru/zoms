@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 function ThemeHarness() {
@@ -104,11 +104,19 @@ describe('theme system behaviors', () => {
     fireEvent.click(screen.getByRole('button', { name: /open theme selector/i }));
 
     const draculaOption = await screen.findByRole('option', { name: /Dracula/i });
+    const zomeruOption = screen.getByRole('option', { name: /Zomeru/i });
+
+    expect(within(zomeruOption).getByText('Selected')).toBeTruthy();
+    expect(within(draculaOption).queryByText('Selected')).toBeNull();
+
     fireEvent.mouseEnter(draculaOption);
 
     await waitFor(() => {
       expect(document.documentElement.dataset.theme).toBe('dracula');
     });
+
+    expect(within(zomeruOption).getByText('Selected')).toBeTruthy();
+    expect(within(draculaOption).queryByText('Selected')).toBeNull();
 
     fireEvent.keyDown(window, { key: 'Escape' });
 

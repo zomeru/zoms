@@ -2,6 +2,11 @@
 
 import React, { startTransition, useDeferredValue } from 'react';
 
+import {
+  FLOATING_WIDGET_META,
+  FLOATING_WIDGET_PANEL_HEADER,
+  FLOATING_WIDGET_PANEL_SHELL
+} from '@/components/ui/floatingWidgetStyles';
 import type { ThemeId } from '@/lib/theme/registry';
 import type { ThemeDefinition } from '@/lib/theme/types';
 
@@ -15,26 +20,28 @@ const ThemeOption = React.forwardRef<
   HTMLButtonElement,
   {
     isActive: boolean;
-    isCurrent: boolean;
+    isSelected: boolean;
     onClick: () => void;
     onFocus: () => void;
     onMouseEnter: () => void;
     theme: ThemeDefinition;
   }
->(function ThemeOption({ isActive, isCurrent, onClick, onFocus, onMouseEnter, theme }, ref) {
+>(function ThemeOption({ isActive, isSelected, onClick, onFocus, onMouseEnter, theme }, ref) {
   return (
     <button
       ref={ref}
       type='button'
       role='option'
-      aria-selected={isCurrent}
+      aria-selected={isSelected}
       onClick={onClick}
       onFocus={onFocus}
       onMouseEnter={onMouseEnter}
       className={`flex w-full items-center gap-3 rounded-2xl border px-3 py-3 text-left transition-all duration-200 ${
         isActive
-          ? 'border-primary/40 bg-primary/10 shadow-[0_0_0_1px_rgba(59,130,246,0.18)]'
-          : 'border-border/70 bg-surface/70 hover:border-primary/25 hover:bg-surface'
+          ? 'border-primary/45 bg-overlay-strong shadow-[0_0_0_1px_rgb(var(--shadow-rgb)/0.12)]'
+          : isSelected
+            ? 'border-primary/30 bg-primary/8'
+            : 'border-border/70 bg-surface/90 hover:border-primary/25 hover:bg-surface'
       }`}
     >
       <span
@@ -50,12 +57,11 @@ const ThemeOption = React.forwardRef<
         <span className='block truncate text-sm font-medium text-text-primary'>{theme.label}</span>
         <span className='mt-1 flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-text-muted'>
           <span>{theme.group === 'builtin' ? 'Pinned' : theme.scheme}</span>
-          {isCurrent && <span>Active</span>}
         </span>
       </span>
-      {isCurrent && (
+      {isSelected && (
         <span className='rounded-full border border-primary/35 bg-primary/10 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-primary'>
-          Current
+          Selected
         </span>
       )}
     </button>
@@ -67,9 +73,10 @@ export function ThemeSelector(): React.JSX.Element | null {
     activeThemeId,
     closeSelector,
     commitTheme,
-    currentTheme,
     isSelectorOpen,
     previewTheme,
+    selectedTheme,
+    selectedThemeId,
     themes
   } = useThemeSystem();
   const [query, setQuery] = React.useState('');
@@ -154,7 +161,7 @@ export function ThemeSelector(): React.JSX.Element | null {
 
   return (
     <div
-      className='fixed inset-0 z-[60] flex items-start justify-start bg-overlay backdrop-blur-[2px]'
+      className='fixed inset-0 z-[60] flex items-end justify-start bg-background/58 backdrop-blur-[3px]'
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           closeSelector();
@@ -165,7 +172,7 @@ export function ThemeSelector(): React.JSX.Element | null {
         role='dialog'
         aria-label='Theme selector'
         aria-modal='true'
-        className='mx-4 mt-24 flex h-[calc(100vh-7rem)] w-[min(32rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-[2rem] border border-border/70 bg-panel-bg shadow-[0_30px_80px_rgb(var(--shadow-rgb)/0.35)] backdrop-blur-2xl lg:ml-24 lg:mt-20 lg:h-[min(44rem,calc(100vh-6rem))]'
+        className={`mx-4 mb-24 mt-4 flex h-[calc(100vh-8rem)] w-[min(33rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-[2rem] md:mb-8 md:ml-8 md:h-[min(44rem,calc(100vh-4rem))] ${FLOATING_WIDGET_PANEL_SHELL}`}
         onKeyDown={(event) => {
           if (event.key === 'ArrowDown') {
             event.preventDefault();
@@ -183,15 +190,14 @@ export function ThemeSelector(): React.JSX.Element | null {
           }
         }}
       >
-        <div className='border-b border-border/70 px-5 py-5'>
+        <div className={`px-5 py-5 ${FLOATING_WIDGET_PANEL_HEADER}`}>
           <div className='flex items-start justify-between gap-4'>
             <div>
-              <p className='font-mono text-[10px] uppercase tracking-[0.28em] text-text-muted'>
-                Appearance
-              </p>
+              <p className={FLOATING_WIDGET_META}>Appearance</p>
               <h2 className='mt-2 text-xl font-semibold text-text-primary'>Editor themes</h2>
               <p className='mt-2 text-sm text-text-secondary'>
-                {currentTheme.label} is active. Search, preview, and commit a full site theme.
+                {selectedTheme.label} is selected. Hover to preview and click to apply a full site
+                theme.
               </p>
             </div>
             <button
@@ -203,7 +209,7 @@ export function ThemeSelector(): React.JSX.Element | null {
             </button>
           </div>
 
-          <div className='mt-5 overflow-hidden rounded-2xl border border-border bg-surface/85'>
+          <div className='mt-5 overflow-hidden rounded-2xl border border-border/80 bg-surface/95'>
             <label htmlFor='theme-search' className='sr-only'>
               Search themes
             </label>
@@ -249,7 +255,7 @@ export function ThemeSelector(): React.JSX.Element | null {
           <div role='listbox' aria-label='Theme options' className='space-y-2'>
             {visibleThemes.map((theme) => {
               const isActive = theme.id === activeOptionId;
-              const isCurrent = theme.id === activeThemeId;
+              const isSelected = theme.id === selectedThemeId;
 
               return (
                 <ThemeOption
@@ -258,7 +264,7 @@ export function ThemeSelector(): React.JSX.Element | null {
                     optionRefs.current[theme.id] = element;
                   }}
                   isActive={isActive}
-                  isCurrent={isCurrent}
+                  isSelected={isSelected}
                   onClick={() => commitActiveTheme(theme.id)}
                   onFocus={() => activateTheme(theme.id)}
                   onMouseEnter={() => activateTheme(theme.id)}
