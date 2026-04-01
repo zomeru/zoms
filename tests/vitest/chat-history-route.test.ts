@@ -57,7 +57,7 @@ describe('AI chat history route', () => {
     });
   });
 
-  it('returns the newest history page first and supports older-message pagination', async () => {
+  it('reads history from the secure chat cookie and supports older-message pagination', async () => {
     repositories.getChatHistoryPage
       .mockResolvedValueOnce({
         hasMore: true,
@@ -107,7 +107,11 @@ describe('AI chat history route', () => {
     const { GET } = await import('@/app/api/ai/chat/route');
 
     const newestPageResponse = await GET(
-      new NextRequest('http://localhost/api/ai/chat?sessionKey=session-key&limit=2&offset=0')
+      new NextRequest('http://localhost/api/ai/chat?limit=2&offset=0', {
+        headers: {
+          cookie: 'ai_chat_session=session-key'
+        }
+      })
     );
 
     expect(newestPageResponse.status).toBe(200);
@@ -130,12 +134,16 @@ describe('AI chat history route', () => {
         }
       ],
       offset: 0,
-      sessionKey: 'session-key',
+      sessionKey: null,
       total: 4
     });
 
     const olderPageResponse = await GET(
-      new NextRequest('http://localhost/api/ai/chat?sessionKey=session-key&limit=2&offset=2')
+      new NextRequest('http://localhost/api/ai/chat?limit=2&offset=2', {
+        headers: {
+          cookie: 'ai_chat_session=session-key'
+        }
+      })
     );
 
     expect(olderPageResponse.status).toBe(200);
@@ -158,7 +166,7 @@ describe('AI chat history route', () => {
         }
       ],
       offset: 2,
-      sessionKey: 'session-key',
+      sessionKey: null,
       total: 4
     });
 
@@ -170,5 +178,24 @@ describe('AI chat history route', () => {
       limit: 2,
       offset: 2
     });
+  });
+
+  it('ignores leaked session keys in the query string when no cookie is present', async () => {
+    const { GET } = await import('@/app/api/ai/chat/route');
+
+    const response = await GET(
+      new NextRequest('http://localhost/api/ai/chat?sessionKey=leaked-session&limit=2&offset=0')
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      hasMore: false,
+      limit: 2,
+      messages: [],
+      offset: 0,
+      sessionKey: null,
+      total: 0
+    });
+    expect(repositories.getChatHistoryPage).not.toHaveBeenCalled();
   });
 });

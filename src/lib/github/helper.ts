@@ -6,6 +6,14 @@ const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 const REQUEST_TIMEOUT_MS = 15000; // 15 seconds
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 1000; // 1 second
+const GITHUB_REVALIDATE_SECONDS = CACHE_DURATION_MS / 1000;
+
+interface NextFetchOptions extends RequestInit {
+  next?: {
+    revalidate?: number;
+    tags?: string[];
+  };
+}
 
 export interface CacheEntry<T> {
   data: T;
@@ -100,15 +108,21 @@ export function createGitHubHeaders(): HeadersInit {
 
 export async function fetchWithTimeout(
   url: string,
-  options: RequestInit = {},
+  options: NextFetchOptions = {},
   timeoutMs: number = REQUEST_TIMEOUT_MS
 ): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  const nextOptions = {
+    revalidate: GITHUB_REVALIDATE_SECONDS,
+    tags: ['github-stats'],
+    ...options.next
+  };
 
   try {
     return await fetch(url, {
       ...options,
+      next: nextOptions,
       signal: controller.signal
     });
   } finally {
@@ -136,7 +150,7 @@ export function handleRateLimitWarning(response: Response): void {
 
 export async function fetchWithRetry(
   url: string,
-  options: RequestInit = {},
+  options: NextFetchOptions = {},
   retries: number = MAX_RETRIES
 ): Promise<Response> {
   let lastError: Error | null = null;

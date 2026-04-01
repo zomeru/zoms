@@ -1,8 +1,12 @@
+import { revalidatePath } from 'next/cache';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient, type SanityClient } from '@sanity/client';
 
-import { generateBlogContent } from '@/lib/blog-generator';
-import type { GeneratedBlogPost } from '@/lib/blog-generator/gemini-generator';
+import {
+  generateBlogContent,
+  type BlogGenerationTriggerMode,
+  type GeneratedBlogDraft
+} from '@/lib/blog-generator';
 import { isValidBlogGenerationSession } from '@/lib/blogGenerationAuth';
 import { scheduleBlogReindex } from '@/lib/blogReindex';
 import { verifyBotIdRequest } from '@/lib/botId';
@@ -53,18 +57,11 @@ function validateSanityEnv() {
 
 async function createBlogPost(
   sanityClient: SanityClient,
-  content: GeneratedBlogPost,
-  aiGenerated = true
+  content: GeneratedBlogDraft,
+  triggerMode: BlogGenerationTriggerMode
 ) {
-  const MAX_SLUG_LENGTH = 80;
-  const slug = content.title
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
-    .slice(0, MAX_SLUG_LENGTH)
-    .replace(/-[^-]*$/, '');
+  const slug = await resolveUniqueBlogSlug(sanityClient, content.suggestedSlug || content.title);
+  const sourceTrigger = triggerMode === 'scheduled' ? 'automated' : 'manual';
 
   return await sanityClient.create({
     _type: 'blogPost',
@@ -74,10 +71,58 @@ async function createBlogPost(
     body: content.body, // Store raw markdown
     publishedAt: new Date().toISOString(),
     tags: content.tags,
-    source: aiGenerated ? 'automated/gemini' : 'manual',
-    generated: aiGenerated,
+    source: `${sourceTrigger}/${content.provider}`,
+    generated: true,
     readTime: content.readTime
   });
+}
+
+function normalizeBlogSlug(value: string): string {
+  const MAX_SLUG_LENGTH = 80;
+  const sanitizedSlug = value
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+  if (sanitizedSlug.length === 0) {
+    return 'generated-post';
+  }
+
+  if (sanitizedSlug.length <= MAX_SLUG_LENGTH) {
+    return sanitizedSlug;
+  }
+
+  const truncatedSlug = sanitizedSlug.slice(0, MAX_SLUG_LENGTH).replace(/-[^-]*$/, '');
+
+  return truncatedSlug.length > 0 ? truncatedSlug : sanitizedSlug.slice(0, MAX_SLUG_LENGTH);
+}
+
+async function resolveUniqueBlogSlug(
+  sanityClient: SanityClient,
+  candidate: string
+): Promise<string> {
+  const baseSlug = normalizeBlogSlug(candidate);
+  const existingSlugs = await sanityClient.fetch<string[]>(
+    `*[_type == "blogPost" && slug.current match $slugPattern].slug.current`,
+    {
+      slugPattern: `${baseSlug}*`
+    }
+  );
+  const taken = new Set(existingSlugs);
+
+  if (!taken.has(baseSlug)) {
+    return baseSlug;
+  }
+
+  let counter = 1;
+
+  while (taken.has(`${baseSlug}-${counter}`)) {
+    counter += 1;
+  }
+
+  return `${baseSlug}-${counter}`;
 }
 
 async function handleGenerate(request: NextRequest): Promise<NextResponse> {
@@ -104,16 +149,15 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
 
     await validateSecret(request);
 
-    let aiGenerated = true;
+    let triggerMode: BlogGenerationTriggerMode = method === 'GET' ? 'scheduled' : 'manual';
 
     if (method === 'POST') {
       try {
         const body: unknown = await request.json();
         const validatedBody = validateSchema(blogGenerateRequestSchema, body);
-        aiGenerated = validatedBody.aiGenerated;
+        triggerMode = validatedBody.triggerMode;
       } catch {
-        // Default to true if validation fails
-        aiGenerated = true;
+        triggerMode = 'manual';
       }
     }
 
@@ -126,12 +170,12 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
       useCdn: false
     });
 
-    log.info('Generating blog content', { aiGenerated });
+    log.info('Generating blog content', { triggerMode });
 
     const content = await log.timeAsync(
       'AI content generation',
       async () => await generateBlogContent(),
-      { aiGenerated }
+      { triggerMode }
     );
 
     log.info('Creating blog post in Sanity', {
@@ -139,15 +183,18 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
       tags: content.tags
     });
 
-    const newPost = await createBlogPost(writeClient, content, aiGenerated);
+    const newPost = await createBlogPost(writeClient, content, triggerMode);
     scheduleBlogReindex(newPost.slug.current);
+    revalidatePath('/');
+    revalidatePath('/blog');
+    revalidatePath(`/blog/${newPost.slug.current}`);
 
     const duration = Date.now() - startTime;
     log.response(method, path, 200, {
       duration: `${duration}ms`,
       postId: newPost._id,
       title: newPost.title,
-      aiGenerated
+      triggerMode
     });
 
     return NextResponse.json({

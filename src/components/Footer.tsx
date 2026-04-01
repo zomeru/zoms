@@ -7,10 +7,10 @@ const Footer: React.FC = (): React.JSX.Element => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer id='contact' className='py-16 mt-8 border-t border-border'>
+    <footer id='contact' className='mt-8 border-t border-border pt-16 pb-28 md:pb-16'>
       <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-6'>
         <div>
-          <h3 className='text-lg font-medium tex-primary mb-2'>
+          <h3 className='text-lg font-medium text-primary mb-2'>
             Let&apos;s build something together
           </h3>
           <p className='text-text-secondary text-sm mb-4'>
@@ -30,35 +30,35 @@ const Footer: React.FC = (): React.JSX.Element => {
             <span>
               <span className='text-secondary'>const</span>{' '}
               <span className='text-terminal-green'>year</span>{' '}
-              <span className='text-[#e2e8f0]'>=</span>{' '}
+              <span className='text-syntax-plain'>=</span>{' '}
               <span className='text-terminal-purple'>{currentYear};</span>
             </span>
             <span>
               <span className='text-secondary'>const</span>{' '}
               <span className='text-terminal-green'>builtWith</span>{' '}
-              <span className='text-[#e2e8f0]'>=</span>{' '}
+              <span className='text-syntax-plain'>=</span>{' '}
               <span className='text-terminal-purple'>["Next.js", "Tailwind"];</span>
             </span>
             <span>
               <span className='text-secondary'>const</span>{' '}
               <span className='text-terminal-green'>deployed</span>{' '}
-              <span className='text-[#e2e8f0]'>=</span>{' '}
+              <span className='text-syntax-plain'>=</span>{' '}
               <span className='text-terminal-purple'>"Vercel";</span>
             </span>
           </div>
         </div>
       </div>
 
-      <div className='mt-8 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4'>
-        <div className='text-sm text-text-muted font-mono'>
+      <div className='mt-8 flex flex-col items-center justify-center gap-4 border-t border-border pt-8 text-center'>
+        <div className='text-center text-sm text-text-muted font-mono'>
           <span className='text-terminal-green'>©</span>{' '}
           <Link href='/' className='hover:text-primary transition-colors'>
             {TITLE}
           </Link>
-          <span className='text-muted'>{'// All rights reserved'}</span>
+          <span className='text-text-muted'>{'// All rights reserved'}</span>
         </div>
 
-        <div className='flex gap-6 text-sm font-mono'>
+        <div className='flex flex-wrap justify-center gap-6 text-sm font-mono'>
           <Link href='/github' className='text-text-muted hover:text-primary transition-colors'>
             github
           </Link>

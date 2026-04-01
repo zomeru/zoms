@@ -144,7 +144,7 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
       bodyClassName='p-5 font-mono text-sm'
     >
       <div className='mb-5 border-b border-code-border pb-4'>
-        <div className='flex items-center gap-3 text-sm text-textPrimary'>
+        <div className='flex items-center gap-3 text-sm text-text-primary'>
           <span className='text-terminal-green'>$</span>
           <span>ai_reindex --scope manual --mode targeted-or-full</span>
         </div>
@@ -170,7 +170,7 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
               disabled={isAuthorized || isRunning || isUnlocking}
               placeholder={isAuthorized ? 'session unlocked' : 'enter AI reindex secret'}
               autoComplete='off'
-              className='min-w-0 flex-1 bg-transparent text-textPrimary outline-none placeholder:text-text-muted disabled:cursor-not-allowed'
+              className='min-w-0 flex-1 bg-transparent text-text-primary outline-none placeholder:text-text-muted disabled:cursor-not-allowed'
             />
           </div>
 
@@ -217,7 +217,7 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
                 disabled={isRunning || isUnlocking}
                 placeholder='blog:post-slug or post-slug'
                 autoComplete='off'
-                className='w-full bg-transparent text-textPrimary outline-none placeholder:text-text-muted disabled:cursor-not-allowed'
+                className='w-full bg-transparent text-text-primary outline-none placeholder:text-text-muted disabled:cursor-not-allowed'
               />
             </div>
 
@@ -248,7 +248,7 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
                   void handleForget();
                 }}
                 disabled={isRunning || isUnlocking}
-                className='rounded-md border border-code-border px-4 py-2 text-xs uppercase tracking-[0.18em] text-text-muted transition-colors hover:cursor-pointer hover:border-textSecondary hover:text-textPrimary disabled:cursor-not-allowed disabled:opacity-50'
+                className='rounded-md border border-code-border px-4 py-2 text-xs uppercase tracking-[0.18em] text-text-muted transition-colors hover:cursor-pointer hover:border-border-hover hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50'
               >
                 Forget
               </button>

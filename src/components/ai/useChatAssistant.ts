@@ -24,7 +24,6 @@ export function useChatAssistant(input: { pathname: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isWorking, setIsWorking] = useState(false);
   const [messages, setMessages] = useState<AssistantMessage[]>([]);
-  const [sessionKey, setSessionKey] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
   const [hasMoreHistory, setHasMoreHistory] = useState(false);
   const [historyHydrationState, setHistoryHydrationState] = useState<
@@ -52,45 +51,23 @@ export function useChatAssistant(input: { pathname: string }) {
     (historyHydrationState === 'checking' || historyHydrationState === 'loading') &&
     messages.length === 0;
 
-  // ── Session persistence ───────────────────────────────────────────────────
-  useEffect(() => {
-    const storedSessionKey = window.localStorage.getItem('ai-chat-session');
-    if (storedSessionKey) {
-      setSessionKey(storedSessionKey);
-      return;
-    }
-
-    setHistoryHydrationState('empty');
-  }, []);
-
-  useEffect(() => {
-    if (!sessionKey) {
-      return;
-    }
-
-    window.localStorage.setItem('ai-chat-session', sessionKey);
-  }, [sessionKey]);
-
   // ── History hydration ─────────────────────────────────────────────────────
   useEffect(() => {
-    if (!sessionKey || hasHydratedHistory.current || messages.length > 0) {
+    if (hasHydratedHistory.current || messages.length > 0 || !isOpen) {
       return;
     }
 
-    const sessionKeyToHydrate: string = sessionKey;
     let cancelled = false;
 
     async function hydrateHistory() {
       setHistoryHydrationState('loading');
 
       try {
-        const encodedSessionKey = encodeURIComponent(sessionKeyToHydrate);
-        const response = await fetch(
-          `/api/ai/chat?sessionKey=${encodedSessionKey}&limit=${CHAT_HISTORY_PAGE_SIZE}&offset=0`
-        );
+        const response = await fetch(`/api/ai/chat?limit=${CHAT_HISTORY_PAGE_SIZE}&offset=0`);
 
         if (!response.ok) {
           if (!cancelled) {
+            hasHydratedHistory.current = true;
             setHasMoreHistory(false);
             setHistoryHydrationState('empty');
           }
@@ -109,6 +86,7 @@ export function useChatAssistant(input: { pathname: string }) {
         setHistoryHydrationState(payload.messages.length > 0 ? 'ready' : 'empty');
       } catch {
         if (!cancelled) {
+          hasHydratedHistory.current = true;
           setHasMoreHistory(false);
           setHistoryHydrationState('empty');
         }
@@ -120,12 +98,11 @@ export function useChatAssistant(input: { pathname: string }) {
     return () => {
       cancelled = true;
     };
-  }, [messages.length, sessionKey]);
+  }, [isOpen, messages.length]);
 
   // ── Load older history ────────────────────────────────────────────────────
   async function loadOlderHistory(): Promise<void> {
     if (
-      !sessionKey ||
       !hasHydratedHistory.current ||
       !hasMoreHistory ||
       isLoadingOlderHistory ||
@@ -137,9 +114,8 @@ export function useChatAssistant(input: { pathname: string }) {
     setIsLoadingOlderHistory(true);
 
     try {
-      const encodedSessionKey = encodeURIComponent(sessionKey);
       const response = await fetch(
-        `/api/ai/chat?sessionKey=${encodedSessionKey}&limit=${CHAT_HISTORY_PAGE_SIZE}&offset=${messages.length}`
+        `/api/ai/chat?limit=${CHAT_HISTORY_PAGE_SIZE}&offset=${messages.length}`
       );
 
       if (!response.ok) {
@@ -215,8 +191,7 @@ export function useChatAssistant(input: { pathname: string }) {
           reader: response.body.getReader(),
           decoder: new TextDecoder(),
           assistantMessageId,
-          setMessages,
-          setSessionKey
+          setMessages
         },
         ''
       );
@@ -302,7 +277,6 @@ export function useChatAssistant(input: { pathname: string }) {
     messages: displayedMessages,
     requestTransform,
     sendQuestion,
-    sessionKey,
     setIsOpen
   };
 }

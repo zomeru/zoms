@@ -15,6 +15,16 @@ interface CodeLine {
   content: string;
 }
 
+const syntaxColors: Record<string, string> = {
+  bracket: 'var(--color-syntax-bracket)',
+  comma: 'var(--color-syntax-plain)',
+  keyword: 'var(--color-syntax-keyword)',
+  operator: 'var(--color-syntax-plain)',
+  property: 'var(--color-syntax-property)',
+  string: 'var(--color-syntax-string)',
+  variable: 'var(--color-syntax-variable)'
+};
+
 const TerminalHero: React.FC<TerminalHeroProps> = ({ name, role, descriptions }) => {
   const [displayedCode, setDisplayedCode] = useState('');
   const [displayedDescription, setDisplayedDescription] = useState('');
@@ -45,19 +55,6 @@ const TerminalHero: React.FC<TerminalHeroProps> = ({ name, role, descriptions })
 
   const fullCode = useMemo(() => codeLines.map((line) => line.content).join(''), [codeLines]);
 
-  const getColor = (type: string): string => {
-    const colors: Record<string, string> = {
-      keyword: '#8b5cf6',
-      variable: '#22c55e',
-      operator: '#e2e8f0',
-      bracket: '#eab308',
-      property: '#22c55e',
-      string: '#a855f7',
-      comma: '#e2e8f0'
-    };
-    return colors[type] ?? '#e2e8f0';
-  };
-
   const renderCode = () => {
     let currentIndex = 0;
     return codeLines.map((line, lineIndex) => {
@@ -78,7 +75,7 @@ const TerminalHero: React.FC<TerminalHeroProps> = ({ name, role, descriptions })
 
       const key = `${line.type}-${line.content.slice(0, 3)}-${lineIndex}`;
       return (
-        <span key={key} style={{ color: getColor(line.type) }}>
+        <span key={key} style={{ color: syntaxColors[line.type] ?? 'var(--color-syntax-plain)' }}>
           {lineContent}
         </span>
       );

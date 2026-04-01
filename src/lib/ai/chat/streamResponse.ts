@@ -25,7 +25,9 @@ export function createStreamingChatResponse(input: {
 }): Response {
   const encoder = new TextEncoder();
   const setCookieHeader = input.isNew
-    ? `${AI_CHAT_COOKIE_NAME}=${input.sessionKey}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000`
+    ? `${AI_CHAT_COOKIE_NAME}=${input.sessionKey}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000${
+        process.env.NODE_ENV === 'production' ? '; Secure' : ''
+      }`
     : undefined;
   const stream = new ReadableStream({
     async start(controller) {
@@ -35,8 +37,6 @@ export function createStreamingChatResponse(input: {
       let answerText = '';
 
       try {
-        sendEvent({ sessionKey: input.sessionKey, type: 'session' });
-
         for await (const part of input.groundedAnswer.textStream) {
           if (!part) {
             continue;
@@ -61,22 +61,32 @@ export function createStreamingChatResponse(input: {
           sessionId: input.sessionId
         });
 
-        await repositories.createRetrievalEvent({
-          assistantMessageId: assistantMessage.id,
-          matchCount: input.retrievalMetadata.matchCount,
-          noAnswer: !finalAnswer.supported,
-          pagePath: input.input.pathname,
-          pageSlug: input.input.blogSlug,
-          payload: toPrismaJsonValue({
-            citations: finalAnswer.citations,
-            classification: input.retrievalMetadata.classification,
-            directAnswer: input.retrievalMetadata.directAnswer,
-            matches: input.retrievalMetadata.matches
-          }),
-          query: input.input.question,
-          sessionId: input.sessionId,
-          userMessageId: input.userMessageId
-        });
+        sendEvent({ answer: finalAnswer, messageId: assistantMessage.id, type: 'done' });
+
+        try {
+          await repositories.createRetrievalEvent({
+            assistantMessageId: assistantMessage.id,
+            matchCount: input.retrievalMetadata.matchCount,
+            noAnswer: !finalAnswer.supported,
+            pagePath: input.input.pathname,
+            pageSlug: input.input.blogSlug,
+            payload: toPrismaJsonValue({
+              citations: finalAnswer.citations,
+              classification: input.retrievalMetadata.classification,
+              directAnswer: input.retrievalMetadata.directAnswer,
+              matches: input.retrievalMetadata.matches
+            }),
+            query: input.input.question,
+            sessionId: input.sessionId,
+            userMessageId: input.userMessageId
+          });
+        } catch (retrievalError) {
+          log.warn('Failed to persist retrieval event', {
+            assistantMessageId: assistantMessage.id,
+            error: retrievalError instanceof Error ? retrievalError.message : String(retrievalError)
+          });
+        }
+
         try {
           await storeSessionMemory({
             answer: finalAnswer.answer,
@@ -89,8 +99,6 @@ export function createStreamingChatResponse(input: {
             error: memoryError instanceof Error ? memoryError.message : String(memoryError)
           });
         }
-
-        sendEvent({ answer: finalAnswer, messageId: assistantMessage.id, type: 'done' });
       } catch {
         sendEvent({
           answer: {

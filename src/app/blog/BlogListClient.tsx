@@ -150,7 +150,7 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
               onClick={() => {
                 void loadMore();
               }}
-              className='px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover transition-all font-mono text-sm'
+              className='rounded-lg bg-primary px-6 py-3 font-mono text-sm text-background transition-all hover:bg-primary-hover'
             >
               Load More Posts
             </button>

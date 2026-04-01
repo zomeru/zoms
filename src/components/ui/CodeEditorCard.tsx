@@ -35,20 +35,20 @@ const CodeEditorCard: React.FC<CodeEditorCardProps> = ({
             <span className='text-xs text-text-secondary font-mono'>{filename}</span>
           </div>
         </div>
-        <span className='text-xs text-muted font-mono'>{language}</span>
+        <span className='text-xs font-mono text-text-muted'>{language}</span>
       </div>
       <div className='p-4 font-mono text-sm overflow-x-auto flex-1'>
         {showLineNumbers ? (
           <div className='flex'>
-            <div className='text-muted text-right pr-4 select-none border-r border-code-border mr-4'>
+            <div className='mr-4 select-none border-r border-code-border pr-4 text-right text-text-muted'>
               {lines.map((_, i) => (
                 <div key={i}>{i + 1}</div>
               ))}
             </div>
-            <div className='text-[#e2e8f0] flex-1'>{children}</div>
+            <div className='flex-1 text-syntax-plain'>{children}</div>
           </div>
         ) : (
-          <pre className='text-[#e2e8f0] whitespace-pre-wrap h-full'>{children}</pre>
+          <pre className='h-full whitespace-pre-wrap text-syntax-plain'>{children}</pre>
         )}
       </div>
     </div>

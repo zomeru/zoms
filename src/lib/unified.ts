@@ -1,6 +1,5 @@
-import { transformerCopyButton } from '@rehype-pretty/transformers';
 import rehypeExternalLinks from 'rehype-external-links';
-import rehypePrettyCode from 'rehype-pretty-code';
+import rehypeHighlight from 'rehype-highlight';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeSlug from 'rehype-slug';
@@ -69,19 +68,7 @@ const processor = unified()
   .use(rehypeRaw)
   .use(rehypeSanitize, sanitizeSchema)
   .use(rehypeSlug)
-  .use(rehypePrettyCode, {
-    theme: 'github-dark-dimmed',
-    bypassInlineCode: true,
-    keepBackground: false,
-    // keepBackground: true,
-    // defaultLang: 'plaintext',
-    transformers: [
-      transformerCopyButton({
-        visibility: 'always',
-        feedbackDuration: 3_000
-      })
-    ]
-  })
+  .use(rehypeHighlight, { detect: true, ignoreMissing: true })
   .use(rehypeExternalLinks, {
     target: '_blank',
     rel: ['noopener', 'noreferrer']

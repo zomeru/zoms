@@ -1,17 +1,23 @@
 import type { Metadata, Viewport } from 'next';
 
 import '../styles/globals.css';
+import '../styles/themes.css';
 
 import React from 'react';
 import { Geist, Geist_Mono } from 'next/font/google';
+import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { BotIdClient } from 'botid/client';
 
-import ChatAssistantShell from '@/components/ai/ChatAssistantShell';
-import { Navbar, ParticleBackground } from '@/components';
+import GlobalEnhancements from '@/components/GlobalEnhancements';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
+import { ThemeRail } from '@/components/theme/ThemeRail';
+import { ThemeSelector } from '@/components/theme/ThemeSelector';
+import { Navbar } from '@/components';
 import { seo } from '@/configs';
 import { BOTID_PROTECTED_ROUTES } from '@/lib/botId';
+import { createThemeBootstrapScript } from '@/lib/theme/bootstrap';
 
 const geist = Geist({
   subsets: ['latin'],
@@ -36,20 +42,33 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }): React.JSX.Element {
+  const shouldRenderVercelInsights = process.env.VERCEL === '1';
+
   return (
-    <html lang='en' className={`${geist.variable} ${geistMono.variable}`}>
+    <html
+      lang='en'
+      data-theme='zomeru'
+      suppressHydrationWarning={true}
+      className={`${geist.variable} ${geistMono.variable}`}
+    >
       <head>
         <BotIdClient protect={BOTID_PROTECTED_ROUTES} />
       </head>
-      <body suppressHydrationWarning={true} className='bg-background text-primary min-h-screen'>
-        <Navbar />
-        <div id='my-root' className='relative min-h-screen'>
-          <ParticleBackground />
-          <React.Fragment>{children}</React.Fragment>
-          <ChatAssistantShell />
-        </div>
-        <Analytics />
-        <SpeedInsights />
+      <body className='bg-background text-text-primary min-h-screen'>
+        <Script id='theme-bootstrap' strategy='beforeInteractive'>
+          {createThemeBootstrapScript()}
+        </Script>
+        <ThemeProvider>
+          <ThemeRail />
+          <ThemeSelector />
+          <Navbar />
+          <div id='my-root' className='relative min-h-screen'>
+            <GlobalEnhancements />
+            <React.Fragment>{children}</React.Fragment>
+          </div>
+        </ThemeProvider>
+        {shouldRenderVercelInsights ? <Analytics /> : null}
+        {shouldRenderVercelInsights ? <SpeedInsights /> : null}
       </body>
     </html>
   );

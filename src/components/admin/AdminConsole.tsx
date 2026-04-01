@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 
+import BlogGenerateButton from '@/components/admin/BlogGenerateButton';
 import ReindexAdminCard from '@/components/ai/ReindexAdminCard';
 import { TerminalCard } from '@/components/ui';
-import BlogGenerateButton from '@/app/blog/BlogGenerateButton';
 import { getResponseErrorMessage } from '@/lib/errorMessages';
 
 interface AdminAccessState {

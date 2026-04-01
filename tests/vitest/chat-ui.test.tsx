@@ -3,6 +3,7 @@
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { useEffect } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -14,6 +15,10 @@ import { useChatAssistant } from '@/components/ai/useChatAssistant';
 
 function HookHarness() {
   const assistant = useChatAssistant({ pathname: '/' });
+
+  useEffect(() => {
+    assistant.setIsOpen(true);
+  }, [assistant.setIsOpen]);
 
   return (
     <div>
@@ -38,12 +43,10 @@ function HookHarness() {
 
 describe('chat UI behaviors', () => {
   beforeEach(() => {
-    window.localStorage.clear();
     vi.restoreAllMocks();
   });
 
-  it('hydrates chat history from the persisted session on reload', async () => {
-    window.localStorage.setItem('ai-chat-session', 'session-key');
+  it('hydrates chat history from the secure session cookie on reload', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async (input: string | URL | Request) => {
@@ -96,10 +99,10 @@ describe('chat UI behaviors', () => {
     });
     expect(screen.getByTestId('history-loading').textContent).toBe('idle');
     expect(screen.getByText(/thanks for visiting my website/i)).toBeTruthy();
+    expect(window.localStorage.getItem('ai-chat-session')).toBeNull();
   });
 
-  it('does not show the welcome message while persisted history is still loading', async () => {
-    window.localStorage.setItem('ai-chat-session', 'session-key');
+  it('does not show the welcome message while cookie-backed history is still loading', async () => {
     const pendingHistoryResponse = Promise.withResolvers<Response>().promise;
 
     vi.stubGlobal(
@@ -126,7 +129,6 @@ describe('chat UI behaviors', () => {
   });
 
   it('keeps the welcome message visible even when persisted history exists', async () => {
-    window.localStorage.setItem('ai-chat-session', 'session-key');
     vi.stubGlobal(
       'fetch',
       vi.fn(
@@ -165,7 +167,6 @@ describe('chat UI behaviors', () => {
   });
 
   it('requests the latest history page first and can load older history on demand', async () => {
-    window.localStorage.setItem('ai-chat-session', 'session-key');
     const fetchSpy = vi.fn(async (input: string | URL | Request) => {
       const url =
         typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
@@ -245,7 +246,7 @@ describe('chat UI behaviors', () => {
       expect(screen.getByText('Recent question')).toBeTruthy();
     });
 
-    expect(fetchSpy).toHaveBeenCalledWith('/api/ai/chat?sessionKey=session-key&limit=10&offset=0');
+    expect(fetchSpy).toHaveBeenCalledWith('/api/ai/chat?limit=10&offset=0');
     expect(screen.getByTestId('has-more-history').textContent).toBe('yes');
 
     fireEvent.click(screen.getByRole('button', { name: 'Load older' }));
@@ -254,7 +255,7 @@ describe('chat UI behaviors', () => {
       expect(screen.getByText('Older question')).toBeTruthy();
     });
 
-    expect(fetchSpy).toHaveBeenCalledWith('/api/ai/chat?sessionKey=session-key&limit=10&offset=2');
+    expect(fetchSpy).toHaveBeenCalledWith('/api/ai/chat?limit=10&offset=2');
     expect(screen.getAllByText(/question$/)).toHaveLength(2);
     expect(screen.getByTestId('has-more-history').textContent).toBe('no');
   });
@@ -536,5 +537,72 @@ describe('chat UI behaviors', () => {
     );
 
     expect(screen.getAllByText('Chat with Zomer').length).toBeGreaterThan(0);
+  });
+
+  it('uses the same floating trigger shell language as the theme widget', async () => {
+    const [{ ThemeProvider }, { ThemeRail }] = await Promise.all([
+      import('@/components/theme/ThemeProvider'),
+      import('@/components/theme/ThemeRail')
+    ]);
+
+    render(
+      <>
+        <ChatLauncher onClick={() => undefined} />
+        <ThemeProvider>
+          <ThemeRail />
+        </ThemeProvider>
+      </>
+    );
+
+    const chatLauncher = screen.getByRole('button', { name: /open chat with zomer/i });
+    const themeTrigger = screen.getByRole('button', { name: /open theme selector/i });
+
+    for (const token of ['rounded-[1.6rem]', 'border-border/80', 'bg-background/92']) {
+      expect(chatLauncher.className).toContain(token);
+      expect(themeTrigger.className).toContain(token);
+    }
+  });
+
+  it('uses the same floating panel shell language as the theme selector', async () => {
+    const [{ ThemeProvider }, { ThemeSelector }, { ThemeRail }] = await Promise.all([
+      import('@/components/theme/ThemeProvider'),
+      import('@/components/theme/ThemeSelector'),
+      import('@/components/theme/ThemeRail')
+    ]);
+
+    render(
+      <>
+        <ThemeProvider>
+          <ThemeRail />
+          <ThemeSelector />
+        </ThemeProvider>
+        <ChatPanel
+          hasMoreHistory={false}
+          isHistoryLoadingInitial={false}
+          isLoadingOlderHistory={false}
+          isOpen={true}
+          isWorking={false}
+          onLoadOlderHistory={async () => undefined}
+          messages={[]}
+          onClose={() => undefined}
+          onSend={async () => undefined}
+          onTransform={async () => undefined}
+        />
+      </>
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /open theme selector/i }));
+
+    const themeSelector = await screen.findByRole('dialog', { name: /theme selector/i });
+    const chatPanel = screen
+      .getByRole('button', { name: /minimize assistant/i })
+      .closest('section');
+
+    expect(chatPanel).toBeTruthy();
+
+    for (const token of ['border-border/80', 'bg-background/96', 'backdrop-blur-2xl']) {
+      expect(themeSelector.className).toContain(token);
+      expect(chatPanel?.className ?? '').toContain(token);
+    }
   });
 });

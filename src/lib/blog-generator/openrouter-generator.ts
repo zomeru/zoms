@@ -7,8 +7,8 @@ import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
 
 import { getErrorMessage } from '../errorMessages';
 import { SYSTEM_INSTRUCTION } from './constants';
-import type { GeneratedBlogPost } from './gemini-generator';
 import { formatLLMText, generatePrompt, tryParseAIJSON } from './helpers';
+import type { GeneratedBlogDraft } from './types';
 
 function getOpenRouterProvider() {
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -19,7 +19,7 @@ function getOpenRouterProvider() {
   return createOpenRouter({ apiKey });
 }
 
-export async function openrouterGenerateBlogContent(): Promise<GeneratedBlogPost> {
+export async function openrouterGenerateBlogContent(): Promise<GeneratedBlogDraft> {
   const model = process.env.OPENROUTER_BLOG_MODEL ?? 'openrouter/free';
 
   if (!model) {
@@ -52,8 +52,10 @@ export async function openrouterGenerateBlogContent(): Promise<GeneratedBlogPost
       title: parsed.title.slice(0, MAX_TITLE_LENGTH),
       summary: parsed.excerpt.slice(0, MAX_SUMMARY_LENGTH),
       body: formatLLMText(parsed.content),
+      provider: 'openrouter',
       tags: parsed.tags.slice(0, 5),
-      readTime
+      readTime,
+      suggestedSlug: parsed.slug
     };
   } catch (error) {
     throw new Error(getErrorMessage('AI_GENERATION_FAILED'), { cause: error });

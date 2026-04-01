@@ -3,6 +3,8 @@ import { projects as fallbackProjects } from '@/constants/projects';
 import log from './logger';
 import { getSanityClient } from './sanity';
 
+const PROJECTS_REVALIDATE_SECONDS = 60 * 60;
+
 interface ProjectLinks {
   demo: string;
   github: string;
@@ -46,7 +48,10 @@ export async function getProjects(): Promise<Project[]> {
       }`,
       {},
       {
-        cache: 'no-store'
+        next: {
+          revalidate: PROJECTS_REVALIDATE_SECONDS,
+          tags: ['projects']
+        }
       }
     );
 

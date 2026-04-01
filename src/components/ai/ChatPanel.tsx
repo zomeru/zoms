@@ -1,5 +1,11 @@
 'use client';
 
+import {
+  FLOATING_WIDGET_META,
+  FLOATING_WIDGET_PANEL_HEADER,
+  FLOATING_WIDGET_PANEL_SHELL
+} from '@/components/ui/floatingWidgetStyles';
+
 import ChatComposer from './ChatComposer';
 import ChatMessageList from './ChatMessageList';
 import type { AssistantMessage } from './useChatAssistant';
@@ -46,11 +52,14 @@ export default function ChatPanel({
       }`}
     >
       <section
-        className={`glass-panel mx-3 flex ${panelHeightClass} flex-col overflow-hidden rounded-t-3xl border border-border shadow-[0_20px_60px_rgba(0,0,0,0.45)] md:mx-0 md:rounded-3xl`}
+        className={`mx-3 flex ${panelHeightClass} flex-col overflow-hidden rounded-t-[2rem] md:mx-0 md:rounded-[2rem] ${FLOATING_WIDGET_PANEL_SHELL}`}
       >
-        <header className='border-b border-border bg-surface/95 px-4 py-4'>
+        <header className={`px-4 py-4 ${FLOATING_WIDGET_PANEL_HEADER}`}>
           <div className='flex items-start justify-between gap-4'>
-            <h2 className='text-lg font-semibold text-text-primary'>Chat with Zomer</h2>
+            <div>
+              <p className={FLOATING_WIDGET_META}>AI Persona</p>
+              <h2 className='mt-1 text-lg font-semibold text-text-primary'>Chat with Zomer</h2>
+            </div>
             <button
               type='button'
               aria-label='Minimize assistant'

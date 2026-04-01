@@ -10,12 +10,13 @@ import {
 } from 'react';
 import { AiOutlineArrowUp } from 'react-icons/ai';
 
+import { MAX_CHAT_QUESTION_LENGTH } from '@/lib/ai/chat/schemas';
+
 interface ChatComposerProps {
   disabled?: boolean;
   onSubmit: (question: string) => Promise<void>;
 }
 
-const MAX_QUESTION_LENGTH = 500;
 const MAX_VISIBLE_LINES = 4;
 export default function ChatComposer({ disabled = false, onSubmit }: ChatComposerProps) {
   const [question, setQuestion] = useState('');
@@ -54,7 +55,7 @@ export default function ChatComposer({ disabled = false, onSubmit }: ChatCompose
   }
 
   function handleChange(event: ChangeEvent<HTMLTextAreaElement>): void {
-    setQuestion(event.target.value.slice(0, MAX_QUESTION_LENGTH));
+    setQuestion(event.target.value.slice(0, MAX_CHAT_QUESTION_LENGTH));
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>): void {
@@ -77,7 +78,7 @@ export default function ChatComposer({ disabled = false, onSubmit }: ChatCompose
             ref={textareaRef}
             id='assistant-question'
             aria-label='Assistant question'
-            maxLength={MAX_QUESTION_LENGTH}
+            maxLength={MAX_CHAT_QUESTION_LENGTH}
             value={question}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
@@ -88,7 +89,7 @@ export default function ChatComposer({ disabled = false, onSubmit }: ChatCompose
         </div>
         <div className='flex items-center justify-between gap-3 border-t border-border/80 px-3 py-3'>
           <div className='min-w-0 text-[11px] text-text-muted'>
-            {question.length}/{MAX_QUESTION_LENGTH}
+            {question.length}/{MAX_CHAT_QUESTION_LENGTH}
           </div>
           <div className='flex shrink-0 items-center'>
             <button
