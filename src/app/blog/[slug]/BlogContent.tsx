@@ -7,7 +7,7 @@ interface BlogContentProps {
 const BlogContent: React.FC<BlogContentProps> = ({ body }) => {
   return (
     <article
-      className='prose prose-invert max-w-none markdown-content'
+      className='markdown-content prose max-w-none'
       dangerouslySetInnerHTML={{ __html: body }}
     />
   );

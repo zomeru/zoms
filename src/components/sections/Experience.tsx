@@ -91,13 +91,13 @@ const Experience: React.FC = async (): Promise<React.JSX.Element> => {
                       <span className='text-terminal-purple'>{company}</span>
                     )}
                   </div>
-                  <span className='text-muted text-xs font-mono'>{range}</span>
+                  <span className='font-mono text-xs text-text-muted'>{range}</span>
                 </div>
-                <div className='text-muted text-xs'>
+                <div className='text-xs text-text-muted'>
                   <span className='text-terminal-yellow'>location:</span> {location}
                 </div>
                 <div className='mt-2 pt-3 border-t border-code-border'>
-                  <div className='text-muted text-xs mb-2 font-mono'>duties:</div>
+                  <div className='mb-2 font-mono text-xs text-text-muted'>duties:</div>
                   <PortableText value={duties} components={portableTextComponents} />
                 </div>
               </div>

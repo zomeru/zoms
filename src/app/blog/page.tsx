@@ -63,7 +63,7 @@ const BlogPageContent: React.FC = async (): Promise<React.JSX.Element> => {
               <p className='text-text-secondary font-mono text-sm'>
                 <span className='text-secondary'>const</span>{' '}
                 <span className='text-terminal-green'>description</span>{' '}
-                <span className='text-[#e2e8f0]'>=</span>{' '}
+                <span className='text-syntax-plain'>=</span>{' '}
                 <span className='text-terminal-purple'>
                   "Technical articles about web development";
                 </span>

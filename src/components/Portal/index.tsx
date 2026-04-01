@@ -10,10 +10,7 @@ interface PortalProps {
 
 const Portal: React.FC<PortalProps> = ({ closeModal }): React.JSX.Element => {
   return (
-    <div
-      className='size-screen fixed bg-backgroundPrimary/50 backdrop-blur-sm'
-      onClick={closeModal}
-    >
+    <div className='size-screen fixed bg-background/70 backdrop-blur-sm' onClick={closeModal}>
       <div className='portal-spinner m-0'>
         <div className='portal'></div>
         <div className='portal'></div>
@@ -30,7 +27,7 @@ const Portal: React.FC<PortalProps> = ({ closeModal }): React.JSX.Element => {
         <button
           aria-label='Close button'
           onClick={closeModal}
-          className='absolute top-5 right-8 text-textSecondary cursor-pointer'
+          className='absolute top-5 right-8 cursor-pointer text-text-secondary'
         >
           <AiOutlineClose className='size-7.5' />
         </button>
@@ -44,7 +41,7 @@ const Portal: React.FC<PortalProps> = ({ closeModal }): React.JSX.Element => {
             e.stopPropagation();
           }}
         >
-          <p className='text-center text-sm sm:text-base md:text-xl text-backgroundSecondary mb-1 sm:mb-3 w-37.5 sm:w-50 md:w-full'>
+          <p className='mb-1 w-37.5 text-center text-sm text-text-secondary sm:mb-3 sm:w-50 sm:text-base md:w-full md:text-xl'>
             Looking for my different portfolio? Go back in time...
           </p>
           <a

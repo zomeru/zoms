@@ -143,14 +143,14 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
                 <span>
                   <span className='text-secondary'>const</span>{' '}
                   <span className='text-terminal-green'>published</span>{' '}
-                  <span className='text-text-secondary'>=</span>{' '}
+                  <span className='text-syntax-plain'>=</span>{' '}
                   <span className='text-terminal-purple'>"{publishedDate}";</span>
                 </span>
                 {post.readTime && (
                   <span>
                     <span className='text-secondary'>const</span>{' '}
                     <span className='text-terminal-green'>readTime</span>{' '}
-                    <span className='text-text-secondary'>=</span>{' '}
+                    <span className='text-syntax-plain'>=</span>{' '}
                     <span className='text-terminal-purple'>{post.readTime} min;</span>
                   </span>
                 )}
@@ -167,9 +167,7 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
               <div className='text-text-secondary text-lg leading-relaxed'>{post.summary}</div>
             </header>
 
-            <div className='prose prose-invert max-w-none'>
-              <BlogContent body={content} />
-            </div>
+            <BlogContent body={content} />
           </TerminalCard>
 
           <footer className='mt-8 pt-8 border-t border-border'>

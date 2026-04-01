@@ -15,7 +15,7 @@ const Blog: React.FC = async (): Promise<React.JSX.Element> => {
       <h2 className='section-title'>Blog</h2>
 
       {posts.length === 0 ? (
-        <TerminalCard title='no-posts.ts' className='text-muted'>
+        <TerminalCard title='no-posts.ts' className='text-text-muted'>
           <span className='text-terminal-yellow'>console</span>
           <span className='text-text-secondary'>.log(</span>
           <span className='text-terminal-purple'>"No posts yet. Check back soon!"</span>
@@ -36,7 +36,7 @@ const Blog: React.FC = async (): Promise<React.JSX.Element> => {
                 <div className='flex h-full gap-3'>
                   <Link href={`/blog/${slug.current}`} className='block min-w-0 flex-1'>
                     <div className='flex flex-col gap-2'>
-                      <div className='flex items-center gap-3 font-mono text-xs text-muted'>
+                      <div className='flex items-center gap-3 font-mono text-xs text-text-muted'>
                         <span>{date}</span>
                       </div>
                       <h3 className='font-medium text-primary transition-colors group-hover:text-primary-hover'>

@@ -142,20 +142,20 @@ const BlogGenerateButton: React.FC<BlogGenerateButtonProps> = ({ initialAuthoriz
         toastOptions={{
           duration: 4000,
           style: {
-            background: '#1a1a1a',
-            color: '#f2f2f2',
-            border: '1px solid rgba(145, 145, 145, 0.2)'
+            background: 'var(--color-surface-elevated)',
+            color: 'var(--color-text-primary)',
+            border: '1px solid var(--color-border)'
           },
           success: {
             iconTheme: {
-              primary: '#ad5aff',
-              secondary: '#f2f2f2'
+              primary: 'var(--color-primary)',
+              secondary: 'var(--color-text-primary)'
             }
           },
           error: {
             iconTheme: {
-              primary: '#ef4444',
-              secondary: '#f2f2f2'
+              primary: 'var(--color-terminal-red)',
+              secondary: 'var(--color-text-primary)'
             }
           }
         }}
@@ -168,7 +168,7 @@ const BlogGenerateButton: React.FC<BlogGenerateButtonProps> = ({ initialAuthoriz
           bodyClassName='p-5 font-mono text-sm'
         >
           <div className='mb-5 border-b border-code-border pb-4'>
-            <div className='flex items-center gap-3 text-sm text-textPrimary'>
+            <div className='flex items-center gap-3 text-sm text-text-primary'>
               <span className='text-terminal-green'>$</span>
               <span>generate_blog --provider ai --publish draft</span>
             </div>
@@ -194,7 +194,7 @@ const BlogGenerateButton: React.FC<BlogGenerateButtonProps> = ({ initialAuthoriz
                   disabled={isUnlocking || isGenerating || isAuthorized}
                   placeholder={isAuthorized ? 'session unlocked' : 'enter blog generation secret'}
                   autoComplete='off'
-                  className='min-w-0 flex-1 bg-transparent text-textPrimary outline-none placeholder:text-text-muted disabled:cursor-not-allowed'
+                  className='min-w-0 flex-1 bg-transparent text-text-primary outline-none placeholder:text-text-muted disabled:cursor-not-allowed'
                 />
               </div>
 
@@ -240,7 +240,7 @@ const BlogGenerateButton: React.FC<BlogGenerateButtonProps> = ({ initialAuthoriz
                     void handleForget();
                   }}
                   disabled={isGenerating || isUnlocking}
-                  className='rounded-md border border-code-border px-4 py-2 text-xs uppercase tracking-[0.18em] text-text-muted transition-colors hover:cursor-pointer hover:border-textSecondary hover:text-textPrimary disabled:cursor-not-allowed disabled:opacity-50'
+                  className='rounded-md border border-code-border px-4 py-2 text-xs uppercase tracking-[0.18em] text-text-muted transition-colors hover:cursor-pointer hover:border-border-hover hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50'
                 >
                   Forget
                 </button>

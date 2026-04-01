@@ -2,6 +2,8 @@
 
 import React, { useEffect, useRef } from 'react';
 
+import { readThemeVisualTokens, THEME_CHANGE_EVENT } from '@/lib/theme/dom';
+
 import { getTrimmedLinePoints } from './NodeCanvas.geometry';
 
 interface NodeCanvasProps {
@@ -145,12 +147,49 @@ const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = '', seed = 0 }) => 
   const nodesRef = useRef<Node[]>(randomNodes());
   const animStartRef = useRef<number | null>(null);
   const isVisibleRef = useRef(true);
+  const themeVisualsRef = useRef({
+    nodeHub1Rgb: [56, 189, 248] as [number, number, number],
+    nodeHub2Rgb: [99, 102, 241] as [number, number, number],
+    nodeHub3Rgb: [124, 58, 237] as [number, number, number],
+    nodeLinkRgb: [148, 163, 184] as [number, number, number]
+  });
 
   // New seed → new random layout + restart animation
   useEffect(() => {
     nodesRef.current = randomNodes();
     animStartRef.current = null;
   }, [seed]);
+
+  useEffect(() => {
+    const syncThemeVisuals = () => {
+      const { nodeHub1Rgb, nodeHub2Rgb, nodeHub3Rgb, nodeLinkRgb } = readThemeVisualTokens();
+      themeVisualsRef.current = {
+        nodeHub1Rgb,
+        nodeHub2Rgb,
+        nodeHub3Rgb,
+        nodeLinkRgb
+      };
+
+      nodesRef.current = nodesRef.current.map((node, index) => {
+        if (index === 0 || index === 1 || index === 3 || index === 7) {
+          return { ...node, rgb: nodeHub1Rgb };
+        }
+
+        if (index === 2 || index === 6) {
+          return { ...node, rgb: nodeHub2Rgb };
+        }
+
+        return { ...node, rgb: nodeHub3Rgb };
+      });
+    };
+
+    syncThemeVisuals();
+    window.addEventListener(THEME_CHANGE_EVENT, syncThemeVisuals);
+
+    return () => {
+      window.removeEventListener(THEME_CHANGE_EVENT, syncThemeVisuals);
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -201,6 +240,7 @@ const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = '', seed = 0 }) => 
             { x: pts[to].px, y: pts[to].py, radius: toRadius }
           );
           const dist = Math.hypot(startX - endX, startY - endY);
+          const [linkR, linkG, linkB] = themeVisualsRef.current.nodeLinkRgb;
 
           ctx.save();
           ctx.setLineDash([dist * drawEase, dist]);
@@ -208,7 +248,7 @@ const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = '', seed = 0 }) => 
           ctx.beginPath();
           ctx.moveTo(startX, startY);
           ctx.lineTo(endX, endY);
-          ctx.strokeStyle = `rgba(148, 163, 184, ${(isHubHub ? 0.35 : 0.25) * pulse})`;
+          ctx.strokeStyle = `rgba(${linkR}, ${linkG}, ${linkB}, ${(isHubHub ? 0.35 : 0.25) * pulse})`;
           ctx.lineWidth = 2;
           ctx.stroke();
 

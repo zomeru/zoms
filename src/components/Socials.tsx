@@ -10,7 +10,7 @@ const Socials = (): React.JSX.Element => {
 
         return (
           <a href={url} key={url} target='_blank' rel='noopener' aria-label={label}>
-            <Icon className='text-textSecondary hover:text-primary transition-colors duration-300 ease-in-out text-3xl' />
+            <Icon className='text-text-secondary hover:text-primary transition-colors duration-300 ease-in-out text-3xl' />
           </a>
         );
       })}

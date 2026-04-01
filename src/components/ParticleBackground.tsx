@@ -10,8 +10,18 @@ import {
 import Particles, { initParticlesEngine } from '@tsparticles/react';
 import { loadSlim } from '@tsparticles/slim';
 
+import { readThemeVisualTokens, THEME_CHANGE_EVENT } from '@/lib/theme/dom';
+
+const DEFAULT_THEME_VISUALS = {
+  nodeLink: 'rgba(148, 163, 184, 0.28)',
+  particle1: '#8b5cf6',
+  particle2: '#3b82f6',
+  particle3: '#6366f1'
+};
+
 const ParticleBackground = () => {
   const [init, setInit] = useState(false);
+  const [themeVisuals, setThemeVisuals] = useState(DEFAULT_THEME_VISUALS);
 
   useEffect(() => {
     void initParticlesEngine(async (engine) => {
@@ -19,6 +29,22 @@ const ParticleBackground = () => {
     }).then(() => {
       setInit(true);
     });
+  }, []);
+
+  useEffect(() => {
+    const syncThemeVisuals = () => {
+      setThemeVisuals((current) => ({
+        ...current,
+        ...readThemeVisualTokens()
+      }));
+    };
+
+    syncThemeVisuals();
+    window.addEventListener(THEME_CHANGE_EVENT, syncThemeVisuals);
+
+    return () => {
+      window.removeEventListener(THEME_CHANGE_EVENT, syncThemeVisuals);
+    };
   }, []);
 
   const options: ISourceOptions = useMemo(
@@ -52,9 +78,9 @@ const ParticleBackground = () => {
       },
       fpsLimit: 60,
       particles: {
-        color: { value: ['#8b5cf6', '#3b82f6', '#6366f1'] },
+        color: { value: [themeVisuals.particle1, themeVisuals.particle2, themeVisuals.particle3] },
         links: {
-          color: '#6366f1',
+          color: themeVisuals.nodeLink,
           distance: 140,
           enable: true,
           opacity: 0.15,
@@ -78,7 +104,7 @@ const ParticleBackground = () => {
       },
       detectRetina: true
     }),
-    []
+    [themeVisuals]
   );
 
   if (init) {

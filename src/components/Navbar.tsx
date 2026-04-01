@@ -79,7 +79,7 @@ const Navbar = (): React.JSX.Element => {
       >
         {/* Logo */}
         <Link href='/' className='flex items-center shrink-0 pl-2 pr-3' aria-label='zoms home'>
-          <span className='text-lg font-bold text-textPrimary'>zoms</span>
+          <span className='text-lg font-bold text-text-primary'>zoms</span>
         </Link>
 
         {/* Desktop Navigation Links */}
@@ -96,8 +96,8 @@ const Navbar = (): React.JSX.Element => {
                 onClick={(e) => handleNavClick(e, sectionId)}
                 className={`text-sm px-3 py-1.5 rounded-full transition-colors ${
                   isActive
-                    ? 'text-textPrimary bg-white/10'
-                    : 'text-textSecondary hover:text-textPrimary hover:bg-white/5'
+                    ? 'bg-overlay-strong text-text-primary'
+                    : 'text-text-secondary hover:bg-overlay hover:text-text-primary'
                 }`}
               >
                 {name}
@@ -145,23 +145,23 @@ const MobileMenu = ({
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className='md:hidden ml-1 flex items-center justify-center w-8 h-8 rounded-full hover:bg-white/10 transition-colors'
+        className='md:hidden ml-1 flex h-8 w-8 items-center justify-center rounded-full text-text-primary transition-colors hover:bg-overlay'
         aria-label='Open menu'
         aria-expanded={isOpen}
       >
         <div className='relative w-4 h-3 flex flex-col justify-between'>
           <span
-            className={`block h-[1.5px] w-full bg-white rounded-full origin-center transition-all duration-300 ${
+            className={`block h-[1.5px] w-full rounded-full bg-current origin-center transition-all duration-300 ${
               isOpen ? 'rotate-45 translate-y-1.25' : ''
             }`}
           ></span>
           <span
-            className={`block h-[1.5px] w-full bg-white rounded-full transition-all duration-300 ${
+            className={`block h-[1.5px] w-full rounded-full bg-current transition-all duration-300 ${
               isOpen ? 'opacity-0' : ''
             }`}
           ></span>
           <span
-            className={`block h-[1.5px] w-full bg-white rounded-full origin-center transition-all duration-300 ${
+            className={`block h-[1.5px] w-full rounded-full bg-current origin-center transition-all duration-300 ${
               isOpen ? '-rotate-45 -translate-y-1.25' : ''
             }`}
           ></span>
@@ -191,8 +191,8 @@ const MobileMenu = ({
                     }}
                     className={`block px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                       isActive
-                        ? 'text-textPrimary bg-surface/80'
-                        : 'text-textSecondary hover:text-textPrimary hover:bg-surface/40'
+                        ? 'bg-surface/80 text-text-primary'
+                        : 'text-text-secondary hover:bg-surface/40 hover:text-text-primary'
                     }`}
                   >
                     {name}

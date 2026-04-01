@@ -84,14 +84,14 @@ const WakaTimeTicker: React.FC<WakaTimeTickerProps> = ({ initialLanguages = [] }
         <AnimatedCounter
           value={current.hours}
           fontSize='24px'
-          color='#4ade80'
-          incrementColor='#4ade80'
-          decrementColor='#4ade80'
+          color='var(--color-terminal-green)'
+          incrementColor='var(--color-terminal-green)'
+          decrementColor='var(--color-terminal-green)'
           includeDecimals={false}
           includeCommas
           containerStyles={{ fontFamily: 'inherit', fontWeight: 500, lineHeight: 1 }}
         />
-        <span className='text-sm font-medium text-[#4ade80] leading-none mb-0.5'>hrs</span>
+        <span className='mb-0.5 text-sm leading-none font-medium text-terminal-green'>hrs</span>
       </div>
 
       {/* Language label — fades between languages */}

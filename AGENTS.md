@@ -214,6 +214,7 @@ Search results can flood context. Use `context-mode_ctx_execute(language: "shell
 | `ctx upgrade` | Call the `upgrade` MCP tool, run the returned shell command, display as checklist |
 
 <!-- rtk-instructions v3 -->
+
 ## RTK Command Enforcement
 
 ### Mandatory Rule

@@ -157,11 +157,11 @@ pnpm studio:dev # Sanity Studio (http://localhost:3333)
 | `BLOG_GENERATION_SECRET`        | For AI generation | Authenticates POST `/api/blog/generate` requests                |
 | `GEMINI_MODEL`                  | For AI generation | Gemini model ID (e.g. `gemini-2.5-pro`)                         |
 | `OPENROUTER_EMBEDDING_MODEL`    | For AI assistant  | Model ID for embedding content into vector index                |
-| `GITHUB_TOKEN`                  | For dev stats     | Personal access token with `read:user` and `repo` scopes       |
+| `GITHUB_TOKEN`                  | For dev stats     | Personal access token with `read:user` and `repo` scopes        |
 | `GITHUB_USERNAME`               | For dev stats     | GitHub username for GraphQL contribution queries                |
 | `WAKATIME_API_KEY`              | For dev stats     | WakaTime API key for coding time breakdown                      |
 | `SUPERMEMORY_API_KEY`           | For AI assistant  | Supermemory API key for AI memory features                      |
-| `ENABLE_EXPERIMENTAL_COREPACK`  | For deployment    | Enables pnpm via Node.js Corepack on Vercel                    |
+| `ENABLE_EXPERIMENTAL_COREPACK`  | For deployment    | Enables pnpm via Node.js Corepack on Vercel                     |
 
 ---
 

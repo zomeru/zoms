@@ -84,7 +84,7 @@ const About = async (): Promise<React.JSX.Element> => {
             </Link>
             <Link
               href='#contact'
-              className='inline-flex items-center gap-2 rounded-md border border-code-border px-4 py-3 font-mono text-xs uppercase tracking-[0.18em] text-text-muted transition-colors hover:border-textSecondary hover:text-textPrimary'
+              className='inline-flex items-center gap-2 rounded-md border border-code-border px-4 py-3 font-mono text-xs uppercase tracking-[0.18em] text-text-muted transition-colors hover:border-border-hover hover:text-text-primary'
             >
               <span className='text-terminal-green'>cd</span>
               <span>Get in Touch</span>
