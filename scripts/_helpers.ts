@@ -1,8 +1,8 @@
 import {
-  spawnSync,
   type SpawnSyncOptions,
   type SpawnSyncOptionsWithStringEncoding,
-  type SpawnSyncReturns
+  type SpawnSyncReturns,
+  spawnSync
 } from 'node:child_process';
 import { config as loadEnv } from 'dotenv';
 

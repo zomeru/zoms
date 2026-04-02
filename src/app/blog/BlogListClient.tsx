@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import type React from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import BlogDeleteMenu from '@/components/blog/BlogDeleteMenu';
 import { TechBadge } from '@/components/ui';
@@ -39,7 +40,6 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
         throw new Error('Failed to fetch blog posts');
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- API response is validated by backend
       const data = (await response.json()) as {
         posts: BlogPostListItem[];
         pagination: { limit: number; offset: number; total: number; hasMore: boolean };
@@ -82,10 +82,10 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
   }, [hasMore, loading, loadMore]);
 
   return (
-    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       {error && (
-        <div className='col-span-full bg-terminal-red/10 border border-terminal-red/30 rounded-lg p-4'>
-          <p className='text-terminal-red text-sm font-mono'>Error: {error}</p>
+        <div className="col-span-full rounded-lg border border-terminal-red/30 bg-terminal-red/10 p-4">
+          <p className="font-mono text-sm text-terminal-red">Error: {error}</p>
         </div>
       )}
 
@@ -95,25 +95,25 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
         return (
           <article
             key={post._id}
-            className='group flex h-full gap-3 rounded-lg border border-code-border bg-code-bg p-5 transition-all duration-300 hover:border-primary/30'
+            className="group flex h-full gap-3 rounded-lg border border-code-border bg-code-bg p-5 transition-all duration-300 hover:border-primary/30"
           >
-            <Link href={`/blog/${post.slug.current}`} className='block min-w-0 flex-1'>
-              <div className='flex flex-col gap-3'>
-                <div className='flex flex-wrap items-center gap-3 font-mono text-xs text-text-muted'>
+            <Link href={`/blog/${post.slug.current}`} className="block min-w-0 flex-1">
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-wrap items-center gap-3 font-mono text-text-muted text-xs">
                   <span>{date}</span>
                   {post.readTime && (
                     <>
-                      <span className='text-text-muted'>|</span>
+                      <span className="text-text-muted">|</span>
                       <span>{post.readTime} min read</span>
                     </>
                   )}
                 </div>
-                <h2 className='text-lg font-medium text-primary transition-colors group-hover:text-primary-hover'>
+                <h2 className="font-medium text-lg text-primary transition-colors group-hover:text-primary-hover">
                   {post.title}
                 </h2>
-                <p className='line-clamp-2 text-sm text-text-secondary'>{post.summary}</p>
+                <p className="line-clamp-2 text-sm text-text-secondary">{post.summary}</p>
                 {post.tags && post.tags.length > 0 && (
-                  <div className='mt-2 flex flex-wrap gap-2'>
+                  <div className="mt-2 flex flex-wrap gap-2">
                     {post.tags.map((tag) => (
                       <TechBadge key={tag}>{tag}</TechBadge>
                     ))}
@@ -138,19 +138,19 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
       })}
 
       {hasMore && (
-        <div ref={loadMoreRef} className='col-span-full py-8 flex justify-center'>
+        <div ref={loadMoreRef} className="col-span-full flex justify-center py-8">
           {loading ? (
-            <div className='flex items-center gap-2 text-text-muted font-mono text-sm'>
-              <span className='size-4 border-2 border-primary border-t-transparent rounded-full animate-spin' />
+            <div className="flex items-center gap-2 font-mono text-sm text-text-muted">
+              <span className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
               <span>Loading...</span>
             </div>
           ) : (
             <button
-              type='button'
+              type="button"
               onClick={() => {
                 void loadMore();
               }}
-              className='rounded-lg bg-primary px-6 py-3 font-mono text-sm text-background transition-all hover:bg-primary-hover'
+              className="rounded-lg bg-primary px-6 py-3 font-mono text-background text-sm transition-all hover:bg-primary-hover"
             >
               Load More Posts
             </button>
@@ -158,9 +158,9 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
         </div>
       )}
 
-      <div className='col-span-full text-center text-text-muted text-sm font-mono pt-8 border-t border-code-border'>
-        Showing <span className='text-terminal-blue'>{posts.length}</span> of{' '}
-        <span className='text-terminal-blue'>{total}</span> posts
+      <div className="col-span-full border-code-border border-t pt-8 text-center font-mono text-sm text-text-muted">
+        Showing <span className="text-terminal-blue">{posts.length}</span> of{' '}
+        <span className="text-terminal-blue">{total}</span> posts
       </div>
     </div>
   );

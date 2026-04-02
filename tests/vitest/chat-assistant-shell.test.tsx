@@ -16,14 +16,14 @@ vi.mock('@/components/ai/useChatAssistant', () => ({
 
 vi.mock('@/components/ai/ChatLauncher', () => ({
   default: ({ onClick }: { onClick: () => void }) => (
-    <button type='button' aria-label='Open chat with Zomer' onClick={onClick}>
+    <button type="button" aria-label="Open chat with Zomer" onClick={onClick}>
       launcher
     </button>
   )
 }));
 
 vi.mock('@/components/ai/ChatPanel', () => ({
-  default: () => <div aria-label='Chat panel'>panel</div>
+  default: () => <section aria-label="Chat panel">panel</section>
 }));
 
 describe('ChatAssistantShell', () => {

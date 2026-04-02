@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import type React from 'react';
+import { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 
 import {
@@ -19,7 +20,7 @@ interface BlogGenerateButtonProps {
   initialAuthorized: boolean;
 }
 
-// eslint-disable-next-line complexity -- This component intentionally manages the terminal auth state machine inline.
+// This component intentionally keeps the terminal auth state machine inline.
 const BlogGenerateButton: React.FC<BlogGenerateButtonProps> = ({ initialAuthorized }) => {
   const router = useRouter();
   const [secret, setSecret] = useState('');
@@ -138,7 +139,7 @@ const BlogGenerateButton: React.FC<BlogGenerateButtonProps> = ({ initialAuthoriz
   return (
     <>
       <Toaster
-        position='top-center'
+        position="top-center"
         toastOptions={{
           duration: 4000,
           style: {
@@ -161,48 +162,48 @@ const BlogGenerateButton: React.FC<BlogGenerateButtonProps> = ({ initialAuthoriz
         }}
       />
 
-      <div className='mb-8 flex justify-center'>
+      <div className="mb-8 flex justify-center">
         <TerminalCard
-          title='blog-generator.sh'
-          className='w-full shadow-[0_24px_80px_rgba(0,0,0,0.28)]'
-          bodyClassName='p-5 font-mono text-sm'
+          title="blog-generator.sh"
+          className="w-full shadow-[0_24px_80px_rgba(0,0,0,0.28)]"
+          bodyClassName="p-5 font-mono text-sm"
         >
-          <div className='mb-5 border-b border-code-border pb-4'>
-            <div className='flex items-center gap-3 text-sm text-text-primary'>
-              <span className='text-terminal-green'>$</span>
+          <div className="mb-5 border-code-border border-b pb-4">
+            <div className="flex items-center gap-3 text-sm text-text-primary">
+              <span className="text-terminal-green">$</span>
               <span>generate_blog --provider ai --publish draft</span>
             </div>
-            <p className='mt-3 text-xs leading-relaxed text-text-muted'>
+            <p className="mt-3 text-text-muted text-xs leading-relaxed">
               Authenticate once in this terminal to unlock blog generation on this browser.
             </p>
           </div>
 
           <form onSubmit={handleUnlockSubmit}>
-            <label htmlFor='blog-generator-secret' className='sr-only'>
+            <label htmlFor="blog-generator-secret" className="sr-only">
               Blog generation secret
             </label>
-            <div className='flex flex-col gap-3 md:flex-row md:items-center'>
-              <div className='flex min-w-0 flex-1 items-center gap-3 rounded-md border border-code-border bg-surface-elevated/45 px-4 py-3'>
-                <span className='text-terminal-green'>&gt;</span>
+            <div className="flex flex-col gap-3 md:flex-row md:items-center">
+              <div className="flex min-w-0 flex-1 items-center gap-3 rounded-md border border-code-border bg-surface-elevated/45 px-4 py-3">
+                <span className="text-terminal-green">&gt;</span>
                 <input
-                  id='blog-generator-secret'
-                  type='password'
+                  id="blog-generator-secret"
+                  type="password"
                   value={secret}
                   onChange={(event) => {
                     setSecret(event.target.value);
                   }}
                   disabled={isUnlocking || isGenerating || isAuthorized}
                   placeholder={isAuthorized ? 'session unlocked' : 'enter blog generation secret'}
-                  autoComplete='off'
-                  className='min-w-0 flex-1 bg-transparent text-text-primary outline-none placeholder:text-text-muted disabled:cursor-not-allowed'
+                  autoComplete="off"
+                  className="min-w-0 flex-1 bg-transparent text-text-primary outline-none placeholder:text-text-muted disabled:cursor-not-allowed"
                 />
               </div>
 
               {!isAuthorized && (
                 <button
-                  type='submit'
+                  type="submit"
                   disabled={isUnlocking || isGenerating}
-                  className='rounded-md border border-code-border px-4 py-3 text-xs uppercase tracking-[0.18em] text-text-muted transition-colors hover:cursor-pointer hover:border-terminal-green/50 hover:text-terminal-green disabled:cursor-not-allowed disabled:opacity-50'
+                  className="rounded-md border border-code-border px-4 py-3 text-text-muted text-xs uppercase tracking-[0.18em] transition-colors hover:cursor-pointer hover:border-terminal-green/50 hover:text-terminal-green disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isUnlocking ? 'Authorizing...' : 'Enter'}
                 </button>
@@ -211,36 +212,36 @@ const BlogGenerateButton: React.FC<BlogGenerateButtonProps> = ({ initialAuthoriz
           </form>
 
           {error && (
-            <div className='mt-4 rounded-md border border-terminal-red/40 bg-terminal-red/10 px-4 py-3'>
-              <p className='text-xs leading-relaxed text-terminal-red'>{error}</p>
+            <div className="mt-4 rounded-md border border-terminal-red/40 bg-terminal-red/10 px-4 py-3">
+              <p className="text-terminal-red text-xs leading-relaxed">{error}</p>
             </div>
           )}
 
-          <div className='mt-4 border-t border-code-border pt-4'>
-            <div className='flex items-start gap-3 text-xs leading-relaxed text-text-muted'>
-              <span className='pt-0.5 text-terminal-blue'>//</span>
+          <div className="mt-4 border-code-border border-t pt-4">
+            <div className="flex items-start gap-3 text-text-muted text-xs leading-relaxed">
+              <span className="pt-0.5 text-terminal-blue">{'//'}</span>
               <p>{statusMessage}</p>
             </div>
 
             {isAuthorized && (
-              <div className='mt-4 flex flex-wrap items-center gap-3'>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
                 <button
-                  type='button'
+                  type="button"
                   onClick={() => {
                     void handleRun();
                   }}
                   disabled={isGenerating || isUnlocking}
-                  className='rounded-md border border-terminal-green/40 bg-terminal-green/10 px-4 py-2 text-xs uppercase tracking-[0.18em] text-terminal-green transition-colors hover:cursor-pointer hover:bg-terminal-green/15 disabled:cursor-not-allowed disabled:opacity-50'
+                  className="rounded-md border border-terminal-green/40 bg-terminal-green/10 px-4 py-2 text-terminal-green text-xs uppercase tracking-[0.18em] transition-colors hover:cursor-pointer hover:bg-terminal-green/15 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isGenerating ? 'Running...' : 'Run'}
                 </button>
                 <button
-                  type='button'
+                  type="button"
                   onClick={() => {
                     void handleForget();
                   }}
                   disabled={isGenerating || isUnlocking}
-                  className='rounded-md border border-code-border px-4 py-2 text-xs uppercase tracking-[0.18em] text-text-muted transition-colors hover:cursor-pointer hover:border-border-hover hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50'
+                  className="rounded-md border border-code-border px-4 py-2 text-text-muted text-xs uppercase tracking-[0.18em] transition-colors hover:cursor-pointer hover:border-border-hover hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Forget
                 </button>

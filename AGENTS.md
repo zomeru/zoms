@@ -80,9 +80,8 @@ Run these from the repository root:
 ## Code Style
 
 - TypeScript is strict; avoid introducing `any` unless there is a strong reason.
-- Prettier config is in `prettier.config.js`: single quotes, semicolons, 2-space indentation, `printWidth: 100`, `trailingComma: 'none'`.
-- Imports are sorted with `@ianvs/prettier-plugin-sort-imports` (order: react → next → third-party → `@/components` → `@/configs` → `@/constants` → `@/` → relative). Run formatting after import-heavy edits.
-- ESLint uses flat config (`eslint.config.mjs`) based on `eslint-config-love` + `eslint-config-prettier`. Studio is ignored.
+- Biome is configured in `biome.json` for formatting and linting; preserve the existing style choices (single quotes, semicolons, 2-space indentation, `lineWidth: 100`, `trailingCommas: "none"`).
+- Imports are organized by Biome. Run formatting after import-heavy edits.
 - Use the existing `@/` path aliases (maps to `./src/*`).
 - Keep components and utilities consistent with surrounding file patterns instead of introducing a new style locally.
 
@@ -133,7 +132,7 @@ If you cannot run a relevant check, say so explicitly.
 - `next.config.ts` wraps config with `withBotId()` from `botid` — keep this wrapper when modifying Next.js config.
 - React Compiler is enabled (`reactCompiler: true` in next.config.ts). Security headers (CSP, X-Frame-Options, etc.) are set in `next.config.ts`.
 - Vercel cron in `vercel.json` triggers blog generation at `0 22 * * 2,4,6` (Tue/Thu/Sat 10PM UTC).
-- Pre-commit hook (Husky + lint-staged) runs ESLint + Prettier on staged `*.{js,ts,tsx}` files.
+- Pre-commit hook (Husky + lint-staged) runs Biome on staged files and then the TypeScript check.
 - If future package-specific instructions are needed, add nested `AGENTS.md` files rather than overloading this root file.
 
 <!-- BEGIN:nextjs-agent-rules -->

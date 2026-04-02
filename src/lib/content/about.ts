@@ -1,4 +1,4 @@
-import { technologies, TITLE } from '@/constants';
+import { TITLE, technologies } from '@/constants';
 import type { NormalizedContentDocument } from '@/lib/content/types';
 import { getExperience } from '@/lib/experience';
 import { createDocument } from '@/lib/ingestion/normalize';

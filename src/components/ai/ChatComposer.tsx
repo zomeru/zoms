@@ -1,12 +1,12 @@
 'use client';
 
 import {
-  useEffect,
-  useRef,
-  useState,
   type ChangeEvent,
   type KeyboardEvent,
-  type SyntheticEvent
+  type SyntheticEvent,
+  useEffect,
+  useRef,
+  useState
 } from 'react';
 import { AiOutlineArrowUp } from 'react-icons/ai';
 
@@ -22,6 +22,7 @@ export default function ChatComposer({ disabled = false, onSubmit }: ChatCompose
   const [question, setQuestion] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: question changes alter the textarea contents and require a fresh height measurement after each render.
   useEffect(() => {
     const textarea = textareaRef.current;
 
@@ -68,37 +69,37 @@ export default function ChatComposer({ disabled = false, onSubmit }: ChatCompose
   }
 
   return (
-    <form onSubmit={handleSubmit} className='border-t border-border bg-background/70 p-4'>
-      <label htmlFor='assistant-question' className='sr-only'>
+    <form onSubmit={handleSubmit} className="border-border border-t bg-background/70 p-4">
+      <label htmlFor="assistant-question" className="sr-only">
         Assistant question
       </label>
-      <div className='overflow-hidden rounded-lg border border-border bg-surface shadow-[0_10px_30px_rgba(0,0,0,0.24)] transition focus-within:border-primary/40 focus-within:shadow-[0_0_0_1px_rgba(59,130,246,0.18),0_12px_32px_rgba(0,0,0,0.28)]'>
-        <div className='px-4 pt-4 pb-3'>
+      <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-[0_10px_30px_rgba(0,0,0,0.24)] transition focus-within:border-primary/40 focus-within:shadow-[0_0_0_1px_rgba(59,130,246,0.18),0_12px_32px_rgba(0,0,0,0.28)]">
+        <div className="px-4 pt-4 pb-3">
           <textarea
             ref={textareaRef}
-            id='assistant-question'
-            aria-label='Assistant question'
+            id="assistant-question"
+            aria-label="Assistant question"
             maxLength={MAX_CHAT_QUESTION_LENGTH}
             value={question}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            placeholder='Ask about my work, blogs, or any question.'
+            placeholder="Ask about my work, blogs, or any question."
             rows={1}
-            className='assistant-scrollbar block min-h-6 w-full resize-none bg-transparent text-sm leading-6 text-text-primary outline-none placeholder:text-text-muted'
+            className="assistant-scrollbar block min-h-6 w-full resize-none bg-transparent text-sm text-text-primary leading-6 outline-none placeholder:text-text-muted"
           />
         </div>
-        <div className='flex items-center justify-between gap-3 border-t border-border/80 px-3 py-3'>
-          <div className='min-w-0 text-[11px] text-text-muted'>
+        <div className="flex items-center justify-between gap-3 border-border/80 border-t px-3 py-3">
+          <div className="min-w-0 text-[11px] text-text-muted">
             {question.length}/{MAX_CHAT_QUESTION_LENGTH}
           </div>
-          <div className='flex shrink-0 items-center'>
+          <div className="flex shrink-0 items-center">
             <button
-              type='submit'
-              aria-label='Send message'
+              type="submit"
+              aria-label="Send message"
               disabled={disabled}
-              className='inline-flex h-9 min-w-9 items-center justify-center rounded-xl border border-primary/25 bg-primary/90 px-3 text-white transition hover:bg-primary hover:shadow-[0_0_18px_rgba(59,130,246,0.25)] disabled:cursor-not-allowed disabled:border-border disabled:bg-surface-elevated disabled:text-text-muted disabled:shadow-none'
+              className="inline-flex h-9 min-w-9 items-center justify-center rounded-xl border border-primary/25 bg-primary/90 px-3 text-white transition hover:bg-primary hover:shadow-[0_0_18px_rgba(59,130,246,0.25)] disabled:cursor-not-allowed disabled:border-border disabled:bg-surface-elevated disabled:text-text-muted disabled:shadow-none"
             >
-              <AiOutlineArrowUp className='h-4 w-4' aria-hidden='true' />
+              <AiOutlineArrowUp className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
         </div>

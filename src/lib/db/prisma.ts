@@ -19,7 +19,7 @@ function createPrismaClient(): PrismaClient {
   });
 }
 
-let prismaLocal: PrismaClient | undefined = undefined;
+let prismaLocal: PrismaClient | undefined;
 
 export function getPrismaClient(): PrismaClient {
   if (globalThis.prismaGlobal) {

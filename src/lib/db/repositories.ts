@@ -1,8 +1,8 @@
 import {
-  IngestionStatus,
   type ChatMessageRole,
   type IndexedContentType,
   type IngestionMode,
+  IngestionStatus,
   type Prisma
 } from '@prisma/client';
 

@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import TerminalCard from './ui/TerminalCard';
 
 interface TerminalHeroProps {
   name: string;
-  role: string;
+  title: string;
   descriptions: string[];
 }
 
@@ -25,7 +26,7 @@ const syntaxColors: Record<string, string> = {
   variable: 'var(--color-syntax-variable)'
 };
 
-const TerminalHero: React.FC<TerminalHeroProps> = ({ name, role, descriptions }) => {
+const TerminalHero: React.FC<TerminalHeroProps> = ({ name, title, descriptions }) => {
   const [displayedCode, setDisplayedCode] = useState('');
   const [displayedDescription, setDisplayedDescription] = useState('');
 
@@ -43,14 +44,14 @@ const TerminalHero: React.FC<TerminalHeroProps> = ({ name, role, descriptions })
       { type: 'comma', content: ',' },
       { type: 'property', content: ' role' },
       { type: 'operator', content: ': ' },
-      { type: 'string', content: `"${role}"` },
+      { type: 'string', content: `"${title}"` },
       { type: 'comma', content: ',' },
       { type: 'property', content: ' passion' },
       { type: 'operator', content: ': ' },
       { type: 'string', content: '"building elegant solutions"' },
       { type: 'bracket', content: ' };' }
     ],
-    [name, role]
+    [name, title]
   );
 
   const fullCode = useMemo(() => codeLines.map((line) => line.content).join(''), [codeLines]);
@@ -153,21 +154,21 @@ const TerminalHero: React.FC<TerminalHeroProps> = ({ name, role, descriptions })
   const showDescription = isCodeComplete && isDescriptionActive;
 
   return (
-    <div className='w-full max-w-2xl'>
+    <div className="w-full max-w-2xl">
       <TerminalCard
-        title='about.ts'
-        className='shadow-2xl'
-        bodyClassName='p-6 font-mono text-sm leading-relaxed overflow-x-auto'
+        title="about.ts"
+        className="shadow-2xl"
+        bodyClassName="p-6 font-mono text-sm leading-relaxed overflow-x-auto"
       >
-        <pre className='whitespace-pre-wrap'>
+        <pre className="whitespace-pre-wrap">
           <code>{renderCode()}</code>
-          {!isCodeComplete && <span className='text-terminal-green'>|</span>}
+          {!isCodeComplete && <span className="text-terminal-green">|</span>}
         </pre>
         {showDescription && (
-          <div className='mt-4 text-text-muted text-xs'>
-            <span className='text-primary'>➜</span>{' '}
-            <span className='text-text-secondary'>{displayedDescription}</span>
-            <span className='text-terminal-green animate-blink'>|</span>
+          <div className="mt-4 text-text-muted text-xs">
+            <span className="text-primary">➜</span>{' '}
+            <span className="text-text-secondary">{displayedDescription}</span>
+            <span className="animate-blink text-terminal-green">|</span>
           </div>
         )}
       </TerminalCard>

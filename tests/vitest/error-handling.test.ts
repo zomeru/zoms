@@ -41,7 +41,7 @@ describe('validateSchema', () => {
   });
 
   it('throws with 400 status code and VALIDATION_ERROR code', () => {
-    let caught: ApiError | undefined = undefined;
+    let caught: ApiError | undefined;
     try {
       validateSchema(schema, {});
     } catch (error) {

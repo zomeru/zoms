@@ -1,5 +1,3 @@
-/* eslint-disable no-await-in-loop -- Sequential requests are intentional to avoid GitHub API rate limiting */
-
 import log from '../logger';
 
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -131,7 +129,6 @@ export async function fetchWithTimeout(
 }
 
 export async function delay(ms: number): Promise<void> {
-  // eslint-disable-next-line promise/avoid-new -- Simple utility function to delay execution
   return await new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
@@ -269,7 +266,6 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
-// eslint-disable-next-line complexity -- Type guards can be verbose but improve type safety
 function isGitHubRepository(value: unknown): value is GitHubRepository {
   if (!isRecord(value) || !isGitHubRepositoryOwner(value.owner)) {
     return false;

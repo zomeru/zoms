@@ -50,6 +50,7 @@ function getLanguageLabel(language: string | null): string {
 const BlogContent = ({ body }: BlogContentProps) => {
   const articleReference = useRef<HTMLElement>(null);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: body changes replace the article markup, so the enhancement pass must rerun even though it only touches the rendered DOM.
   useEffect(() => {
     const article = articleReference.current;
 
@@ -131,7 +132,8 @@ const BlogContent = ({ body }: BlogContentProps) => {
   return (
     <article
       ref={articleReference}
-      className='markdown-content prose max-w-none'
+      className="markdown-content prose max-w-none"
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: processMarkdown sanitizes and serializes trusted blog HTML before this client render.
       dangerouslySetInnerHTML={{ __html: body }}
     />
   );

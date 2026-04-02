@@ -1,10 +1,9 @@
-/* eslint-disable max-lines -- chat UI behavior coverage intentionally lives in one integration-style test file */
 // @vitest-environment jsdom
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { useEffect } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { useEffect } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import ChatComposer from '@/components/ai/ChatComposer';
@@ -22,12 +21,12 @@ function HookHarness() {
 
   return (
     <div>
-      <div data-testid='history-loading'>
+      <div data-testid="history-loading">
         {assistant.isHistoryLoadingInitial ? 'loading' : 'idle'}
       </div>
-      <div data-testid='has-more-history'>{assistant.hasMoreHistory ? 'yes' : 'no'}</div>
+      <div data-testid="has-more-history">{assistant.hasMoreHistory ? 'yes' : 'no'}</div>
       <button
-        type='button'
+        type="button"
         onClick={() => {
           void assistant.loadOlderHistory();
         }}

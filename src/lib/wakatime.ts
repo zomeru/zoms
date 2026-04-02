@@ -104,9 +104,7 @@ export async function getWakaTimeStats(): Promise<WakaTimeStats | null> {
       throw new Error(`WakaTime API error: ${response.status} ${response.statusText}`);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- WakaTime API response
     const result = await response.json();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- shape validated below
     const { data } = result as WakaTimeApiResponse;
 
     const stats: WakaTimeStats = {

@@ -70,8 +70,16 @@ jobs:
       - name: Generate Prisma client
         run: pnpm run prisma:generate
 
-      - name: Run tests
-        run: pnpm run test:all
+      - name: Setup Biome
+        uses: biomejs/setup-biome@v2
+        with:
+          version: latest
+
+      - name: Run Biome
+        run: biome ci .
+
+      - name: Run checks and tests
+        run: pnpm run test:unit
 
       - name: Run build
         run: pnpm run build

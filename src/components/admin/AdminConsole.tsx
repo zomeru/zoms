@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 
 import BlogGenerateButton from '@/components/admin/BlogGenerateButton';
 import ReindexAdminCard from '@/components/ai/ReindexAdminCard';
@@ -33,7 +34,6 @@ const AdminConsole: React.FC = () => {
           );
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- Route response shape is controlled locally.
         const data = (await response.json()) as AdminAccessState & { success: boolean };
 
         if (!isCancelled) {
@@ -61,22 +61,22 @@ const AdminConsole: React.FC = () => {
   }, []);
 
   return (
-    <main className='relative z-10 min-h-screen'>
-      <div className='mx-auto max-w-6xl px-6 pb-16 pt-20 md:px-12'>
-        <div className='mb-12'>
+    <main className="relative z-10 min-h-screen">
+      <div className="mx-auto max-w-6xl px-6 pt-20 pb-16 md:px-12">
+        <div className="mb-12">
           <Link
-            href='/'
-            className='mb-8 inline-flex items-center gap-2 font-mono text-sm text-primary hover:underline'
+            href="/"
+            className="mb-8 inline-flex items-center gap-2 font-mono text-primary text-sm hover:underline"
           >
-            <span className='text-terminal-green'>cd</span>
-            <span className='text-text-secondary'>..</span>
-            <span className='text-primary'>→</span>
+            <span className="text-terminal-green">cd</span>
+            <span className="text-text-secondary">..</span>
+            <span className="text-primary">→</span>
             <span>home</span>
           </Link>
 
-          <TerminalCard title='admin.ts' bodyClassName='p-8'>
-            <h1 className='mb-4 text-3xl font-semibold text-primary md:text-4xl'>Admin</h1>
-            <p className='max-w-3xl font-mono text-sm text-text-secondary'>
+          <TerminalCard title="admin.ts" bodyClassName="p-8">
+            <h1 className="mb-4 font-semibold text-3xl text-primary md:text-4xl">Admin</h1>
+            <p className="max-w-3xl font-mono text-sm text-text-secondary">
               Unlock blog generation and AI reindexing independently. Each panel uses its own
               browser session and secret boundary.
             </p>
@@ -84,19 +84,19 @@ const AdminConsole: React.FC = () => {
         </div>
 
         {!accessState && !error ? (
-          <TerminalCard title='access.log' bodyClassName='p-6 font-mono text-sm'>
-            <p className='text-text-secondary'>Verifying browser access for admin tools...</p>
+          <TerminalCard title="access.log" bodyClassName="p-6 font-mono text-sm">
+            <p className="text-text-secondary">Verifying browser access for admin tools...</p>
           </TerminalCard>
         ) : null}
 
         {error ? (
-          <TerminalCard title='access-denied.log' bodyClassName='p-6 font-mono text-sm'>
-            <p className='text-terminal-red'>{error}</p>
+          <TerminalCard title="access-denied.log" bodyClassName="p-6 font-mono text-sm">
+            <p className="text-terminal-red">{error}</p>
           </TerminalCard>
         ) : null}
 
         {accessState ? (
-          <div className='grid gap-8 lg:grid-cols-2'>
+          <div className="grid gap-8 lg:grid-cols-2">
             <div>
               <BlogGenerateButton initialAuthorized={accessState.blogGenerationAuthorized} />
             </div>

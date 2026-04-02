@@ -22,7 +22,6 @@ const LOG_LEVELS: Record<LogLevel, number> = {
 const getLogLevel = (): LogLevel => {
   const level = process.env.NEXLOG_LEVEL ?? (IS_DEVELOPMENT ? 'debug' : 'info');
   const validLevels: LogLevel[] = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- Validated with includes check
   return validLevels.includes(level as LogLevel) ? (level as LogLevel) : 'info';
 };
 
@@ -95,10 +94,8 @@ const formatLog = (level: LogLevel, message: string, metadata?: Record<string, u
       service: 'zoms-portfolio',
       environment: process.env.NODE_ENV,
       runtime: IS_EDGE ? 'edge' : 'node',
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- Sanitized metadata is safe to spread
       ...(sanitizedMetadata as object)
     };
-    // eslint-disable-next-line no-console -- Console is the logging output
     console.log(JSON.stringify(logEntry));
   } else {
     // Pretty logging for development
@@ -112,7 +109,6 @@ const formatLog = (level: LogLevel, message: string, metadata?: Record<string, u
     }[level];
 
     const coloredLevel = level.toUpperCase().padEnd(5);
-    // eslint-disable-next-line no-console -- Console is the logging output
     console.log(`${emoji} [${timestamp}] ${coloredLevel} ${message}`, sanitizedMetadata ?? '');
   }
 };

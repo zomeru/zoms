@@ -1,7 +1,7 @@
 'use client';
 
 import { Children, isValidElement, type ReactElement, type ReactNode } from 'react';
-import ReactMarkdown, { defaultUrlTransform, type Components, type Options } from 'react-markdown';
+import ReactMarkdown, { type Components, defaultUrlTransform, type Options } from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
@@ -162,8 +162,8 @@ export default function ChatMessageContent({
       <a
         {...props}
         href={href}
-        target='_blank'
-        rel='noreferrer noopener'
+        target="_blank"
+        rel="noreferrer noopener"
         className={[
           'font-medium text-primary underline decoration-primary/40 underline-offset-4 transition hover:text-primary/80',
           className
@@ -186,7 +186,7 @@ export default function ChatMessageContent({
       return (
         <code
           {...props}
-          className='rounded-md bg-background/80 px-1.5 py-0.5 font-mono text-[0.85em] text-text-primary'
+          className="rounded-md bg-background/80 px-1.5 py-0.5 font-mono text-[0.85em] text-text-primary"
         >
           {children}
         </code>
@@ -216,13 +216,13 @@ export default function ChatMessageContent({
       );
 
       return (
-        <div className='not-prose my-4 overflow-hidden rounded-2xl border border-border bg-background/80'>
-          <div className='flex items-center justify-between gap-3 border-b border-border bg-surface/80 px-3 py-2'>
-            <span className='truncate font-mono text-[10px] uppercase tracking-[0.22em] text-text-muted'>
+        <div className="not-prose my-4 overflow-hidden rounded-2xl border border-border bg-background/80">
+          <div className="flex items-center justify-between gap-3 border-border border-b bg-surface/80 px-3 py-2">
+            <span className="truncate font-mono text-[10px] text-text-muted uppercase tracking-[0.22em]">
               {getLanguageLabel(language)}
             </span>
             {rawCode.length > 0 && isStreaming && (
-              <span className='font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted'>
+              <span className="font-mono text-[10px] text-text-muted uppercase tracking-[0.18em]">
                 Streaming...
               </span>
             )}
@@ -253,7 +253,7 @@ export default function ChatMessageContent({
   };
 
   return (
-    <div className='llm-markdown max-w-none text-sm leading-6 text-text-primary wrap-anywhere'>
+    <div className="llm-markdown wrap-anywhere max-w-none text-sm text-text-primary leading-6">
       <ReactMarkdown
         components={components}
         rehypePlugins={rehypePlugins}

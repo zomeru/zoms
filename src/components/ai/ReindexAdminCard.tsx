@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 
 import TerminalCard from '@/components/ui/TerminalCard';
 import {
@@ -20,7 +21,7 @@ interface ReindexResult {
   updated: number;
 }
 
-// eslint-disable-next-line complexity -- This component intentionally manages the terminal auth and run state machine inline.
+// This component intentionally keeps the terminal auth and run state machine inline.
 const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }) => {
   const [secret, setSecret] = useState('');
   const [documentId, setDocumentId] = useState('');
@@ -114,7 +115,6 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
         throw new Error(await getResponseErrorMessage(response, 'Failed to run AI reindex'));
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- Route returns the validated reindex summary
       const result = (await response.json()) as ReindexResult;
       setLastResult(result);
       setStatusMessage(
@@ -139,46 +139,46 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
 
   return (
     <TerminalCard
-      title='ai-reindex.sh'
-      className='shadow-[0_24px_80px_rgba(0,0,0,0.28)]'
-      bodyClassName='p-5 font-mono text-sm'
+      title="ai-reindex.sh"
+      className="shadow-[0_24px_80px_rgba(0,0,0,0.28)]"
+      bodyClassName="p-5 font-mono text-sm"
     >
-      <div className='mb-5 border-b border-code-border pb-4'>
-        <div className='flex items-center gap-3 text-sm text-text-primary'>
-          <span className='text-terminal-green'>$</span>
+      <div className="mb-5 border-code-border border-b pb-4">
+        <div className="flex items-center gap-3 text-sm text-text-primary">
+          <span className="text-terminal-green">$</span>
           <span>ai_reindex --scope manual --mode targeted-or-full</span>
         </div>
-        <p className='mt-3 text-xs leading-relaxed text-text-muted'>
+        <p className="mt-3 text-text-muted text-xs leading-relaxed">
           Authenticate independently from blog generation to run full or targeted reindex jobs.
         </p>
       </div>
 
       <form onSubmit={handleUnlockSubmit}>
-        <label htmlFor='ai-reindex-secret' className='sr-only'>
+        <label htmlFor="ai-reindex-secret" className="sr-only">
           AI reindex secret
         </label>
-        <div className='flex flex-col gap-3 md:flex-row md:items-center'>
-          <div className='flex min-w-0 flex-1 items-center gap-3 rounded-md border border-code-border bg-surface-elevated/45 px-4 py-3'>
-            <span className='text-terminal-green'>&gt;</span>
+        <div className="flex flex-col gap-3 md:flex-row md:items-center">
+          <div className="flex min-w-0 flex-1 items-center gap-3 rounded-md border border-code-border bg-surface-elevated/45 px-4 py-3">
+            <span className="text-terminal-green">&gt;</span>
             <input
-              id='ai-reindex-secret'
-              type='password'
+              id="ai-reindex-secret"
+              type="password"
               value={secret}
               onChange={(event) => {
                 setSecret(event.target.value);
               }}
               disabled={isAuthorized || isRunning || isUnlocking}
               placeholder={isAuthorized ? 'session unlocked' : 'enter AI reindex secret'}
-              autoComplete='off'
-              className='min-w-0 flex-1 bg-transparent text-text-primary outline-none placeholder:text-text-muted disabled:cursor-not-allowed'
+              autoComplete="off"
+              className="min-w-0 flex-1 bg-transparent text-text-primary outline-none placeholder:text-text-muted disabled:cursor-not-allowed"
             />
           </div>
 
           {!isAuthorized && (
             <button
-              type='submit'
+              type="submit"
               disabled={isRunning || isUnlocking}
-              className='rounded-md border border-code-border px-4 py-3 text-xs uppercase tracking-[0.18em] text-text-muted transition-colors hover:cursor-pointer hover:border-terminal-green/50 hover:text-terminal-green disabled:cursor-not-allowed disabled:opacity-50'
+              className="rounded-md border border-code-border px-4 py-3 text-text-muted text-xs uppercase tracking-[0.18em] transition-colors hover:cursor-pointer hover:border-terminal-green/50 hover:text-terminal-green disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isUnlocking ? 'Authorizing...' : 'Enter'}
             </button>
@@ -187,68 +187,68 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
       </form>
 
       {error && (
-        <div className='mt-4 rounded-md border border-terminal-red/40 bg-terminal-red/10 px-4 py-3'>
-          <p className='text-xs leading-relaxed text-terminal-red'>{error}</p>
+        <div className="mt-4 rounded-md border border-terminal-red/40 bg-terminal-red/10 px-4 py-3">
+          <p className="text-terminal-red text-xs leading-relaxed">{error}</p>
         </div>
       )}
 
-      <div className='mt-4 border-t border-code-border pt-4'>
-        <div className='flex items-start gap-3 text-xs leading-relaxed text-text-muted'>
-          <span className='pt-0.5 text-terminal-blue'>//</span>
+      <div className="mt-4 border-code-border border-t pt-4">
+        <div className="flex items-start gap-3 text-text-muted text-xs leading-relaxed">
+          <span className="pt-0.5 text-terminal-blue">{'//'}</span>
           <p>{statusMessage}</p>
         </div>
 
         {isAuthorized && (
           <>
-            <div className='mt-4 rounded-md border border-code-border bg-surface-elevated/45 px-4 py-3'>
+            <div className="mt-4 rounded-md border border-code-border bg-surface-elevated/45 px-4 py-3">
               <label
-                htmlFor='ai-reindex-document-id'
-                className='mb-2 block text-xs text-text-muted'
+                htmlFor="ai-reindex-document-id"
+                className="mb-2 block text-text-muted text-xs"
               >
                 Document id or slug
               </label>
               <input
-                id='ai-reindex-document-id'
-                type='text'
+                id="ai-reindex-document-id"
+                type="text"
                 value={documentId}
                 onChange={(event) => {
                   setDocumentId(event.target.value);
                 }}
                 disabled={isRunning || isUnlocking}
-                placeholder='blog:post-slug or post-slug'
-                autoComplete='off'
-                className='w-full bg-transparent text-text-primary outline-none placeholder:text-text-muted disabled:cursor-not-allowed'
+                placeholder="blog:post-slug or post-slug"
+                autoComplete="off"
+                className="w-full bg-transparent text-text-primary outline-none placeholder:text-text-muted disabled:cursor-not-allowed"
               />
             </div>
 
-            <div className='mt-4 flex flex-wrap items-center gap-3'>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
               <button
-                type='button'
+                type="button"
                 onClick={() => {
                   void handleRun('full');
                 }}
                 disabled={isRunning || isUnlocking}
-                className='rounded-md border border-terminal-green/40 bg-terminal-green/10 px-4 py-2 text-xs uppercase tracking-[0.18em] text-terminal-green transition-colors hover:cursor-pointer hover:bg-terminal-green/15 disabled:cursor-not-allowed disabled:opacity-50'
+                className="rounded-md border border-terminal-green/40 bg-terminal-green/10 px-4 py-2 text-terminal-green text-xs uppercase tracking-[0.18em] transition-colors hover:cursor-pointer hover:bg-terminal-green/15 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isRunning ? 'Running...' : 'Run Full'}
               </button>
               <button
-                type='button'
+                type="button"
                 onClick={() => {
                   void handleRun('targeted');
                 }}
                 disabled={isRunning || isUnlocking}
-                className='rounded-md border border-terminal-blue/40 bg-terminal-blue/10 px-4 py-2 text-xs uppercase tracking-[0.18em] text-terminal-blue transition-colors hover:cursor-pointer hover:bg-terminal-blue/15 disabled:cursor-not-allowed disabled:opacity-50'
+                className="rounded-md border border-terminal-blue/40 bg-terminal-blue/10 px-4 py-2 text-terminal-blue text-xs uppercase tracking-[0.18em] transition-colors hover:cursor-pointer hover:bg-terminal-blue/15 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isRunning ? 'Running...' : 'Run Targeted'}
               </button>
               <button
-                type='button'
+                type="button"
                 onClick={() => {
                   void handleForget();
                 }}
                 disabled={isRunning || isUnlocking}
-                className='rounded-md border border-code-border px-4 py-2 text-xs uppercase tracking-[0.18em] text-text-muted transition-colors hover:cursor-pointer hover:border-border-hover hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50'
+                className="rounded-md border border-code-border px-4 py-2 text-text-muted text-xs uppercase tracking-[0.18em] transition-colors hover:cursor-pointer hover:border-border-hover hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Forget
               </button>
@@ -257,7 +257,7 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
         )}
 
         {lastResult && (
-          <div className='mt-4 rounded-md border border-code-border bg-surface-elevated/45 px-4 py-3 text-xs text-text-muted'>
+          <div className="mt-4 rounded-md border border-code-border bg-surface-elevated/45 px-4 py-3 text-text-muted text-xs">
             <p>run-id {lastResult.runId}</p>
             <p>
               processed {lastResult.processed} | updated {lastResult.updated} | skipped{' '}

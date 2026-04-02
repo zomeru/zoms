@@ -1,5 +1,5 @@
-import { NextResponse, type NextRequest } from 'next/server';
 import { checkBotId } from 'botid/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export interface BotIdProtectedRoute {
   method: string;

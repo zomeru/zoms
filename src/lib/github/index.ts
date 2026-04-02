@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop -- Required for sequential API requests with rate limiting */
 /**
  * GitHub Stats Utility
  *
@@ -8,11 +7,13 @@
  * Note: GitHub does not provide a perfect "total lines of code" metric.
  * This implementation uses "total additions" across repositories as an
  * estimate of lifetime coding activity.
+ * Sequential GitHub requests are intentional to avoid tripping rate limits.
  */
 
 import log from '../logger';
 import { formatIsoDate } from '../utils';
 import {
+  type CacheEntry,
   calculateLongestStreak,
   createGitHubHeaders,
   dedupeContributionDays,
@@ -21,17 +22,16 @@ import {
   fetchWithRetry,
   fetchWithTimeout,
   formatDuration,
+  type GitHubContributorStats,
+  type GitHubRepository,
+  type GraphQLContributionDay,
+  type GraphQLRequestVariables,
   isCacheValid,
   isGraphQLContributions,
   isGraphQLCreatedAtData,
   isGraphQLDevStatsData,
   parseContributorStatsResponse,
-  parseRepositoriesResponse,
-  type CacheEntry,
-  type GitHubContributorStats,
-  type GitHubRepository,
-  type GraphQLContributionDay,
-  type GraphQLRequestVariables
+  parseRepositoriesResponse
 } from './helper';
 
 export interface GitHubStats {

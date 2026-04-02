@@ -1,5 +1,3 @@
-/* eslint-disable no-console -- console is intentionally used for CLI/debug output */
-
 import { stdin as input, stdout as output } from 'node:process';
 import { createInterface } from 'node:readline/promises';
 import { PrismaClient } from '@prisma/client';

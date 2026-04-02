@@ -19,36 +19,42 @@ const CodeEditorCard: React.FC<CodeEditorCardProps> = ({
 
   return (
     <div
-      className={`
-        bg-code-bg border border-code-border rounded-lg overflow-hidden flex h-full flex-col
-        ${className}
+      className={`flex h-full flex-col overflow-hidden rounded-lg border border-code-border bg-code-bg ${className}
       `}
     >
-      <div className='bg-surface-elevated/65 border-b border-code-border px-3 py-2 flex items-center justify-between'>
-        <div className='flex items-center gap-2'>
-          <div className='flex gap-1.5'>
-            <div className='size-3 rounded-full bg-terminal-red' />
-            <div className='size-3 rounded-full bg-terminal-yellow' />
-            <div className='size-3 rounded-full bg-terminal-green' />
+      <div className="flex items-center justify-between border-code-border border-b bg-surface-elevated/65 px-3 py-2">
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1.5">
+            <div className="size-3 rounded-full bg-terminal-red" />
+            <div className="size-3 rounded-full bg-terminal-yellow" />
+            <div className="size-3 rounded-full bg-terminal-green" />
           </div>
-          <div className='flex items-center gap-2 ml-2'>
-            <span className='text-xs text-text-secondary font-mono'>{filename}</span>
+          <div className="ml-2 flex items-center gap-2">
+            <span className="font-mono text-text-secondary text-xs">{filename}</span>
           </div>
         </div>
-        <span className='text-xs font-mono text-text-muted'>{language}</span>
+        <span className="font-mono text-text-muted text-xs">{language}</span>
       </div>
-      <div className='p-4 font-mono text-sm overflow-x-auto flex-1'>
+      <div className="flex-1 overflow-x-auto p-4 font-mono text-sm">
         {showLineNumbers ? (
-          <div className='flex'>
-            <div className='mr-4 select-none border-r border-code-border pr-4 text-right text-text-muted'>
-              {lines.map((_, i) => (
-                <div key={i}>{i + 1}</div>
+          <div className="flex">
+            <div className="mr-4 select-none border-code-border border-r pr-4 text-right text-text-muted">
+              {lines.map((line, index) => (
+                <div
+                  key={
+                    typeof line === 'object' && line !== null && 'key' in line && line.key !== null
+                      ? line.key
+                      : `line-${index + 1}-${typeof line === 'string' ? line : 'content'}`
+                  }
+                >
+                  {index + 1}
+                </div>
               ))}
             </div>
-            <div className='flex-1 text-syntax-plain'>{children}</div>
+            <div className="flex-1 text-syntax-plain">{children}</div>
           </div>
         ) : (
-          <pre className='h-full whitespace-pre-wrap text-syntax-plain'>{children}</pre>
+          <pre className="h-full whitespace-pre-wrap text-syntax-plain">{children}</pre>
         )}
       </div>
     </div>

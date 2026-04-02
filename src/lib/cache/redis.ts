@@ -4,7 +4,7 @@ import { Redis } from '@upstash/redis';
 
 import { getAiEnv } from '@/lib/ai/env';
 
-let cachedRedis: Redis | null | undefined = undefined;
+let cachedRedis: Redis | null | undefined;
 
 export function getRedisClient(): Redis | null {
   if (cachedRedis !== undefined) {

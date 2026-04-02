@@ -13,6 +13,10 @@ export default function ChatAssistantShell() {
     return null;
   }
 
+  return <PublicChatAssistantShell pathname={pathname} />;
+}
+
+function PublicChatAssistantShell({ pathname }: { pathname: string }) {
   const assistant = useChatAssistant({ pathname });
 
   return (

@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ProjectsClient from '@/components/sections/ProjectsClient';
 
 vi.mock('next/image', () => ({
+  // biome-ignore lint/performance/noImgElement: jsdom tests mock next/image with a plain img to keep assertions simple.
   default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => <img {...props} alt={props.alt} />
 }));
 

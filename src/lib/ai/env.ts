@@ -1,4 +1,4 @@
-import { z, ZodError } from 'zod';
+import { ZodError, z } from 'zod';
 
 const requiredString = (name: string) =>
   z
@@ -47,7 +47,7 @@ export function parseAiEnv(env: NodeJS.ProcessEnv): AiEnv {
   }
 }
 
-let cachedEnv: AiEnv | undefined = undefined;
+let cachedEnv: AiEnv | undefined;
 
 export function getAiEnv(): AiEnv {
   cachedEnv ??= parseAiEnv(process.env);

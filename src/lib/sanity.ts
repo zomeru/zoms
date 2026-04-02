@@ -1,6 +1,6 @@
 import { createClient } from 'next-sanity';
 
-let clientInstance: ReturnType<typeof createClient> | undefined = undefined;
+let clientInstance: ReturnType<typeof createClient> | undefined;
 
 export function getSanityClient(): ReturnType<typeof createClient> {
   if (clientInstance) {

@@ -1,9 +1,9 @@
-import React from 'react';
 import {
   PortableText,
   type PortableTextComponents,
   type PortableTextMarkComponentProps
 } from '@portabletext/react';
+import type React from 'react';
 
 import { TerminalCard } from '@/components/ui';
 
@@ -19,19 +19,19 @@ const portableTextComponents: PortableTextComponents = {
       return (
         <a
           href={href}
-          target='_blank'
-          rel='noopener noreferrer'
-          className='text-primary hover:underline'
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary hover:underline"
         >
           {children}
         </a>
       );
     },
-    strong: ({ children }) => <strong className='font-semibold text-primary'>{children}</strong>,
-    em: ({ children }) => <em className='italic'>{children}</em>
+    strong: ({ children }) => <strong className="font-semibold text-primary">{children}</strong>,
+    em: ({ children }) => <em className="italic">{children}</em>
   },
   block: {
-    normal: ({ children }) => <p className='text-sm text-text-secondary mb-2'>{children}</p>
+    normal: ({ children }) => <p className="mb-2 text-sm text-text-secondary">{children}</p>
   },
   list: {
     bullet: ({ children }) => <>{children}</>,
@@ -39,13 +39,13 @@ const portableTextComponents: PortableTextComponents = {
   },
   listItem: {
     bullet: ({ children }) => (
-      <p className='text-sm text-text-secondary mb-1'>
-        <span className='text-primary'>›</span> {children}
+      <p className="mb-1 text-sm text-text-secondary">
+        <span className="text-primary">›</span> {children}
       </p>
     ),
     number: ({ children, index }) => (
-      <p className='text-sm text-text-secondary mb-1'>
-        <span className='text-primary'>{index + 1}.</span> {children}
+      <p className="mb-1 text-sm text-text-secondary">
+        <span className="text-primary">{index + 1}.</span> {children}
       </p>
     )
   }
@@ -56,10 +56,10 @@ const Experience: React.FC = async (): Promise<React.JSX.Element> => {
   const experience = await getExperience();
 
   return (
-    <section id='experience' className='pb-20'>
-      <h2 className='section-title'>Experience</h2>
+    <section id="experience" className="pb-20">
+      <h2 className="section-title">Experience</h2>
 
-      <div className='space-y-6'>
+      <div className="space-y-6">
         {experience.map(({ title, company, companyWebsite, location, range, duties }) => {
           const id =
             title.replaceAll(' ', '-').toLowerCase() +
@@ -71,33 +71,33 @@ const Experience: React.FC = async (): Promise<React.JSX.Element> => {
               key={id}
               title={`${company.toLowerCase().replace(/\s+/g, '-')}.log`}
               showHeader={true}
-              className='hover:border-border-hover transition-colors'
+              className="transition-colors hover:border-border-hover"
             >
-              <div className='flex flex-col gap-3'>
-                <div className='flex items-center justify-between flex-wrap gap-2'>
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <span className='text-terminal-green font-medium'>{title}</span>
-                    <span className='text-text-muted'> @ </span>
+                    <span className="font-medium text-terminal-green">{title}</span>
+                    <span className="text-text-muted"> @ </span>
                     {companyWebsite ? (
                       <a
                         href={companyWebsite}
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='text-terminal-purple hover:underline'
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-terminal-purple hover:underline"
                       >
                         {company}
                       </a>
                     ) : (
-                      <span className='text-terminal-purple'>{company}</span>
+                      <span className="text-terminal-purple">{company}</span>
                     )}
                   </div>
-                  <span className='font-mono text-xs text-text-muted'>{range}</span>
+                  <span className="font-mono text-text-muted text-xs">{range}</span>
                 </div>
-                <div className='text-xs text-text-muted'>
-                  <span className='text-terminal-yellow'>location:</span> {location}
+                <div className="text-text-muted text-xs">
+                  <span className="text-terminal-yellow">location:</span> {location}
                 </div>
-                <div className='mt-2 pt-3 border-t border-code-border'>
-                  <div className='mb-2 font-mono text-xs text-text-muted'>duties:</div>
+                <div className="mt-2 border-code-border border-t pt-3">
+                  <div className="mb-2 font-mono text-text-muted text-xs">duties:</div>
                   <PortableText value={duties} components={portableTextComponents} />
                 </div>
               </div>
@@ -106,15 +106,15 @@ const Experience: React.FC = async (): Promise<React.JSX.Element> => {
         })}
       </div>
 
-      <div className='mt-8'>
+      <div className="mt-8">
         <a
-          href='/assets/GREGORIO_ZOMER_RESUME.pdf'
-          target='_blank'
-          rel='noopener noreferrer'
-          className='inline-flex items-center gap-2 text-primary hover:underline'
+          href="/assets/GREGORIO_ZOMER_RESUME.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-primary hover:underline"
         >
-          <span className='text-terminal-green'>cat</span>
-          <span className='text-terminal-blue'>→</span>
+          <span className="text-terminal-green">cat</span>
+          <span className="text-terminal-blue">→</span>
           <span>resume.pdf</span>
         </a>
       </div>

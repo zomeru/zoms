@@ -1,15 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import {
-  InteractivityDetect,
-  MoveDirection,
-  OutMode,
   type Container,
-  type ISourceOptions
+  InteractivityDetect,
+  type ISourceOptions,
+  MoveDirection,
+  OutMode
 } from '@tsparticles/engine';
 import Particles, { initParticlesEngine } from '@tsparticles/react';
 import { loadSlim } from '@tsparticles/slim';
+import { useEffect, useRef, useState } from 'react';
 
 import { readThemeVisualTokens, THEME_CHANGE_EVENT } from '@/lib/theme/dom';
 
@@ -192,8 +192,8 @@ const ParticleBackground = () => {
   if (init) {
     return (
       <Particles
-        id='tsparticles'
-        className='pointer-events-none absolute inset-0 block h-full w-full'
+        id="tsparticles"
+        className="pointer-events-none absolute inset-0 block h-full w-full"
         options={optionsRef.current}
         particlesLoaded={async (container) => {
           if (!container) {

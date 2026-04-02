@@ -2,7 +2,7 @@ import type { Dispatch, SetStateAction } from 'react';
 
 import { appendStreamText } from '@/lib/ai/streaming';
 
-import { isStreamEvent, type AssistantMessage, type StreamEvent } from './chatTypes';
+import { type AssistantMessage, isStreamEvent, type StreamEvent } from './chatTypes';
 
 export function appendAssistantChunk(messageId: string, text: string) {
   return (currentMessages: AssistantMessage[]) =>
@@ -120,7 +120,6 @@ export async function extractErrorMessage(
       'error' in payload &&
       typeof (payload as Record<string, unknown>).error === 'string'
     ) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- Guarded by typeof check above
       const errorValue = (payload as Record<string, unknown>).error as string;
       if (errorValue.length > 0) {
         return errorValue;

@@ -7,7 +7,7 @@ loadEnv({ quiet: true });
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
-  const documentIdIndex = args.findIndex((arg) => arg === '--document');
+  const documentIdIndex = args.indexOf('--document');
   const documentId =
     documentIdIndex >= 0 && documentIdIndex + 1 < args.length
       ? args[documentIdIndex + 1]

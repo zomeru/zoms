@@ -1,5 +1,5 @@
-import type { NextConfig } from 'next';
 import { withBotId } from 'botid/next/config';
+import type { NextConfig } from 'next';
 
 const isDev = process.env.NODE_ENV === 'development';
 

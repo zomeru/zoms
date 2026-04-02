@@ -1,6 +1,6 @@
-import { revalidatePath } from 'next/cache';
-import { NextResponse, type NextRequest } from 'next/server';
 import { createClient, type SanityClient } from '@sanity/client';
+import { revalidatePath } from 'next/cache';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { getBlogPostBySlug } from '@/lib/blog';

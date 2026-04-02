@@ -1,17 +1,11 @@
-echo "🔎 Checking ESLint Standards..."
-pnpm lint-staged ||
-    (
-        echo "❌ ESLint Check Failed. Make the required changes listed above, add changes and try to commit again."
-        false
-    )
+set -e
+
+echo "🔎 Checking staged files with Biome..."
+pnpm exec lint-staged
 
 # Check tsconfig standards
 echo "🔎 Checking tsconfig standards..."
-pnpm run check:types ||
-    (
-        echo "❌ Failed Type check. Check your typescript types."
-        false
-    )
+pnpm run check:types
 
 # If everything passes... Now we can commit
 echo "✅ All checks passed."

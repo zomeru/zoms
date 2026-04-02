@@ -3,7 +3,7 @@
  * Supports both Upstash Redis (production) and in-memory fallback (development)
  */
 
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 import log from './logger';
 
@@ -121,12 +121,16 @@ async function createUpstashRateLimiter(
 ) {
   const { Ratelimit } = await import('@upstash/ratelimit');
   const { Redis } = await import('@upstash/redis');
+  const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (!redisUrl || !redisToken) {
+    throw new Error('Upstash Redis credentials are required to create a rate limiter.');
+  }
 
   const redis = new Redis({
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- Checked by caller before invoking
-    url: process.env.UPSTASH_REDIS_REST_URL!,
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- Checked by caller before invoking
-    token: process.env.UPSTASH_REDIS_REST_TOKEN!
+    url: redisUrl,
+    token: redisToken
   });
 
   return new Ratelimit({

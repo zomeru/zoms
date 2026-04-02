@@ -5,7 +5,7 @@ import { generateText, Output } from 'ai';
 
 import { getAiEnv } from './env';
 import { buildTransformPrompt } from './prompts';
-import { transformResultSchema, type TransformMode, type TransformResult } from './schemas';
+import { type TransformMode, type TransformResult, transformResultSchema } from './schemas';
 
 function getOpenRouterProvider() {
   const env = getAiEnv();

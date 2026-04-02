@@ -127,9 +127,7 @@ export async function loadNormalizedDocuments(): Promise<NormalizedContentDocume
 }
 
 export async function runSiteReindex(
-  options: {
-    documentId?: string;
-  } = {}
+  options: { documentId?: string } = {}
 ): Promise<ReindexDocumentsResult & { runId: string }> {
   const [
     { IndexedContentType, IngestionMode, IngestionStatus },

@@ -6,7 +6,6 @@ import { describe, expect, it } from 'vitest';
 import Footer from '@/components/Footer';
 
 describe('Footer', () => {
-  // eslint-disable-next-line complexity -- This assertion intentionally checks the full footer layout contract in one place.
   it('centers the identity row and reserves extra bottom space for floating widgets on small screens', () => {
     const { container } = render(<Footer />);
 

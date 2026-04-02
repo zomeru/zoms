@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatedCounter } from 'react-animated-counter';
 
 interface Language {
@@ -71,8 +72,8 @@ const WakaTimeTicker: React.FC<WakaTimeTickerProps> = ({ initialLanguages = [] }
 
   return (
     <div
-      className='fixed top-4 right-5 z-40 text-right font-mono pointer-events-none select-none'
-      aria-hidden='true'
+      className="pointer-events-none fixed top-4 right-5 z-40 select-none text-right font-mono"
+      aria-hidden="true"
       style={{
         opacity: show ? 1 : 0,
         transform: show ? 'translateY(0)' : 'translateY(-6px)',
@@ -80,23 +81,23 @@ const WakaTimeTicker: React.FC<WakaTimeTickerProps> = ({ initialLanguages = [] }
       }}
     >
       {/* Number row — react-animated-counter rolls digits between values */}
-      <div className='flex items-end justify-end gap-1'>
+      <div className="flex items-end justify-end gap-1">
         <AnimatedCounter
           value={current.hours}
-          fontSize='24px'
-          color='var(--color-terminal-green)'
-          incrementColor='var(--color-terminal-green)'
-          decrementColor='var(--color-terminal-green)'
+          fontSize="24px"
+          color="var(--color-terminal-green)"
+          incrementColor="var(--color-terminal-green)"
+          decrementColor="var(--color-terminal-green)"
           includeDecimals={false}
           includeCommas
           containerStyles={{ fontFamily: 'inherit', fontWeight: 500, lineHeight: 1 }}
         />
-        <span className='mb-0.5 text-sm leading-none font-medium text-terminal-green'>hrs</span>
+        <span className="mb-0.5 font-medium text-sm text-terminal-green leading-none">hrs</span>
       </div>
 
       {/* Language label — fades between languages */}
       <div
-        className='text-xs mt-0.5 text-terminal-green tracking-wide transition-opacity duration-350 ease-in-out'
+        className="mt-0.5 text-terminal-green text-xs tracking-wide transition-opacity duration-350 ease-in-out"
         style={{ opacity: labelVisible ? 0.75 : 0 }}
       >
         {current.name}

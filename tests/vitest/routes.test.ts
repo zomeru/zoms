@@ -1,4 +1,3 @@
-/* eslint-disable max-lines -- route coverage intentionally exercises many POST/GET branches in one file */
 import { NextRequest } from 'next/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 

@@ -64,8 +64,8 @@ describe('blog delete menu', () => {
 
     render(
       <BlogDeleteMenu
-        slug='generated-blog-post'
-        title='Generated Blog Post'
+        slug="generated-blog-post"
+        title="Generated Blog Post"
         onDeleted={() => {
           onDeleted();
         }}

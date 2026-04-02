@@ -54,8 +54,9 @@ describe('blog admin authorization state', () => {
     router.refresh.mockReset();
     router.replace.mockReset();
 
-    const { clearBlogAdminAuthorization } =
-      await import('@/components/blog/useBlogAdminAuthorization');
+    const { clearBlogAdminAuthorization } = await import(
+      '@/components/blog/useBlogAdminAuthorization'
+    );
     clearBlogAdminAuthorization();
   });
 
@@ -68,7 +69,7 @@ describe('blog admin authorization state', () => {
     render(
       <>
         <BlogGenerateButton initialAuthorized={false} />
-        <BlogDeleteMenu slug='generated-blog-post' title='Generated Blog Post' />
+        <BlogDeleteMenu slug="generated-blog-post" title="Generated Blog Post" />
       </>
     );
 

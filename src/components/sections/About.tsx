@@ -1,7 +1,7 @@
-import React from 'react';
 import Link from 'next/link';
+import type React from 'react';
 
-import { technologies, TITLE } from '@/constants';
+import { TITLE, technologies } from '@/constants';
 import { getGitHubDevStats } from '@/lib/github';
 import { formatIsoDate } from '@/lib/utils';
 import { getWakaTimeStats } from '@/lib/wakatime';
@@ -27,28 +27,28 @@ const About = async (): Promise<React.JSX.Element> => {
   const wakaLanguages = wakaStats?.languages.map((l) => ({ name: l.name, hours: l.hours })) ?? [];
 
   return (
-    <section id='about' className='min-h-screen flex flex-col justify-center py-20'>
+    <section id="about" className="flex min-h-screen flex-col justify-center py-20">
       <WakaTimeTicker initialLanguages={wakaLanguages} />
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-y-8 md:gap-y-0 md:gap-x-12 mt-20 md:mt-0'>
+      <div className="mt-20 grid grid-cols-1 gap-y-8 md:mt-0 md:grid-cols-2 md:gap-x-12 md:gap-y-0">
         <div>
-          <div className='mb-12 text-center md:text-left'>
-            <h1 className='text-4xl md:text-5xl lg:text-6xl font-light mb-4 text-primary'>
+          <div className="mb-12 text-center md:text-left">
+            <h1 className="mb-4 font-light text-4xl text-primary md:text-5xl lg:text-6xl">
               {TITLE}
             </h1>
-            <p className='mb-6 text-lg text-text-secondary'>
+            <p className="mb-6 text-lg text-text-secondary">
               Software Engineer based in the Philippines, building modern web experiences with{' '}
-              <span className='font-medium text-terminal-green'>Next.js</span>,{' '}
-              <span className='font-medium text-terminal-purple'>TypeScript</span>, and practical{' '}
-              <span className='font-medium text-terminal-green'>AI</span> integrations.
+              <span className="font-medium text-terminal-green">Next.js</span>,{' '}
+              <span className="font-medium text-terminal-purple">TypeScript</span>, and practical{' '}
+              <span className="font-medium text-terminal-green">AI</span> integrations.
             </p>
-            <div className='flex justify-center md:justify-start'>
+            <div className="flex justify-center md:justify-start">
               <Socials />
             </div>
           </div>
 
           <TerminalHero
             name={TITLE}
-            role='Software Engineer'
+            title="Software Engineer"
             descriptions={[
               'Building the future, one line at a time.',
               'Full-stack developer & UI enthusiast.',
@@ -56,17 +56,17 @@ const About = async (): Promise<React.JSX.Element> => {
             ]}
           />
 
-          <div className='mt-10'>
-            <p className='text-xs text-text-muted mb-4 font-mono text-center md:text-left'>
+          <div className="mt-10">
+            <p className="mb-4 text-center font-mono text-text-muted text-xs md:text-left">
               Tech Stack
             </p>
-            <div className='flex flex-wrap gap-2 justify-center md:justify-start'>
+            <div className="flex flex-wrap justify-center gap-2 md:justify-start">
               {technologies.map((tech) => (
                 <TechBadge
                   key={tech.name}
-                  variant='dot'
+                  variant="dot"
                   dotColor={tech.color}
-                  className='hover:shadow-[0_0_10px_rgba(0,0,0,0.3)]'
+                  className="hover:shadow-[0_0_10px_rgba(0,0,0,0.3)]"
                 >
                   {tech.name}
                 </TechBadge>
@@ -74,33 +74,33 @@ const About = async (): Promise<React.JSX.Element> => {
             </div>
           </div>
 
-          <div className='mt-12 flex flex-wrap gap-4 justify-center md:justify-start'>
+          <div className="mt-12 flex flex-wrap justify-center gap-4 md:justify-start">
             <Link
-              href='#projects'
-              className='inline-flex items-center gap-2 rounded-md border border-terminal-green/40 bg-terminal-green/10 px-4 py-3 font-mono text-xs uppercase tracking-[0.18em] text-terminal-green transition-colors hover:bg-terminal-green/15'
+              href="#projects"
+              className="inline-flex items-center gap-2 rounded-md border border-terminal-green/40 bg-terminal-green/10 px-4 py-3 font-mono text-terminal-green text-xs uppercase tracking-[0.18em] transition-colors hover:bg-terminal-green/15"
             >
-              <span className='text-terminal-blue'>./</span>
+              <span className="text-terminal-blue">./</span>
               <span>View Projects</span>
             </Link>
             <Link
-              href='#contact'
-              className='inline-flex items-center gap-2 rounded-md border border-code-border px-4 py-3 font-mono text-xs uppercase tracking-[0.18em] text-text-muted transition-colors hover:border-border-hover hover:text-text-primary'
+              href="#contact"
+              className="inline-flex items-center gap-2 rounded-md border border-code-border px-4 py-3 font-mono text-text-muted text-xs uppercase tracking-[0.18em] transition-colors hover:border-border-hover hover:text-text-primary"
             >
-              <span className='text-terminal-green'>cd</span>
+              <span className="text-terminal-green">cd</span>
               <span>Get in Touch</span>
             </Link>
           </div>
         </div>
 
         {/* Right column — NodeSection owns fade cycle + random positions */}
-        <div className='relative min-h-105 overflow-visible'>
-          <div className='absolute inset-0 flex items-center justify-center overflow-visible'>
+        <div className="relative min-h-105 overflow-visible">
+          <div className="absolute inset-0 flex items-center justify-center overflow-visible">
             {/* Canvas fades in/out on each cycle */}
-            <div className='relative mx-auto flex w-full h-full items-center p-5 justify-center overflow-visible'>
+            <div className="relative mx-auto flex h-full w-full items-center justify-center overflow-visible p-5">
               <NodeSection />
 
               {/* Card stays still — never fades */}
-              <div className='relative z-10 flex justify-center'>
+              <div className="relative z-10 flex justify-center">
                 <DevStatsCard initialData={ghStats} />
               </div>
             </div>

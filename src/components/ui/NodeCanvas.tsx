@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import type React from 'react';
+import { useEffect, useRef } from 'react';
 
 import { readThemeVisualTokens, THEME_CHANGE_EVENT } from '@/lib/theme/dom';
 
@@ -155,6 +156,7 @@ const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = '', seed = 0 }) => 
   });
 
   // New seed → new random layout + restart animation
+  // biome-ignore lint/correctness/useExhaustiveDependencies: seed is intentionally used only as an effect trigger to reshuffle the node layout.
   useEffect(() => {
     nodesRef.current = randomNodes();
     animStartRef.current = null;
@@ -388,9 +390,7 @@ const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = '', seed = 0 }) => 
     };
   }, []);
 
-  return (
-    <canvas ref={canvasRef} className={`w-full h-full block ${className}`} aria-hidden='true' />
-  );
+  return <canvas ref={canvasRef} className={`block h-full w-full ${className}`} />;
 };
 
 export default NodeCanvas;

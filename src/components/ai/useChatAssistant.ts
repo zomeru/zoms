@@ -6,19 +6,19 @@ import type { TransformMode } from '@/lib/ai/schemas';
 
 import { extractErrorMessage, processStreamChunk } from './chatStreamHelpers';
 import {
+  type AssistantMessage,
   CHAT_HISTORY_PAGE_SIZE,
   createId,
   getBlogSlugFromPathname,
   isChatHistoryResponse,
   isTransformResult,
   WELCOME_MESSAGE,
-  WELCOME_MESSAGE_ID,
-  type AssistantMessage
+  WELCOME_MESSAGE_ID
 } from './chatTypes';
 
+export type { AssistantMessage };
 // Re-export for consumers
 export { getBlogSlugFromPathname, WELCOME_MESSAGE, WELCOME_MESSAGE_ID };
-export type { AssistantMessage };
 
 export function useChatAssistant(input: { pathname: string }) {
   const [isOpen, setIsOpen] = useState(false);

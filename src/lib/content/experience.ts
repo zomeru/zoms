@@ -1,5 +1,5 @@
 import type { NormalizedContentDocument } from '@/lib/content/types';
-import { getExperience, type Experience } from '@/lib/experience';
+import { type Experience, getExperience } from '@/lib/experience';
 import { createDocument, slugify } from '@/lib/ingestion/normalize';
 import { createExperienceSections } from '@/lib/ingestion/sections';
 
