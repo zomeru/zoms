@@ -1,7 +1,7 @@
-import type { NormalizedContentDocument } from '@/lib/content/types';
-import { createDocument, slugify } from '@/lib/ingestion/normalize';
-import { createProjectSections } from '@/lib/ingestion/sections';
-import { getProjects, type Project } from '@/lib/projects';
+import type { NormalizedContentDocument } from "@/lib/content/types";
+import { createDocument, slugify } from "@/lib/ingestion/normalize";
+import { createProjectSections } from "@/lib/ingestion/sections";
+import { getProjects, type Project } from "@/lib/projects";
 
 export type ProjectRecord = Project;
 
@@ -9,7 +9,7 @@ export function normalizeProjectRecord(project: ProjectRecord): NormalizedConten
   const slug = slugify(project.name);
 
   return createDocument({
-    contentType: 'project',
+    contentType: "project",
     documentId: `project:${slug}`,
     sections: createProjectSections(project),
     sourceMeta: {
@@ -20,7 +20,7 @@ export function normalizeProjectRecord(project: ProjectRecord): NormalizedConten
     },
     tags: project.techs,
     title: project.name,
-    url: '/#projects'
+    url: "/#projects"
   });
 }
 

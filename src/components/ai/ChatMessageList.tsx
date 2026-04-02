@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
-import ChatMessageContent from './ChatMessageContent';
-import CitationList from './CitationList';
-import { type AssistantMessage, WELCOME_MESSAGE_ID } from './useChatAssistant';
+import ChatMessageContent from "./ChatMessageContent";
+import CitationList from "./CitationList";
+import { type AssistantMessage, WELCOME_MESSAGE_ID } from "./useChatAssistant";
 
 interface ChatMessageListProps {
   hasMoreHistory: boolean;
@@ -109,16 +109,16 @@ export default function ChatMessageList({
           <article
             key={message.id}
             className={
-              message.role === 'user'
-                ? 'ml-auto max-w-[85%] shrink-0 rounded-2xl rounded-br-md border border-primary/20 bg-primary/10 px-4 py-3'
-                : 'max-w-[92%] shrink-0 rounded-2xl rounded-bl-md border border-border bg-surface/90 px-4 py-3'
+              message.role === "user"
+                ? "ml-auto max-w-[85%] shrink-0 rounded-2xl rounded-br-md border border-primary/20 bg-primary/10 px-4 py-3"
+                : "max-w-[92%] shrink-0 rounded-2xl rounded-bl-md border border-border bg-surface/90 px-4 py-3"
             }
           >
             <p className="mb-2 font-mono text-[11px] text-text-muted uppercase tracking-[0.22em]">
-              {message.role === 'user' ? 'You' : 'Zomer'}
+              {message.role === "user" ? "You" : "Zomer"}
             </p>
             <ChatMessageContent content={message.content} isStreaming={message.isPending} />
-            {message.role === 'assistant' && message.isPending && (
+            {message.role === "assistant" && message.isPending && (
               <div
                 aria-label="Assistant is responding"
                 aria-live="polite"

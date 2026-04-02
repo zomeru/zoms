@@ -3,14 +3,14 @@
  * Provides environment-aware error messages and consistent error responses
  */
 
-import { NextResponse } from 'next/server';
-import { ZodError } from 'zod';
+import { NextResponse } from "next/server";
+import { ZodError } from "zod";
 
-import { getErrorMessage } from './errorMessages';
-import log from './logger';
-import type { ErrorResponse } from './schemas';
+import { getErrorMessage } from "./errorMessages";
+import log from "./logger";
+import type { ErrorResponse } from "./schemas";
 
-const IS_DEVELOPMENT = process.env.NODE_ENV === 'development';
+const IS_DEVELOPMENT = process.env.NODE_ENV === "development";
 
 /**
  * Custom error class for API errors
@@ -23,7 +23,7 @@ export class ApiError extends Error {
     public details?: unknown
   ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
   }
 }
 
@@ -46,11 +46,11 @@ const sanitizeErrorMessage = (error: unknown): string => {
   }
 
   if (error instanceof ZodError) {
-    return getErrorMessage('INVALID_REQUEST_DATA');
+    return getErrorMessage("INVALID_REQUEST_DATA");
   }
 
   // Generic error for production
-  return getErrorMessage('SERVER_ERROR');
+  return getErrorMessage("SERVER_ERROR");
 };
 
 /**
@@ -77,14 +77,14 @@ const getErrorCode = (error: unknown): string => {
   }
 
   if (error instanceof ZodError) {
-    return 'VALIDATION_ERROR';
+    return "VALIDATION_ERROR";
   }
 
   if (error instanceof Error) {
-    return error.name.toUpperCase().replace(/ERROR$/, '_ERROR');
+    return error.name.toUpperCase().replace(/ERROR$/, "_ERROR");
   }
 
-  return 'UNKNOWN_ERROR';
+  return "UNKNOWN_ERROR";
 };
 
 /**
@@ -109,15 +109,15 @@ export const getErrorOrigin = (error: unknown): string | undefined => {
 
   // Parse stack trace to find the first meaningful line
   // Stack format: "Error: message\n    at function (file:line:col)"
-  const stackLines = error.stack.split('\n');
+  const stackLines = error.stack.split("\n");
 
   // Find first line that contains "at " and is not from error handling itself
   for (const line of stackLines) {
     const trimmed = line.trim();
     if (
-      trimmed.startsWith('at ') &&
-      !trimmed.includes('errorHandler') &&
-      !trimmed.includes('node_modules')
+      trimmed.startsWith("at ") &&
+      !trimmed.includes("errorHandler") &&
+      !trimmed.includes("node_modules")
     ) {
       // Extract function/module name
       // Format: "at functionName (file)" or "at file"
@@ -171,7 +171,7 @@ export const handleApiError = (
   const origin = getErrorOrigin(error);
 
   // Log error with full context (stack trace always included for monitoring)
-  log.error('API Error', {
+  log.error("API Error", {
     code,
     message: error instanceof Error ? error.message : String(error),
     statusCode,
@@ -200,13 +200,13 @@ export const handleApiError = (
 export const validateSchema = <T>(
   schema: { parse: (data: unknown) => T },
   data: unknown,
-  errorMessage = 'Invalid request data'
+  errorMessage = "Invalid request data"
 ): T => {
   try {
     return schema.parse(data);
   } catch (error) {
     if (error instanceof ZodError) {
-      throw new ApiError(errorMessage, 400, 'VALIDATION_ERROR', error.issues);
+      throw new ApiError(errorMessage, 400, "VALIDATION_ERROR", error.issues);
     }
     throw error;
   }

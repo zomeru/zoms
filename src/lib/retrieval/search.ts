@@ -1,13 +1,13 @@
-import 'server-only';
+import "server-only";
 
-import type { ContentType } from '@/lib/content/types';
-import type { VectorQueryMatch } from '@/lib/vector/index';
+import type { ContentType } from "@/lib/content/types";
+import type { VectorQueryMatch } from "@/lib/vector/index";
 
-import { buildCitations } from './citations';
-import { classifyQueryIntent, type QueryClassification, type QueryIntent } from './classify';
-import { dedupeRetrievedChunks, limitChunksPerDocument } from './dedupe';
-import { rankRetrievedChunks } from './rank';
-import type { RetrievalResult, RetrievedChunk } from './types';
+import { buildCitations } from "./citations";
+import { classifyQueryIntent, type QueryClassification, type QueryIntent } from "./classify";
+import { dedupeRetrievedChunks, limitChunksPerDocument } from "./dedupe";
+import { rankRetrievedChunks } from "./rank";
+import type { RetrievalResult, RetrievedChunk } from "./types";
 
 interface RetrievalSearchInput {
   classification?: QueryClassification;
@@ -29,8 +29,8 @@ function tokenize(value: string): string[] {
     .filter(Boolean);
 }
 
-function isContentType(value: string): value is RetrievedChunk['contentType'] {
-  return value === 'about' || value === 'blog' || value === 'experience' || value === 'project';
+function isContentType(value: string): value is RetrievedChunk["contentType"] {
+  return value === "about" || value === "blog" || value === "experience" || value === "project";
 }
 
 function toRetrievedChunk(match: VectorQueryMatch): RetrievedChunk | null {
@@ -163,34 +163,34 @@ export async function retrieveRelevantChunks(
   };
 }
 
-export async function retrieveExperience(input: Omit<RetrievalSearchInput, 'classification'>) {
+export async function retrieveExperience(input: Omit<RetrievalSearchInput, "classification">) {
   return await retrieveRelevantChunks({
     ...input,
-    classification: createClassification(input.query, 'EXPERIENCE_QUERY', ['experience'], true)
+    classification: createClassification(input.query, "EXPERIENCE_QUERY", ["experience"], true)
   });
 }
 
-export async function retrieveProjects(input: Omit<RetrievalSearchInput, 'classification'>) {
+export async function retrieveProjects(input: Omit<RetrievalSearchInput, "classification">) {
   return await retrieveRelevantChunks({
     ...input,
-    classification: createClassification(input.query, 'PROJECT_QUERY', ['project'], true)
+    classification: createClassification(input.query, "PROJECT_QUERY", ["project"], true)
   });
 }
 
-export async function retrieveBlogs(input: Omit<RetrievalSearchInput, 'classification'>) {
+export async function retrieveBlogs(input: Omit<RetrievalSearchInput, "classification">) {
   return await retrieveRelevantChunks({
     ...input,
-    classification: createClassification(input.query, 'BLOG_QUERY', ['blog'], true)
+    classification: createClassification(input.query, "BLOG_QUERY", ["blog"], true)
   });
 }
 
-export async function retrievePortfolio(input: Omit<RetrievalSearchInput, 'classification'>) {
+export async function retrievePortfolio(input: Omit<RetrievalSearchInput, "classification">) {
   return await retrieveRelevantChunks({
     ...input,
     classification: createClassification(
       input.query,
-      'GENERAL_PORTFOLIO_QUERY',
-      ['about', 'experience', 'project', 'blog'],
+      "GENERAL_PORTFOLIO_QUERY",
+      ["about", "experience", "project", "blog"],
       false
     )
   });

@@ -1,6 +1,6 @@
-import type { Metadata } from 'next';
+import type { Metadata } from "next";
 
-import { TITLE } from '@/constants';
+import { TITLE } from "@/constants";
 
 export interface StaticOgImageContent {
   eyebrow: string;
@@ -12,29 +12,29 @@ export interface StaticOgImageContent {
 // Enforce SITE_URL to be set in environment; fallback to localhost in development only
 let siteUrl = process.env.SITE_URL;
 if (!siteUrl) {
-  if (process.env.NODE_ENV === 'development') {
-    siteUrl = 'http://localhost:3000';
+  if (process.env.NODE_ENV === "development") {
+    siteUrl = "http://localhost:3000";
   } else {
-    throw new Error('SITE_URL environment variable must be set in production.');
+    throw new Error("SITE_URL environment variable must be set in production.");
   }
 }
 export const SITE_URL = siteUrl;
 
 export const description =
-  'Software Engineer from the Philippines building full-stack products with React, TypeScript, Next.js, and AI.';
+  "Software Engineer from the Philippines building full-stack products with React, TypeScript, Next.js, and AI.";
 
-export const staticOgImages: Record<'home' | 'blog', StaticOgImageContent> = {
+export const staticOgImages: Record<"home" | "blog", StaticOgImageContent> = {
   home: {
-    eyebrow: 'Portfolio',
+    eyebrow: "Portfolio",
     title: TITLE,
     description,
     footerLabel: siteUrl
   },
   blog: {
-    eyebrow: 'Blog',
-    title: 'Engineering Notes and Technical Articles',
+    eyebrow: "Blog",
+    title: "Engineering Notes and Technical Articles",
     description:
-      'Read articles about web development, React, TypeScript, Next.js, AI, and practical software engineering.',
+      "Read articles about web development, React, TypeScript, Next.js, AI, and practical software engineering.",
     footerLabel: `${siteUrl}/blog`
   }
 };
@@ -47,16 +47,16 @@ export const seo: Metadata = {
   description: `Hi, I'm ${TITLE}, a ${description}`,
   metadataBase: new URL(SITE_URL),
   alternates: {
-    canonical: '/',
+    canonical: "/",
     languages: {
-      'en-US': '/en-US'
+      "en-US": "/en-US"
     }
   },
   applicationName: TITLE,
   appleWebApp: {
     capable: true,
     title: TITLE,
-    statusBarStyle: 'default'
+    statusBarStyle: "default"
   },
   creator: TITLE,
   authors: [{ name: TITLE, url: SITE_URL }],
@@ -66,29 +66,29 @@ export const seo: Metadata = {
     description,
     images: [
       {
-        url: '/opengraph-image',
+        url: "/opengraph-image",
         width: 1200,
         height: 630,
         alt: `${TITLE} Open Graph image`
       }
     ],
-    type: 'website',
+    type: "website",
     siteName: TITLE
   },
   formatDetection: {
     telephone: false
   },
   twitter: {
-    creator: '@zomeru_sama',
+    creator: "@zomeru_sama",
     site: SITE_URL,
-    card: 'summary_large_image',
+    card: "summary_large_image",
     description,
     title: TITLE,
-    images: ['/opengraph-image']
+    images: ["/opengraph-image"]
   },
   keywords: [
-    'Zomer',
-    'Zomeru',
+    "Zomer",
+    "Zomeru",
     TITLE,
     `${TITLE} | Software Engineer`,
     `${TITLE} | Front End Engineer`,

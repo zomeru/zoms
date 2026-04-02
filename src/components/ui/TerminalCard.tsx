@@ -1,4 +1,4 @@
-import type React from 'react';
+import type React from "react";
 
 interface TerminalCardProps {
   children: React.ReactNode;
@@ -10,9 +10,9 @@ interface TerminalCardProps {
 
 const TerminalCard: React.FC<TerminalCardProps> = ({
   children,
-  title = 'terminal',
-  className = '',
-  bodyClassName = 'p-4 font-mono text-sm',
+  title = "terminal",
+  className = "",
+  bodyClassName = "p-4 font-mono text-sm",
   showHeader = true
 }) => {
   return (

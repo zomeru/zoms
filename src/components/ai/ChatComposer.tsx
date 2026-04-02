@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   type ChangeEvent,
@@ -7,10 +7,10 @@ import {
   useEffect,
   useRef,
   useState
-} from 'react';
-import { AiOutlineArrowUp } from 'react-icons/ai';
+} from "react";
+import { AiOutlineArrowUp } from "react-icons/ai";
 
-import { MAX_CHAT_QUESTION_LENGTH } from '@/lib/ai/chat/schemas';
+import { MAX_CHAT_QUESTION_LENGTH } from "@/lib/ai/chat/schemas";
 
 interface ChatComposerProps {
   disabled?: boolean;
@@ -19,7 +19,7 @@ interface ChatComposerProps {
 
 const MAX_VISIBLE_LINES = 4;
 export default function ChatComposer({ disabled = false, onSubmit }: ChatComposerProps) {
-  const [question, setQuestion] = useState('');
+  const [question, setQuestion] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: question changes alter the textarea contents and require a fresh height measurement after each render.
@@ -30,14 +30,14 @@ export default function ChatComposer({ disabled = false, onSubmit }: ChatCompose
       return;
     }
 
-    textarea.style.height = '0px';
+    textarea.style.height = "0px";
     const computedStyle = window.getComputedStyle(textarea);
     const lineHeight = Number.parseFloat(computedStyle.lineHeight) || 24;
     const maxHeight = lineHeight * MAX_VISIBLE_LINES;
     const nextHeight = Math.min(textarea.scrollHeight, maxHeight);
 
     textarea.style.height = `${Math.max(nextHeight, lineHeight)}px`;
-    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden";
   }, [question]);
 
   function submitQuestion(): void {
@@ -46,7 +46,7 @@ export default function ChatComposer({ disabled = false, onSubmit }: ChatCompose
     }
 
     const currentQuestion = question;
-    setQuestion('');
+    setQuestion("");
     onSubmit(currentQuestion).catch(() => undefined);
   }
 
@@ -60,7 +60,7 @@ export default function ChatComposer({ disabled = false, onSubmit }: ChatCompose
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>): void {
-    if (event.key !== 'Enter' || event.shiftKey || event.nativeEvent.isComposing) {
+    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) {
       return;
     }
 

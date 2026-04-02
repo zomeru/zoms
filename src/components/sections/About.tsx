@@ -1,23 +1,23 @@
-import Link from 'next/link';
-import type React from 'react';
+import Link from "next/link";
+import type React from "react";
 
-import { TITLE, technologies } from '@/constants';
-import { getGitHubDevStats } from '@/lib/github';
-import { formatIsoDate } from '@/lib/utils';
-import { getWakaTimeStats } from '@/lib/wakatime';
+import { TITLE, technologies } from "@/constants";
+import { getGitHubDevStats } from "@/lib/github";
+import { formatIsoDate } from "@/lib/utils";
+import { getWakaTimeStats } from "@/lib/wakatime";
 
-import Socials from '../Socials';
-import TerminalHero from '../TerminalHero';
-import { DevStatsCard, NodeSection, TechBadge, WakaTimeTicker } from '../ui';
+import Socials from "../Socials";
+import TerminalHero from "../TerminalHero";
+import { DevStatsCard, NodeSection, TechBadge, WakaTimeTicker } from "../ui";
 
 const About = async (): Promise<React.JSX.Element> => {
   const [wakaStats, ghStats] = await Promise.all([
     getWakaTimeStats(),
-    getGitHubDevStats('zomeru').catch(() => ({
+    getGitHubDevStats("zomeru").catch(() => ({
       totalCommits: 0,
       totalPRs: 0,
       totalRepos: 0,
-      username: 'zomeru',
+      username: "zomeru",
       totalContributions: 0,
       longestStreak: 0,
       lastUpdated: formatIsoDate(new Date().toISOString())
@@ -36,9 +36,9 @@ const About = async (): Promise<React.JSX.Element> => {
               {TITLE}
             </h1>
             <p className="mb-6 text-lg text-text-secondary">
-              Software Engineer based in the Philippines, building modern web experiences with{' '}
-              <span className="font-medium text-terminal-green">Next.js</span>,{' '}
-              <span className="font-medium text-terminal-purple">TypeScript</span>, and practical{' '}
+              Software Engineer based in the Philippines, building modern web experiences with{" "}
+              <span className="font-medium text-terminal-green">Next.js</span>,{" "}
+              <span className="font-medium text-terminal-purple">TypeScript</span>, and practical{" "}
               <span className="font-medium text-terminal-green">AI</span> integrations.
             </p>
             <div className="flex justify-center md:justify-start">
@@ -50,9 +50,9 @@ const About = async (): Promise<React.JSX.Element> => {
             name={TITLE}
             title="Software Engineer"
             descriptions={[
-              'Building the future, one line at a time.',
-              'Full-stack developer & UI enthusiast.',
-              'Turning coffee into code since 2020.'
+              "Building the future, one line at a time.",
+              "Full-stack developer & UI enthusiast.",
+              "Turning coffee into code since 2020."
             ]}
           />
 

@@ -1,12 +1,12 @@
-import type React from 'react';
+import type React from "react";
 
-import { socials } from '@/constants';
+import { socials } from "@/constants";
 
 const Socials = (): React.JSX.Element => {
   return (
     <div className="flex items-center space-x-3">
       {socials.map(({ url, Icon }) => {
-        const label = url.includes('mail') ? 'email' : url.replace('/', '');
+        const label = url.includes("mail") ? "email" : url.replace("/", "");
 
         return (
           <a href={url} key={url} target="_blank" rel="noopener" aria-label={label}>

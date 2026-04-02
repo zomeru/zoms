@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from "react";
 
 // External store for shared authorization state
 let authorizedSessionDetected = false;
@@ -36,9 +36,9 @@ export function clearBlogAdminAuthorization(): void {
 }
 
 async function fetchAuthorizationStatus(): Promise<boolean> {
-  const response = await fetch('/api/blog/generate/auth', {
-    cache: 'no-store',
-    method: 'GET'
+  const response = await fetch("/api/blog/generate/auth", {
+    cache: "no-store",
+    method: "GET"
   });
 
   if (!response.ok) {
@@ -47,10 +47,10 @@ async function fetchAuthorizationStatus(): Promise<boolean> {
 
   const data: unknown = await response.json();
   const authorized =
-    typeof data === 'object' &&
+    typeof data === "object" &&
     data !== null &&
-    'authorized' in data &&
-    typeof data.authorized === 'boolean'
+    "authorized" in data &&
+    typeof data.authorized === "boolean"
       ? data.authorized
       : false;
 

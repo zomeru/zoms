@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import React, { startTransition, useDeferredValue } from 'react';
+import React, { startTransition, useDeferredValue } from "react";
 
 import {
   FLOATING_WIDGET_META,
   FLOATING_WIDGET_PANEL_HEADER,
   FLOATING_WIDGET_PANEL_SHELL
-} from '@/components/ui/floatingWidgetStyles';
-import type { ThemeId } from '@/lib/theme/registry';
-import type { ThemeDefinition } from '@/lib/theme/types';
+} from "@/components/ui/floatingWidgetStyles";
+import type { ThemeId } from "@/lib/theme/registry";
+import type { ThemeDefinition } from "@/lib/theme/types";
 
-import { useThemeSystem } from './ThemeProvider';
+import { useThemeSystem } from "./ThemeProvider";
 
-type ThemeFilter = 'all' | 'dark' | 'light';
+type ThemeFilter = "all" | "dark" | "light";
 
-const FILTERS: ThemeFilter[] = ['all', 'dark', 'light'];
+const FILTERS: ThemeFilter[] = ["all", "dark", "light"];
 
 const ThemeOption = React.memo(
   React.forwardRef<
@@ -39,10 +39,10 @@ const ThemeOption = React.memo(
         onMouseEnter={() => onActivate(themeId)}
         className={`flex w-full items-center gap-3 rounded-2xl border px-3 py-3 text-left transition-all duration-200 ${
           isActive
-            ? 'border-primary/45 bg-overlay-strong shadow-[0_0_0_1px_rgb(var(--shadow-rgb)/0.12)]'
+            ? "border-primary/45 bg-overlay-strong shadow-[0_0_0_1px_rgb(var(--shadow-rgb)/0.12)]"
             : isSelected
-              ? 'border-primary/30 bg-primary/8'
-              : 'border-border/70 bg-surface/90 hover:border-primary/25 hover:bg-surface'
+              ? "border-primary/30 bg-primary/8"
+              : "border-border/70 bg-surface/90 hover:border-primary/25 hover:bg-surface"
         }`}
       >
         <span
@@ -59,7 +59,7 @@ const ThemeOption = React.memo(
             {theme.label}
           </span>
           <span className="mt-1 flex flex-wrap items-center gap-2 font-mono text-[10px] text-text-muted uppercase tracking-[0.2em]">
-            <span>{theme.group === 'builtin' ? 'Pinned' : theme.scheme}</span>
+            <span>{theme.group === "builtin" ? "Pinned" : theme.scheme}</span>
           </span>
         </span>
         {isSelected && (
@@ -83,8 +83,8 @@ export function ThemeSelector(): React.JSX.Element | null {
     selectedThemeId,
     themes
   } = useThemeSystem();
-  const [query, setQuery] = React.useState('');
-  const [filter, setFilter] = React.useState<ThemeFilter>('all');
+  const [query, setQuery] = React.useState("");
+  const [filter, setFilter] = React.useState<ThemeFilter>("all");
   const deferredQuery = useDeferredValue(query);
   const normalizedQuery = deferredQuery.trim().toLowerCase();
   const searchInputRef = React.useRef<HTMLInputElement>(null);
@@ -92,13 +92,13 @@ export function ThemeSelector(): React.JSX.Element | null {
   const [activeOptionId, setActiveOptionId] = React.useState<ThemeId>(activeThemeId);
 
   const visibleThemes = React.useMemo(() => {
-    const pinnedTheme = themes.find((theme) => theme.id === 'zomeru');
+    const pinnedTheme = themes.find((theme) => theme.id === "zomeru");
     const matchingThemes = themes.filter((theme) => {
-      if (theme.id === 'zomeru') {
+      if (theme.id === "zomeru") {
         return false;
       }
 
-      const matchesFilter = filter === 'all' ? true : theme.scheme === filter;
+      const matchesFilter = filter === "all" ? true : theme.scheme === filter;
       const matchesQuery =
         normalizedQuery.length === 0
           ? true
@@ -138,9 +138,9 @@ export function ThemeSelector(): React.JSX.Element | null {
 
     const selectedOption = optionRefs.current[selectedThemeId];
 
-    if (typeof selectedOption?.scrollIntoView === 'function') {
+    if (typeof selectedOption?.scrollIntoView === "function") {
       selectedOption.scrollIntoView({
-        block: 'center'
+        block: "center"
       });
     }
   }, [isSelectorOpen, selectedThemeId]);
@@ -162,8 +162,8 @@ export function ThemeSelector(): React.JSX.Element | null {
   const commitActiveTheme = React.useCallback(
     (themeId: ThemeId) => {
       commitTheme(themeId);
-      setQuery('');
-      setFilter('all');
+      setQuery("");
+      setFilter("all");
     },
     [commitTheme]
   );
@@ -206,17 +206,17 @@ export function ThemeSelector(): React.JSX.Element | null {
         aria-modal="true"
         className={`relative mx-4 mt-4 mb-24 flex h-[calc(100vh-8rem)] w-[min(33rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-[2rem] md:mb-8 md:ml-8 md:h-[min(44rem,calc(100vh-4rem))] ${FLOATING_WIDGET_PANEL_SHELL}`}
         onKeyDown={(event) => {
-          if (event.key === 'ArrowDown') {
+          if (event.key === "ArrowDown") {
             event.preventDefault();
             moveActiveTheme(1);
           }
 
-          if (event.key === 'ArrowUp') {
+          if (event.key === "ArrowUp") {
             event.preventDefault();
             moveActiveTheme(-1);
           }
 
-          if (event.key === 'Enter') {
+          if (event.key === "Enter") {
             event.preventDefault();
             commitActiveTheme(activeOptionId);
           }
@@ -273,8 +273,8 @@ export function ThemeSelector(): React.JSX.Element | null {
                 }}
                 className={`rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.18em] transition ${
                   filter === filterOption
-                    ? 'border-primary/40 bg-primary/10 text-primary'
-                    : 'border-border text-text-muted hover:border-primary/30 hover:text-primary'
+                    ? "border-primary/40 bg-primary/10 text-primary"
+                    : "border-border text-text-muted hover:border-primary/30 hover:text-primary"
                 }`}
               >
                 {filterOption}

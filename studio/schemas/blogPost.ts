@@ -1,105 +1,105 @@
-import { defineField, defineType } from 'sanity';
+import { defineField, defineType } from "sanity";
 
 export default defineType({
-  name: 'blogPost',
-  title: 'Blog Post',
-  type: 'document',
+  name: "blogPost",
+  title: "Blog Post",
+  type: "document",
   fields: [
     defineField({
-      name: 'title',
-      title: 'Title',
-      type: 'string',
+      name: "title",
+      title: "Title",
+      type: "string",
       validation: (Rule) =>
-        Rule.required().max(100).warning('Titles should be under 100 characters')
+        Rule.required().max(100).warning("Titles should be under 100 characters")
     }),
     defineField({
-      name: 'slug',
-      title: 'Slug',
-      type: 'slug',
+      name: "slug",
+      title: "Slug",
+      type: "slug",
       options: {
-        source: 'title',
+        source: "title",
         maxLength: 96
       },
       validation: (Rule) => Rule.required()
     }),
     defineField({
-      name: 'summary',
-      title: 'Summary',
-      type: 'text',
+      name: "summary",
+      title: "Summary",
+      type: "text",
       rows: 3,
       validation: (Rule) =>
-        Rule.required().max(300).warning('Summaries should be under 300 characters for SEO')
+        Rule.required().max(300).warning("Summaries should be under 300 characters for SEO")
     }),
     defineField({
-      name: 'body',
-      title: 'Body',
-      type: 'text',
+      name: "body",
+      title: "Body",
+      type: "text",
       validation: (Rule) => Rule.required(),
       rows: 20,
-      description: 'Blog content in Markdown format'
+      description: "Blog content in Markdown format"
     }),
 
     defineField({
-      name: 'publishedAt',
-      title: 'Published At',
-      type: 'datetime',
+      name: "publishedAt",
+      title: "Published At",
+      type: "datetime",
       validation: (Rule) => Rule.required()
     }),
     defineField({
-      name: 'modifiedAt',
-      title: 'Modified At',
-      type: 'datetime',
-      description: 'Last modified date (optional, defaults to publishedAt if not set)'
+      name: "modifiedAt",
+      title: "Modified At",
+      type: "datetime",
+      description: "Last modified date (optional, defaults to publishedAt if not set)"
     }),
     defineField({
-      name: 'tags',
-      title: 'Tags',
-      type: 'array',
-      of: [{ type: 'string' }],
+      name: "tags",
+      title: "Tags",
+      type: "array",
+      of: [{ type: "string" }],
       options: {
-        layout: 'tags'
+        layout: "tags"
       }
     }),
     defineField({
-      name: 'source',
-      title: 'Source',
-      type: 'string',
-      description: 'How the post was created (human-authored or AI provider + trigger mode).',
+      name: "source",
+      title: "Source",
+      type: "string",
+      description: "How the post was created (human-authored or AI provider + trigger mode).",
       options: {
         list: [
-          { title: 'Manual', value: 'manual' },
-          { title: 'Manual / Gemini', value: 'manual/gemini' },
-          { title: 'Manual / OpenRouter', value: 'manual/openrouter' },
-          { title: 'Automated/Gemini', value: 'automated/gemini' },
-          { title: 'Automated / OpenRouter', value: 'automated/openrouter' }
+          { title: "Manual", value: "manual" },
+          { title: "Manual / Gemini", value: "manual/gemini" },
+          { title: "Manual / OpenRouter", value: "manual/openrouter" },
+          { title: "Automated/Gemini", value: "automated/gemini" },
+          { title: "Automated / OpenRouter", value: "automated/openrouter" }
         ]
       }
     }),
     defineField({
-      name: 'generated',
-      title: 'Generated',
-      type: 'boolean',
-      description: 'Whether this post was AI-generated',
+      name: "generated",
+      title: "Generated",
+      type: "boolean",
+      description: "Whether this post was AI-generated",
       initialValue: false
     }),
     defineField({
-      name: 'readTime',
-      title: 'Read Time',
-      type: 'number',
-      description: 'Estimated read time in minutes (AI-generated)',
+      name: "readTime",
+      title: "Read Time",
+      type: "number",
+      description: "Estimated read time in minutes (AI-generated)",
       validation: (Rule) => Rule.min(1).max(60)
     })
   ],
   preview: {
     select: {
-      title: 'title',
-      publishedAt: 'publishedAt',
-      generated: 'generated'
+      title: "title",
+      publishedAt: "publishedAt",
+      generated: "generated"
     },
     prepare(selection: Record<string, string | boolean>) {
       const { title, publishedAt, generated } = selection;
-      const date = publishedAt ? new Date(publishedAt as string).toLocaleDateString() : 'No date';
-      const badge = generated ? '🤖' : '✍️';
+      const date = publishedAt ? new Date(publishedAt as string).toLocaleDateString() : "No date";
+      const badge = generated ? "🤖" : "✍️";
       return {
         title: `${badge} ${title}`,
         subtitle: date
@@ -108,14 +108,14 @@ export default defineType({
   },
   orderings: [
     {
-      title: 'Published Date, Newest',
-      name: 'publishedAtDesc',
-      by: [{ field: 'publishedAt', direction: 'desc' }]
+      title: "Published Date, Newest",
+      name: "publishedAtDesc",
+      by: [{ field: "publishedAt", direction: "desc" }]
     },
     {
-      title: 'Published Date, Oldest',
-      name: 'publishedAtAsc',
-      by: [{ field: 'publishedAt', direction: 'asc' }]
+      title: "Published Date, Oldest",
+      name: "publishedAtAsc",
+      by: [{ field: "publishedAt", direction: "asc" }]
     }
   ]
 });

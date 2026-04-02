@@ -1,13 +1,13 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
-import { getAiReindexSessionCookie, isAuthorizedAiReindexRequest } from '@/lib/ai/reindexAuth';
-import { verifyBotIdRequest } from '@/lib/botId';
-import { handleApiError, validateSchema } from '@/lib/errorHandler';
-import { runSiteReindex } from '@/lib/ingestion/reindex';
-import { rateLimitMiddleware } from '@/lib/rateLimit';
+import { getAiReindexSessionCookie, isAuthorizedAiReindexRequest } from "@/lib/ai/reindexAuth";
+import { verifyBotIdRequest } from "@/lib/botId";
+import { handleApiError, validateSchema } from "@/lib/errorHandler";
+import { runSiteReindex } from "@/lib/ingestion/reindex";
+import { rateLimitMiddleware } from "@/lib/rateLimit";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 const reindexRequestSchema = z.object({
   documentId: z.string().trim().optional()
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return botIdResponse;
   }
 
-  const rateLimitResponse = await rateLimitMiddleware(request, 'AI_REINDEX');
+  const rateLimitResponse = await rateLimitMiddleware(request, "AI_REINDEX");
 
   if (rateLimitResponse) {
     return rateLimitResponse;
@@ -30,18 +30,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   try {
     if (!isAuthorizedAiReindexRequest(request)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body =
-      request.headers.get('content-length') === '0' ? {} : ((await request.json()) as unknown);
+      request.headers.get("content-length") === "0" ? {} : ((await request.json()) as unknown);
     const input = validateSchema(reindexRequestSchema, body);
     const result = await runSiteReindex({
       documentId: input.documentId
     });
     const response = NextResponse.json(result);
 
-    if (request.headers.get('authorization')) {
+    if (request.headers.get("authorization")) {
       const cookie = getAiReindexSessionCookie();
       response.cookies.set(cookie.name, cookie.value, cookie.options);
     }

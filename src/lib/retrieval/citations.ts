@@ -1,20 +1,20 @@
-import type { Citation } from '@/lib/ai/schemas';
+import type { Citation } from "@/lib/ai/schemas";
 
-import type { QueryClassification } from './classify';
-import type { RetrievedChunk } from './types';
+import type { QueryClassification } from "./classify";
+import type { RetrievedChunk } from "./types";
 
 function getDefaultClassification(): QueryClassification {
   return {
-    intent: 'GENERAL_PORTFOLIO_QUERY',
-    preferredContentTypes: ['about', 'experience', 'project', 'blog'],
-    query: '',
+    intent: "GENERAL_PORTFOLIO_QUERY",
+    preferredContentTypes: ["about", "experience", "project", "blog"],
+    query: "",
     strictContentTypes: false,
     tokens: []
   };
 }
 
 function getCitationKey(match: RetrievedChunk): string {
-  if (match.contentType === 'blog') {
+  if (match.contentType === "blog") {
     return `blog:${match.url}`;
   }
 
@@ -50,7 +50,7 @@ export function buildCitations(
       contentType: match.contentType,
       id: match.id,
       sectionTitle: match.sectionTitle,
-      snippet: match.contentType === 'blog' ? match.title : match.content.slice(0, 220),
+      snippet: match.contentType === "blog" ? match.title : match.content.slice(0, 220),
       title: match.title,
       url: match.url
     }));

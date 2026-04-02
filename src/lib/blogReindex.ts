@@ -1,9 +1,9 @@
-import 'server-only';
+import "server-only";
 
-import { after } from 'next/server';
+import { after } from "next/server";
 
-import { runSiteReindex } from '@/lib/ingestion/reindex';
-import log from '@/lib/logger';
+import { runSiteReindex } from "@/lib/ingestion/reindex";
+import log from "@/lib/logger";
 
 type PostResponseScheduler = (callback: () => void | Promise<void>) => void;
 
@@ -16,12 +16,12 @@ export function scheduleBlogReindex(
       await runSiteReindex({
         documentId: `blog:${slug}`
       });
-      log.info('Targeted blog reindex completed after generation', {
+      log.info("Targeted blog reindex completed after generation", {
         documentId: `blog:${slug}`,
         slug
       });
     } catch (error) {
-      log.error('Targeted blog reindex failed after generation', {
+      log.error("Targeted blog reindex failed after generation", {
         documentId: `blog:${slug}`,
         error: error instanceof Error ? error.message : String(error),
         slug

@@ -1,52 +1,52 @@
-import { NextRequest } from 'next/server';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { NextRequest } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const checkBotId = vi.fn();
 const repositories = {
   getChatHistoryPage: vi.fn()
 };
 
-vi.mock('botid/server', () => ({
+vi.mock("botid/server", () => ({
   checkBotId
 }));
 
-vi.mock('@/lib/db/repositories', () => ({
+vi.mock("@/lib/db/repositories", () => ({
   repositories
 }));
 
-vi.mock('@/lib/ai/chat-stream', () => ({
+vi.mock("@/lib/ai/chat-stream", () => ({
   streamGeneralAnswer: vi.fn(),
   streamGroundedAnswer: vi.fn()
 }));
 
-vi.mock('@/lib/ai/directAnswers', () => ({
+vi.mock("@/lib/ai/directAnswers", () => ({
   getDirectAssistantAnswer: vi.fn()
 }));
 
-vi.mock('@/lib/ai/responseDecorations', () => ({
+vi.mock("@/lib/ai/responseDecorations", () => ({
   filterChatCitations: (input: { citations: unknown[] }) => input.citations
 }));
 
-vi.mock('@/lib/rateLimit', () => ({
+vi.mock("@/lib/rateLimit", () => ({
   rateLimitMiddleware: vi.fn()
 }));
 
-vi.mock('@/lib/retrieval/classify', () => ({
+vi.mock("@/lib/retrieval/classify", () => ({
   classifyQueryIntent: vi.fn()
 }));
 
-vi.mock('@/lib/retrieval/search', () => ({
+vi.mock("@/lib/retrieval/search", () => ({
   retrieveBlogs: vi.fn(),
   retrieveExperience: vi.fn(),
   retrievePortfolio: vi.fn(),
   retrieveProjects: vi.fn()
 }));
 
-vi.mock('@/lib/vector/index', () => ({
+vi.mock("@/lib/vector/index", () => ({
   getVectorIndexClient: vi.fn()
 }));
 
-describe('AI chat history route', () => {
+describe("AI chat history route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     checkBotId.mockResolvedValue({
@@ -57,26 +57,26 @@ describe('AI chat history route', () => {
     });
   });
 
-  it('reads history from the secure chat cookie and supports older-message pagination', async () => {
+  it("reads history from the secure chat cookie and supports older-message pagination", async () => {
     repositories.getChatHistoryPage
       .mockResolvedValueOnce({
         hasMore: true,
         messages: [
           {
             citations: null,
-            content: 'Recent question',
+            content: "Recent question",
             groundedAnswer: null,
-            id: 'user-recent',
-            role: 'USER'
+            id: "user-recent",
+            role: "USER"
           },
           {
             citations: [],
-            content: 'Recent answer',
+            content: "Recent answer",
             groundedAnswer: {
               supported: true
             },
-            id: 'assistant-recent',
-            role: 'ASSISTANT'
+            id: "assistant-recent",
+            role: "ASSISTANT"
           }
         ],
         total: 4
@@ -86,30 +86,30 @@ describe('AI chat history route', () => {
         messages: [
           {
             citations: null,
-            content: 'Older question',
+            content: "Older question",
             groundedAnswer: null,
-            id: 'user-older',
-            role: 'USER'
+            id: "user-older",
+            role: "USER"
           },
           {
             citations: [],
-            content: 'Older answer',
+            content: "Older answer",
             groundedAnswer: {
               supported: true
             },
-            id: 'assistant-older',
-            role: 'ASSISTANT'
+            id: "assistant-older",
+            role: "ASSISTANT"
           }
         ],
         total: 4
       });
 
-    const { GET } = await import('@/app/api/ai/chat/route');
+    const { GET } = await import("@/app/api/ai/chat/route");
 
     const newestPageResponse = await GET(
-      new NextRequest('http://localhost/api/ai/chat?limit=2&offset=0', {
+      new NextRequest("http://localhost/api/ai/chat?limit=2&offset=0", {
         headers: {
-          cookie: 'ai_chat_session=session-key'
+          cookie: "ai_chat_session=session-key"
         }
       })
     );
@@ -120,16 +120,16 @@ describe('AI chat history route', () => {
       limit: 2,
       messages: [
         {
-          content: 'Recent question',
-          id: 'user-recent',
-          role: 'user'
+          content: "Recent question",
+          id: "user-recent",
+          role: "user"
         },
         {
           citations: [],
-          content: 'Recent answer',
-          id: 'assistant-recent',
-          messageId: 'assistant-recent',
-          role: 'assistant',
+          content: "Recent answer",
+          id: "assistant-recent",
+          messageId: "assistant-recent",
+          role: "assistant",
           supported: true
         }
       ],
@@ -139,9 +139,9 @@ describe('AI chat history route', () => {
     });
 
     const olderPageResponse = await GET(
-      new NextRequest('http://localhost/api/ai/chat?limit=2&offset=2', {
+      new NextRequest("http://localhost/api/ai/chat?limit=2&offset=2", {
         headers: {
-          cookie: 'ai_chat_session=session-key'
+          cookie: "ai_chat_session=session-key"
         }
       })
     );
@@ -152,16 +152,16 @@ describe('AI chat history route', () => {
       limit: 2,
       messages: [
         {
-          content: 'Older question',
-          id: 'user-older',
-          role: 'user'
+          content: "Older question",
+          id: "user-older",
+          role: "user"
         },
         {
           citations: [],
-          content: 'Older answer',
-          id: 'assistant-older',
-          messageId: 'assistant-older',
-          role: 'assistant',
+          content: "Older answer",
+          id: "assistant-older",
+          messageId: "assistant-older",
+          role: "assistant",
           supported: true
         }
       ],
@@ -170,21 +170,21 @@ describe('AI chat history route', () => {
       total: 4
     });
 
-    expect(repositories.getChatHistoryPage).toHaveBeenNthCalledWith(1, 'session-key', {
+    expect(repositories.getChatHistoryPage).toHaveBeenNthCalledWith(1, "session-key", {
       limit: 2,
       offset: 0
     });
-    expect(repositories.getChatHistoryPage).toHaveBeenNthCalledWith(2, 'session-key', {
+    expect(repositories.getChatHistoryPage).toHaveBeenNthCalledWith(2, "session-key", {
       limit: 2,
       offset: 2
     });
   });
 
-  it('ignores leaked session keys in the query string when no cookie is present', async () => {
-    const { GET } = await import('@/app/api/ai/chat/route');
+  it("ignores leaked session keys in the query string when no cookie is present", async () => {
+    const { GET } = await import("@/app/api/ai/chat/route");
 
     const response = await GET(
-      new NextRequest('http://localhost/api/ai/chat?sessionKey=leaked-session&limit=2&offset=0')
+      new NextRequest("http://localhost/api/ai/chat?sessionKey=leaked-session&limit=2&offset=0")
     );
 
     expect(response.status).toBe(200);

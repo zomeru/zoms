@@ -1,8 +1,8 @@
-import Image from 'next/image';
-import type React from 'react';
-import { AiOutlineClose } from 'react-icons/ai';
+import Image from "next/image";
+import type React from "react";
+import { AiOutlineClose } from "react-icons/ai";
 
-import './index.css';
+import "./index.css";
 
 interface PortalProps {
   closeModal: () => void;
@@ -26,7 +26,7 @@ const Portal: React.FC<PortalProps> = ({ closeModal }): React.JSX.Element => {
       </div>
       <div
         style={{
-          perspective: '400px'
+          perspective: "400px"
         }}
         className="absolute z-50 flex size-full items-center justify-center text-red-600"
       >
@@ -40,8 +40,8 @@ const Portal: React.FC<PortalProps> = ({ closeModal }): React.JSX.Element => {
         </button>
         <div
           style={{
-            transform: 'rotateX(25deg) translateZ(100px)',
-            transformOrigin: '50% 100%'
+            transform: "rotateX(25deg) translateZ(100px)",
+            transformOrigin: "50% 100%"
           }}
           className="mt-12 flex max-w-75 flex-col items-center sm:mt-4"
         >

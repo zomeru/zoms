@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import type React from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import Link from "next/link";
+import type React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import BlogDeleteMenu from '@/components/blog/BlogDeleteMenu';
-import { TechBadge } from '@/components/ui';
-import { BLOG_POSTS_PAGE_SIZE } from '@/constants';
-import type { BlogPostListItem } from '@/lib/blog';
-import { formatDate } from '@/lib/utils';
+import BlogDeleteMenu from "@/components/blog/BlogDeleteMenu";
+import { TechBadge } from "@/components/ui";
+import { BLOG_POSTS_PAGE_SIZE } from "@/constants";
+import type { BlogPostListItem } from "@/lib/blog";
+import { formatDate } from "@/lib/utils";
 
 interface BlogListClientProps {
   initialPosts: BlogPostListItem[];
@@ -37,7 +37,7 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
       const response = await fetch(`/api/blog?limit=${BLOG_POSTS_PAGE_SIZE}&offset=${offset}`);
 
       if (!response.ok) {
-        throw new Error('Failed to fetch blog posts');
+        throw new Error("Failed to fetch blog posts");
       }
 
       const data = (await response.json()) as {
@@ -48,7 +48,7 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
       setPosts((prevPosts) => [...prevPosts, ...data.posts]);
       setOffset((prevOffset) => prevOffset + data.posts.length);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
       isLoadingRef.current = false;
@@ -65,7 +65,7 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
         }
       },
       {
-        rootMargin: '100px'
+        rootMargin: "100px"
       }
     );
 
@@ -159,7 +159,7 @@ const BlogListClient: React.FC<BlogListClientProps> = ({ initialPosts, initialTo
       )}
 
       <div className="col-span-full border-code-border border-t pt-8 text-center font-mono text-sm text-text-muted">
-        Showing <span className="text-terminal-blue">{posts.length}</span> of{' '}
+        Showing <span className="text-terminal-blue">{posts.length}</span> of{" "}
         <span className="text-terminal-blue">{total}</span> posts
       </div>
     </div>

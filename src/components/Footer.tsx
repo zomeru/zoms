@@ -1,7 +1,7 @@
-import Link from 'next/link';
-import type React from 'react';
+import Link from "next/link";
+import type React from "react";
 
-import { TITLE } from '@/constants';
+import { TITLE } from "@/constants";
 
 const Footer: React.FC = (): React.JSX.Element => {
   const currentYear = new Date().getFullYear();
@@ -28,21 +28,21 @@ const Footer: React.FC = (): React.JSX.Element => {
         <div className="text-sm text-text-muted">
           <div className="flex flex-col gap-1 text-left font-mono text-xs md:text-right">
             <span>
-              <span className="text-secondary">const</span>{' '}
-              <span className="text-terminal-green">year</span>{' '}
-              <span className="text-syntax-plain">=</span>{' '}
+              <span className="text-secondary">const</span>{" "}
+              <span className="text-terminal-green">year</span>{" "}
+              <span className="text-syntax-plain">=</span>{" "}
               <span className="text-terminal-purple">{currentYear};</span>
             </span>
             <span>
-              <span className="text-secondary">const</span>{' '}
-              <span className="text-terminal-green">builtWith</span>{' '}
-              <span className="text-syntax-plain">=</span>{' '}
+              <span className="text-secondary">const</span>{" "}
+              <span className="text-terminal-green">builtWith</span>{" "}
+              <span className="text-syntax-plain">=</span>{" "}
               <span className="text-terminal-purple">["Next.js", "Tailwind"];</span>
             </span>
             <span>
-              <span className="text-secondary">const</span>{' '}
-              <span className="text-terminal-green">deployed</span>{' '}
-              <span className="text-syntax-plain">=</span>{' '}
+              <span className="text-secondary">const</span>{" "}
+              <span className="text-terminal-green">deployed</span>{" "}
+              <span className="text-syntax-plain">=</span>{" "}
               <span className="text-terminal-purple">"Vercel";</span>
             </span>
           </div>
@@ -51,11 +51,11 @@ const Footer: React.FC = (): React.JSX.Element => {
 
       <div className="mt-8 flex flex-col items-center justify-center gap-4 border-border border-t pt-8 text-center">
         <div className="text-center font-mono text-sm text-text-muted">
-          <span className="text-terminal-green">©</span>{' '}
+          <span className="text-terminal-green">©</span>{" "}
           <Link href="/" className="transition-colors hover:text-primary">
             {TITLE}
           </Link>
-          <span className="text-text-muted">{'// All rights reserved'}</span>
+          <span className="text-text-muted">{"// All rights reserved"}</span>
         </div>
 
         <div className="flex flex-wrap justify-center gap-6 font-mono text-sm">

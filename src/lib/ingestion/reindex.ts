@@ -1,9 +1,9 @@
-import type { NormalizedContentDocument } from '@/lib/content/types';
-import { toPrismaJsonValue } from '@/lib/json';
-import type { VectorIndexClient, VectorUpsertRecord } from '@/lib/vector/index';
+import type { NormalizedContentDocument } from "@/lib/content/types";
+import { toPrismaJsonValue } from "@/lib/json";
+import type { VectorIndexClient, VectorUpsertRecord } from "@/lib/vector/index";
 
-import { chunkDocument } from './chunk';
-import { createDocumentHash, createDocumentVectorPrefix } from './hash';
+import { chunkDocument } from "./chunk";
+import { createDocumentHash, createDocumentVectorPrefix } from "./hash";
 
 export interface IndexedDocumentSnapshot {
   contentHash: string;
@@ -14,7 +14,7 @@ export interface IndexedDocumentStore {
   upsert: (input: {
     chunkCount: number;
     contentHash: string;
-    contentType: NormalizedContentDocument['contentType'];
+    contentType: NormalizedContentDocument["contentType"];
     documentId: string;
     publishedAt?: string;
     slug?: string;
@@ -40,7 +40,7 @@ export interface ReindexDocumentsResult {
 function getSourceMetaString(sourceMeta: Record<string, unknown>, key: string): string | undefined {
   const value = sourceMeta[key];
 
-  return typeof value === 'string' && value.length > 0 ? value : undefined;
+  return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
 function toVectorRecords(
@@ -73,7 +73,7 @@ export async function reindexDocuments(
       const existing = await input.indexedDocumentStore.getByDocumentId(document.documentId);
 
       if (existing?.contentHash === contentHash) {
-        return 'skipped' as const;
+        return "skipped" as const;
       }
 
       const chunks = await chunkDocument(document);
@@ -93,14 +93,14 @@ export async function reindexDocuments(
         url: document.url
       });
 
-      return 'updated' as const;
+      return "updated" as const;
     })
   );
 
   return {
     processed: input.documents.length,
-    skipped: results.filter((result) => result === 'skipped').length,
-    updated: results.filter((result) => result === 'updated').length
+    skipped: results.filter((result) => result === "skipped").length,
+    updated: results.filter((result) => result === "updated").length
   };
 }
 
@@ -111,10 +111,10 @@ export async function loadNormalizedDocuments(): Promise<NormalizedContentDocume
     { loadProjectDocuments },
     { loadBlogDocuments }
   ] = await Promise.all([
-    import('@/lib/content/about'),
-    import('@/lib/content/experience'),
-    import('@/lib/content/projects'),
-    import('@/lib/content/blog')
+    import("@/lib/content/about"),
+    import("@/lib/content/experience"),
+    import("@/lib/content/projects"),
+    import("@/lib/content/blog")
   ]);
   const [aboutDocuments, experienceDocuments, projectDocuments, blogDocuments] = await Promise.all([
     loadAboutDocuments(),
@@ -135,10 +135,10 @@ export async function runSiteReindex(
     { getVectorIndexClient },
     { getLegacyExperienceDocumentId }
   ] = await Promise.all([
-    import('@prisma/client'),
-    import('@/lib/db/repositories'),
-    import('@/lib/vector/index'),
-    import('@/lib/content/experience')
+    import("@prisma/client"),
+    import("@/lib/db/repositories"),
+    import("@/lib/vector/index"),
+    import("@/lib/content/experience")
   ]);
   const documents = await loadNormalizedDocuments();
   const filteredDocuments =
@@ -149,15 +149,15 @@ export async function runSiteReindex(
             document.documentId === options.documentId || document.slug === options.documentId
         );
 
-  const mapContentType = (contentType: NormalizedContentDocument['contentType']) => {
+  const mapContentType = (contentType: NormalizedContentDocument["contentType"]) => {
     switch (contentType) {
-      case 'about':
+      case "about":
         return IndexedContentType.ABOUT;
-      case 'blog':
+      case "blog":
         return IndexedContentType.BLOG;
-      case 'experience':
+      case "experience":
         return IndexedContentType.EXPERIENCE;
-      case 'project':
+      case "project":
         return IndexedContentType.PROJECT;
     }
   };
@@ -168,10 +168,10 @@ export async function runSiteReindex(
 
   try {
     const legacyExperienceDocumentIds = filteredDocuments
-      .filter((document) => document.contentType === 'experience')
+      .filter((document) => document.contentType === "experience")
       .map((document) => {
-        const title = getSourceMetaString(document.sourceMeta, 'title');
-        const company = getSourceMetaString(document.sourceMeta, 'company');
+        const title = getSourceMetaString(document.sourceMeta, "title");
+        const company = getSourceMetaString(document.sourceMeta, "company");
 
         return title && company ? getLegacyExperienceDocumentId(title, company) : undefined;
       })

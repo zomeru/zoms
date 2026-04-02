@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import type React from 'react';
-import { useEffect, useRef } from 'react';
+import type React from "react";
+import { useEffect, useRef } from "react";
 
-import { readThemeVisualTokens, THEME_CHANGE_EVENT } from '@/lib/theme/dom';
+import { readThemeVisualTokens, THEME_CHANGE_EVENT } from "@/lib/theme/dom";
 
-import { getTrimmedLinePoints } from './NodeCanvas.geometry';
+import { getTrimmedLinePoints } from "./NodeCanvas.geometry";
 
 interface NodeCanvasProps {
   className?: string;
@@ -142,7 +142,7 @@ function randomNodes(): Node[] {
   ]);
 }
 
-const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = '', seed = 0 }) => {
+const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = "", seed = 0 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number | null>(null);
   const nodesRef = useRef<Node[]>(randomNodes());
@@ -201,7 +201,7 @@ const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = '', seed = 0 }) => 
       animStartRef.current ??= ts;
       const ae = ts - animStartRef.current;
 
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
       if (!ctx) return;
       const W = canvas.width;
       const H = canvas.height;
@@ -306,7 +306,7 @@ const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = '', seed = 0 }) => 
             );
             glow.addColorStop(0, `rgba(${tintR}, ${tintG}, ${tintB}, ${0.16 * pulseStrength})`);
             glow.addColorStop(0.4, `rgba(${tintR}, ${tintG}, ${tintB}, ${0.08 * pulseStrength})`);
-            glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            glow.addColorStop(1, "rgba(255, 255, 255, 0)");
 
             ctx.beginPath();
             ctx.arc(pts[i].px, pts[i].py, glowRadius, 0, Math.PI * 2);

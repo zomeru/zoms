@@ -1,8 +1,8 @@
-import 'server-only';
+import "server-only";
 
-import Supermemory from 'supermemory';
+import Supermemory from "supermemory";
 
-import { getAiEnv } from './env';
+import { getAiEnv } from "./env";
 
 interface SearchSessionMemoryInput {
   limit: number;
@@ -32,12 +32,12 @@ function createSupermemoryClient(): Supermemory | null {
 
 function normalizeMemoryText(value: string): string {
   return value
-    .replace(/```[\s\S]*?```/g, '[code example omitted]')
-    .replace(/\s+/g, ' ')
+    .replace(/```[\s\S]*?```/g, "[code example omitted]")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
-function buildMemoryEntry(input: Omit<StoreSessionMemoryInput, 'sessionKey'>): string {
+function buildMemoryEntry(input: Omit<StoreSessionMemoryInput, "sessionKey">): string {
   const normalizedQuestion = normalizeMemoryText(input.question).slice(0, 240);
   const normalizedAnswer = normalizeMemoryText(input.answer).slice(0, 480);
 
@@ -56,13 +56,13 @@ export async function searchSessionMemory(input: SearchSessionMemoryInput): Prom
     limit: input.limit,
     q: input.query,
     rewriteQuery: false,
-    searchMode: 'memories',
+    searchMode: "memories",
     threshold: 0.2
   });
 
   return response.results
     .map((result) => result.memory ?? result.chunk ?? null)
-    .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+    .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
     .slice(0, input.limit);
 }
 
@@ -77,7 +77,7 @@ export async function storeSessionMemory(input: StoreSessionMemoryInput): Promis
     containerTag: input.sessionKey,
     content: buildMemoryEntry(input),
     metadata: {
-      source: 'chat-session'
+      source: "chat-session"
     }
   });
 }

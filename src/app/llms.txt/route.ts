@@ -1,13 +1,13 @@
-import { SITE_URL } from '@/configs/seo';
-import { TITLE } from '@/constants';
-import { getLatestBlogPosts } from '@/lib/blog';
+import { SITE_URL } from "@/configs/seo";
+import { TITLE } from "@/constants";
+import { getLatestBlogPosts } from "@/lib/blog";
 
 export async function GET(): Promise<Response> {
   const recentPosts = await getLatestBlogPosts(10);
 
   const recentPostLines = recentPosts
     .map((post) => `- [${post.title}](${SITE_URL}/blog/${post.slug.current})`)
-    .join('\n');
+    .join("\n");
 
   const content = `# ${TITLE}
 
@@ -43,8 +43,8 @@ All blog posts are original, technical, and written for practicing software engi
 
   return new Response(content, {
     headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'Cache-Control': 'public, max-age=3600'
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "public, max-age=3600"
     }
   });
 }

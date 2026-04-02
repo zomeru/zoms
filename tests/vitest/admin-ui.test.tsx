@@ -1,30 +1,30 @@
 // @vitest-environment jsdom
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import AdminConsole from '@/components/admin/AdminConsole';
-import ReindexAdminCard from '@/components/ai/ReindexAdminCard';
+import AdminConsole from "@/components/admin/AdminConsole";
+import ReindexAdminCard from "@/components/ai/ReindexAdminCard";
 
-vi.mock('next/navigation', () => ({
+vi.mock("next/navigation", () => ({
   useRouter: () => ({
     refresh: vi.fn()
   })
 }));
 
-describe('admin UI behaviors', () => {
+describe("admin UI behaviors", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('waits for the admin access bootstrap before rendering the controls', async () => {
+  it("waits for the admin access bootstrap before rendering the controls", async () => {
     vi.stubGlobal(
-      'fetch',
+      "fetch",
       vi.fn(async (input: string | URL | Request) => {
         const url =
-          typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+          typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
 
-        if (url.includes('/api/admin/access')) {
+        if (url.includes("/api/admin/access")) {
           return new Response(
             JSON.stringify({
               aiReindexAuthorized: false,
@@ -33,7 +33,7 @@ describe('admin UI behaviors', () => {
             }),
             {
               headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json"
               },
               status: 200
             }
@@ -46,45 +46,45 @@ describe('admin UI behaviors', () => {
 
     render(<AdminConsole />);
 
-    expect(screen.queryByRole('button', { name: 'Run' })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Run" })).toBeNull();
     expect(screen.getByText(/verifying browser access/i)).toBeTruthy();
 
     await waitFor(() => {
-      expect(screen.getByText('Admin')).toBeTruthy();
+      expect(screen.getByText("Admin")).toBeTruthy();
       expect(screen.getByText(/generator unlocked/i)).toBeTruthy();
     });
   });
 
-  it('unlocks manual reindex and submits a targeted reindex request', async () => {
+  it("unlocks manual reindex and submits a targeted reindex request", async () => {
     vi.stubGlobal(
-      'fetch',
+      "fetch",
       vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
         const url =
-          typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+          typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
 
-        if (url.includes('/api/ai/reindex/auth')) {
+        if (url.includes("/api/ai/reindex/auth")) {
           return new Response(JSON.stringify({ authorized: true, success: true }), {
             headers: {
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json"
             },
             status: 200
           });
         }
 
-        if (url.includes('/api/ai/reindex')) {
-          expect(init?.method).toBe('POST');
-          expect(init?.body).toBe(JSON.stringify({ documentId: 'blog:new-post' }));
+        if (url.includes("/api/ai/reindex")) {
+          expect(init?.method).toBe("POST");
+          expect(init?.body).toBe(JSON.stringify({ documentId: "blog:new-post" }));
 
           return new Response(
             JSON.stringify({
               processed: 1,
-              runId: 'run-id',
+              runId: "run-id",
               skipped: 0,
               updated: 1
             }),
             {
               headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json"
               },
               status: 200
             }
@@ -97,25 +97,25 @@ describe('admin UI behaviors', () => {
 
     render(<ReindexAdminCard initialAuthorized={false} />);
 
-    fireEvent.change(screen.getByLabelText('AI reindex secret'), {
-      target: { value: 'secret' }
+    fireEvent.change(screen.getByLabelText("AI reindex secret"), {
+      target: { value: "secret" }
     });
-    const unlockForm = screen.getByRole('button', { name: 'Enter' }).closest('form');
+    const unlockForm = screen.getByRole("button", { name: "Enter" }).closest("form");
 
     if (!unlockForm) {
-      throw new Error('Expected the reindex unlock button to be inside a form.');
+      throw new Error("Expected the reindex unlock button to be inside a form.");
     }
 
     fireEvent.submit(unlockForm);
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Run Full' })).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Run Full" })).toBeTruthy();
     });
 
-    fireEvent.change(screen.getByLabelText('Document id or slug'), {
-      target: { value: 'blog:new-post' }
+    fireEvent.change(screen.getByLabelText("Document id or slug"), {
+      target: { value: "blog:new-post" }
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Run Targeted' }));
+    fireEvent.click(screen.getByRole("button", { name: "Run Targeted" }));
 
     await waitFor(() => {
       expect(screen.getByText(/run-id/i)).toBeTruthy();

@@ -1,5 +1,5 @@
-import type { QueryClassification } from './classify';
-import type { RetrievedChunk } from './types';
+import type { QueryClassification } from "./classify";
+import type { RetrievedChunk } from "./types";
 
 function tokenize(value: string): string[] {
   return value
@@ -56,7 +56,7 @@ function calculateSectionBoost(sectionTitle: string, queryTokens: string[]): num
 }
 
 function calculateContentTypeBoost(
-  contentType: RetrievedChunk['contentType'],
+  contentType: RetrievedChunk["contentType"],
   classification: QueryClassification
 ): number {
   const preferredContentType = classification.preferredContentTypes.includes(contentType);

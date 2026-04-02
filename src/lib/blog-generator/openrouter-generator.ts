@@ -1,29 +1,29 @@
-import 'server-only';
+import "server-only";
 
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { generateText } from 'ai';
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import { generateText } from "ai";
 
-import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
+import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from "@/constants";
 
-import { getErrorMessage } from '../errorMessages';
-import { SYSTEM_INSTRUCTION } from './constants';
-import { formatLLMText, generatePrompt, tryParseAIJSON } from './helpers';
-import type { GeneratedBlogDraft } from './types';
+import { getErrorMessage } from "../errorMessages";
+import { SYSTEM_INSTRUCTION } from "./constants";
+import { formatLLMText, generatePrompt, tryParseAIJSON } from "./helpers";
+import type { GeneratedBlogDraft } from "./types";
 
 function getOpenRouterProvider() {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    throw new Error('OPENROUTER_API_KEY environment variable is required for blog generation');
+    throw new Error("OPENROUTER_API_KEY environment variable is required for blog generation");
   }
 
   return createOpenRouter({ apiKey });
 }
 
 export async function openrouterGenerateBlogContent(): Promise<GeneratedBlogDraft> {
-  const model = process.env.OPENROUTER_BLOG_MODEL ?? 'openrouter/free';
+  const model = process.env.OPENROUTER_BLOG_MODEL ?? "openrouter/free";
 
   if (!model) {
-    throw new Error('OPENROUTER_BLOG_MODEL environment variable is required for blog generation');
+    throw new Error("OPENROUTER_BLOG_MODEL environment variable is required for blog generation");
   }
   const prompt = generatePrompt();
   const provider = getOpenRouterProvider();
@@ -43,7 +43,7 @@ export async function openrouterGenerateBlogContent(): Promise<GeneratedBlogDraf
     const wordCount = parsed.content.split(/\s+/).filter(Boolean).length;
 
     if (wordCount < 700) {
-      throw new Error(getErrorMessage('AI_GENERATION_TOO_SHORT'));
+      throw new Error(getErrorMessage("AI_GENERATION_TOO_SHORT"));
     }
 
     const readTime = Math.max(1, Math.ceil(wordCount / 200));
@@ -52,12 +52,12 @@ export async function openrouterGenerateBlogContent(): Promise<GeneratedBlogDraf
       title: parsed.title.slice(0, MAX_TITLE_LENGTH),
       summary: parsed.excerpt.slice(0, MAX_SUMMARY_LENGTH),
       body: formatLLMText(parsed.content),
-      provider: 'openrouter',
+      provider: "openrouter",
       tags: parsed.tags.slice(0, 5),
       readTime,
       suggestedSlug: parsed.slug
     };
   } catch (error) {
-    throw new Error(getErrorMessage('AI_GENERATION_FAILED'), { cause: error });
+    throw new Error(getErrorMessage("AI_GENERATION_FAILED"), { cause: error });
   }
 }

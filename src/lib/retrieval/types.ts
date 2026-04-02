@@ -1,6 +1,6 @@
-import type { ContentType } from '@/lib/content/types';
+import type { ContentType } from "@/lib/content/types";
 
-import type { QueryClassification } from './classify';
+import type { QueryClassification } from "./classify";
 
 export interface RetrievedChunk {
   content: string;

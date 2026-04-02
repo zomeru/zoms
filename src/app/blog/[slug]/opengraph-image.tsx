@@ -1,9 +1,9 @@
-import { getBlogPostSeoBySlug } from '@/lib/blog';
-import { createOgImage, ogImageSize } from '@/lib/ogImage';
+import { getBlogPostSeoBySlug } from "@/lib/blog";
+import { createOgImage, ogImageSize } from "@/lib/ogImage";
 
-export const alt = 'Blog post Open Graph image';
+export const alt = "Blog post Open Graph image";
 export const size = ogImageSize;
-export const contentType = 'image/png';
+export const contentType = "image/png";
 
 interface BlogPostOgImageProps {
   params: Promise<{
@@ -16,10 +16,10 @@ export default async function BlogPostOgImage({ params }: BlogPostOgImageProps) 
   const post = await getBlogPostSeoBySlug(slug);
 
   return createOgImage({
-    eyebrow: 'Blog',
-    title: post?.title ?? 'Blog Post',
-    description: post?.summary ?? 'Read the latest article from Zomer Gregorio.',
-    footerLabel: '',
+    eyebrow: "Blog",
+    title: post?.title ?? "Blog Post",
+    description: post?.summary ?? "Read the latest article from Zomer Gregorio.",
+    footerLabel: "",
     tags: post?.tags,
     showAuthorName: false
   });

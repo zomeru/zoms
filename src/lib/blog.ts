@@ -1,5 +1,5 @@
-import log from './logger';
-import { getSanityClient } from './sanity';
+import log from "./logger";
+import { getSanityClient } from "./sanity";
 
 export interface BlogPost {
   _id: string;
@@ -70,7 +70,7 @@ export async function getBlogPosts(limit = 25, offset = 0): Promise<BlogPostList
 
     return posts;
   } catch (error) {
-    log.error('Error fetching blog posts from Sanity', {
+    log.error("Error fetching blog posts from Sanity", {
       error: error instanceof Error ? error.message : String(error)
     });
     return [];
@@ -107,7 +107,7 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
 
     return post;
   } catch (error) {
-    log.error('Error fetching blog post by slug', {
+    log.error("Error fetching blog post by slug", {
       slug,
       error: error instanceof Error ? error.message : String(error)
     });
@@ -140,7 +140,7 @@ export async function getBlogPostSeoBySlug(slug: string): Promise<BlogPostSeo | 
 
     return post;
   } catch (error) {
-    log.error('Error fetching blog post SEO data from Sanity', {
+    log.error("Error fetching blog post SEO data from Sanity", {
       slug,
       error: error instanceof Error ? error.message : String(error)
     });
@@ -153,7 +153,7 @@ export async function getBlogPostSeoBySlug(slug: string): Promise<BlogPostSeo | 
  */
 async function getBoundaryBlogPosts(
   limit = 1,
-  direction: 'asc' | 'desc' = 'desc'
+  direction: "asc" | "desc" = "desc"
 ): Promise<BlogPostListItem[]> {
   try {
     return await getSanityClient().fetch<BlogPostListItem[]>(
@@ -173,7 +173,7 @@ async function getBoundaryBlogPosts(
       }
     );
   } catch (error) {
-    log.error('Error fetching boundary blog posts from Sanity', {
+    log.error("Error fetching boundary blog posts from Sanity", {
       limit,
       direction,
       error: error instanceof Error ? error.message : String(error)
@@ -188,11 +188,11 @@ async function getBoundaryBlogPosts(
  * @returns Array of blog posts
  */
 export async function getLatestBlogPosts(limit = 3): Promise<BlogPostListItem[]> {
-  return await getBoundaryBlogPosts(limit, 'desc');
+  return await getBoundaryBlogPosts(limit, "desc");
 }
 
 export async function getOldestBlogPosts(limit = 1): Promise<BlogPostListItem[]> {
-  return await getBoundaryBlogPosts(limit, 'asc');
+  return await getBoundaryBlogPosts(limit, "asc");
 }
 
 export interface BlogPostSitemapItem {
@@ -219,7 +219,7 @@ export async function getBlogPostsForSitemap(): Promise<BlogPostSitemapItem[]> {
 
     return posts;
   } catch (error) {
-    log.error('Error fetching blog posts for sitemap', {
+    log.error("Error fetching blog posts for sitemap", {
       error: error instanceof Error ? error.message : String(error)
     });
     return [];
@@ -243,7 +243,7 @@ export async function getBlogPostCount(): Promise<number> {
 
     return count;
   } catch (error) {
-    log.error('Error fetching blog post count from Sanity', {
+    log.error("Error fetching blog post count from Sanity", {
       error: error instanceof Error ? error.message : String(error)
     });
     return 0;

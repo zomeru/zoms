@@ -1,9 +1,9 @@
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import type React from 'react';
+import type { Metadata } from "next";
+import Link from "next/link";
+import type React from "react";
 
-import { TerminalCard } from '@/components/ui';
-import { seo } from '@/configs';
+import { TerminalCard } from "@/components/ui";
+import { seo } from "@/configs";
 
 export const metadata: Metadata = {
   ...seo,
@@ -30,11 +30,11 @@ const NotFound = (): React.JSX.Element => {
             <div className="rounded-md border border-code-border bg-surface-elevated/30 p-4">
               <div className="space-y-2 leading-relaxed">
                 <p>
-                  <span className="text-terminal-green">$</span>{' '}
+                  <span className="text-terminal-green">$</span>{" "}
                   <span className="text-text-primary">open current-route</span>
                 </p>
                 <p>
-                  <span className="text-terminal-red">Error:</span>{' '}
+                  <span className="text-terminal-red">Error:</span>{" "}
                   <span className="text-terminal-purple">"route_not_found"</span>
                 </p>
                 <p className="text-text-muted">

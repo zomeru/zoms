@@ -1,4 +1,4 @@
-export type ContentType = 'about' | 'blog' | 'experience' | 'project';
+export type ContentType = "about" | "blog" | "experience" | "project";
 
 export interface NormalizedContentSection {
   content: string;

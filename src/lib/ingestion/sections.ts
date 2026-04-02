@@ -1,10 +1,10 @@
-import type { PortableTextBlock, PortableTextSpan } from '@portabletext/types';
+import type { PortableTextBlock, PortableTextSpan } from "@portabletext/types";
 
-import type { NormalizedContentSection } from '@/lib/content/types';
-import type { Experience } from '@/lib/experience';
-import type { Project } from '@/lib/projects';
+import type { NormalizedContentSection } from "@/lib/content/types";
+import type { Experience } from "@/lib/experience";
+import type { Project } from "@/lib/projects";
 
-import { slugify } from './normalize';
+import { slugify } from "./normalize";
 
 export interface AboutContentSource {
   experienceSummary: string[];
@@ -14,13 +14,13 @@ export interface AboutContentSource {
 
 export function splitMarkdownIntoSections(markdown: string): NormalizedContentSection[] {
   const sections: NormalizedContentSection[] = [];
-  let currentTitle = 'Body';
-  let currentId = 'body';
+  let currentTitle = "Body";
+  let currentId = "body";
   let buffer: string[] = [];
   let inCodeFence = false;
 
   const flush = (): void => {
-    const content = buffer.join('\n').trim();
+    const content = buffer.join("\n").trim();
 
     if (content.length === 0) {
       buffer = [];
@@ -36,8 +36,8 @@ export function splitMarkdownIntoSections(markdown: string): NormalizedContentSe
     buffer = [];
   };
 
-  for (const line of markdown.split('\n')) {
-    if (line.trim().startsWith('```')) {
+  for (const line of markdown.split("\n")) {
+    if (line.trim().startsWith("```")) {
       inCodeFence = !inCodeFence;
       buffer.push(line);
       continue;
@@ -61,8 +61,8 @@ export function splitMarkdownIntoSections(markdown: string): NormalizedContentSe
     : [
         {
           content: markdown.trim(),
-          id: 'body',
-          title: 'Body'
+          id: "body",
+          title: "Body"
         }
       ];
 }
@@ -71,18 +71,18 @@ export function createProjectSections(project: Project): NormalizedContentSectio
   return [
     {
       content: project.info,
-      id: 'overview',
-      title: 'Overview'
+      id: "overview",
+      title: "Overview"
     },
     {
-      content: project.techs.join('\n'),
-      id: 'stack',
-      title: 'Stack'
+      content: project.techs.join("\n"),
+      id: "stack",
+      title: "Stack"
     },
     {
-      content: [`Demo: ${project.links.demo}`, `GitHub: ${project.links.github}`].join('\n'),
-      id: 'links',
-      title: 'Links'
+      content: [`Demo: ${project.links.demo}`, `GitHub: ${project.links.github}`].join("\n"),
+      id: "links",
+      title: "Links"
     }
   ];
 }
@@ -91,22 +91,22 @@ export function flattenDutyText(duty: PortableTextBlock): string {
   return duty.children
     .map((child) => (isPortableTextSpan(child) ? child.text.trim() : undefined))
     .filter((value): value is string => Boolean(value))
-    .join(' ')
+    .join(" ")
     .trim();
 }
 
 function isPortableTextSpan(
-  child: PortableTextBlock['children'][number]
+  child: PortableTextBlock["children"][number]
 ): child is PortableTextSpan {
-  return child._type === 'span';
+  return child._type === "span";
 }
 
 export function createExperienceSummary(experienceEntries: Experience[]): string[] {
   return experienceEntries.map((item) => {
-    const duties = item.duties.map(flattenDutyText).filter(Boolean).join(' ');
+    const duties = item.duties.map(flattenDutyText).filter(Boolean).join(" ");
     return [item.title, item.company, item.range, item.location, duties]
       .filter(Boolean)
-      .join(' — ');
+      .join(" — ");
   });
 }
 
@@ -120,20 +120,20 @@ export function createExperienceSections(experienceEntry: Experience): Normalize
         `Company: ${experienceEntry.company}`,
         `Dates: ${experienceEntry.range}`,
         `Location: ${experienceEntry.location}`,
-        experienceEntry.companyWebsite ? `Company website: ${experienceEntry.companyWebsite}` : ''
+        experienceEntry.companyWebsite ? `Company website: ${experienceEntry.companyWebsite}` : ""
       ]
         .filter(Boolean)
-        .join('\n'),
-      id: 'overview',
-      title: 'Overview'
+        .join("\n"),
+      id: "overview",
+      title: "Overview"
     },
     {
       content:
         responsibilities.length > 0
-          ? responsibilities.map((responsibility) => `- ${responsibility}`).join('\n')
-          : 'Responsibilities not listed.',
-      id: 'responsibilities',
-      title: 'Responsibilities'
+          ? responsibilities.map((responsibility) => `- ${responsibility}`).join("\n")
+          : "Responsibilities not listed.",
+      id: "responsibilities",
+      title: "Responsibilities"
     }
   ];
 }
@@ -142,18 +142,18 @@ export function createAboutSections(source: AboutContentSource): NormalizedConte
   return [
     {
       content: source.intro,
-      id: 'intro',
-      title: 'Intro'
+      id: "intro",
+      title: "Intro"
     },
     {
-      content: source.skills.join('\n'),
-      id: 'skills',
-      title: 'Skills'
+      content: source.skills.join("\n"),
+      id: "skills",
+      title: "Skills"
     },
     {
-      content: source.experienceSummary.join('\n'),
-      id: 'experience',
-      title: 'Experience'
+      content: source.experienceSummary.join("\n"),
+      id: "experience",
+      title: "Experience"
     }
   ];
 }

@@ -10,8 +10,8 @@
  * Sequential GitHub requests are intentional to avoid tripping rate limits.
  */
 
-import log from '../logger';
-import { formatIsoDate } from '../utils';
+import log from "../logger";
+import { formatIsoDate } from "../utils";
 import {
   type CacheEntry,
   calculateLongestStreak,
@@ -32,7 +32,7 @@ import {
   isGraphQLDevStatsData,
   parseContributorStatsResponse,
   parseRepositoriesResponse
-} from './helper';
+} from "./helper";
 
 export interface GitHubStats {
   totalAdditions: number;
@@ -50,8 +50,8 @@ export interface GitHubDevStats {
   lastUpdated: string;
 }
 
-const GITHUB_API_BASE = 'https://api.github.com';
-const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
+const GITHUB_API_BASE = "https://api.github.com";
+const GITHUB_GRAPHQL_URL = "https://api.github.com/graphql";
 const STATS_202_RETRIES = 3;
 const STATS_202_DELAY_MS = 3000;
 
@@ -165,7 +165,7 @@ async function processRepository(
     const additions = calculateUserAdditions(stats, userId);
     return { additions, success: true };
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+    const errorMsg = error instanceof Error ? error.message : "Unknown error";
     log.warn(`Failed to fetch stats for ${repoName}`, { error: errorMsg });
     return { additions: 0, success: false };
   }
@@ -199,7 +199,7 @@ export async function getGitHubStats(username: string): Promise<GitHubStats> {
   const cached = statsCache.get(cacheKey);
 
   if (cached && isCacheValid(cached)) {
-    log.debug('Returning cached GitHub stats');
+    log.debug("Returning cached GitHub stats");
     return cached.data;
   }
 
@@ -213,7 +213,7 @@ export async function getGitHubStats(username: string): Promise<GitHubStats> {
 
     const userId = repositories[0]?.owner.id;
     if (!userId) {
-      throw new Error('Could not determine user ID');
+      throw new Error("Could not determine user ID");
     }
 
     let totalAdditions = 0;
@@ -250,8 +250,8 @@ export async function getGitHubStats(username: string): Promise<GitHubStats> {
 
     return stats;
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-    log.error('Failed to fetch GitHub stats', { error: errorMsg });
+    const errorMsg = error instanceof Error ? error.message : "Unknown error";
+    log.error("Failed to fetch GitHub stats", { error: errorMsg });
     throw error;
   }
 }
@@ -261,7 +261,7 @@ export async function getGitHubDevStats(username: string): Promise<GitHubDevStat
   const cached = devStatsCache.get(cacheKey);
 
   if (cached && isCacheValid(cached)) {
-    log.debug('Returning cached GitHub dev stats');
+    log.debug("Returning cached GitHub dev stats");
     return cached.data;
   }
 
@@ -300,7 +300,7 @@ export async function getGitHubDevStats(username: string): Promise<GitHubDevStat
         pullRequests {
           totalCount
         }
-        ${yearAliases.join('\n')}
+        ${yearAliases.join("\n")}
       }
     }
   `;
@@ -362,7 +362,7 @@ export function clearGitHubStatsCache(username?: string): void {
   statsCache.clear();
   devStatsCache.clear();
   creationYearCache.clear();
-  log.debug('Cleared all GitHub stats caches');
+  log.debug("Cleared all GitHub stats caches");
 }
 
 export function getCacheInfo(): {

@@ -1,62 +1,62 @@
-import { defineField, defineType } from 'sanity';
+import { defineField, defineType } from "sanity";
 
 export default defineType({
-  name: 'experience',
-  title: 'Experience',
-  type: 'document',
+  name: "experience",
+  title: "Experience",
+  type: "document",
   fields: [
     defineField({
-      name: 'title',
-      title: 'Job Title',
-      type: 'string',
+      name: "title",
+      title: "Job Title",
+      type: "string",
       validation: (Rule) => Rule.required()
     }),
     defineField({
-      name: 'company',
-      title: 'Company Name',
-      type: 'string',
+      name: "company",
+      title: "Company Name",
+      type: "string",
       validation: (Rule) => Rule.required()
     }),
     defineField({
-      name: 'location',
-      title: 'Location',
-      type: 'string',
+      name: "location",
+      title: "Location",
+      type: "string",
       validation: (Rule) => Rule.required()
     }),
     defineField({
-      name: 'range',
-      title: 'Duration',
-      type: 'string',
+      name: "range",
+      title: "Duration",
+      type: "string",
       description: 'e.g., "Jan. 2024 - Present"',
       validation: (Rule) => Rule.required()
     }),
     defineField({
-      name: 'duties',
-      title: 'Responsibilities',
-      type: 'blockContent',
-      description: 'List of job responsibilities and achievements (supports rich text formatting)'
+      name: "duties",
+      title: "Responsibilities",
+      type: "blockContent",
+      description: "List of job responsibilities and achievements (supports rich text formatting)"
     }),
     defineField({
-      name: 'companyWebsite',
-      title: 'Company Website',
-      type: 'url',
+      name: "companyWebsite",
+      title: "Company Website",
+      type: "url",
       description: "Optional: link to the company's official website",
-      validation: (Rule) => Rule.uri({ scheme: ['http', 'https'] })
+      validation: (Rule) => Rule.uri({ scheme: ["http", "https"] })
     }),
     defineField({
-      name: 'order',
-      title: 'Order',
-      type: 'number',
-      description: 'Used to order experience entries (higher numbers appear first)',
+      name: "order",
+      title: "Order",
+      type: "number",
+      description: "Used to order experience entries (higher numbers appear first)",
       validation: (Rule) => Rule.required().integer().min(0)
     })
   ],
   preview: {
     select: {
-      title: 'title',
-      company: 'company',
-      range: 'range',
-      order: 'order'
+      title: "title",
+      company: "company",
+      range: "range",
+      order: "order"
     },
     prepare(selection: Record<string, string>) {
       const { title, company, range, order } = selection;
@@ -68,9 +68,9 @@ export default defineType({
   },
   orderings: [
     {
-      title: 'Order',
-      name: 'orderAsc',
-      by: [{ field: 'order', direction: 'asc' }]
+      title: "Order",
+      name: "orderAsc",
+      by: [{ field: "order", direction: "asc" }]
     }
   ]
 });

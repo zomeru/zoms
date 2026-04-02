@@ -3,10 +3,10 @@
  * Provides structured logging with automatic data sanitization (GDPR compliant)
  */
 
-type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+type LogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal";
 
-const IS_DEVELOPMENT = process.env.NODE_ENV === 'development';
-const IS_EDGE = typeof process !== 'undefined' && process.env.NEXT_RUNTIME === 'edge';
+const IS_DEVELOPMENT = process.env.NODE_ENV === "development";
+const IS_EDGE = typeof process !== "undefined" && process.env.NEXT_RUNTIME === "edge";
 
 // Log level hierarchy for filtering
 const LOG_LEVELS: Record<LogLevel, number> = {
@@ -20,36 +20,36 @@ const LOG_LEVELS: Record<LogLevel, number> = {
 
 // Get configured log level
 const getLogLevel = (): LogLevel => {
-  const level = process.env.NEXLOG_LEVEL ?? (IS_DEVELOPMENT ? 'debug' : 'info');
-  const validLevels: LogLevel[] = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
-  return validLevels.includes(level as LogLevel) ? (level as LogLevel) : 'info';
+  const level = process.env.NEXLOG_LEVEL ?? (IS_DEVELOPMENT ? "debug" : "info");
+  const validLevels: LogLevel[] = ["trace", "debug", "info", "warn", "error", "fatal"];
+  return validLevels.includes(level as LogLevel) ? (level as LogLevel) : "info";
 };
 
 const currentLevel = getLogLevel();
-const useStructured = process.env.NEXLOG_STRUCTURED === 'true' || !IS_DEVELOPMENT;
+const useStructured = process.env.NEXLOG_STRUCTURED === "true" || !IS_DEVELOPMENT;
 
 // Sanitize sensitive data (GDPR compliant)
 const sensitivePatterns = [
-  { pattern: /password/i, replacement: '[REDACTED]' },
-  { pattern: /apikey/i, replacement: '[REDACTED]' },
-  { pattern: /api_key/i, replacement: '[REDACTED]' },
-  { pattern: /token/i, replacement: '[REDACTED]' },
-  { pattern: /secret/i, replacement: '[REDACTED]' },
-  { pattern: /authorization/i, replacement: '[REDACTED]' },
+  { pattern: /password/i, replacement: "[REDACTED]" },
+  { pattern: /apikey/i, replacement: "[REDACTED]" },
+  { pattern: /api_key/i, replacement: "[REDACTED]" },
+  { pattern: /token/i, replacement: "[REDACTED]" },
+  { pattern: /secret/i, replacement: "[REDACTED]" },
+  { pattern: /authorization/i, replacement: "[REDACTED]" },
   {
     pattern: /\b[\w._%+-]+@[\w.-]+\.[A-Z]{2,}\b/gi,
     replacement: (email: string) => {
-      const [local, domain] = email.split('@');
+      const [local, domain] = email.split("@");
       return `${local.substring(0, 2)}***@${domain}`;
     }
   }
 ];
 
 const sanitizeValue = (value: unknown): unknown => {
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     let sanitized = value;
     for (const { pattern, replacement } of sensitivePatterns) {
-      if (typeof replacement === 'function') {
+      if (typeof replacement === "function") {
         sanitized = sanitized.replace(pattern, replacement);
       } else if (pattern.test(sanitized)) {
         return replacement;
@@ -62,12 +62,12 @@ const sanitizeValue = (value: unknown): unknown => {
     return value.map(sanitizeValue);
   }
 
-  if (value !== null && typeof value === 'object') {
+  if (value !== null && typeof value === "object") {
     const sanitized: Record<string, unknown> = {};
     for (const [key, val] of Object.entries(value)) {
       // Check if key itself is sensitive
       const isSensitiveKey = sensitivePatterns.some((p) => p.pattern.test(key));
-      sanitized[key] = isSensitiveKey ? '[REDACTED]' : sanitizeValue(val);
+      sanitized[key] = isSensitiveKey ? "[REDACTED]" : sanitizeValue(val);
     }
     return sanitized;
   }
@@ -91,25 +91,25 @@ const formatLog = (level: LogLevel, message: string, metadata?: Record<string, u
       timestamp,
       level: level.toUpperCase(),
       message,
-      service: 'zoms-portfolio',
+      service: "zoms-portfolio",
       environment: process.env.NODE_ENV,
-      runtime: IS_EDGE ? 'edge' : 'node',
+      runtime: IS_EDGE ? "edge" : "node",
       ...(sanitizedMetadata as object)
     };
     console.log(JSON.stringify(logEntry));
   } else {
     // Pretty logging for development
     const emoji = {
-      trace: '🔍',
-      debug: '🐛',
-      info: 'ℹ️',
-      warn: '⚠️',
-      error: '❌',
-      fatal: '💥'
+      trace: "🔍",
+      debug: "🐛",
+      info: "ℹ️",
+      warn: "⚠️",
+      error: "❌",
+      fatal: "💥"
     }[level];
 
     const coloredLevel = level.toUpperCase().padEnd(5);
-    console.log(`${emoji} [${timestamp}] ${coloredLevel} ${message}`, sanitizedMetadata ?? '');
+    console.log(`${emoji} [${timestamp}] ${coloredLevel} ${message}`, sanitizedMetadata ?? "");
   }
 };
 
@@ -121,49 +121,49 @@ export const log = {
    * Trace level - Detailed debugging information
    */
   trace: (message: string, metadata?: Record<string, unknown>): void => {
-    formatLog('trace', message, metadata);
+    formatLog("trace", message, metadata);
   },
 
   /**
    * Debug level - Debug information for development
    */
   debug: (message: string, metadata?: Record<string, unknown>): void => {
-    formatLog('debug', message, metadata);
+    formatLog("debug", message, metadata);
   },
 
   /**
    * Info level - General informational messages
    */
   info: (message: string, metadata?: Record<string, unknown>): void => {
-    formatLog('info', message, metadata);
+    formatLog("info", message, metadata);
   },
 
   /**
    * Warn level - Warning messages for potential issues
    */
   warn: (message: string, metadata?: Record<string, unknown>): void => {
-    formatLog('warn', message, metadata);
+    formatLog("warn", message, metadata);
   },
 
   /**
    * Error level - Error messages for failures
    */
   error: (message: string, metadata?: Record<string, unknown>): void => {
-    formatLog('error', message, metadata);
+    formatLog("error", message, metadata);
   },
 
   /**
    * Fatal level - Critical failures requiring immediate attention
    */
   fatal: (message: string, metadata?: Record<string, unknown>): void => {
-    formatLog('fatal', message, metadata);
+    formatLog("fatal", message, metadata);
   },
 
   /**
    * Log API request with metadata
    */
   request: (method: string, path: string, metadata?: Record<string, unknown>): void => {
-    formatLog('info', 'API Request', {
+    formatLog("info", "API Request", {
       method,
       path,
       ...metadata
@@ -179,7 +179,7 @@ export const log = {
     status: number,
     metadata?: Record<string, unknown>
   ): void => {
-    formatLog('info', 'API Response', {
+    formatLog("info", "API Response", {
       method,
       path,
       status,
@@ -191,7 +191,7 @@ export const log = {
    * Log performance metrics
    */
   performance: (label: string, duration: number, metadata?: Record<string, unknown>): void => {
-    formatLog('info', 'Performance', {
+    formatLog("info", "Performance", {
       label,
       duration: `${duration}ms`,
       ...metadata

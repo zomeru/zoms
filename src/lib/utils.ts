@@ -1,29 +1,29 @@
 export function formatDate(dateString: string): string {
-  const date = new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    timeZone: 'UTC'
+  const date = new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC"
   });
 
   return date;
 }
 
 export function formatDateWithTime(dateString: string): string {
-  const date = new Date(dateString).toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  const date = new Date(dateString).toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
     hour12: true,
-    timeZone: 'UTC'
+    timeZone: "UTC"
   });
   return date;
 }
 
 export function formatIsoDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", year: "numeric" });
 }
 
 export function pickOneOrNone<T>(arr: T[], forcePick = false, chance = 0.65): T | undefined {

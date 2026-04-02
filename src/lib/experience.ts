@@ -1,9 +1,9 @@
-import type { PortableTextBlock } from '@portabletext/types';
+import type { PortableTextBlock } from "@portabletext/types";
 
-import { experience as fallbackExperience } from '@/constants/experience';
+import { experience as fallbackExperience } from "@/constants/experience";
 
-import log from './logger';
-import { getSanityClient } from './sanity';
+import log from "./logger";
+import { getSanityClient } from "./sanity";
 
 export interface Experience {
   _id?: string;
@@ -43,7 +43,7 @@ export async function getExperience(): Promise<Experience[]> {
 
     return experiences;
   } catch (error) {
-    log.warn('Error fetching experience from Sanity, using fallback', {
+    log.warn("Error fetching experience from Sanity, using fallback", {
       error: error instanceof Error ? error.message : String(error)
     });
     return fallbackExperience;

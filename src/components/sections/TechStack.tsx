@@ -1,7 +1,7 @@
-import type React from 'react';
+import type React from "react";
 
-import { TechBadge } from '@/components/ui';
-import { technologies } from '@/constants';
+import { TechBadge } from "@/components/ui";
+import { technologies } from "@/constants";
 
 const TechStack: React.FC = (): React.JSX.Element => {
   return (

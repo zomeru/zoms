@@ -1,4 +1,4 @@
-import type { Citation, TransformResult } from '@/lib/ai/schemas';
+import type { Citation, TransformResult } from "@/lib/ai/schemas";
 
 export interface AssistantMessage {
   citations?: Citation[];
@@ -6,7 +6,7 @@ export interface AssistantMessage {
   id: string;
   isPending?: boolean;
   messageId?: string;
-  role: 'assistant' | 'user';
+  role: "assistant" | "user";
   supported?: boolean;
   transform?: TransformResult;
 }
@@ -29,16 +29,16 @@ export interface StreamEvent {
   messageId?: string;
   sessionKey?: string;
   text?: string;
-  type: 'chunk' | 'done' | 'session';
+  type: "chunk" | "done" | "session";
 }
 
 export const CHAT_HISTORY_PAGE_SIZE = 10;
-export const WELCOME_MESSAGE_ID = 'assistant-welcome';
+export const WELCOME_MESSAGE_ID = "assistant-welcome";
 export const WELCOME_MESSAGE: AssistantMessage = {
   content:
-    'Hi there! Thanks for visiting my website. Feel free to ask me about my projects, experience, blogs, or even a general question.',
+    "Hi there! Thanks for visiting my website. Feel free to ask me about my projects, experience, blogs, or even a general question.",
   id: WELCOME_MESSAGE_ID,
-  role: 'assistant'
+  role: "assistant"
 };
 
 export function createId(prefix: string): string {
@@ -51,23 +51,23 @@ export function getBlogSlugFromPathname(pathname: string): string | undefined {
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
+  return typeof value === "object" && value !== null;
 }
 
 export function isStreamEvent(value: unknown): value is StreamEvent {
-  if (!isRecord(value) || typeof value.type !== 'string') {
+  if (!isRecord(value) || typeof value.type !== "string") {
     return false;
   }
 
-  return value.type === 'chunk' || value.type === 'done' || value.type === 'session';
+  return value.type === "chunk" || value.type === "done" || value.type === "session";
 }
 
 export function isTransformResult(value: unknown): value is TransformResult {
   return (
     isRecord(value) &&
-    typeof value.mode === 'string' &&
-    typeof value.title === 'string' &&
-    typeof value.transformedText === 'string' &&
+    typeof value.mode === "string" &&
+    typeof value.title === "string" &&
+    typeof value.transformedText === "string" &&
     Array.isArray(value.bullets)
   );
 }
@@ -78,21 +78,21 @@ export function isAssistantMessage(value: unknown): value is AssistantMessage {
   }
 
   return (
-    typeof value.id === 'string' &&
-    typeof value.content === 'string' &&
-    (value.role === 'assistant' || value.role === 'user')
+    typeof value.id === "string" &&
+    typeof value.content === "string" &&
+    (value.role === "assistant" || value.role === "user")
   );
 }
 
 export function isChatHistoryResponse(value: unknown): value is ChatHistoryResponse {
   return (
     isRecord(value) &&
-    typeof value.hasMore === 'boolean' &&
-    typeof value.limit === 'number' &&
-    (typeof value.sessionKey === 'string' || value.sessionKey === null) &&
+    typeof value.hasMore === "boolean" &&
+    typeof value.limit === "number" &&
+    (typeof value.sessionKey === "string" || value.sessionKey === null) &&
     Array.isArray(value.messages) &&
-    typeof value.offset === 'number' &&
-    typeof value.total === 'number' &&
+    typeof value.offset === "number" &&
+    typeof value.total === "number" &&
     value.messages.every(isAssistantMessage)
   );
 }

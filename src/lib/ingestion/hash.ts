@@ -1,13 +1,13 @@
-import { createHash } from 'node:crypto';
+import { createHash } from "node:crypto";
 
-import type { NormalizedContentDocument } from '@/lib/content/types';
+import type { NormalizedContentDocument } from "@/lib/content/types";
 
 function sortValue(value: unknown): unknown {
   if (Array.isArray(value)) {
     return value.map(sortValue);
   }
 
-  if (value && typeof value === 'object') {
+  if (value && typeof value === "object") {
     return Object.fromEntries(
       Object.entries(value)
         .sort(([left], [right]) => left.localeCompare(right))
@@ -19,9 +19,9 @@ function sortValue(value: unknown): unknown {
 }
 
 export function createStableHash(value: unknown): string {
-  return createHash('sha256')
+  return createHash("sha256")
     .update(JSON.stringify(sortValue(value)))
-    .digest('hex');
+    .digest("hex");
 }
 
 export function createDocumentHash(document: NormalizedContentDocument): string {

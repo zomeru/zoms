@@ -3,11 +3,11 @@
  * Provides type-safe request/response validation across the application
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 
 // Blog Post Schemas
 export const blogPostSlugSchema = z.object({
-  _type: z.literal('slug'),
+  _type: z.literal("slug"),
   current: z.string().min(1)
 });
 
@@ -37,10 +37,10 @@ export const blogListQuerySchema = z.object({
 export const blogGenerateRequestSchema = z
   .object({
     aiGenerated: z.boolean().optional(),
-    triggerMode: z.enum(['manual', 'scheduled']).optional()
+    triggerMode: z.enum(["manual", "scheduled"]).optional()
   })
   .transform((input) => ({
-    triggerMode: input.triggerMode ?? 'manual'
+    triggerMode: input.triggerMode ?? "manual"
   }));
 
 export const blogGenerateAuthRequestSchema = z.object({
@@ -66,7 +66,7 @@ export const blogGenerateResponseSchema = z.object({
     _id: z.string(),
     title: z.string(),
     slug: z.object({
-      _type: z.literal('slug'),
+      _type: z.literal("slug"),
       current: z.string()
     }),
     summary: z.string(),

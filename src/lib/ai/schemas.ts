@@ -1,6 +1,6 @@
-import { z } from 'zod';
+import { z } from "zod";
 
-const contentTypeSchema = z.enum(['about', 'blog', 'experience', 'project']);
+const contentTypeSchema = z.enum(["about", "blog", "experience", "project"]);
 
 export const citationSchema = z.object({
   contentType: contentTypeSchema,
@@ -19,12 +19,12 @@ export const groundedAnswerSchema = z.object({
 
 export const transformResultSchema = z.object({
   bullets: z.array(z.string().min(1)).min(1).max(6),
-  mode: z.enum(['advanced', 'beginner', 'tldr']),
+  mode: z.enum(["advanced", "beginner", "tldr"]),
   title: z.string().min(1),
   transformedText: z.string().min(1)
 });
 
 export type Citation = z.infer<typeof citationSchema>;
 export type GroundedAnswer = z.infer<typeof groundedAnswerSchema>;
-export type TransformMode = z.infer<typeof transformResultSchema>['mode'];
+export type TransformMode = z.infer<typeof transformResultSchema>["mode"];
 export type TransformResult = z.infer<typeof transformResultSchema>;

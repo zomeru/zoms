@@ -1,5 +1,5 @@
-import { checkBotId } from 'botid/server';
-import { type NextRequest, NextResponse } from 'next/server';
+import { checkBotId } from "botid/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 export interface BotIdProtectedRoute {
   method: string;
@@ -7,11 +7,11 @@ export interface BotIdProtectedRoute {
 }
 
 export const BOTID_PROTECTED_ROUTES: BotIdProtectedRoute[] = [
-  { path: '/api/*', method: 'GET' },
-  { path: '/api/*', method: 'POST' },
-  { path: '/api/*', method: 'PUT' },
-  { path: '/api/*', method: 'PATCH' },
-  { path: '/api/*', method: 'DELETE' }
+  { path: "/api/*", method: "GET" },
+  { path: "/api/*", method: "POST" },
+  { path: "/api/*", method: "PUT" },
+  { path: "/api/*", method: "PATCH" },
+  { path: "/api/*", method: "DELETE" }
 ];
 
 interface VerifyBotIdRequestOptions {
@@ -22,7 +22,7 @@ export async function verifyBotIdRequest(
   request: NextRequest,
   options: VerifyBotIdRequestOptions = {}
 ): Promise<NextResponse | null> {
-  if (options.allowAuthorizedServiceRequest && request.headers.has('authorization')) {
+  if (options.allowAuthorizedServiceRequest && request.headers.has("authorization")) {
     return null;
   }
 
@@ -32,5 +32,5 @@ export async function verifyBotIdRequest(
     return null;
   }
 
-  return NextResponse.json({ error: 'Bot detected. Access denied.' }, { status: 403 });
+  return NextResponse.json({ error: "Bot detected. Access denied." }, { status: 403 });
 }

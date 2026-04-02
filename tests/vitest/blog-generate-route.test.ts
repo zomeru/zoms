@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { NextRequest } from "next/server";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const checkBotId = vi.fn();
 const rateLimitMiddleware = vi.fn();
@@ -18,35 +18,35 @@ const log = {
   warn: vi.fn()
 };
 
-vi.mock('@/lib/rateLimit', () => ({
+vi.mock("@/lib/rateLimit", () => ({
   rateLimitMiddleware
 }));
 
-vi.mock('@/lib/blog-generator', () => ({
+vi.mock("@/lib/blog-generator", () => ({
   generateBlogContent
 }));
 
-vi.mock('next/cache', () => ({
+vi.mock("next/cache", () => ({
   revalidatePath
 }));
 
-vi.mock('@sanity/client', () => ({
+vi.mock("@sanity/client", () => ({
   createClient: createSanityClient
 }));
 
-vi.mock('@/lib/blogReindex', () => ({
+vi.mock("@/lib/blogReindex", () => ({
   scheduleBlogReindex
 }));
 
-vi.mock('@/lib/logger', () => ({
+vi.mock("@/lib/logger", () => ({
   default: log
 }));
 
-vi.mock('botid/server', () => ({
+vi.mock("botid/server", () => ({
   checkBotId
 }));
 
-describe('blog generation route', () => {
+describe("blog generation route", () => {
   beforeEach(() => {
     checkBotId.mockResolvedValue({
       bypassed: false,
@@ -56,32 +56,32 @@ describe('blog generation route', () => {
     });
     rateLimitMiddleware.mockResolvedValue(null);
     generateBlogContent.mockResolvedValue({
-      body: '# Post body',
-      provider: 'gemini',
+      body: "# Post body",
+      provider: "gemini",
       readTime: 5,
-      suggestedSlug: 'generated-blog-post',
-      summary: 'Generated summary',
-      tags: ['AI', 'Next.js'],
-      title: 'Generated Blog Post'
+      suggestedSlug: "generated-blog-post",
+      summary: "Generated summary",
+      tags: ["AI", "Next.js"],
+      title: "Generated Blog Post"
     });
     sanityCreate.mockResolvedValue({
-      _id: 'sanity-post-id',
+      _id: "sanity-post-id",
       generated: true,
-      publishedAt: '2026-03-23T00:00:00.000Z',
+      publishedAt: "2026-03-23T00:00:00.000Z",
       readTime: 5,
-      slug: { current: 'generated-blog-post' },
-      tags: ['AI', 'Next.js'],
-      title: 'Generated Blog Post'
+      slug: { current: "generated-blog-post" },
+      tags: ["AI", "Next.js"],
+      title: "Generated Blog Post"
     });
     createSanityClient.mockReturnValue({
       create: sanityCreate,
       fetch: sanityFetch
     });
     sanityFetch.mockResolvedValue([]);
-    process.env.CRON_SECRET = 'cron-secret';
-    process.env.SANITY_API_TOKEN = 'sanity-token';
-    process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = 'project-id';
-    process.env.NEXT_PUBLIC_SANITY_DATASET = 'dataset';
+    process.env.CRON_SECRET = "cron-secret";
+    process.env.SANITY_API_TOKEN = "sanity-token";
+    process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = "project-id";
+    process.env.NEXT_PUBLIC_SANITY_DATASET = "dataset";
   });
 
   afterEach(() => {
@@ -92,7 +92,7 @@ describe('blog generation route', () => {
     delete process.env.NEXT_PUBLIC_SANITY_DATASET;
   });
 
-  it('rejects unverified bots before processing the request', async () => {
+  it("rejects unverified bots before processing the request", async () => {
     checkBotId.mockResolvedValue({
       bypassed: false,
       isBot: true,
@@ -100,32 +100,32 @@ describe('blog generation route', () => {
       isVerifiedBot: false
     });
 
-    const { POST } = await import('@/app/api/blog/generate/route');
+    const { POST } = await import("@/app/api/blog/generate/route");
 
     const response = await POST(
-      new NextRequest('http://localhost/api/blog/generate', {
+      new NextRequest("http://localhost/api/blog/generate", {
         body: JSON.stringify({ aiGenerated: true }),
-        method: 'POST'
+        method: "POST"
       })
     );
 
     expect(response.status).toBe(403);
     expect(await response.json()).toMatchObject({
-      error: 'Bot detected. Access denied.'
+      error: "Bot detected. Access denied."
     });
     expect(generateBlogContent).not.toHaveBeenCalled();
   });
 
-  it('marks manual runs as AI-generated, revalidates blog surfaces, and schedules a targeted reindex', async () => {
-    const { POST } = await import('@/app/api/blog/generate/route');
+  it("marks manual runs as AI-generated, revalidates blog surfaces, and schedules a targeted reindex", async () => {
+    const { POST } = await import("@/app/api/blog/generate/route");
 
     const response = await POST(
-      new NextRequest('http://localhost/api/blog/generate', {
+      new NextRequest("http://localhost/api/blog/generate", {
         body: JSON.stringify({ aiGenerated: true }),
         headers: {
-          authorization: 'Bearer cron-secret'
+          authorization: "Bearer cron-secret"
         },
-        method: 'POST'
+        method: "POST"
       })
     );
 
@@ -134,9 +134,9 @@ describe('blog generation route', () => {
       post: {
         generated: true,
         slug: {
-          current: 'generated-blog-post'
+          current: "generated-blog-post"
         },
-        title: 'Generated Blog Post'
+        title: "Generated Blog Post"
       },
       success: true
     });
@@ -144,30 +144,30 @@ describe('blog generation route', () => {
       expect.objectContaining({
         generated: true,
         slug: {
-          _type: 'slug',
-          current: 'generated-blog-post'
+          _type: "slug",
+          current: "generated-blog-post"
         },
-        source: 'manual/gemini'
+        source: "manual/gemini"
       })
     );
-    expect(revalidatePath).toHaveBeenCalledWith('/');
-    expect(revalidatePath).toHaveBeenCalledWith('/blog');
-    expect(revalidatePath).toHaveBeenCalledWith('/blog/generated-blog-post');
-    expect(scheduleBlogReindex).toHaveBeenCalledWith('generated-blog-post');
+    expect(revalidatePath).toHaveBeenCalledWith("/");
+    expect(revalidatePath).toHaveBeenCalledWith("/blog");
+    expect(revalidatePath).toHaveBeenCalledWith("/blog/generated-blog-post");
+    expect(scheduleBlogReindex).toHaveBeenCalledWith("generated-blog-post");
   });
 
-  it('resolves slug conflicts before creating the new post', async () => {
-    sanityFetch.mockResolvedValueOnce(['generated-blog-post', 'generated-blog-post-1']);
+  it("resolves slug conflicts before creating the new post", async () => {
+    sanityFetch.mockResolvedValueOnce(["generated-blog-post", "generated-blog-post-1"]);
 
-    const { POST } = await import('@/app/api/blog/generate/route');
+    const { POST } = await import("@/app/api/blog/generate/route");
 
     const response = await POST(
-      new NextRequest('http://localhost/api/blog/generate', {
-        body: JSON.stringify({ triggerMode: 'manual' }),
+      new NextRequest("http://localhost/api/blog/generate", {
+        body: JSON.stringify({ triggerMode: "manual" }),
         headers: {
-          authorization: 'Bearer cron-secret'
+          authorization: "Bearer cron-secret"
         },
-        method: 'POST'
+        method: "POST"
       })
     );
 
@@ -175,8 +175,8 @@ describe('blog generation route', () => {
     expect(sanityCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         slug: {
-          _type: 'slug',
-          current: 'generated-blog-post-2'
+          _type: "slug",
+          current: "generated-blog-post-2"
         }
       })
     );

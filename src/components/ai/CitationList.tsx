@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import type { Citation } from '@/lib/ai/schemas';
+import type { Citation } from "@/lib/ai/schemas";
 
 interface CitationListProps {
   citations: Citation[];
@@ -11,7 +11,7 @@ function dedupeCitations(citations: Citation[]): Citation[] {
 
   return citations.filter((citation) => {
     const key =
-      citation.contentType === 'blog'
+      citation.contentType === "blog"
         ? `blog:${citation.url}`
         : [
             citation.contentType,
@@ -19,7 +19,7 @@ function dedupeCitations(citations: Citation[]): Citation[] {
             citation.title,
             citation.sectionTitle,
             citation.snippet
-          ].join('::');
+          ].join("::");
 
     if (seen.has(key)) {
       return false;
@@ -46,7 +46,7 @@ export default function CitationList({ citations }: CitationListProps) {
         {uniqueCitations.map((citation) => (
           <a
             key={
-              citation.contentType === 'blog'
+              citation.contentType === "blog"
                 ? `blog:${citation.url}`
                 : [
                     citation.contentType,
@@ -54,12 +54,12 @@ export default function CitationList({ citations }: CitationListProps) {
                     citation.title,
                     citation.sectionTitle,
                     citation.snippet
-                  ].join('::')
+                  ].join("::")
             }
             href={citation.url}
             className="block rounded-xl border border-border/80 bg-surface/80 px-3 py-2 text-sm text-text-primary transition hover:border-primary/40"
           >
-            {citation.contentType === 'blog' ? (
+            {citation.contentType === "blog" ? (
               <span className="block font-medium">{citation.snippet}</span>
             ) : (
               <>

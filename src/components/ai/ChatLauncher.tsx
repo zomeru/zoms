@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { FiMessageCircle } from 'react-icons/fi';
+import { FiMessageCircle } from "react-icons/fi";
 
 import {
   FLOATING_WIDGET_ICON_SHELL,
   FLOATING_WIDGET_META,
   FLOATING_WIDGET_TRIGGER_SHADOW,
   FLOATING_WIDGET_TRIGGER_SHELL
-} from '@/components/ui/floatingWidgetStyles';
+} from "@/components/ui/floatingWidgetStyles";
 
 interface ChatLauncherProps {
   onClick: () => void;

@@ -1,14 +1,14 @@
-import { type NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from "next/server";
 
-import { BLOG_POSTS_PAGE_SIZE } from '@/constants';
-import { getBlogPostCount, getBlogPosts } from '@/lib/blog';
-import { verifyBotIdRequest } from '@/lib/botId';
-import { handleApiError, validateSchema } from '@/lib/errorHandler';
-import log from '@/lib/logger';
-import { rateLimitMiddleware } from '@/lib/rateLimit';
-import { blogListQuerySchema, blogListResponseSchema } from '@/lib/schemas';
+import { BLOG_POSTS_PAGE_SIZE } from "@/constants";
+import { getBlogPostCount, getBlogPosts } from "@/lib/blog";
+import { verifyBotIdRequest } from "@/lib/botId";
+import { handleApiError, validateSchema } from "@/lib/errorHandler";
+import log from "@/lib/logger";
+import { rateLimitMiddleware } from "@/lib/rateLimit";
+import { blogListQuerySchema, blogListResponseSchema } from "@/lib/schemas";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 /**
  * GET /api/blog
@@ -19,7 +19,7 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now();
-  const path = '/api/blog';
+  const path = "/api/blog";
 
   try {
     const botIdResponse = await verifyBotIdRequest(request);
@@ -28,25 +28,25 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // Rate limiting
-    const rateLimitResponse = await rateLimitMiddleware(request, 'BLOG_API');
+    const rateLimitResponse = await rateLimitMiddleware(request, "BLOG_API");
     if (rateLimitResponse) {
       return rateLimitResponse;
     }
 
-    log.request('GET', path);
+    log.request("GET", path);
 
     // Validate query parameters
     const searchParams = request.nextUrl.searchParams;
     const queryParams = validateSchema(blogListQuerySchema, {
-      limit: searchParams.get('limit') ?? BLOG_POSTS_PAGE_SIZE,
-      offset: searchParams.get('offset') ?? '0'
+      limit: searchParams.get("limit") ?? BLOG_POSTS_PAGE_SIZE,
+      offset: searchParams.get("offset") ?? "0"
     });
 
     const { limit, offset } = queryParams;
 
     // Fetch data
     const [posts, total] = await log.timeAsync(
-      'Fetch blog posts',
+      "Fetch blog posts",
       async () => await Promise.all([getBlogPosts(limit, offset), getBlogPostCount()]),
       { limit, offset }
     );
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
 
     const duration = Date.now() - startTime;
-    log.response('GET', path, 200, {
+    log.response("GET", path, 200, {
       duration: `${duration}ms`,
       postCount: posts.length,
       total,
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(response);
   } catch (error) {
     return handleApiError(error, {
-      method: 'GET',
+      method: "GET",
       path,
       metadata: { duration: Date.now() - startTime }
     });

@@ -1,21 +1,21 @@
-import { streamGeneralAnswer, streamGroundedAnswer } from '@/lib/ai/chat-stream';
-import { getDirectAssistantAnswer } from '@/lib/ai/directAnswers';
-import { filterChatCitations } from '@/lib/ai/responseDecorations';
+import { streamGeneralAnswer, streamGroundedAnswer } from "@/lib/ai/chat-stream";
+import { getDirectAssistantAnswer } from "@/lib/ai/directAnswers";
+import { filterChatCitations } from "@/lib/ai/responseDecorations";
 import {
   isFollowUpQuery,
   type QueryClassification,
   type QueryIntent
-} from '@/lib/retrieval/classify';
+} from "@/lib/retrieval/classify";
 import {
   retrieveBlogs,
   retrieveExperience,
   retrievePortfolio,
   retrieveProjects
-} from '@/lib/retrieval/search';
-import type { RetrievedChunk } from '@/lib/retrieval/types';
-import { getVectorIndexClient } from '@/lib/vector/index';
+} from "@/lib/retrieval/search";
+import type { RetrievedChunk } from "@/lib/retrieval/types";
+import { getVectorIndexClient } from "@/lib/vector/index";
 
-import type { buildConversationHistory } from './messages';
+import type { buildConversationHistory } from "./messages";
 
 type GroundedAnswerStream = Awaited<ReturnType<typeof streamGroundedAnswer>>;
 
@@ -35,21 +35,21 @@ function buildRetrievalQuery(
   }
 
   return [
-    'Conversation history:',
+    "Conversation history:",
     ...conversationHistory.map(
-      (message) => `${message.role === 'user' ? 'User' : 'Assistant'}: ${message.content}`
+      (message) => `${message.role === "user" ? "User" : "Assistant"}: ${message.content}`
     ),
     `Current question: ${question}`
-  ].join('\n');
+  ].join("\n");
 }
 
 function getRetriever(intent: QueryIntent) {
   switch (intent) {
-    case 'EXPERIENCE_QUERY':
+    case "EXPERIENCE_QUERY":
       return retrieveExperience;
-    case 'PROJECT_QUERY':
+    case "PROJECT_QUERY":
       return retrieveProjects;
-    case 'BLOG_QUERY':
+    case "BLOG_QUERY":
       return retrieveBlogs;
     default:
       return retrievePortfolio;
@@ -95,7 +95,7 @@ export async function resolveGroundedAnswer(input: {
     };
   }
 
-  if (input.classification.intent === 'GENERAL_KNOWLEDGE_QUERY' && !followUpQuery) {
+  if (input.classification.intent === "GENERAL_KNOWLEDGE_QUERY" && !followUpQuery) {
     const generalAnswer = await streamGeneralAnswer({
       conversationHistory: input.conversationHistory,
       memoryContext: input.memoryContext,
@@ -117,7 +117,7 @@ export async function resolveGroundedAnswer(input: {
     };
   }
 
-  if (input.classification.intent === 'GENERAL_KNOWLEDGE_QUERY') {
+  if (input.classification.intent === "GENERAL_KNOWLEDGE_QUERY") {
     const retrieval = await retrievePortfolio({
       currentBlogSlug: input.blogSlug,
       query: buildRetrievalQuery(input.question, input.conversationHistory),

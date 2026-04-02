@@ -2,10 +2,10 @@ import {
   PortableText,
   type PortableTextComponents,
   type PortableTextMarkComponentProps
-} from '@portabletext/react';
-import type React from 'react';
+} from "@portabletext/react";
+import type React from "react";
 
-import { TerminalCard } from '@/components/ui';
+import { TerminalCard } from "@/components/ui";
 
 interface LinkValue {
   _type: string;
@@ -52,7 +52,7 @@ const portableTextComponents: PortableTextComponents = {
 };
 
 const Experience: React.FC = async (): Promise<React.JSX.Element> => {
-  const { getExperience } = await import('@/lib/experience');
+  const { getExperience } = await import("@/lib/experience");
   const experience = await getExperience();
 
   return (
@@ -62,14 +62,14 @@ const Experience: React.FC = async (): Promise<React.JSX.Element> => {
       <div className="space-y-6">
         {experience.map(({ title, company, companyWebsite, location, range, duties }) => {
           const id =
-            title.replaceAll(' ', '-').toLowerCase() +
-            '-' +
-            company.replaceAll(' ', '-').toLowerCase();
+            title.replaceAll(" ", "-").toLowerCase() +
+            "-" +
+            company.replaceAll(" ", "-").toLowerCase();
 
           return (
             <TerminalCard
               key={id}
-              title={`${company.toLowerCase().replace(/\s+/g, '-')}.log`}
+              title={`${company.toLowerCase().replace(/\s+/g, "-")}.log`}
               showHeader={true}
               className="transition-colors hover:border-border-hover"
             >

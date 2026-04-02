@@ -1,25 +1,25 @@
-import { createClient, type SanityClient } from '@sanity/client';
-import { revalidatePath } from 'next/cache';
-import { type NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { createClient, type SanityClient } from "@sanity/client";
+import { revalidatePath } from "next/cache";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
-import { getBlogPostBySlug } from '@/lib/blog';
-import { scheduleDeletedBlogCleanup } from '@/lib/blogDeleteCleanup';
-import { isValidBlogGenerationSession } from '@/lib/blogGenerationAuth';
-import { verifyBotIdRequest } from '@/lib/botId';
-import { ApiError, handleApiError, validateSchema } from '@/lib/errorHandler';
-import { getErrorMessage } from '@/lib/errorMessages';
-import log from '@/lib/logger';
-import { rateLimitMiddleware } from '@/lib/rateLimit';
+import { getBlogPostBySlug } from "@/lib/blog";
+import { scheduleDeletedBlogCleanup } from "@/lib/blogDeleteCleanup";
+import { isValidBlogGenerationSession } from "@/lib/blogGenerationAuth";
+import { verifyBotIdRequest } from "@/lib/botId";
+import { ApiError, handleApiError, validateSchema } from "@/lib/errorHandler";
+import { getErrorMessage } from "@/lib/errorMessages";
+import log from "@/lib/logger";
+import { rateLimitMiddleware } from "@/lib/rateLimit";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 const slugParamsSchema = z.object({
   slug: z.string().min(1)
 });
 
 async function validateSecret(request: NextRequest): Promise<void> {
-  const authHeader = request.headers.get('authorization');
+  const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
   const blogGenerationSecret = process.env.BLOG_GENERATION_SECRET ?? cronSecret;
   const hasValidCookie = isValidBlogGenerationSession(request.cookies);
@@ -28,12 +28,12 @@ async function validateSecret(request: NextRequest): Promise<void> {
     (blogGenerationSecret !== undefined && authHeader === `Bearer ${blogGenerationSecret}`);
 
   if (!hasValidCookie && !hasValidBearer) {
-    log.warn('Unauthorized blog deletion attempt', {
+    log.warn("Unauthorized blog deletion attempt", {
       hasAuthHeader: !!authHeader,
       hasCookie: hasValidCookie,
       hasSecret: !!blogGenerationSecret
     });
-    throw new ApiError(getErrorMessage('UNAUTHORIZED'), 401, 'UNAUTHORIZED');
+    throw new ApiError(getErrorMessage("UNAUTHORIZED"), 401, "UNAUTHORIZED");
   }
 }
 
@@ -43,16 +43,16 @@ function createSanityWriteClient(): SanityClient {
   const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
 
   if (!apiToken || !projectId || !dataset) {
-    log.error('Sanity environment variables missing for blog deletion', {
+    log.error("Sanity environment variables missing for blog deletion", {
       hasApiToken: !!apiToken,
       hasDataset: !!dataset,
       hasProjectId: !!projectId
     });
-    throw new ApiError(getErrorMessage('MISSING_SANITY_CONFIG'), 500, 'CONFIG_ERROR');
+    throw new ApiError(getErrorMessage("MISSING_SANITY_CONFIG"), 500, "CONFIG_ERROR");
   }
 
   return createClient({
-    apiVersion: '2026-03-31',
+    apiVersion: "2026-03-31",
     dataset,
     projectId,
     token: apiToken,
@@ -69,7 +69,7 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ): Promise<NextResponse> {
   const startTime = Date.now();
-  const path = '/api/blog/[slug]';
+  const path = "/api/blog/[slug]";
 
   try {
     const botIdResponse = await verifyBotIdRequest(request);
@@ -78,7 +78,7 @@ export async function GET(
     }
 
     // Rate limiting
-    const rateLimitResponse = await rateLimitMiddleware(request, 'BLOG_API');
+    const rateLimitResponse = await rateLimitMiddleware(request, "BLOG_API");
     if (rateLimitResponse) {
       return rateLimitResponse;
     }
@@ -86,20 +86,20 @@ export async function GET(
     const resolvedParams = await params;
     const { slug } = validateSchema(slugParamsSchema, resolvedParams);
 
-    log.request('GET', path, { slug });
+    log.request("GET", path, { slug });
 
     const post = await log.timeAsync(
-      'Fetch blog post by slug',
+      "Fetch blog post by slug",
       async () => await getBlogPostBySlug(slug),
       { slug }
     );
 
     if (!post) {
-      throw new ApiError(getErrorMessage('BLOG_POST_NOT_FOUND'), 404, 'NOT_FOUND');
+      throw new ApiError(getErrorMessage("BLOG_POST_NOT_FOUND"), 404, "NOT_FOUND");
     }
 
     const duration = Date.now() - startTime;
-    log.response('GET', path, 200, {
+    log.response("GET", path, 200, {
       duration: `${duration}ms`,
       slug,
       postId: post._id,
@@ -109,7 +109,7 @@ export async function GET(
     return NextResponse.json({ post });
   } catch (error) {
     return handleApiError(error, {
-      method: 'GET',
+      method: "GET",
       path,
       metadata: { duration: Date.now() - startTime }
     });
@@ -125,7 +125,7 @@ export async function DELETE(
   { params }: { params: Promise<{ slug: string }> }
 ): Promise<NextResponse> {
   const startTime = Date.now();
-  const path = '/api/blog/[slug]';
+  const path = "/api/blog/[slug]";
 
   try {
     const botIdResponse = await verifyBotIdRequest(request, {
@@ -135,7 +135,7 @@ export async function DELETE(
       return botIdResponse;
     }
 
-    const rateLimitResponse = await rateLimitMiddleware(request, 'BLOG_GENERATE');
+    const rateLimitResponse = await rateLimitMiddleware(request, "BLOG_GENERATE");
     if (rateLimitResponse) {
       return rateLimitResponse;
     }
@@ -145,33 +145,33 @@ export async function DELETE(
     const resolvedParams = await params;
     const { slug } = validateSchema(slugParamsSchema, resolvedParams);
 
-    log.request('DELETE', path, { slug });
+    log.request("DELETE", path, { slug });
 
     const post = await log.timeAsync(
-      'Fetch blog post by slug for deletion',
+      "Fetch blog post by slug for deletion",
       async () => await getBlogPostBySlug(slug),
       { slug }
     );
 
     if (!post) {
-      throw new ApiError(getErrorMessage('BLOG_POST_NOT_FOUND'), 404, 'NOT_FOUND');
+      throw new ApiError(getErrorMessage("BLOG_POST_NOT_FOUND"), 404, "NOT_FOUND");
     }
 
     const writeClient = createSanityWriteClient();
 
     await log.timeAsync(
-      'Delete blog post from Sanity',
+      "Delete blog post from Sanity",
       async () => await writeClient.delete(post._id),
       { postId: post._id, slug }
     );
 
     scheduleDeletedBlogCleanup(slug);
-    revalidatePath('/');
-    revalidatePath('/blog');
+    revalidatePath("/");
+    revalidatePath("/blog");
     revalidatePath(`/blog/${slug}`);
 
     const duration = Date.now() - startTime;
-    log.response('DELETE', path, 200, {
+    log.response("DELETE", path, 200, {
       duration: `${duration}ms`,
       postId: post._id,
       slug,
@@ -188,7 +188,7 @@ export async function DELETE(
     });
   } catch (error) {
     return handleApiError(error, {
-      method: 'DELETE',
+      method: "DELETE",
       path,
       metadata: { duration: Date.now() - startTime }
     });

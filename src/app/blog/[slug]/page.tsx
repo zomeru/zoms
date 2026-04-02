@@ -1,19 +1,19 @@
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import type React from 'react';
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import type React from "react";
 
-import BlogDeleteMenu from '@/components/blog/BlogDeleteMenu';
-import { TechBadge, TerminalCard } from '@/components/ui';
-import { SITE_URL } from '@/configs/seo';
-import { TITLE } from '@/constants';
-import { getBlogPostBySlug, getBlogPostSeoBySlug } from '@/lib/blog';
-import { serializeJsonForScript } from '@/lib/json-script';
-import { getSanityClient } from '@/lib/sanity';
-import { processMarkdown } from '@/lib/unified';
-import { formatDateWithTime } from '@/lib/utils';
+import BlogDeleteMenu from "@/components/blog/BlogDeleteMenu";
+import { TechBadge, TerminalCard } from "@/components/ui";
+import { SITE_URL } from "@/configs/seo";
+import { TITLE } from "@/constants";
+import { getBlogPostBySlug, getBlogPostSeoBySlug } from "@/lib/blog";
+import { serializeJsonForScript } from "@/lib/json-script";
+import { getSanityClient } from "@/lib/sanity";
+import { processMarkdown } from "@/lib/unified";
+import { formatDateWithTime } from "@/lib/utils";
 
-import BlogContent from './BlogContent';
+import BlogContent from "./BlogContent";
 
 interface BlogPostPageProps {
   params: Promise<{
@@ -36,8 +36,8 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
   if (!post) {
     return {
-      title: 'Post Not Found',
-      description: 'The blog post you are looking for could not be found.'
+      title: "Post Not Found",
+      description: "The blog post you are looking for could not be found."
     };
   }
 
@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       title: post.title,
       description: post.summary,
       url: `${SITE_URL}/blog/${slug}`,
-      type: 'article',
+      type: "article",
       publishedTime,
       modifiedTime,
       authors: [TITLE],
@@ -67,7 +67,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       ]
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: post.title,
       description: post.summary,
       images: [ogImageUrl]
@@ -92,8 +92,8 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
   const content = await processMarkdown(post.body);
 
   const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
     headline: post.title,
     description: post.summary,
     datePublished: new Date(post.publishedAt).toISOString(),
@@ -101,12 +101,12 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
       ? new Date(post.modifiedAt).toISOString()
       : new Date(post.publishedAt).toISOString(),
     author: {
-      '@type': 'Person',
+      "@type": "Person",
       name: TITLE,
       url: SITE_URL
     },
     url: `${SITE_URL}/blog/${post.slug.current}`,
-    keywords: post.tags?.join(', ')
+    keywords: post.tags?.join(", ")
   };
 
   return (
@@ -142,16 +142,16 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
 
               <div className="mb-6 flex flex-wrap items-center gap-3 font-mono text-sm text-text-muted">
                 <span>
-                  <span className="text-secondary">const</span>{' '}
-                  <span className="text-terminal-green">published</span>{' '}
-                  <span className="text-syntax-plain">=</span>{' '}
+                  <span className="text-secondary">const</span>{" "}
+                  <span className="text-terminal-green">published</span>{" "}
+                  <span className="text-syntax-plain">=</span>{" "}
                   <span className="text-terminal-purple">"{publishedDate}";</span>
                 </span>
                 {post.readTime && (
                   <span>
-                    <span className="text-secondary">const</span>{' '}
-                    <span className="text-terminal-green">readTime</span>{' '}
-                    <span className="text-syntax-plain">=</span>{' '}
+                    <span className="text-secondary">const</span>{" "}
+                    <span className="text-terminal-green">readTime</span>{" "}
+                    <span className="text-syntax-plain">=</span>{" "}
                     <span className="text-terminal-purple">{post.readTime} min;</span>
                   </span>
                 )}

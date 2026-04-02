@@ -1,24 +1,24 @@
-import { randomUUID } from 'node:crypto';
-import { ChatMessageRole } from '@prisma/client';
-import { type NextRequest, NextResponse } from 'next/server';
+import { randomUUID } from "node:crypto";
+import { ChatMessageRole } from "@prisma/client";
+import { type NextRequest, NextResponse } from "next/server";
 
-import { buildConversationHistory, mapStoredMessages } from '@/lib/ai/chat/messages';
-import { resolveGroundedAnswer } from '@/lib/ai/chat/retrieval';
+import { buildConversationHistory, mapStoredMessages } from "@/lib/ai/chat/messages";
+import { resolveGroundedAnswer } from "@/lib/ai/chat/retrieval";
 import {
   AI_CHAT_COOKIE_NAME,
   chatHistoryQuerySchema,
   chatRequestSchema
-} from '@/lib/ai/chat/schemas';
-import { createStreamingChatResponse } from '@/lib/ai/chat/streamResponse';
-import { searchSessionMemory } from '@/lib/ai/memory';
-import { verifyBotIdRequest } from '@/lib/botId';
-import { repositories } from '@/lib/db/repositories';
-import { handleApiError, validateSchema } from '@/lib/errorHandler';
-import log from '@/lib/logger';
-import { rateLimitMiddleware } from '@/lib/rateLimit';
-import { classifyQueryIntent, isFollowUpQuery } from '@/lib/retrieval/classify';
+} from "@/lib/ai/chat/schemas";
+import { createStreamingChatResponse } from "@/lib/ai/chat/streamResponse";
+import { searchSessionMemory } from "@/lib/ai/memory";
+import { verifyBotIdRequest } from "@/lib/botId";
+import { repositories } from "@/lib/db/repositories";
+import { handleApiError, validateSchema } from "@/lib/errorHandler";
+import log from "@/lib/logger";
+import { rateLimitMiddleware } from "@/lib/rateLimit";
+import { classifyQueryIntent, isFollowUpQuery } from "@/lib/retrieval/classify";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 function getSessionKey(request: NextRequest): { isNew: boolean; sessionKey: string } {
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     return botIdResponse;
   }
 
-  const rateLimitResponse = await rateLimitMiddleware(request, 'AI_CHAT');
+  const rateLimitResponse = await rateLimitMiddleware(request, "AI_CHAT");
 
   if (rateLimitResponse) {
     return rateLimitResponse;
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest): Promise<Response> {
         : await repositories.getRecentChatMessages(sessionKey, 4);
     const conversationHistory = buildConversationHistory(mapStoredMessages(previousMessages));
     const followUpQuery = isFollowUpQuery(input.question);
-    let memoryContext = '';
+    let memoryContext = "";
 
     if (conversationHistory.length > 0 && followUpQuery) {
       try {
@@ -111,9 +111,9 @@ export async function POST(request: NextRequest): Promise<Response> {
           sessionKey
         });
 
-        memoryContext = sessionMemories.join('\n');
+        memoryContext = sessionMemories.join("\n");
       } catch (memoryError) {
-        log.warn('Failed to search session memory', {
+        log.warn("Failed to search session memory", {
           sessionKey,
           error: memoryError instanceof Error ? memoryError.message : String(memoryError)
         });

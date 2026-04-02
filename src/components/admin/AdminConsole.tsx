@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import type React from 'react';
-import { useEffect, useState } from 'react';
+import Link from "next/link";
+import type React from "react";
+import { useEffect, useState } from "react";
 
-import BlogGenerateButton from '@/components/admin/BlogGenerateButton';
-import ReindexAdminCard from '@/components/ai/ReindexAdminCard';
-import { TerminalCard } from '@/components/ui';
-import { getResponseErrorMessage } from '@/lib/errorMessages';
+import BlogGenerateButton from "@/components/admin/BlogGenerateButton";
+import ReindexAdminCard from "@/components/ai/ReindexAdminCard";
+import { TerminalCard } from "@/components/ui";
+import { getResponseErrorMessage } from "@/lib/errorMessages";
 
 interface AdminAccessState {
   aiReindexAuthorized: boolean;
@@ -23,13 +23,13 @@ const AdminConsole: React.FC = () => {
 
     const loadAccess = async (): Promise<void> => {
       try {
-        const response = await fetch('/api/admin/access');
+        const response = await fetch("/api/admin/access");
 
         if (!response.ok) {
           throw new Error(
             await getResponseErrorMessage(
               response,
-              'Unable to verify browser access for admin tools.'
+              "Unable to verify browser access for admin tools."
             )
           );
         }
@@ -47,7 +47,7 @@ const AdminConsole: React.FC = () => {
           setError(
             accessError instanceof Error
               ? accessError.message
-              : 'Unable to verify browser access for admin tools.'
+              : "Unable to verify browser access for admin tools."
           );
         }
       }

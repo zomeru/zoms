@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import type React from 'react';
-import { useEffect, useRef, useState } from 'react';
-import { HiOutlineDotsHorizontal } from 'react-icons/hi';
+import { useRouter } from "next/navigation";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
+import { HiOutlineDotsHorizontal } from "react-icons/hi";
 
-import { getClientErrorMessage, getResponseErrorMessage } from '@/lib/errorMessages';
+import { getClientErrorMessage, getResponseErrorMessage } from "@/lib/errorMessages";
 
-import { useBlogAdminAuthorization } from './useBlogAdminAuthorization';
+import { useBlogAdminAuthorization } from "./useBlogAdminAuthorization";
 
 interface BlogDeleteMenuProps {
   initialAuthorized?: boolean;
@@ -50,10 +50,10 @@ export function BlogDeleteMenu({
       setIsOpen(false);
     };
 
-    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener("mousedown", handlePointerDown);
 
     return () => {
-      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener("mousedown", handlePointerDown);
     };
   }, [isOpen]);
 
@@ -67,11 +67,11 @@ export function BlogDeleteMenu({
 
     try {
       const response = await fetch(`/api/blog/${slug}`, {
-        method: 'DELETE'
+        method: "DELETE"
       });
 
       if (!response.ok) {
-        throw new Error(await getResponseErrorMessage(response, 'Failed to delete blog post'));
+        throw new Error(await getResponseErrorMessage(response, "Failed to delete blog post"));
       }
 
       onDeleted?.();
@@ -124,7 +124,7 @@ export function BlogDeleteMenu({
             disabled={isDeleting}
             className="flex w-full items-center justify-between rounded-md bg-surface-elevated/95 px-3 py-2 text-left font-mono text-terminal-red text-xs transition-colors hover:cursor-pointer hover:bg-terminal-red/80 hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <span>{isDeleting ? 'Deleting...' : 'Delete blog'}</span>
+            <span>{isDeleting ? "Deleting..." : "Delete blog"}</span>
           </button>
           {error && (
             <p className="px-3 pt-2 pb-1 text-terminal-red text-xs leading-relaxed">{error}</p>

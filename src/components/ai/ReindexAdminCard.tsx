@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import type React from 'react';
-import { useState } from 'react';
+import type React from "react";
+import { useState } from "react";
 
-import TerminalCard from '@/components/ui/TerminalCard';
+import TerminalCard from "@/components/ui/TerminalCard";
 import {
   CLIENT_ERROR_MESSAGES,
   getClientErrorMessage,
   getResponseErrorMessage
-} from '@/lib/errorMessages';
+} from "@/lib/errorMessages";
 
 interface ReindexAdminCardProps {
   initialAuthorized: boolean;
@@ -23,8 +23,8 @@ interface ReindexResult {
 
 // This component intentionally keeps the terminal auth and run state machine inline.
 const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }) => {
-  const [secret, setSecret] = useState('');
-  const [documentId, setDocumentId] = useState('');
+  const [secret, setSecret] = useState("");
+  const [documentId, setDocumentId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isAuthorized, setIsAuthorized] = useState(initialAuthorized);
   const [isRunning, setIsRunning] = useState(false);
@@ -32,8 +32,8 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
   const [lastResult, setLastResult] = useState<ReindexResult | null>(null);
   const [statusMessage, setStatusMessage] = useState(
     initialAuthorized
-      ? 'Session restored from secure local cookie. Reindex commands unlocked.'
-      : 'Enter the AI reindex secret, then press Enter to unlock the run commands.'
+      ? "Session restored from secure local cookie. Reindex commands unlocked."
+      : "Enter the AI reindex secret, then press Enter to unlock the run commands."
   );
 
   const handleUnlock = async (event: React.SyntheticEvent<HTMLFormElement>): Promise<void> => {
@@ -48,25 +48,25 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
     setIsUnlocking(true);
 
     try {
-      const response = await fetch('/api/ai/reindex/auth', {
+      const response = await fetch("/api/ai/reindex/auth", {
         body: JSON.stringify({ secret }),
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         },
-        method: 'POST'
+        method: "POST"
       });
 
       if (!response.ok) {
-        throw new Error(await getResponseErrorMessage(response, 'Failed to unlock AI reindex'));
+        throw new Error(await getResponseErrorMessage(response, "Failed to unlock AI reindex"));
       }
 
       setIsAuthorized(true);
-      setSecret('');
-      setStatusMessage('Reindex session authorized. Commands unlocked for this browser.');
+      setSecret("");
+      setStatusMessage("Reindex session authorized. Commands unlocked for this browser.");
     } catch (err) {
       const errorMessage = getClientErrorMessage(err);
       setError(errorMessage);
-      setStatusMessage('Authorization failed. The reindex panel remains locked.');
+      setStatusMessage("Authorization failed. The reindex panel remains locked.");
     } finally {
       setIsUnlocking(false);
     }
@@ -76,23 +76,23 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
     setError(null);
 
     try {
-      await fetch('/api/ai/reindex/auth', {
-        method: 'DELETE'
+      await fetch("/api/ai/reindex/auth", {
+        method: "DELETE"
       });
     } finally {
-      setDocumentId('');
+      setDocumentId("");
       setIsAuthorized(false);
       setLastResult(null);
-      setSecret('');
-      setStatusMessage('Reindex session cleared. Enter the secret again to unlock commands.');
+      setSecret("");
+      setStatusMessage("Reindex session cleared. Enter the secret again to unlock commands.");
     }
   };
 
-  const handleRun = async (mode: 'full' | 'targeted'): Promise<void> => {
+  const handleRun = async (mode: "full" | "targeted"): Promise<void> => {
     const normalizedDocumentId = documentId.trim();
 
-    if (mode === 'targeted' && normalizedDocumentId.length === 0) {
-      setError('Enter a document id or slug before running a targeted reindex.');
+    if (mode === "targeted" && normalizedDocumentId.length === 0) {
+      setError("Enter a document id or slug before running a targeted reindex.");
       return;
     }
 
@@ -100,32 +100,32 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
     setIsRunning(true);
 
     try {
-      const response = await fetch('/api/ai/reindex', {
+      const response = await fetch("/api/ai/reindex", {
         body:
-          mode === 'targeted'
+          mode === "targeted"
             ? JSON.stringify({ documentId: normalizedDocumentId })
             : JSON.stringify({}),
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         },
-        method: 'POST'
+        method: "POST"
       });
 
       if (!response.ok) {
-        throw new Error(await getResponseErrorMessage(response, 'Failed to run AI reindex'));
+        throw new Error(await getResponseErrorMessage(response, "Failed to run AI reindex"));
       }
 
       const result = (await response.json()) as ReindexResult;
       setLastResult(result);
       setStatusMessage(
-        mode === 'targeted'
+        mode === "targeted"
           ? `Targeted reindex completed for ${normalizedDocumentId}.`
-          : 'Full reindex completed.'
+          : "Full reindex completed."
       );
     } catch (err) {
       const errorMessage = getClientErrorMessage(err);
       setError(errorMessage);
-      setStatusMessage('Reindex failed. Review the output and try again.');
+      setStatusMessage("Reindex failed. Review the output and try again.");
     } finally {
       setIsRunning(false);
     }
@@ -168,7 +168,7 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
                 setSecret(event.target.value);
               }}
               disabled={isAuthorized || isRunning || isUnlocking}
-              placeholder={isAuthorized ? 'session unlocked' : 'enter AI reindex secret'}
+              placeholder={isAuthorized ? "session unlocked" : "enter AI reindex secret"}
               autoComplete="off"
               className="min-w-0 flex-1 bg-transparent text-text-primary outline-none placeholder:text-text-muted disabled:cursor-not-allowed"
             />
@@ -180,7 +180,7 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
               disabled={isRunning || isUnlocking}
               className="rounded-md border border-code-border px-4 py-3 text-text-muted text-xs uppercase tracking-[0.18em] transition-colors hover:cursor-pointer hover:border-terminal-green/50 hover:text-terminal-green disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isUnlocking ? 'Authorizing...' : 'Enter'}
+              {isUnlocking ? "Authorizing..." : "Enter"}
             </button>
           )}
         </div>
@@ -194,7 +194,7 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
 
       <div className="mt-4 border-code-border border-t pt-4">
         <div className="flex items-start gap-3 text-text-muted text-xs leading-relaxed">
-          <span className="pt-0.5 text-terminal-blue">{'//'}</span>
+          <span className="pt-0.5 text-terminal-blue">{"//"}</span>
           <p>{statusMessage}</p>
         </div>
 
@@ -225,22 +225,22 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
               <button
                 type="button"
                 onClick={() => {
-                  void handleRun('full');
+                  void handleRun("full");
                 }}
                 disabled={isRunning || isUnlocking}
                 className="rounded-md border border-terminal-green/40 bg-terminal-green/10 px-4 py-2 text-terminal-green text-xs uppercase tracking-[0.18em] transition-colors hover:cursor-pointer hover:bg-terminal-green/15 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isRunning ? 'Running...' : 'Run Full'}
+                {isRunning ? "Running..." : "Run Full"}
               </button>
               <button
                 type="button"
                 onClick={() => {
-                  void handleRun('targeted');
+                  void handleRun("targeted");
                 }}
                 disabled={isRunning || isUnlocking}
                 className="rounded-md border border-terminal-blue/40 bg-terminal-blue/10 px-4 py-2 text-terminal-blue text-xs uppercase tracking-[0.18em] transition-colors hover:cursor-pointer hover:bg-terminal-blue/15 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isRunning ? 'Running...' : 'Run Targeted'}
+                {isRunning ? "Running..." : "Run Targeted"}
               </button>
               <button
                 type="button"
@@ -260,7 +260,7 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
           <div className="mt-4 rounded-md border border-code-border bg-surface-elevated/45 px-4 py-3 text-text-muted text-xs">
             <p>run-id {lastResult.runId}</p>
             <p>
-              processed {lastResult.processed} | updated {lastResult.updated} | skipped{' '}
+              processed {lastResult.processed} | updated {lastResult.updated} | skipped{" "}
               {lastResult.skipped}
             </p>
           </div>

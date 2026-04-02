@@ -1,9 +1,9 @@
-import { seedProjects } from '@/lib/sanity-project-seed';
+import { seedProjects } from "@/lib/sanity-project-seed";
 
-import { loadScriptEnv } from './_helpers';
+import { loadScriptEnv } from "./_helpers";
 
 async function main() {
-  loadScriptEnv('.env.local');
+  loadScriptEnv(".env.local");
   const result = await seedProjects();
 
   process.stdout.write(`Upserted ${result.count} Sanity project documents.\n`);

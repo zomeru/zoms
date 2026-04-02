@@ -1,8 +1,8 @@
-import type React from 'react';
+import type React from "react";
 
-import { getProjects } from '@/lib/projects';
+import { getProjects } from "@/lib/projects";
 
-import ProjectsClient from './ProjectsClient';
+import ProjectsClient from "./ProjectsClient";
 
 const Projects: React.FC = async (): Promise<React.JSX.Element> => {
   const projects = await getProjects();

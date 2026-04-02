@@ -1,11 +1,11 @@
-import type { ContentType } from '@/lib/content/types';
+import type { ContentType } from "@/lib/content/types";
 
 export type QueryIntent =
-  | 'BLOG_QUERY'
-  | 'EXPERIENCE_QUERY'
-  | 'GENERAL_KNOWLEDGE_QUERY'
-  | 'GENERAL_PORTFOLIO_QUERY'
-  | 'PROJECT_QUERY';
+  | "BLOG_QUERY"
+  | "EXPERIENCE_QUERY"
+  | "GENERAL_KNOWLEDGE_QUERY"
+  | "GENERAL_PORTFOLIO_QUERY"
+  | "PROJECT_QUERY";
 
 export interface QueryClassification {
   intent: QueryIntent;
@@ -16,55 +16,55 @@ export interface QueryClassification {
 }
 
 const EXPERIENCE_KEYWORDS = [
-  'career',
-  'company',
-  'companies',
-  'employment',
-  'experience',
-  'experiences',
-  'job',
-  'jobs',
-  'position',
-  'positions',
-  'responsibilities',
-  'responsibility',
-  'role',
-  'roles',
-  'work',
-  'worked',
-  'working'
+  "career",
+  "company",
+  "companies",
+  "employment",
+  "experience",
+  "experiences",
+  "job",
+  "jobs",
+  "position",
+  "positions",
+  "responsibilities",
+  "responsibility",
+  "role",
+  "roles",
+  "work",
+  "worked",
+  "working"
 ];
 
-const BLOG_KEYWORDS = ['article', 'articles', 'blog', 'blogs', 'post', 'posts', 'wrote', 'written'];
+const BLOG_KEYWORDS = ["article", "articles", "blog", "blogs", "post", "posts", "wrote", "written"];
 const PROJECT_KEYWORDS = [
-  'app',
-  'apps',
-  'build',
-  'built',
-  'demo',
-  'github',
-  'portfolio',
-  'project',
-  'projects',
-  'repo',
-  'repository'
+  "app",
+  "apps",
+  "build",
+  "built",
+  "demo",
+  "github",
+  "portfolio",
+  "project",
+  "projects",
+  "repo",
+  "repository"
 ];
-const PORTFOLIO_KEYWORDS = ['background', 'skill', 'skills'];
-const PORTFOLIO_STACK_KEYWORDS = ['stack', 'tech', 'technologies', 'technology'];
+const PORTFOLIO_KEYWORDS = ["background", "skill", "skills"];
+const PORTFOLIO_STACK_KEYWORDS = ["stack", "tech", "technologies", "technology"];
 const PORTFOLIO_SUBJECT_KEYWORDS = [
-  'blog',
-  'blogs',
-  'experience',
-  'experiences',
-  'portfolio',
-  'project',
-  'projects',
-  'site',
-  'you',
-  'your',
-  'zomer'
+  "blog",
+  "blogs",
+  "experience",
+  "experiences",
+  "portfolio",
+  "project",
+  "projects",
+  "site",
+  "you",
+  "your",
+  "zomer"
 ];
-const COMPANY_SUFFIXES = ['corp', 'corporation', 'gmbh', 'inc', 'llc', 'ltd'];
+const COMPANY_SUFFIXES = ["corp", "corporation", "gmbh", "inc", "llc", "ltd"];
 const FOLLOW_UP_PATTERNS = [
   /\b(it|that|them|they|those|this)\b/i,
   /^(and|also|continue|expand|more|what about|how about)\b/i,
@@ -83,7 +83,7 @@ function hasKeyword(tokens: string[], keywords: string[]): boolean {
 }
 
 function hasExperienceSignal(tokens: string[]): boolean {
-  return tokens.some((token) => EXPERIENCE_KEYWORDS.includes(token) || token.startsWith('exper'));
+  return tokens.some((token) => EXPERIENCE_KEYWORDS.includes(token) || token.startsWith("exper"));
 }
 
 function hasPortfolioSubjectSignal(tokens: string[], query: string): boolean {
@@ -140,8 +140,8 @@ export function classifyQueryIntent(query: string): QueryClassification {
 
   if (isExperienceQuery(tokens, query)) {
     return createClassificationResult({
-      intent: 'EXPERIENCE_QUERY',
-      preferredContentTypes: ['experience'],
+      intent: "EXPERIENCE_QUERY",
+      preferredContentTypes: ["experience"],
       query,
       strictContentTypes: true,
       tokens
@@ -150,8 +150,8 @@ export function classifyQueryIntent(query: string): QueryClassification {
 
   if (hasKeyword(tokens, BLOG_KEYWORDS)) {
     return createClassificationResult({
-      intent: 'BLOG_QUERY',
-      preferredContentTypes: ['blog'],
+      intent: "BLOG_QUERY",
+      preferredContentTypes: ["blog"],
       query,
       strictContentTypes: true,
       tokens
@@ -160,8 +160,8 @@ export function classifyQueryIntent(query: string): QueryClassification {
 
   if (hasKeyword(tokens, PROJECT_KEYWORDS)) {
     return createClassificationResult({
-      intent: 'PROJECT_QUERY',
-      preferredContentTypes: ['project'],
+      intent: "PROJECT_QUERY",
+      preferredContentTypes: ["project"],
       query,
       strictContentTypes: true,
       tokens
@@ -170,8 +170,8 @@ export function classifyQueryIntent(query: string): QueryClassification {
 
   if (isPortfolioQuery(tokens, query)) {
     return createClassificationResult({
-      intent: 'GENERAL_PORTFOLIO_QUERY',
-      preferredContentTypes: ['about', 'experience', 'project'],
+      intent: "GENERAL_PORTFOLIO_QUERY",
+      preferredContentTypes: ["about", "experience", "project"],
       query,
       strictContentTypes: false,
       tokens
@@ -179,8 +179,8 @@ export function classifyQueryIntent(query: string): QueryClassification {
   }
 
   return createClassificationResult({
-    intent: 'GENERAL_KNOWLEDGE_QUERY',
-    preferredContentTypes: ['about', 'experience', 'project', 'blog'],
+    intent: "GENERAL_KNOWLEDGE_QUERY",
+    preferredContentTypes: ["about", "experience", "project", "blog"],
     query,
     strictContentTypes: false,
     tokens

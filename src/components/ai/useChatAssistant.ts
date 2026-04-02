@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import type { TransformMode } from '@/lib/ai/schemas';
+import type { TransformMode } from "@/lib/ai/schemas";
 
-import { extractErrorMessage, processStreamChunk } from './chatStreamHelpers';
+import { extractErrorMessage, processStreamChunk } from "./chatStreamHelpers";
 import {
   type AssistantMessage,
   CHAT_HISTORY_PAGE_SIZE,
@@ -14,7 +14,7 @@ import {
   isTransformResult,
   WELCOME_MESSAGE,
   WELCOME_MESSAGE_ID
-} from './chatTypes';
+} from "./chatTypes";
 
 export type { AssistantMessage };
 // Re-export for consumers
@@ -27,15 +27,15 @@ export function useChatAssistant(input: { pathname: string }) {
   const [error, setError] = useState<string | undefined>();
   const [hasMoreHistory, setHasMoreHistory] = useState(false);
   const [historyHydrationState, setHistoryHydrationState] = useState<
-    'checking' | 'empty' | 'loading' | 'ready'
-  >('checking');
+    "checking" | "empty" | "loading" | "ready"
+  >("checking");
   const [isLoadingOlderHistory, setIsLoadingOlderHistory] = useState(false);
   const hasHydratedHistory = useRef(false);
   const shouldIgnoreHydrationResult = useRef(false);
 
   const blogSlug = useMemo(() => getBlogSlugFromPathname(input.pathname), [input.pathname]);
   const shouldShowWelcomeMessage =
-    historyHydrationState === 'empty' || historyHydrationState === 'ready';
+    historyHydrationState === "empty" || historyHydrationState === "ready";
   const displayedMessages = useMemo(() => {
     if (!shouldShowWelcomeMessage) {
       return messages;
@@ -48,7 +48,7 @@ export function useChatAssistant(input: { pathname: string }) {
     return [WELCOME_MESSAGE, ...messages];
   }, [messages, shouldShowWelcomeMessage]);
   const isHistoryLoadingInitial =
-    (historyHydrationState === 'checking' || historyHydrationState === 'loading') &&
+    (historyHydrationState === "checking" || historyHydrationState === "loading") &&
     messages.length === 0;
 
   // ── History hydration ─────────────────────────────────────────────────────
@@ -60,7 +60,7 @@ export function useChatAssistant(input: { pathname: string }) {
     let cancelled = false;
 
     async function hydrateHistory() {
-      setHistoryHydrationState('loading');
+      setHistoryHydrationState("loading");
 
       try {
         const response = await fetch(`/api/ai/chat?limit=${CHAT_HISTORY_PAGE_SIZE}&offset=0`);
@@ -69,7 +69,7 @@ export function useChatAssistant(input: { pathname: string }) {
           if (!cancelled) {
             hasHydratedHistory.current = true;
             setHasMoreHistory(false);
-            setHistoryHydrationState('empty');
+            setHistoryHydrationState("empty");
           }
           return;
         }
@@ -83,12 +83,12 @@ export function useChatAssistant(input: { pathname: string }) {
         hasHydratedHistory.current = true;
         setMessages(payload.messages);
         setHasMoreHistory(payload.hasMore);
-        setHistoryHydrationState(payload.messages.length > 0 ? 'ready' : 'empty');
+        setHistoryHydrationState(payload.messages.length > 0 ? "ready" : "empty");
       } catch {
         if (!cancelled) {
           hasHydratedHistory.current = true;
           setHasMoreHistory(false);
-          setHistoryHydrationState('empty');
+          setHistoryHydrationState("empty");
         }
       }
     }
@@ -144,45 +144,45 @@ export function useChatAssistant(input: { pathname: string }) {
       return;
     }
 
-    const assistantMessageId = createId('assistant');
+    const assistantMessageId = createId("assistant");
 
     setError(undefined);
     setIsOpen(true);
     setIsWorking(true);
     shouldIgnoreHydrationResult.current = true;
     hasHydratedHistory.current = true;
-    setHistoryHydrationState('ready');
+    setHistoryHydrationState("ready");
     setMessages((currentMessages) => [
       ...currentMessages,
       {
         content: trimmedQuestion,
-        id: createId('user'),
-        role: 'user'
+        id: createId("user"),
+        role: "user"
       },
       {
-        content: '',
+        content: "",
         id: assistantMessageId,
         isPending: true,
-        role: 'assistant'
+        role: "assistant"
       }
     ]);
 
     try {
-      const response = await fetch('/api/ai/chat', {
+      const response = await fetch("/api/ai/chat", {
         body: JSON.stringify({
           blogSlug,
           pathname: input.pathname,
           question: trimmedQuestion
         }),
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         },
-        method: 'POST'
+        method: "POST"
       });
 
       if (!response.ok || !response.body) {
         throw new Error(
-          await extractErrorMessage(response, 'Unable to reach the assistant right now.')
+          await extractErrorMessage(response, "Unable to reach the assistant right now.")
         );
       }
 
@@ -193,13 +193,13 @@ export function useChatAssistant(input: { pathname: string }) {
           assistantMessageId,
           setMessages
         },
-        ''
+        ""
       );
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
           ? caughtError.message
-          : 'Unable to reach the assistant right now.'
+          : "Unable to reach the assistant right now."
       );
       setMessages((currentMessages) =>
         currentMessages.filter((message) => message.id !== assistantMessageId)
@@ -219,28 +219,28 @@ export function useChatAssistant(input: { pathname: string }) {
     setIsWorking(true);
     shouldIgnoreHydrationResult.current = true;
     hasHydratedHistory.current = true;
-    setHistoryHydrationState('ready');
+    setHistoryHydrationState("ready");
 
     try {
-      const response = await fetch('/api/ai/transform', {
+      const response = await fetch("/api/ai/transform", {
         body: JSON.stringify({
           mode,
           postSlug: blogSlug
         }),
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         },
-        method: 'POST'
+        method: "POST"
       });
 
       if (!response.ok) {
-        throw new Error('Unable to transform this post right now.');
+        throw new Error("Unable to transform this post right now.");
       }
 
       const payload: unknown = await response.json();
 
       if (!isTransformResult(payload)) {
-        throw new Error('Unable to transform this post right now.');
+        throw new Error("Unable to transform this post right now.");
       }
 
       const transform = payload;
@@ -248,8 +248,8 @@ export function useChatAssistant(input: { pathname: string }) {
         ...currentMessages,
         {
           content: transform.transformedText,
-          id: createId('assistant-transform'),
-          role: 'assistant',
+          id: createId("assistant-transform"),
+          role: "assistant",
           transform
         }
       ]);
@@ -258,7 +258,7 @@ export function useChatAssistant(input: { pathname: string }) {
       setError(
         caughtError instanceof Error
           ? caughtError.message
-          : 'Unable to transform this post right now.'
+          : "Unable to transform this post right now."
       );
     } finally {
       setIsWorking(false);

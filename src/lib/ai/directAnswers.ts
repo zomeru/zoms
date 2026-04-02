@@ -1,13 +1,13 @@
-import 'server-only';
+import "server-only";
 
-import { getBlogPosts, getLatestBlogPosts, getOldestBlogPosts } from '@/lib/blog';
-import { getExperience } from '@/lib/experience';
-import { getProjects } from '@/lib/projects';
-import type { QueryClassification } from '@/lib/retrieval/classify';
-import { formatDate } from '@/lib/utils';
+import { getBlogPosts, getLatestBlogPosts, getOldestBlogPosts } from "@/lib/blog";
+import { getExperience } from "@/lib/experience";
+import { getProjects } from "@/lib/projects";
+import type { QueryClassification } from "@/lib/retrieval/classify";
+import { formatDate } from "@/lib/utils";
 
-import { isIdentityQuery } from './responseDecorations';
-import type { Citation } from './schemas';
+import { isIdentityQuery } from "./responseDecorations";
+import type { Citation } from "./schemas";
 
 interface DirectAssistantAnswer {
   citations: Citation[];
@@ -15,8 +15,8 @@ interface DirectAssistantAnswer {
   textStream: AsyncIterable<string>;
 }
 
-type TemporalDirection = 'latest' | 'oldest';
-type QuantityRequest = { count: number; kind: 'count' } | { kind: 'all' } | null;
+type TemporalDirection = "latest" | "oldest";
+type QuantityRequest = { count: number; kind: "count" } | { kind: "all" } | null;
 const DIGIT_COUNT_PATTERN = /\b(\d+)\b/;
 const WORD_COUNT_PATTERN = /\b(one|two|three|four|five)\b/;
 
@@ -38,20 +38,20 @@ function detectTemporalDirection(query: string): TemporalDirection | null {
   const normalized = query.toLowerCase();
 
   if (
-    normalized.includes('latest') ||
-    normalized.includes('newest') ||
-    normalized.includes('most recent') ||
-    normalized.includes('recent')
+    normalized.includes("latest") ||
+    normalized.includes("newest") ||
+    normalized.includes("most recent") ||
+    normalized.includes("recent")
   ) {
-    return 'latest';
+    return "latest";
   }
 
   if (
-    normalized.includes('oldest') ||
-    normalized.includes('earliest') ||
-    normalized.includes('first')
+    normalized.includes("oldest") ||
+    normalized.includes("earliest") ||
+    normalized.includes("first")
   ) {
-    return 'oldest';
+    return "oldest";
   }
 
   return null;
@@ -61,7 +61,7 @@ function detectQuantityRequest(query: string): QuantityRequest {
   const normalized = query.toLowerCase();
 
   if (/\ball\b/.test(normalized)) {
-    return { kind: 'all' };
+    return { kind: "all" };
   }
 
   const numericMatch = DIGIT_COUNT_PATTERN.exec(normalized);
@@ -69,7 +69,7 @@ function detectQuantityRequest(query: string): QuantityRequest {
   if (numericMatch) {
     return {
       count: Math.max(1, Number.parseInt(numericMatch[1], 10)),
-      kind: 'count'
+      kind: "count"
     };
   }
 
@@ -78,7 +78,7 @@ function detectQuantityRequest(query: string): QuantityRequest {
   if (wordMatch) {
     return {
       count: NUMBER_WORDS[wordMatch[1]],
-      kind: 'count'
+      kind: "count"
     };
   }
 
@@ -86,15 +86,15 @@ function detectQuantityRequest(query: string): QuantityRequest {
 }
 
 function formatNumberedList(lines: string[]): string {
-  return lines.map((line, index) => `${index + 1}. ${line}`).join('\n');
+  return lines.map((line, index) => `${index + 1}. ${line}`).join("\n");
 }
 
-function isAllQuantity(quantity: QuantityRequest): quantity is { kind: 'all' } {
-  return quantity?.kind === 'all';
+function isAllQuantity(quantity: QuantityRequest): quantity is { kind: "all" } {
+  return quantity?.kind === "all";
 }
 
-function isCountQuantity(quantity: QuantityRequest): quantity is { count: number; kind: 'count' } {
-  return quantity?.kind === 'count';
+function isCountQuantity(quantity: QuantityRequest): quantity is { count: number; kind: "count" } {
+  return quantity?.kind === "count";
 }
 
 function isMultiItemQuantity(quantity: QuantityRequest): boolean {
@@ -116,7 +116,7 @@ function selectEntriesByDirection<T>(
 
   const count = getRequestedCount(quantity);
 
-  if (direction === 'latest') {
+  if (direction === "latest") {
     return entries.slice(0, count);
   }
 
@@ -137,9 +137,9 @@ function createBlogCitation(input: {
   title: string;
 }): Citation {
   return {
-    contentType: 'blog',
+    contentType: "blog",
     id: `direct:blog:${input.direction}:${input.slug}`,
-    sectionTitle: 'Summary',
+    sectionTitle: "Summary",
     snippet: input.title,
     title: input.title,
     url: `/blog/${input.slug}`
@@ -154,12 +154,12 @@ function createExperienceCitation(input: {
   title: string;
 }): Citation {
   return {
-    contentType: 'experience',
-    id: `direct:experience:${input.direction}:${input.company.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
-    sectionTitle: 'Overview',
+    contentType: "experience",
+    id: `direct:experience:${input.direction}:${input.company.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+    sectionTitle: "Overview",
     snippet: `${input.title} at ${input.company} — ${input.range} — ${input.location}`,
     title: `${input.title} at ${input.company}`,
-    url: '/#experience'
+    url: "/#experience"
   };
 }
 
@@ -169,12 +169,12 @@ function createProjectCitation(input: {
   title: string;
 }): Citation {
   return {
-    contentType: 'project',
-    id: `direct:project:${input.direction}:${input.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
-    sectionTitle: 'Overview',
+    contentType: "project",
+    id: `direct:project:${input.direction}:${input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+    sectionTitle: "Overview",
     snippet: input.description,
     title: input.title,
-    url: '/#projects'
+    url: "/#projects"
   };
 }
 
@@ -184,7 +184,7 @@ async function answerBlogBoundaryQuery(
 ): Promise<DirectAssistantAnswer | null> {
   const posts = isAllQuantity(quantity)
     ? await getBlogPosts(25, 0)
-    : direction === 'latest'
+    : direction === "latest"
       ? await getLatestBlogPosts(getRequestedCount(quantity))
       : await getOldestBlogPosts(getRequestedCount(quantity));
   const citations = posts.map((post) =>
@@ -213,7 +213,7 @@ async function answerBlogBoundaryQuery(
 
   const [citation] = citations;
   const answer =
-    direction === 'latest'
+    direction === "latest"
       ? `The latest blog post is "${post.title}", published on ${formatDate(post.publishedAt)}. You can read it at ${citation.url}.`
       : `The oldest blog post is "${post.title}", published on ${formatDate(post.publishedAt)}. You can read it at ${citation.url}.`;
 
@@ -253,7 +253,7 @@ async function answerExperienceBoundaryQuery(
   }
 
   const answer =
-    direction === 'latest'
+    direction === "latest"
       ? `The most recent experience entry is ${experience.title} at ${experience.company} (${experience.range}, ${experience.location}).`
       : `The oldest experience entry is ${experience.title} at ${experience.company} (${experience.range}, ${experience.location}).`;
 
@@ -289,7 +289,7 @@ async function answerProjectBoundaryQuery(
   }
 
   const answer =
-    direction === 'latest'
+    direction === "latest"
       ? `The most recent project entry is ${project.name}. ${project.info}`
       : `The oldest project entry is ${project.name}. ${project.info}`;
 
@@ -310,14 +310,14 @@ export async function getDirectAssistantAnswer(input: {
   const direction = detectTemporalDirection(input.query);
   const quantity = detectQuantityRequest(input.query);
 
-  if (quantity?.kind === 'all') {
+  if (quantity?.kind === "all") {
     switch (input.classification.intent) {
-      case 'BLOG_QUERY':
-        return await answerBlogBoundaryQuery('latest', quantity);
-      case 'EXPERIENCE_QUERY':
-        return await answerExperienceBoundaryQuery('latest', quantity);
-      case 'PROJECT_QUERY':
-        return await answerProjectBoundaryQuery('latest', quantity);
+      case "BLOG_QUERY":
+        return await answerBlogBoundaryQuery("latest", quantity);
+      case "EXPERIENCE_QUERY":
+        return await answerExperienceBoundaryQuery("latest", quantity);
+      case "PROJECT_QUERY":
+        return await answerProjectBoundaryQuery("latest", quantity);
       default:
         return null;
     }
@@ -328,11 +328,11 @@ export async function getDirectAssistantAnswer(input: {
   }
 
   switch (input.classification.intent) {
-    case 'BLOG_QUERY':
+    case "BLOG_QUERY":
       return await answerBlogBoundaryQuery(direction, quantity);
-    case 'EXPERIENCE_QUERY':
+    case "EXPERIENCE_QUERY":
       return await answerExperienceBoundaryQuery(direction, quantity);
-    case 'PROJECT_QUERY':
+    case "PROJECT_QUERY":
       return await answerProjectBoundaryQuery(direction, quantity);
     default:
       return null;

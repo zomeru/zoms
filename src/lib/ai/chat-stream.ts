@@ -1,14 +1,14 @@
-import 'server-only';
+import "server-only";
 
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { smoothStream, streamText } from 'ai';
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import { smoothStream, streamText } from "ai";
 
-import type { QueryClassification } from '@/lib/retrieval/classify';
-import type { RetrievedChunk } from '@/lib/retrieval/types';
+import type { QueryClassification } from "@/lib/retrieval/classify";
+import type { RetrievedChunk } from "@/lib/retrieval/types";
 
-import { getAiEnv } from './env';
-import { buildGeneralAnswerPrompt, buildGroundedAnswerPrompt } from './prompts';
-import type { Citation } from './schemas';
+import { getAiEnv } from "./env";
+import { buildGeneralAnswerPrompt, buildGroundedAnswerPrompt } from "./prompts";
+import type { Citation } from "./schemas";
 
 const AI_REQUEST_TIMEOUT_MS = 60_000;
 
@@ -38,14 +38,14 @@ function formatRetrievedContext(chunks: RetrievedChunk[]): string {
         `Title: ${chunk.title}`,
         `Content type: ${chunk.contentType}`,
         `Section: ${chunk.sectionTitle}`,
-        chunk.tags.length > 0 ? `Tags: ${chunk.tags.join(', ')}` : '',
+        chunk.tags.length > 0 ? `Tags: ${chunk.tags.join(", ")}` : "",
         `URL: ${chunk.url}`,
         `Content:\n${chunk.content}`
       ]
         .filter(Boolean)
-        .join('\n')
+        .join("\n")
     )
-    .join('\n\n---\n\n');
+    .join("\n\n---\n\n");
 }
 
 export async function streamGroundedAnswer(input: {
@@ -53,7 +53,7 @@ export async function streamGroundedAnswer(input: {
   classification: QueryClassification;
   conversationHistory: Array<{
     content: string;
-    role: 'assistant' | 'user';
+    role: "assistant" | "user";
   }>;
   currentBlogSlug?: string;
   memoryContext?: string;
@@ -70,7 +70,7 @@ export async function streamGroundedAnswer(input: {
       citations: [],
       supported: false,
       textStream: createStaticTextStream(
-        'I can only answer from content that is currently indexed on this site.'
+        "I can only answer from content that is currently indexed on this site."
       )
     };
   }
@@ -88,7 +88,7 @@ export async function streamGroundedAnswer(input: {
   });
   const result = streamText({
     abortSignal: createTimeoutSignal(AI_REQUEST_TIMEOUT_MS),
-    experimental_transform: smoothStream({ chunking: 'word' }),
+    experimental_transform: smoothStream({ chunking: "word" }),
     model: provider.chat(env.OPENROUTER_CHAT_MODEL),
     prompt,
     temperature: 0
@@ -104,7 +104,7 @@ export async function streamGroundedAnswer(input: {
 export async function streamGeneralAnswer(input: {
   conversationHistory: Array<{
     content: string;
-    role: 'assistant' | 'user';
+    role: "assistant" | "user";
   }>;
   memoryContext?: string;
   query: string;
@@ -124,7 +124,7 @@ export async function streamGeneralAnswer(input: {
   });
   const result = streamText({
     abortSignal: createTimeoutSignal(AI_REQUEST_TIMEOUT_MS),
-    experimental_transform: smoothStream({ chunking: 'word' }),
+    experimental_transform: smoothStream({ chunking: "word" }),
     model: provider.chat(env.OPENROUTER_CHAT_MODEL),
     prompt,
     temperature: 0.3

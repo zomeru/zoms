@@ -1,6 +1,6 @@
-import 'server-only';
+import "server-only";
 
-import { type AiEnv, getAiEnv, parseAiEnv } from './env';
+import { type AiEnv, getAiEnv, parseAiEnv } from "./env";
 
 export interface AiConfig {
   auth: {

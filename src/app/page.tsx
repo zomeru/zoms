@@ -1,5 +1,5 @@
-import { Footer } from '@/components';
-import { About, Blog, Experience, Projects } from '@/components/sections';
+import { Footer } from "@/components";
+import { About, Blog, Experience, Projects } from "@/components/sections";
 
 export default function Home(): React.JSX.Element {
   return (

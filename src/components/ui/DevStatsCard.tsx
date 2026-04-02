@@ -1,6 +1,6 @@
-import type React from 'react';
+import type React from "react";
 
-import type { GitHubDevStats } from '@/lib/github';
+import type { GitHubDevStats } from "@/lib/github";
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -13,13 +13,13 @@ interface MetricRowProps {
 const MetricRow: React.FC<MetricRowProps> = ({ filled, label, value }) => (
   <div className="flex items-center justify-between gap-8 py-0.75">
     <span className="flex items-center gap-2">
-      <span className={filled ? 'text-terminal-green' : 'text-text-muted'} aria-hidden="true">
-        {filled ? '●' : '○'}
+      <span className={filled ? "text-terminal-green" : "text-text-muted"} aria-hidden="true">
+        {filled ? "●" : "○"}
       </span>
       <span className="text-text-secondary text-xs">{label}</span>
     </span>
     <span
-      className={`font-mono text-xs tabular-nums ${filled ? 'text-terminal-green' : 'text-text-primary'}`}
+      className={`font-mono text-xs tabular-nums ${filled ? "text-terminal-green" : "text-text-primary"}`}
     >
       {value}
     </span>
@@ -33,7 +33,7 @@ interface CardBodyProps {
 const CardBody: React.FC<CardBodyProps> = ({ gh }) => (
   <>
     <div className="px-4 pt-3 pb-2">
-      <p className="mb-1.5 text-[10px] text-text-muted tracking-wider">{'// github'}</p>
+      <p className="mb-1.5 text-[10px] text-text-muted tracking-wider">{"// github"}</p>
       <MetricRow filled label="contributions" value={gh.totalContributions} />
       <MetricRow filled label="commits" value={gh.totalCommits} />
       <MetricRow filled={false} label="pull requests" value={gh.totalPRs} />
@@ -52,7 +52,7 @@ const UNAVAILABLE: GitHubDevStats = {
   totalCommits: 0,
   totalPRs: 0,
   totalRepos: 0,
-  username: 'zomeru',
+  username: "zomeru",
   totalContributions: 0,
   longestStreak: 0,
   lastUpdated: new Date().toISOString()
@@ -63,7 +63,7 @@ interface DevStatsCardProps {
   initialData?: GitHubDevStats;
 }
 
-const DevStatsCard: React.FC<DevStatsCardProps> = ({ className = '', initialData }) => {
+const DevStatsCard: React.FC<DevStatsCardProps> = ({ className = "", initialData }) => {
   const gh = initialData ?? UNAVAILABLE;
 
   return (

@@ -4,9 +4,9 @@ import {
   type IngestionMode,
   IngestionStatus,
   type Prisma
-} from '@prisma/client';
+} from "@prisma/client";
 
-import { getPrismaClient } from './prisma';
+import { getPrismaClient } from "./prisma";
 
 export interface ChatSessionInput {
   blogSlugHint?: string;
@@ -127,7 +127,7 @@ export const repositories = {
       include: {
         messages: {
           orderBy: {
-            createdAt: 'asc'
+            createdAt: "asc"
           }
         }
       }
@@ -145,10 +145,10 @@ export const repositories = {
       getDb().chatMessage.findMany({
         orderBy: [
           {
-            createdAt: 'desc'
+            createdAt: "desc"
           },
           {
-            id: 'desc'
+            id: "desc"
           }
         ],
         skip: input.offset,
@@ -171,10 +171,10 @@ export const repositories = {
     const messages = await getDb().chatMessage.findMany({
       orderBy: [
         {
-          createdAt: 'desc'
+          createdAt: "desc"
         },
         {
-          id: 'desc'
+          id: "desc"
         }
       ],
       take: limit,

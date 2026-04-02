@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface CodeEditorCardProps {
   children: React.ReactNode;
@@ -10,9 +10,9 @@ interface CodeEditorCardProps {
 
 const CodeEditorCard: React.FC<CodeEditorCardProps> = ({
   children,
-  filename = 'untitled.tsx',
-  language = 'typescript',
-  className = '',
+  filename = "untitled.tsx",
+  language = "typescript",
+  className = "",
   showLineNumbers = false
 }) => {
   const lines = React.Children.toArray(children);
@@ -42,9 +42,9 @@ const CodeEditorCard: React.FC<CodeEditorCardProps> = ({
               {lines.map((line, index) => (
                 <div
                   key={
-                    typeof line === 'object' && line !== null && 'key' in line && line.key !== null
+                    typeof line === "object" && line !== null && "key" in line && line.key !== null
                       ? line.key
-                      : `line-${index + 1}-${typeof line === 'string' ? line : 'content'}`
+                      : `line-${index + 1}-${typeof line === "string" ? line : "content"}`
                   }
                 >
                   {index + 1}

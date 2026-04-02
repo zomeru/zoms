@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import type React from 'react';
-import { useEffect, useState } from 'react';
-import { AnimatedCounter } from 'react-animated-counter';
+import type React from "react";
+import { useEffect, useState } from "react";
+import { AnimatedCounter } from "react-animated-counter";
 
 interface Language {
   name: string;
@@ -63,8 +63,8 @@ const WakaTimeTicker: React.FC<WakaTimeTickerProps> = ({ initialLanguages = [] }
       }, 350);
     };
 
-    window.addEventListener('node-cycle', handleCycle);
-    return () => window.removeEventListener('node-cycle', handleCycle);
+    window.addEventListener("node-cycle", handleCycle);
+    return () => window.removeEventListener("node-cycle", handleCycle);
   }, [languages.length]);
 
   if (languages.length === 0) return null;
@@ -76,8 +76,8 @@ const WakaTimeTicker: React.FC<WakaTimeTickerProps> = ({ initialLanguages = [] }
       aria-hidden="true"
       style={{
         opacity: show ? 1 : 0,
-        transform: show ? 'translateY(0)' : 'translateY(-6px)',
-        transition: 'opacity 600ms ease-out, transform 600ms ease-out'
+        transform: show ? "translateY(0)" : "translateY(-6px)",
+        transition: "opacity 600ms ease-out, transform 600ms ease-out"
       }}
     >
       {/* Number row — react-animated-counter rolls digits between values */}
@@ -90,7 +90,7 @@ const WakaTimeTicker: React.FC<WakaTimeTickerProps> = ({ initialLanguages = [] }
           decrementColor="var(--color-terminal-green)"
           includeDecimals={false}
           includeCommas
-          containerStyles={{ fontFamily: 'inherit', fontWeight: 500, lineHeight: 1 }}
+          containerStyles={{ fontFamily: "inherit", fontWeight: 500, lineHeight: 1 }}
         />
         <span className="mb-0.5 font-medium text-sm text-terminal-green leading-none">hrs</span>
       </div>

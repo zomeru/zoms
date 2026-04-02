@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import type React from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type React from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import TerminalCard from './ui/TerminalCard';
+import TerminalCard from "./ui/TerminalCard";
 
 interface TerminalHeroProps {
   name: string;
@@ -17,44 +17,44 @@ interface CodeLine {
 }
 
 const syntaxColors: Record<string, string> = {
-  bracket: 'var(--color-syntax-bracket)',
-  comma: 'var(--color-syntax-plain)',
-  keyword: 'var(--color-syntax-keyword)',
-  operator: 'var(--color-syntax-plain)',
-  property: 'var(--color-syntax-property)',
-  string: 'var(--color-syntax-string)',
-  variable: 'var(--color-syntax-variable)'
+  bracket: "var(--color-syntax-bracket)",
+  comma: "var(--color-syntax-plain)",
+  keyword: "var(--color-syntax-keyword)",
+  operator: "var(--color-syntax-plain)",
+  property: "var(--color-syntax-property)",
+  string: "var(--color-syntax-string)",
+  variable: "var(--color-syntax-variable)"
 };
 
 const TerminalHero: React.FC<TerminalHeroProps> = ({ name, title, descriptions }) => {
-  const [displayedCode, setDisplayedCode] = useState('');
-  const [displayedDescription, setDisplayedDescription] = useState('');
+  const [displayedCode, setDisplayedCode] = useState("");
+  const [displayedDescription, setDisplayedDescription] = useState("");
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const codeLines: CodeLine[] = useMemo(
     () => [
-      { type: 'keyword', content: 'const' },
-      { type: 'variable', content: ' developer ' },
-      { type: 'operator', content: '=' },
-      { type: 'bracket', content: ' {' },
-      { type: 'property', content: ' name' },
-      { type: 'operator', content: ': ' },
-      { type: 'string', content: `"${name}"` },
-      { type: 'comma', content: ',' },
-      { type: 'property', content: ' role' },
-      { type: 'operator', content: ': ' },
-      { type: 'string', content: `"${title}"` },
-      { type: 'comma', content: ',' },
-      { type: 'property', content: ' passion' },
-      { type: 'operator', content: ': ' },
-      { type: 'string', content: '"building elegant solutions"' },
-      { type: 'bracket', content: ' };' }
+      { type: "keyword", content: "const" },
+      { type: "variable", content: " developer " },
+      { type: "operator", content: "=" },
+      { type: "bracket", content: " {" },
+      { type: "property", content: " name" },
+      { type: "operator", content: ": " },
+      { type: "string", content: `"${name}"` },
+      { type: "comma", content: "," },
+      { type: "property", content: " role" },
+      { type: "operator", content: ": " },
+      { type: "string", content: `"${title}"` },
+      { type: "comma", content: "," },
+      { type: "property", content: " passion" },
+      { type: "operator", content: ": " },
+      { type: "string", content: '"building elegant solutions"' },
+      { type: "bracket", content: " };" }
     ],
     [name, title]
   );
 
-  const fullCode = useMemo(() => codeLines.map((line) => line.content).join(''), [codeLines]);
+  const fullCode = useMemo(() => codeLines.map((line) => line.content).join(""), [codeLines]);
 
   const renderCode = () => {
     let currentIndex = 0;
@@ -72,11 +72,11 @@ const TerminalHero: React.FC<TerminalHeroProps> = ({ name, title, descriptions }
         ? displayedCode.slice(lineStart, displayedCode.length)
         : isVisible
           ? line.content
-          : '';
+          : "";
 
       const key = `${line.type}-${line.content.slice(0, 3)}-${lineIndex}`;
       return (
-        <span key={key} style={{ color: syntaxColors[line.type] ?? 'var(--color-syntax-plain)' }}>
+        <span key={key} style={{ color: syntaxColors[line.type] ?? "var(--color-syntax-plain)" }}>
           {lineContent}
         </span>
       );
@@ -166,7 +166,7 @@ const TerminalHero: React.FC<TerminalHeroProps> = ({ name, title, descriptions }
         </pre>
         {showDescription && (
           <div className="mt-4 text-text-muted text-xs">
-            <span className="text-primary">➜</span>{' '}
+            <span className="text-primary">➜</span>{" "}
             <span className="text-text-secondary">{displayedDescription}</span>
             <span className="animate-blink text-terminal-green">|</span>
           </div>

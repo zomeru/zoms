@@ -1,10 +1,10 @@
-import { type NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from "next/server";
 
-import { isValidAiReindexSession } from '@/lib/ai/reindexAuth';
-import { isValidBlogGenerationSession } from '@/lib/blogGenerationAuth';
-import { verifyBotIdRequest } from '@/lib/botId';
+import { isValidAiReindexSession } from "@/lib/ai/reindexAuth";
+import { isValidBlogGenerationSession } from "@/lib/blogGenerationAuth";
+import { verifyBotIdRequest } from "@/lib/botId";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const botIdResponse = await verifyBotIdRequest(request);

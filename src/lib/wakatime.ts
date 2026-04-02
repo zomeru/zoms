@@ -5,22 +5,22 @@
  * Requires WAKATIME_API_KEY env var. Returns null gracefully if not configured.
  */
 
-import log from './logger';
+import log from "./logger";
 
 const SELECTED_LANGUAGES = [
-  'TypeScript',
-  'JavaScript',
-  'Python',
-  'Bash',
-  'Markdown',
-  'Vue.js',
-  'CSS',
-  'HTML',
-  'Svelte',
-  'YAML',
-  'JSX',
-  'SQL',
-  'Docker'
+  "TypeScript",
+  "JavaScript",
+  "Python",
+  "Bash",
+  "Markdown",
+  "Vue.js",
+  "CSS",
+  "HTML",
+  "Svelte",
+  "YAML",
+  "JSX",
+  "SQL",
+  "Docker"
 ];
 
 export interface WakaTimeLanguage {
@@ -38,7 +38,7 @@ export interface WakaTimeStats {
   lastUpdated: string;
 }
 
-const WAKATIME_API_BASE = 'https://wakatime.com/api/v1';
+const WAKATIME_API_BASE = "https://wakatime.com/api/v1";
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 const WAKATIME_REVALIDATE_SECONDS = CACHE_DURATION_MS / 1000;
 const REQUEST_TIMEOUT_MS = 15000;
@@ -68,17 +68,17 @@ export async function getWakaTimeStats(): Promise<WakaTimeStats | null> {
   const apiKey = process.env.WAKATIME_API_KEY;
 
   if (!apiKey) {
-    log.debug('WAKATIME_API_KEY not set — skipping WakaTime stats');
+    log.debug("WAKATIME_API_KEY not set — skipping WakaTime stats");
     return null;
   }
 
-  const cached = cache.get('wakatime-stats');
+  const cached = cache.get("wakatime-stats");
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION_MS) {
-    log.debug('Returning cached WakaTime stats');
+    log.debug("Returning cached WakaTime stats");
     return cached.data;
   }
 
-  log.info('Fetching WakaTime all-time stats');
+  log.info("Fetching WakaTime all-time stats");
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
@@ -86,16 +86,16 @@ export async function getWakaTimeStats(): Promise<WakaTimeStats | null> {
   }, REQUEST_TIMEOUT_MS);
 
   try {
-    const encoded = Buffer.from(`${apiKey}:`).toString('base64');
+    const encoded = Buffer.from(`${apiKey}:`).toString("base64");
 
     const response = await fetch(`${WAKATIME_API_BASE}/users/current/stats/all_time`, {
       headers: {
         Authorization: `Basic ${encoded}`,
-        'User-Agent': 'zoms-portfolio-app'
+        "User-Agent": "zoms-portfolio-app"
       },
       next: {
         revalidate: WAKATIME_REVALIDATE_SECONDS,
-        tags: ['wakatime-stats']
+        tags: ["wakatime-stats"]
       },
       signal: controller.signal
     });
@@ -117,7 +117,7 @@ export async function getWakaTimeStats(): Promise<WakaTimeStats | null> {
             return true;
           }
           // Include "Other" category if it has significant time (>=5% or >=10 hours)
-          if (l.name === 'Other') {
+          if (l.name === "Other") {
             const percent = (l.total_seconds / data.total_seconds) * 100;
             const hours = l.total_seconds / 3600;
             return percent >= 5 || hours >= 10;
@@ -133,15 +133,15 @@ export async function getWakaTimeStats(): Promise<WakaTimeStats | null> {
       lastUpdated: new Date().toISOString()
     };
 
-    cache.set('wakatime-stats', { data: stats, timestamp: Date.now() });
+    cache.set("wakatime-stats", { data: stats, timestamp: Date.now() });
     log.info(
-      `WakaTime stats: ${stats.totalHours.toLocaleString()} hrs, top: ${stats.languages[0]?.name ?? 'none'}`
+      `WakaTime stats: ${stats.totalHours.toLocaleString()} hrs, top: ${stats.languages[0]?.name ?? "none"}`
     );
 
     return stats;
   } catch (error) {
-    const msg = error instanceof Error ? error.message : 'Unknown error';
-    log.error('Failed to fetch WakaTime stats', { error: msg });
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    log.error("Failed to fetch WakaTime stats", { error: msg });
     return null;
   } finally {
     clearTimeout(timeoutId);

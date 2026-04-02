@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import type React from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { AiOutlineArrowUp } from 'react-icons/ai';
-import { FiGithub } from 'react-icons/fi';
+import Image from "next/image";
+import type React from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AiOutlineArrowUp } from "react-icons/ai";
+import { FiGithub } from "react-icons/fi";
 
-import { CodeEditorCard, TechBadge } from '@/components/ui';
-import type { Project } from '@/lib/projects';
+import { CodeEditorCard, TechBadge } from "@/components/ui";
+import type { Project } from "@/lib/projects";
 
 interface ProjectsClientProps {
   projects: Project[];
@@ -50,7 +50,7 @@ const ProjectDescription: React.FC<ProjectDescriptionProps> = ({
       <p
         ref={descriptionRef}
         data-testid={`project-description-${name}`}
-        className={`text-sm text-text-secondary ${isExpanded ? '' : 'line-clamp-3'}`}
+        className={`text-sm text-text-secondary ${isExpanded ? "" : "line-clamp-3"}`}
       >
         {info}
       </p>
@@ -60,10 +60,10 @@ const ProjectDescription: React.FC<ProjectDescriptionProps> = ({
           onClick={() => setIsExpanded((current) => !current)}
           className="mt-2 inline-flex items-center gap-2 font-mono text-primary text-xs uppercase tracking-[0.16em] transition-colors hover:text-terminal-green"
         >
-          <span>{isExpanded ? 'collapse' : 'read more'}</span>
+          <span>{isExpanded ? "collapse" : "read more"}</span>
           <span className="sr-only">{` for ${name}`}</span>
           <AiOutlineArrowUp
-            className={`size-3 transition-transform ${isExpanded ? '' : 'rotate-180'}`}
+            className={`size-3 transition-transform ${isExpanded ? "" : "rotate-180"}`}
           />
         </button>
       ) : null}
@@ -88,10 +88,10 @@ const ProjectTechStack: React.FC<ProjectTechStackProps> = ({ name, techs }): Rea
         <div
           ref={stackRef}
           data-testid={`project-tech-stack-${name}`}
-          className={`relative min-w-0 flex-1 gap-2 ${isExpanded ? 'flex flex-wrap' : 'flex overflow-hidden whitespace-nowrap'}`}
+          className={`relative min-w-0 flex-1 gap-2 ${isExpanded ? "flex flex-wrap" : "flex overflow-hidden whitespace-nowrap"}`}
         >
           {techs.map((tech) => (
-            <TechBadge key={tech} className={isExpanded ? '' : 'shrink-0'}>
+            <TechBadge key={tech} className={isExpanded ? "" : "shrink-0"}>
               {tech}
             </TechBadge>
           ))}
@@ -103,11 +103,11 @@ const ProjectTechStack: React.FC<ProjectTechStackProps> = ({ name, techs }): Rea
           <button
             type="button"
             onClick={() => setIsExpanded((current) => !current)}
-            aria-label={isExpanded ? 'Collapse tech stack' : 'Show full tech stack'}
+            aria-label={isExpanded ? "Collapse tech stack" : "Show full tech stack"}
             className="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center text-primary transition-colors hover:text-terminal-green"
           >
             <AiOutlineArrowUp
-              className={`size-3 transition-transform ${isExpanded ? '' : 'rotate-90'}`}
+              className={`size-3 transition-transform ${isExpanded ? "" : "rotate-90"}`}
             />
           </button>
         ) : null}
@@ -121,7 +121,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }): React.JSX.Element
 
   return (
     <CodeEditorCard
-      filename={`${name.toLowerCase().replace(/\s+/g, '-')}.tsx`}
+      filename={`${name.toLowerCase().replace(/\s+/g, "-")}.tsx`}
       language="tsx"
       className="h-full transition-all duration-300 hover:-translate-y-1 hover:border-border-hover"
     >
@@ -190,7 +190,7 @@ const ProjectsClient: React.FC<ProjectsClientProps> = ({ projects }): React.JSX.
           onClick={handleButtonClick}
           className="font-mono text-primary text-sm hover:underline"
         >
-          {filteredProjects.length < projects.length ? '// load more' : '// show less'}
+          {filteredProjects.length < projects.length ? "// load more" : "// show less"}
         </button>
       </div>
     </>

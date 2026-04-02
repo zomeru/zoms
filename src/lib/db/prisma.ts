@@ -1,7 +1,7 @@
-import { PrismaNeon } from '@prisma/adapter-neon';
-import { PrismaClient } from '@prisma/client';
+import { PrismaNeon } from "@prisma/adapter-neon";
+import { PrismaClient } from "@prisma/client";
 
-import { getAiEnv } from '@/lib/ai/env';
+import { getAiEnv } from "@/lib/ai/env";
 
 declare global {
   var prismaGlobal: PrismaClient | undefined;
@@ -15,7 +15,7 @@ function createPrismaClient(): PrismaClient {
 
   return new PrismaClient({
     adapter,
-    log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error']
+    log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"]
   });
 }
 
@@ -32,7 +32,7 @@ export function getPrismaClient(): PrismaClient {
 
   const client = createPrismaClient();
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== "production") {
     globalThis.prismaGlobal = client;
   }
 

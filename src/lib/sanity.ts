@@ -1,4 +1,4 @@
-import { createClient } from 'next-sanity';
+import { createClient } from "next-sanity";
 
 let clientInstance: ReturnType<typeof createClient> | undefined;
 
@@ -12,16 +12,16 @@ export function getSanityClient(): ReturnType<typeof createClient> {
 
   if (!projectId || !dataset) {
     throw new Error(
-      'Sanity client requires NEXT_PUBLIC_SANITY_PROJECT_ID and NEXT_PUBLIC_SANITY_DATASET.'
+      "Sanity client requires NEXT_PUBLIC_SANITY_PROJECT_ID and NEXT_PUBLIC_SANITY_DATASET."
     );
   }
 
   clientInstance = createClient({
     projectId,
     dataset,
-    apiVersion: '2026-03-31',
-    useCdn: process.env.NODE_ENV === 'production',
-    perspective: 'published'
+    apiVersion: "2026-03-31",
+    useCdn: process.env.NODE_ENV === "production",
+    perspective: "published"
   });
 
   return clientInstance;
