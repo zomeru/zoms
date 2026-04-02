@@ -79,7 +79,7 @@ jobs:
       - name: Run Biome
         run: biome ci .
 
-      - name: Run checks and tests
+      - name: Run tests
         run: pnpm run test:unit
 
       - name: Run build

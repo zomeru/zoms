@@ -6,8 +6,8 @@ describe("AI reindex CLI", () => {
     const source = readFileSync("src/lib/ingestion/cli.ts", "utf8");
 
     expect(source).not.toContain("import 'server-only';");
-    expect(source).toContain("from 'dotenv'");
-    expect(source).toContain("loadEnv({ path: '.env.local'");
+    expect(source).toContain('from "dotenv"');
+    expect(source).toContain('loadEnv({ path: ".env.local"');
   });
 
   it("routes prisma and reindex production wrappers through the shared script helper", () => {
@@ -17,23 +17,23 @@ describe("AI reindex CLI", () => {
     const reindexSource = readFileSync("scripts/ai-reindex-prod.ts", "utf8");
 
     expect(helperSource).toContain("loadEnv({ path, override: false, quiet: true })");
-    expect(prismaGenerateSource).toContain("from './_helpers'");
-    expect(prismaGenerateSource).toContain("loadScriptEnv('.env.production.local')");
-    expect(prismaMigrateSource).toContain("from './_helpers'");
-    expect(prismaMigrateSource).toContain("loadScriptEnv('.env.production.local')");
-    expect(reindexSource).toContain("from './_helpers'");
-    expect(reindexSource).toContain("loadScriptEnv('.env.production.local')");
+    expect(prismaGenerateSource).toContain('from "./_helpers"');
+    expect(prismaGenerateSource).toContain('loadScriptEnv(".env.production.local")');
+    expect(prismaMigrateSource).toContain('from "./_helpers"');
+    expect(prismaMigrateSource).toContain('loadScriptEnv(".env.production.local")');
+    expect(reindexSource).toContain('from "./_helpers"');
+    expect(reindexSource).toContain('loadScriptEnv(".env.production.local")');
   });
 
   it("defines a local reset script that resets prisma, redis, vector, supermemory, then reindexes", () => {
     const source = readFileSync("scripts/ai-reset.ts", "utf8");
 
-    expect(source).toContain("loadScriptEnv('.env.local')");
-    expect(source).toContain("prisma', 'migrate', 'reset', '--force'");
+    expect(source).toContain('loadScriptEnv(".env.local")');
+    expect(source).toContain('prisma", "migrate", "reset", "--force"');
     expect(source).toContain("const existingSessionKeys = await prisma.chatSession.findMany");
     expect(source).toContain("redis.flushdb()");
     expect(source).toContain("vectorIndex.reset({ all: true })");
     expect(source).toContain("client.memories.forget({");
-    expect(source).toContain("tsx', 'src/lib/ingestion/cli.ts");
+    expect(source).toContain('tsx", "src/lib/ingestion/cli.ts');
   });
 });
