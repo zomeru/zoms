@@ -110,7 +110,7 @@
     "postcss": "8.5.8",
     "prettier": "^3.8.1",
     "prisma": "^7.6.0",
-    "sanity": "^5.18.0",
+    "sanity": "^5.19.0",
     "tailwindcss": "^4.2.2",
     "tsx": "^4.21.0",
     "typescript": "5.9.3",
