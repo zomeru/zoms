@@ -1,6 +1,6 @@
-import { createClient } from '@sanity/client';
+import { createClient } from "@sanity/client";
 
-import { projects } from '@/constants/projects';
+import { projects } from "@/constants/projects";
 
 interface ProjectIdentity {
   _id: string;
@@ -9,7 +9,7 @@ interface ProjectIdentity {
 
 export interface SanitySeedProjectDocument {
   _id: string;
-  _type: 'project';
+  _type: "project";
   alt: string;
   demoUrl: string;
   githubUrl: string;
@@ -23,12 +23,12 @@ export interface SanitySeedProjectDocument {
 function getGeneratedProjectId(name: string): string {
   return `project-${name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')}`;
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")}`;
 }
 
 function isLegacyGeneratedProjectId(id: string): boolean {
-  return id.startsWith('project.');
+  return id.startsWith("project.");
 }
 
 function resolveProjectDocumentId(
@@ -53,7 +53,7 @@ export function buildProjectSeedDocuments(
 
   return projects.map((project, index) => ({
     _id: resolveProjectDocumentId(project.name, existingProjects),
-    _type: 'project',
+    _type: "project",
     alt: project.alt,
     demoUrl: project.links.demo,
     githubUrl: project.links.github,
@@ -72,7 +72,7 @@ export function createSanityWriteClient() {
 
   if (!projectId || !dataset || !token) {
     throw new Error(
-      'Sanity project seeding requires SANITY_API_TOKEN, NEXT_PUBLIC_SANITY_PROJECT_ID, and NEXT_PUBLIC_SANITY_DATASET.'
+      "Sanity project seeding requires SANITY_API_TOKEN, NEXT_PUBLIC_SANITY_PROJECT_ID, and NEXT_PUBLIC_SANITY_DATASET."
     );
   }
 
@@ -80,9 +80,9 @@ export function createSanityWriteClient() {
     projectId,
     dataset,
     token,
-    apiVersion: '2026-03-31',
+    apiVersion: "2026-03-31",
     useCdn: false,
-    perspective: 'published'
+    perspective: "published"
   });
 }
 

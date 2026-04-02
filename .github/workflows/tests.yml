@@ -1,4 +1,6 @@
 name: Test and build CI with pnpm 10 and Node 24
+permissions:
+  contents: read
 
 on:
   pull_request:
@@ -33,7 +35,6 @@ jobs:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       OPENROUTER_CHAT_MODEL: ${{ secrets.OPENROUTER_CHAT_MODEL }}
       OPENROUTER_EMBEDDING_MODEL: ${{ secrets.OPENROUTER_EMBEDDING_MODEL }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_USERNAME: ${{ github.repository_owner }}
       WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
       SITE_URL: ${{ secrets.SITE_URL }}
@@ -70,8 +71,16 @@ jobs:
       - name: Generate Prisma client
         run: pnpm run prisma:generate
 
+      - name: Setup Biome
+        uses: biomejs/setup-biome@v2
+        with:
+          version: latest
+
+      - name: Run Biome
+        run: biome ci .
+
       - name: Run tests
-        run: pnpm run test:all
+        run: pnpm run test:unit
 
       - name: Run build
         run: pnpm run build

@@ -1,8 +1,8 @@
-import { technologies, TITLE } from '@/constants';
-import type { NormalizedContentDocument } from '@/lib/content/types';
-import { getExperience } from '@/lib/experience';
-import { createDocument } from '@/lib/ingestion/normalize';
-import { createAboutSections, createExperienceSummary } from '@/lib/ingestion/sections';
+import { TITLE, technologies } from "@/constants";
+import type { NormalizedContentDocument } from "@/lib/content/types";
+import { getExperience } from "@/lib/experience";
+import { createDocument } from "@/lib/ingestion/normalize";
+import { createAboutSections, createExperienceSummary } from "@/lib/ingestion/sections";
 
 const aboutIntro = `${TITLE} is a Software Engineer based in the Philippines, building modern web experiences with Next.js, TypeScript, and practical AI integrations. Building the future, one line at a time.`;
 
@@ -16,8 +16,8 @@ export async function loadAboutDocuments(): Promise<NormalizedContentDocument[]>
 
   return [
     createDocument({
-      contentType: 'about',
-      documentId: 'about:profile',
+      contentType: "about",
+      documentId: "about:profile",
       sections,
       sourceMeta: {
         profile: TITLE,
@@ -25,7 +25,7 @@ export async function loadAboutDocuments(): Promise<NormalizedContentDocument[]>
       },
       tags: technologies.map((technology) => technology.name),
       title: `${TITLE} Profile`,
-      url: '/#about'
+      url: "/#about"
     })
   ];
 }

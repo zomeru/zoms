@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @theme {
   /* === BASE COLORS === */
@@ -71,9 +71,10 @@ html {
   scroll-behavior: smooth;
 }
 
-html[data-theme-switching='true'] *,
-html[data-theme-switching='true'] *::before,
-html[data-theme-switching='true'] *::after {
+html[data-theme-switching="true"] *,
+html[data-theme-switching="true"] *::before,
+html[data-theme-switching="true"] *::after {
+  /* biome-ignore lint/complexity/noImportantStyles: theme-switch transitions must be fully suppressed to avoid mixed-theme flicker. */
   transition: none !important;
 }
 
@@ -323,7 +324,7 @@ body {
   gap: 12px;
 
   &::before {
-    content: '//';
+    content: "//";
     font-family: var(--font-mono);
     font-size: 0.875rem;
     color: var(--color-primary);
@@ -347,7 +348,7 @@ button {
   overflow: hidden;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     background: linear-gradient(
@@ -414,7 +415,7 @@ button {
   position: relative;
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -2px;
     left: 0;

@@ -1,7 +1,7 @@
-import { getThemeById, resolveThemeId, type ThemeId } from './registry';
+import { getThemeById, resolveThemeId, type ThemeId } from "./registry";
 
-export const THEME_CHANGE_EVENT = 'zoms-theme-change';
-const THEME_SWITCH_ATTRIBUTE = 'data-theme-switching';
+export const THEME_CHANGE_EVENT = "zoms-theme-change";
+const THEME_SWITCH_ATTRIBUTE = "data-theme-switching";
 
 function ensureThemeColorMeta(documentRef: Document): HTMLMetaElement {
   const existing = documentRef.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
@@ -10,15 +10,15 @@ function ensureThemeColorMeta(documentRef: Document): HTMLMetaElement {
     return existing;
   }
 
-  const meta = documentRef.createElement('meta');
-  meta.name = 'theme-color';
+  const meta = documentRef.createElement("meta");
+  meta.name = "theme-color";
   documentRef.head.append(meta);
 
   return meta;
 }
 
 function suppressThemeTransitions(root: HTMLElement, themeId: ThemeId) {
-  root.setAttribute(THEME_SWITCH_ATTRIBUTE, 'true');
+  root.setAttribute(THEME_SWITCH_ATTRIBUTE, "true");
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -82,7 +82,7 @@ export function applyThemeToDocument(
   root.style.colorScheme = theme.scheme;
   meta.content = theme.browserThemeColor;
 
-  if (options?.dispatchEvent !== false && typeof window !== 'undefined') {
+  if (options?.dispatchEvent !== false && typeof window !== "undefined") {
     window.dispatchEvent(
       new CustomEvent(THEME_CHANGE_EVENT, {
         detail: {
@@ -101,7 +101,7 @@ export function getThemeFromDocument(documentRef?: Document): ThemeId {
 }
 
 function parseHexColor(value: string): [number, number, number] | null {
-  const hex = value.trim().replace('#', '');
+  const hex = value.trim().replace("#", "");
 
   if (![3, 6].includes(hex.length)) {
     return null;
@@ -110,9 +110,9 @@ function parseHexColor(value: string): [number, number, number] | null {
   const normalizedHex =
     hex.length === 3
       ? hex
-          .split('')
+          .split("")
           .map((character) => `${character}${character}`)
-          .join('')
+          .join("")
       : hex;
   const numeric = Number.parseInt(normalizedHex, 16);
 
@@ -140,11 +140,11 @@ function parseRgbColor(value: string): [number, number, number] | null {
 }
 
 export function parseCssColor(value: string): [number, number, number] | null {
-  if (value.startsWith('#')) {
+  if (value.startsWith("#")) {
     return parseHexColor(value);
   }
 
-  if (value.startsWith('rgb')) {
+  if (value.startsWith("rgb")) {
     return parseRgbColor(value);
   }
 
@@ -154,10 +154,10 @@ export function parseCssColor(value: string): [number, number, number] | null {
 export function readThemeVisualTokens(documentRef?: Document) {
   const styles = getComputedStyle((documentRef ?? document).documentElement);
   const read = (propertyName: string) => styles.getPropertyValue(propertyName).trim();
-  const nodeLink = read('--color-node-link');
-  const nodeHub1 = read('--color-node-hub-1');
-  const nodeHub2 = read('--color-node-hub-2');
-  const nodeHub3 = read('--color-node-hub-3');
+  const nodeLink = read("--color-node-link");
+  const nodeHub1 = read("--color-node-hub-1");
+  const nodeHub2 = read("--color-node-hub-2");
+  const nodeHub3 = read("--color-node-hub-3");
 
   return {
     nodeLink,
@@ -168,15 +168,15 @@ export function readThemeVisualTokens(documentRef?: Document) {
     nodeHub2Rgb: parseCssColor(nodeHub2) ?? [99, 102, 241],
     nodeHub3,
     nodeHub3Rgb: parseCssColor(nodeHub3) ?? [124, 58, 237],
-    particle1: read('--color-particle-1'),
-    particle2: read('--color-particle-2'),
-    particle3: read('--color-particle-3'),
-    syntaxBracket: read('--color-syntax-bracket'),
-    syntaxKeyword: read('--color-syntax-keyword'),
-    syntaxOperator: read('--color-syntax-plain'),
-    syntaxProperty: read('--color-syntax-property'),
-    syntaxString: read('--color-syntax-string'),
-    syntaxVariable: read('--color-syntax-variable'),
-    terminalGreen: read('--color-terminal-green')
+    particle1: read("--color-particle-1"),
+    particle2: read("--color-particle-2"),
+    particle3: read("--color-particle-3"),
+    syntaxBracket: read("--color-syntax-bracket"),
+    syntaxKeyword: read("--color-syntax-keyword"),
+    syntaxOperator: read("--color-syntax-plain"),
+    syntaxProperty: read("--color-syntax-property"),
+    syntaxString: read("--color-syntax-string"),
+    syntaxVariable: read("--color-syntax-variable"),
+    terminalGreen: read("--color-terminal-green")
   };
 }

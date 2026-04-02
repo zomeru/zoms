@@ -1,6 +1,6 @@
 # Zoms Portfolio & AI Blog
 
-Modern personal portfolio + AI-assisted technical blog. Built with **Next.js 16 App Router**, **React 19**, **TypeScript 5.9 (strict)**, **TailwindCSS v4**, **Sanity CMS**, and **Google Gemini** for automated post generation. Includes a site-wide grounded AI assistant backed by **OpenRouter**, **Upstash Vector**, **Upstash Redis**, **Supermemory**, and **Prisma + Neon PostgreSQL**, plus structured logging, centralized error handling, adaptive rate limiting, and bot protection via **botid**.
+Modern personal portfolio. Built with **Next.js 16 App Router**, **React 19**, **TypeScript 5.9 (strict)**, **TailwindCSS v4**, **Sanity CMS**, and **Google Gemini** for automated post generation. Includes a site-wide grounded AI assistant backed by **OpenRouter**, **Upstash Vector**, **Upstash Redis**, **Supermemory**, and **Prisma + Neon PostgreSQL**, plus structured logging, centralized error handling, adaptive rate limiting, and bot protection via **botid**.
 
 ---
 
@@ -78,7 +78,7 @@ Two modes currently supported:
 | Database                      | Prisma ORM + Neon PostgreSQL                                                |
 | Markdown (optional processor) | unified, remark-gfm, rehype-pretty-code, rehype-external-links, rehype-slug |
 | Logging                       | Custom logger (structured JSON / pretty dev)                                |
-| Tooling                       | ESLint (love config + prettier), Prettier, Husky, lint-staged               |
+| Tooling                       | Biome, Husky, lint-staged                                                    |
 | Bot Protection                | botid                                                                       |
 | Deployment                    | Vercel + ISR                                                                |
 
@@ -193,7 +193,7 @@ pnpm studio:build      # Build Studio
 pnpm studio:deploy     # Deploy Studio
 ```
 
-Pre-commit (Husky + lint-staged) auto-runs ESLint + Prettier on staged files.
+Pre-commit (Husky + lint-staged) runs Biome on staged files, then runs the TypeScript check.
 
 ---
 
@@ -332,8 +332,7 @@ If prompt/schema changes: update files in `src/lib/blog-generator/` (generators,
 
 ## Quality & Tooling
 
-- ESLint config based on `eslint-config-love` + custom relaxations
-- Prettier + import sort plugin
+- Biome handles both linting and formatting, including import organization
 - `test:all` gate: format + lint + types + unit tests
 - Husky ensures local consistency pre-commit
 
@@ -405,12 +404,6 @@ studio/                      # Sanity Studio (schemas: blogPost, project, experi
 public/                      # Static assets, PWA icons, screenshots
 .github/                     # Copilot instructions + CI workflows (tests.yml)
 ```
-
----
-
-## License
-
-MIT
 
 ---
 

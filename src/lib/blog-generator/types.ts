@@ -1,5 +1,5 @@
-export type BlogGenerationProvider = 'gemini' | 'openrouter';
-export type BlogGenerationTriggerMode = 'manual' | 'scheduled';
+export type BlogGenerationProvider = "gemini" | "openrouter";
+export type BlogGenerationTriggerMode = "manual" | "scheduled";
 
 export interface GeneratedBlogDraft {
   body: string;

@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
 import {
-  InteractivityDetect,
-  MoveDirection,
-  OutMode,
   type Container,
-  type ISourceOptions
-} from '@tsparticles/engine';
-import Particles, { initParticlesEngine } from '@tsparticles/react';
-import { loadSlim } from '@tsparticles/slim';
+  InteractivityDetect,
+  type ISourceOptions,
+  MoveDirection,
+  OutMode
+} from "@tsparticles/engine";
+import Particles, { initParticlesEngine } from "@tsparticles/react";
+import { loadSlim } from "@tsparticles/slim";
+import { useEffect, useRef, useState } from "react";
 
-import { readThemeVisualTokens, THEME_CHANGE_EVENT } from '@/lib/theme/dom';
+import { readThemeVisualTokens, THEME_CHANGE_EVENT } from "@/lib/theme/dom";
 
 const DEFAULT_THEME_VISUALS = {
-  nodeLink: 'rgba(148, 163, 184, 0.28)',
-  particle1: '#8b5cf6',
-  particle2: '#3b82f6',
-  particle3: '#6366f1'
+  nodeLink: "rgba(148, 163, 184, 0.28)",
+  particle1: "#8b5cf6",
+  particle2: "#3b82f6",
+  particle3: "#6366f1"
 };
 
 function updateParticleSourceOptions(
@@ -128,7 +128,7 @@ const ParticleBackground = () => {
 
   const optionsRef = useRef<ISourceOptions>({
     background: {
-      color: { value: 'transparent' }
+      color: { value: "transparent" }
     },
     fullScreen: {
       enable: false
@@ -138,7 +138,7 @@ const ParticleBackground = () => {
       events: {
         onHover: {
           enable: true,
-          mode: 'repulse'
+          mode: "repulse"
         },
         resize: {
           enable: true
@@ -183,7 +183,7 @@ const ParticleBackground = () => {
         value: 90
       },
       opacity: { value: 0.4 },
-      shape: { type: 'circle' },
+      shape: { type: "circle" },
       size: { value: { min: 1, max: 3 } }
     },
     detectRetina: true
@@ -192,8 +192,8 @@ const ParticleBackground = () => {
   if (init) {
     return (
       <Particles
-        id='tsparticles'
-        className='pointer-events-none absolute inset-0 block h-full w-full'
+        id="tsparticles"
+        className="pointer-events-none absolute inset-0 block h-full w-full"
         options={optionsRef.current}
         particlesLoaded={async (container) => {
           if (!container) {

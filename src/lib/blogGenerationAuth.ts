@@ -1,10 +1,10 @@
-import 'server-only';
+import "server-only";
 
-import { createHmac, timingSafeEqual } from 'node:crypto';
-import type { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
+import { createHmac, timingSafeEqual } from "node:crypto";
+import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
-const BLOG_GENERATION_COOKIE_NAME = 'blog_generation_session';
-const BLOG_GENERATION_COOKIE_PAYLOAD = 'blog-generator-session:v1';
+const BLOG_GENERATION_COOKIE_NAME = "blog_generation_session";
+const BLOG_GENERATION_COOKIE_PAYLOAD = "blog-generator-session:v1";
 const BLOG_GENERATION_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
 function getConfiguredSecret(): string | null {
@@ -12,7 +12,7 @@ function getConfiguredSecret(): string | null {
 }
 
 function createSessionValue(secret: string): string {
-  return createHmac('sha256', secret).update(BLOG_GENERATION_COOKIE_PAYLOAD).digest('hex');
+  return createHmac("sha256", secret).update(BLOG_GENERATION_COOKIE_PAYLOAD).digest("hex");
 }
 
 export function hasBlogGenerationSecret(): boolean {
@@ -32,7 +32,7 @@ export function validateBlogGenerationSecret(secret: string): boolean {
 }
 
 export function isValidBlogGenerationSession(
-  cookieStore: Pick<ReadonlyRequestCookies, 'get'>
+  cookieStore: Pick<ReadonlyRequestCookies, "get">
 ): boolean {
   const configuredSecret = getConfiguredSecret();
   if (!configuredSecret) return false;
@@ -52,7 +52,7 @@ export function isValidBlogGenerationSession(
 export function getBlogGenerationSessionCookie() {
   const configuredSecret = getConfiguredSecret();
   if (!configuredSecret) {
-    throw new Error('BLOG_GENERATION_SECRET is not configured');
+    throw new Error("BLOG_GENERATION_SECRET is not configured");
   }
 
   return {
@@ -61,9 +61,9 @@ export function getBlogGenerationSessionCookie() {
     options: {
       httpOnly: true,
       maxAge: BLOG_GENERATION_COOKIE_MAX_AGE,
-      path: '/',
-      sameSite: 'lax' as const,
-      secure: process.env.NODE_ENV === 'production'
+      path: "/",
+      sameSite: "lax" as const,
+      secure: process.env.NODE_ENV === "production"
     }
   };
 }
@@ -71,13 +71,13 @@ export function getBlogGenerationSessionCookie() {
 export function getClearedBlogGenerationSessionCookie() {
   return {
     name: BLOG_GENERATION_COOKIE_NAME,
-    value: '',
+    value: "",
     options: {
       httpOnly: true,
       maxAge: 0,
-      path: '/',
-      sameSite: 'lax' as const,
-      secure: process.env.NODE_ENV === 'production'
+      path: "/",
+      sameSite: "lax" as const,
+      secure: process.env.NODE_ENV === "production"
     }
   };
 }

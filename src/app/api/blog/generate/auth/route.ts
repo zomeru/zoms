@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from "next/server";
 
 import {
   getBlogGenerationSessionCookie,
@@ -6,13 +6,13 @@ import {
   hasBlogGenerationSecret,
   isValidBlogGenerationSession,
   validateBlogGenerationSecret
-} from '@/lib/blogGenerationAuth';
-import { verifyBotIdRequest } from '@/lib/botId';
-import { ApiError, handleApiError, validateSchema } from '@/lib/errorHandler';
-import { getErrorMessage } from '@/lib/errorMessages';
-import { blogGenerateAuthRequestSchema } from '@/lib/schemas';
+} from "@/lib/blogGenerationAuth";
+import { verifyBotIdRequest } from "@/lib/botId";
+import { ApiError, handleApiError, validateSchema } from "@/lib/errorHandler";
+import { getErrorMessage } from "@/lib/errorMessages";
+import { blogGenerateAuthRequestSchema } from "@/lib/schemas";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const botIdResponse = await verifyBotIdRequest(request);
@@ -34,14 +34,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     if (!hasBlogGenerationSecret()) {
-      throw new ApiError(getErrorMessage('UNAUTHORIZED'), 401, 'UNAUTHORIZED');
+      throw new ApiError(getErrorMessage("UNAUTHORIZED"), 401, "UNAUTHORIZED");
     }
 
     const body: unknown = await request.json();
     const { secret } = validateSchema(blogGenerateAuthRequestSchema, body);
 
     if (!validateBlogGenerationSecret(secret)) {
-      throw new ApiError(getErrorMessage('UNAUTHORIZED'), 401, 'UNAUTHORIZED');
+      throw new ApiError(getErrorMessage("UNAUTHORIZED"), 401, "UNAUTHORIZED");
     }
 
     const response = NextResponse.json({ success: true, authorized: true });
@@ -50,8 +50,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return response;
   } catch (error) {
     return handleApiError(error, {
-      method: 'POST',
-      path: '/api/blog/generate/auth'
+      method: "POST",
+      path: "/api/blog/generate/auth"
     });
   }
 }

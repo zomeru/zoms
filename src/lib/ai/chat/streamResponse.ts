@@ -1,15 +1,15 @@
-import { ChatMessageRole } from '@prisma/client';
+import { ChatMessageRole } from "@prisma/client";
 
-import type { streamGroundedAnswer } from '@/lib/ai/chat-stream';
-import { storeSessionMemory } from '@/lib/ai/memory';
-import { appendStreamText } from '@/lib/ai/streaming';
-import { repositories } from '@/lib/db/repositories';
-import { toPrismaJsonValue } from '@/lib/json';
-import log from '@/lib/logger';
-import type { QueryClassification } from '@/lib/retrieval/classify';
+import type { streamGroundedAnswer } from "@/lib/ai/chat-stream";
+import { storeSessionMemory } from "@/lib/ai/memory";
+import { appendStreamText } from "@/lib/ai/streaming";
+import { repositories } from "@/lib/db/repositories";
+import { toPrismaJsonValue } from "@/lib/json";
+import log from "@/lib/logger";
+import type { QueryClassification } from "@/lib/retrieval/classify";
 
-import type { RetrievalMetadata } from './retrieval';
-import { AI_CHAT_COOKIE_NAME, type ChatRequestInput } from './schemas';
+import type { RetrievalMetadata } from "./retrieval";
+import { AI_CHAT_COOKIE_NAME, type ChatRequestInput } from "./schemas";
 
 type GroundedAnswerStream = Awaited<ReturnType<typeof streamGroundedAnswer>>;
 
@@ -26,7 +26,7 @@ export function createStreamingChatResponse(input: {
   const encoder = new TextEncoder();
   const setCookieHeader = input.isNew
     ? `${AI_CHAT_COOKIE_NAME}=${input.sessionKey}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000${
-        process.env.NODE_ENV === 'production' ? '; Secure' : ''
+        process.env.NODE_ENV === "production" ? "; Secure" : ""
       }`
     : undefined;
   const stream = new ReadableStream({
@@ -34,7 +34,7 @@ export function createStreamingChatResponse(input: {
       const sendEvent = (payload: Record<string, unknown>) => {
         controller.enqueue(encoder.encode(`${JSON.stringify(payload)}\n`));
       };
-      let answerText = '';
+      let answerText = "";
 
       try {
         for await (const part of input.groundedAnswer.textStream) {
@@ -43,13 +43,13 @@ export function createStreamingChatResponse(input: {
           }
 
           answerText = appendStreamText(answerText, part);
-          sendEvent({ text: part, type: 'chunk' });
+          sendEvent({ text: part, type: "chunk" });
         }
 
         const finalAnswer = {
           answer:
             answerText.trim() ||
-            'I can only answer from content that is currently indexed on this site.',
+            "I can only answer from content that is currently indexed on this site.",
           citations: input.groundedAnswer.citations,
           supported: input.groundedAnswer.supported
         };
@@ -61,7 +61,7 @@ export function createStreamingChatResponse(input: {
           sessionId: input.sessionId
         });
 
-        sendEvent({ answer: finalAnswer, messageId: assistantMessage.id, type: 'done' });
+        sendEvent({ answer: finalAnswer, messageId: assistantMessage.id, type: "done" });
 
         try {
           await repositories.createRetrievalEvent({
@@ -81,7 +81,7 @@ export function createStreamingChatResponse(input: {
             userMessageId: input.userMessageId
           });
         } catch (retrievalError) {
-          log.warn('Failed to persist retrieval event', {
+          log.warn("Failed to persist retrieval event", {
             assistantMessageId: assistantMessage.id,
             error: retrievalError instanceof Error ? retrievalError.message : String(retrievalError)
           });
@@ -94,7 +94,7 @@ export function createStreamingChatResponse(input: {
             sessionKey: input.sessionKey
           });
         } catch (memoryError) {
-          log.warn('Failed to store session memory', {
+          log.warn("Failed to store session memory", {
             sessionKey: input.sessionKey,
             error: memoryError instanceof Error ? memoryError.message : String(memoryError)
           });
@@ -103,11 +103,11 @@ export function createStreamingChatResponse(input: {
         sendEvent({
           answer: {
             answer:
-              answerText.trim() || 'Unable to complete the assistant response. Please try again.',
+              answerText.trim() || "Unable to complete the assistant response. Please try again.",
             citations: [],
             supported: false
           },
-          type: 'done'
+          type: "done"
         });
       } finally {
         controller.close();
@@ -117,12 +117,12 @@ export function createStreamingChatResponse(input: {
 
   return new Response(stream, {
     headers: {
-      'Cache-Control': 'no-store',
-      'Content-Type': 'application/x-ndjson; charset=utf-8',
-      'X-Accel-Buffering': 'no',
+      "Cache-Control": "no-store",
+      "Content-Type": "application/x-ndjson; charset=utf-8",
+      "X-Accel-Buffering": "no",
       ...(setCookieHeader
         ? {
-            'Set-Cookie': setCookieHeader
+            "Set-Cookie": setCookieHeader
           }
         : {})
     },

@@ -1,5 +1,5 @@
-import { bootstrapThemeSnapshot, DEFAULT_THEME_ID } from './registry';
-import { THEME_STORAGE_KEY } from './storage';
+import { bootstrapThemeSnapshot, DEFAULT_THEME_ID } from "./registry";
+import { THEME_STORAGE_KEY } from "./storage";
 
 const fallbackTheme = bootstrapThemeSnapshot[DEFAULT_THEME_ID];
 

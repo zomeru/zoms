@@ -1,9 +1,9 @@
-import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
+import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 
-import type { NormalizedContentDocument } from '@/lib/content/types';
+import type { NormalizedContentDocument } from "@/lib/content/types";
 
-import { createChunkId } from './hash';
-import { stripMarkdown } from './normalize';
+import { createChunkId } from "./hash";
+import { stripMarkdown } from "./normalize";
 
 export interface ContentChunk {
   content: string;

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
-import ChatMessageContent from './ChatMessageContent';
-import CitationList from './CitationList';
-import { WELCOME_MESSAGE_ID, type AssistantMessage } from './useChatAssistant';
+import ChatMessageContent from "./ChatMessageContent";
+import CitationList from "./CitationList";
+import { type AssistantMessage, WELCOME_MESSAGE_ID } from "./useChatAssistant";
 
 interface ChatMessageListProps {
   hasMoreHistory: boolean;
@@ -85,20 +85,23 @@ export default function ChatMessageList({
   return (
     <div
       ref={scrollContainerRef}
-      aria-label='Chat conversation history'
-      className='assistant-scrollbar min-h-0 flex-1 overflow-y-auto'
+      aria-label="Chat conversation history"
+      aria-live="polite"
+      aria-relevant="additions text"
+      className="assistant-scrollbar min-h-0 flex-1 overflow-y-auto"
       onScroll={handleScroll}
+      role="log"
     >
-      <div className='flex min-h-full flex-col justify-end gap-4 p-4'>
+      <div className="flex min-h-full flex-col justify-end gap-4 p-4">
         {isHistoryLoadingInitial && realMessageCount === 0 ? (
-          <div className='mx-auto my-auto flex h-full min-h-32 items-center justify-center'>
-            <div className='rounded-2xl border border-border bg-surface/80 px-4 py-3 text-sm text-text-secondary'>
+          <div className="mx-auto my-auto flex h-full min-h-32 items-center justify-center">
+            <div className="rounded-2xl border border-border bg-surface/80 px-4 py-3 text-sm text-text-secondary">
               Loading conversation history...
             </div>
           </div>
         ) : null}
         {isLoadingOlderHistory ? (
-          <div className='mx-auto rounded-full border border-border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.18em] text-text-muted'>
+          <div className="mx-auto rounded-full border border-border px-3 py-1 font-mono text-[11px] text-text-muted uppercase tracking-[0.18em]">
             Loading older messages
           </div>
         ) : null}
@@ -106,31 +109,33 @@ export default function ChatMessageList({
           <article
             key={message.id}
             className={
-              message.role === 'user'
-                ? 'ml-auto max-w-[85%] shrink-0 rounded-2xl rounded-br-md border border-primary/20 bg-primary/10 px-4 py-3'
-                : 'max-w-[92%] shrink-0 rounded-2xl rounded-bl-md border border-border bg-surface/90 px-4 py-3'
+              message.role === "user"
+                ? "ml-auto max-w-[85%] shrink-0 rounded-2xl rounded-br-md border border-primary/20 bg-primary/10 px-4 py-3"
+                : "max-w-[92%] shrink-0 rounded-2xl rounded-bl-md border border-border bg-surface/90 px-4 py-3"
             }
           >
-            <p className='mb-2 font-mono text-[11px] uppercase tracking-[0.22em] text-text-muted'>
-              {message.role === 'user' ? 'You' : 'Zomer'}
+            <p className="mb-2 font-mono text-[11px] text-text-muted uppercase tracking-[0.22em]">
+              {message.role === "user" ? "You" : "Zomer"}
             </p>
             <ChatMessageContent content={message.content} isStreaming={message.isPending} />
-            {message.role === 'assistant' && message.isPending && (
+            {message.role === "assistant" && message.isPending && (
               <div
-                aria-label='Assistant is responding'
-                className='mt-3 inline-flex items-center gap-1.5 text-text-muted'
+                aria-label="Assistant is responding"
+                aria-live="polite"
+                className="mt-3 inline-flex items-center gap-1.5 text-text-muted"
+                role="status"
               >
                 {[0, 1, 2].map((dot) => (
                   <span
                     key={dot}
-                    className='h-2 w-2 rounded-full bg-current animate-pulse'
+                    className="h-2 w-2 animate-pulse rounded-full bg-current"
                     style={{ animationDelay: `${dot * 180}ms` }}
                   />
                 ))}
               </div>
             )}
             {message.transform && (
-              <ul className='mt-3 list-disc space-y-1 pl-5 text-sm text-text-secondary'>
+              <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-text-secondary">
                 {message.transform.bullets.map((bullet) => (
                   <li key={bullet}>{bullet}</li>
                 ))}

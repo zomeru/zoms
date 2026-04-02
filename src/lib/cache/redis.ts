@@ -1,10 +1,10 @@
-import 'server-only';
+import "server-only";
 
-import { Redis } from '@upstash/redis';
+import { Redis } from "@upstash/redis";
 
-import { getAiEnv } from '@/lib/ai/env';
+import { getAiEnv } from "@/lib/ai/env";
 
-let cachedRedis: Redis | null | undefined = undefined;
+let cachedRedis: Redis | null | undefined;
 
 export function getRedisClient(): Redis | null {
   if (cachedRedis !== undefined) {

@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
-import { applyThemeToDocument, getThemeFromDocument } from '@/lib/theme/dom';
+import { applyThemeToDocument, getThemeFromDocument } from "@/lib/theme/dom";
 import {
   DEFAULT_THEME_ID,
   getThemeById,
   orderedThemes,
   THEME_SHORTCUT,
   type ThemeId
-} from '@/lib/theme/registry';
-import { readStoredTheme, writeStoredTheme } from '@/lib/theme/storage';
+} from "@/lib/theme/registry";
+import { readStoredTheme, writeStoredTheme } from "@/lib/theme/storage";
 
 interface ThemeContextValue {
   activeThemeId: ThemeId;
@@ -34,9 +34,9 @@ function isEditableTarget(target: EventTarget | null): boolean {
 
   return (
     target.isContentEditable ||
-    target.tagName === 'INPUT' ||
-    target.tagName === 'TEXTAREA' ||
-    target.tagName === 'SELECT'
+    target.tagName === "INPUT" ||
+    target.tagName === "TEXTAREA" ||
+    target.tagName === "SELECT"
   );
 }
 
@@ -60,8 +60,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
     const previousHtmlOverflow = document.documentElement.style.overflow;
     const previousBodyOverflow = document.body.style.overflow;
 
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
 
     return () => {
       document.documentElement.style.overflow = previousHtmlOverflow;
@@ -126,15 +126,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
         return;
       }
 
-      if (event.key === 'Escape' && isSelectorOpen) {
+      if (event.key === "Escape" && isSelectorOpen) {
         event.preventDefault();
         closeSelector();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [closeSelector, isSelectorOpen]);
 
@@ -143,7 +143,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
   const selectedTheme = getThemeById(committedThemeId) ?? getThemeById(DEFAULT_THEME_ID);
 
   if (!currentTheme || !selectedTheme) {
-    throw new Error('Default theme is missing from the theme registry.');
+    throw new Error("Default theme is missing from the theme registry.");
   }
 
   const contextValue = React.useMemo(
@@ -187,7 +187,7 @@ export function useThemeSystem(): ThemeContextValue {
   const context = React.useContext(ThemeContext);
 
   if (!context) {
-    throw new Error('useThemeSystem must be used inside ThemeProvider.');
+    throw new Error("useThemeSystem must be used inside ThemeProvider.");
   }
 
   return context;

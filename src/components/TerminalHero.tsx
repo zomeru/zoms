@@ -1,12 +1,13 @@
-'use client';
+"use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type React from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import TerminalCard from './ui/TerminalCard';
+import TerminalCard from "./ui/TerminalCard";
 
 interface TerminalHeroProps {
   name: string;
-  role: string;
+  title: string;
   descriptions: string[];
 }
 
@@ -16,44 +17,44 @@ interface CodeLine {
 }
 
 const syntaxColors: Record<string, string> = {
-  bracket: 'var(--color-syntax-bracket)',
-  comma: 'var(--color-syntax-plain)',
-  keyword: 'var(--color-syntax-keyword)',
-  operator: 'var(--color-syntax-plain)',
-  property: 'var(--color-syntax-property)',
-  string: 'var(--color-syntax-string)',
-  variable: 'var(--color-syntax-variable)'
+  bracket: "var(--color-syntax-bracket)",
+  comma: "var(--color-syntax-plain)",
+  keyword: "var(--color-syntax-keyword)",
+  operator: "var(--color-syntax-plain)",
+  property: "var(--color-syntax-property)",
+  string: "var(--color-syntax-string)",
+  variable: "var(--color-syntax-variable)"
 };
 
-const TerminalHero: React.FC<TerminalHeroProps> = ({ name, role, descriptions }) => {
-  const [displayedCode, setDisplayedCode] = useState('');
-  const [displayedDescription, setDisplayedDescription] = useState('');
+const TerminalHero: React.FC<TerminalHeroProps> = ({ name, title, descriptions }) => {
+  const [displayedCode, setDisplayedCode] = useState("");
+  const [displayedDescription, setDisplayedDescription] = useState("");
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const codeLines: CodeLine[] = useMemo(
     () => [
-      { type: 'keyword', content: 'const' },
-      { type: 'variable', content: ' developer ' },
-      { type: 'operator', content: '=' },
-      { type: 'bracket', content: ' {' },
-      { type: 'property', content: ' name' },
-      { type: 'operator', content: ': ' },
-      { type: 'string', content: `"${name}"` },
-      { type: 'comma', content: ',' },
-      { type: 'property', content: ' role' },
-      { type: 'operator', content: ': ' },
-      { type: 'string', content: `"${role}"` },
-      { type: 'comma', content: ',' },
-      { type: 'property', content: ' passion' },
-      { type: 'operator', content: ': ' },
-      { type: 'string', content: '"building elegant solutions"' },
-      { type: 'bracket', content: ' };' }
+      { type: "keyword", content: "const" },
+      { type: "variable", content: " developer " },
+      { type: "operator", content: "=" },
+      { type: "bracket", content: " {" },
+      { type: "property", content: " name" },
+      { type: "operator", content: ": " },
+      { type: "string", content: `"${name}"` },
+      { type: "comma", content: "," },
+      { type: "property", content: " role" },
+      { type: "operator", content: ": " },
+      { type: "string", content: `"${title}"` },
+      { type: "comma", content: "," },
+      { type: "property", content: " passion" },
+      { type: "operator", content: ": " },
+      { type: "string", content: '"building elegant solutions"' },
+      { type: "bracket", content: " };" }
     ],
-    [name, role]
+    [name, title]
   );
 
-  const fullCode = useMemo(() => codeLines.map((line) => line.content).join(''), [codeLines]);
+  const fullCode = useMemo(() => codeLines.map((line) => line.content).join(""), [codeLines]);
 
   const renderCode = () => {
     let currentIndex = 0;
@@ -71,11 +72,11 @@ const TerminalHero: React.FC<TerminalHeroProps> = ({ name, role, descriptions })
         ? displayedCode.slice(lineStart, displayedCode.length)
         : isVisible
           ? line.content
-          : '';
+          : "";
 
       const key = `${line.type}-${line.content.slice(0, 3)}-${lineIndex}`;
       return (
-        <span key={key} style={{ color: syntaxColors[line.type] ?? 'var(--color-syntax-plain)' }}>
+        <span key={key} style={{ color: syntaxColors[line.type] ?? "var(--color-syntax-plain)" }}>
           {lineContent}
         </span>
       );
@@ -153,21 +154,21 @@ const TerminalHero: React.FC<TerminalHeroProps> = ({ name, role, descriptions })
   const showDescription = isCodeComplete && isDescriptionActive;
 
   return (
-    <div className='w-full max-w-2xl'>
+    <div className="w-full max-w-2xl">
       <TerminalCard
-        title='about.ts'
-        className='shadow-2xl'
-        bodyClassName='p-6 font-mono text-sm leading-relaxed overflow-x-auto'
+        title="about.ts"
+        className="shadow-2xl"
+        bodyClassName="p-6 font-mono text-sm leading-relaxed overflow-x-auto"
       >
-        <pre className='whitespace-pre-wrap'>
+        <pre className="whitespace-pre-wrap">
           <code>{renderCode()}</code>
-          {!isCodeComplete && <span className='text-terminal-green'>|</span>}
+          {!isCodeComplete && <span className="text-terminal-green">|</span>}
         </pre>
         {showDescription && (
-          <div className='mt-4 text-text-muted text-xs'>
-            <span className='text-primary'>➜</span>{' '}
-            <span className='text-text-secondary'>{displayedDescription}</span>
-            <span className='text-terminal-green animate-blink'>|</span>
+          <div className="mt-4 text-text-muted text-xs">
+            <span className="text-primary">➜</span>{" "}
+            <span className="text-text-secondary">{displayedDescription}</span>
+            <span className="animate-blink text-terminal-green">|</span>
           </div>
         )}
       </TerminalCard>

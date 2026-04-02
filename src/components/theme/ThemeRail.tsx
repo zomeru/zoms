@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import React from 'react';
+import type React from "react";
 
 import {
   FLOATING_WIDGET_ICON_SHELL,
   FLOATING_WIDGET_META,
   FLOATING_WIDGET_TRIGGER_SHADOW,
   FLOATING_WIDGET_TRIGGER_SHELL
-} from '@/components/ui/floatingWidgetStyles';
+} from "@/components/ui/floatingWidgetStyles";
 
-import { useThemeSystem } from './ThemeProvider';
+import { useThemeSystem } from "./ThemeProvider";
 
 function ThemeSwatch({
   accent,
@@ -24,13 +24,13 @@ function ThemeSwatch({
 }) {
   return (
     <span
-      aria-hidden='true'
+      aria-hidden="true"
       className={`grid h-10 w-10 shrink-0 grid-cols-2 gap-1 p-1.5 ${FLOATING_WIDGET_ICON_SHELL}`}
     >
-      <span className='rounded-[0.45rem]' style={{ backgroundColor: bg }} />
-      <span className='rounded-[0.45rem]' style={{ backgroundColor: surface }} />
-      <span className='rounded-[0.45rem]' style={{ backgroundColor: accent }} />
-      <span className='rounded-[0.45rem]' style={{ backgroundColor: fg }} />
+      <span className="rounded-[0.45rem]" style={{ backgroundColor: bg }} />
+      <span className="rounded-[0.45rem]" style={{ backgroundColor: surface }} />
+      <span className="rounded-[0.45rem]" style={{ backgroundColor: accent }} />
+      <span className="rounded-[0.45rem]" style={{ backgroundColor: fg }} />
     </span>
   );
 }
@@ -40,22 +40,22 @@ function ThemeTrigger({ compact = false }: { compact?: boolean }): React.JSX.Ele
 
   return (
     <button
-      type='button'
+      type="button"
       onClick={openSelector}
-      aria-label='Open theme selector'
+      aria-label="Open theme selector"
       className={`group flex items-center gap-3 px-3.5 py-3 text-left transition-all duration-200 hover:border-primary/40 hover:bg-surface ${FLOATING_WIDGET_TRIGGER_SHELL} ${
         compact
           ? FLOATING_WIDGET_TRIGGER_SHADOW
-          : 'shadow-[0_20px_42px_rgb(var(--shadow-rgb)/0.26)]'
+          : "shadow-[0_20px_42px_rgb(var(--shadow-rgb)/0.26)]"
       }`}
     >
       <ThemeSwatch {...currentTheme.preview} />
-      <span className={compact ? 'hidden min-w-0 sm:block' : 'min-w-0'}>
+      <span className={compact ? "hidden min-w-0 sm:block" : "min-w-0"}>
         <span className={`block ${FLOATING_WIDGET_META}`}>Theme</span>
-        <span className='mt-1 block truncate text-sm font-medium text-text-primary group-hover:text-primary'>
+        <span className="mt-1 block truncate font-medium text-sm text-text-primary group-hover:text-primary">
           {currentTheme.label}
         </span>
-        <span className='mt-1 block font-mono text-[11px] uppercase tracking-[0.18em] text-text-muted'>
+        <span className="mt-1 block font-mono text-[11px] text-text-muted uppercase tracking-[0.18em]">
           {currentTheme.scheme}
         </span>
       </span>
@@ -65,7 +65,7 @@ function ThemeTrigger({ compact = false }: { compact?: boolean }): React.JSX.Ele
 
 export function ThemeRail(): React.JSX.Element {
   return (
-    <div className='fixed bottom-5 left-5 z-[45] md:bottom-8 md:left-8'>
+    <div className="fixed bottom-5 left-5 z-[45] md:bottom-8 md:left-8">
       <ThemeTrigger compact={true} />
     </div>
   );

@@ -1,16 +1,16 @@
-import React from 'react';
+import type React from "react";
 
-import { socials } from '@/constants';
+import { socials } from "@/constants";
 
 const Socials = (): React.JSX.Element => {
   return (
-    <div className='flex space-x-3 items-center'>
+    <div className="flex items-center space-x-3">
       {socials.map(({ url, Icon }) => {
-        const label = url.includes('mail') ? 'email' : url.replace('/', '');
+        const label = url.includes("mail") ? "email" : url.replace("/", "");
 
         return (
-          <a href={url} key={url} target='_blank' rel='noopener' aria-label={label}>
-            <Icon className='text-text-secondary hover:text-primary transition-colors duration-300 ease-in-out text-3xl' />
+          <a href={url} key={url} target="_blank" rel="noopener" aria-label={label}>
+            <Icon className="text-3xl text-text-secondary transition-colors duration-300 ease-in-out hover:text-primary" />
           </a>
         );
       })}

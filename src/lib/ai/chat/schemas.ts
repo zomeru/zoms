@@ -1,6 +1,6 @@
-import { z } from 'zod';
+import { z } from "zod";
 
-export const AI_CHAT_COOKIE_NAME = 'ai_chat_session';
+export const AI_CHAT_COOKIE_NAME = "ai_chat_session";
 export const MAX_CHAT_QUESTION_LENGTH = 500;
 
 export const chatRequestSchema = z.object({

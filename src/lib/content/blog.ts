@@ -1,7 +1,7 @@
-import type { NormalizedContentDocument } from '@/lib/content/types';
-import { createDocument } from '@/lib/ingestion/normalize';
-import { splitMarkdownIntoSections } from '@/lib/ingestion/sections';
-import { getSanityClient } from '@/lib/sanity';
+import type { NormalizedContentDocument } from "@/lib/content/types";
+import { createDocument } from "@/lib/ingestion/normalize";
+import { splitMarkdownIntoSections } from "@/lib/ingestion/sections";
+import { getSanityClient } from "@/lib/sanity";
 
 export interface BlogSourceRecord {
   _id: string;
@@ -19,14 +19,14 @@ export function normalizeBlogPostRecord(record: BlogSourceRecord): NormalizedCon
   const sections = [
     {
       content: record.summary,
-      id: 'summary',
-      title: 'Summary'
+      id: "summary",
+      title: "Summary"
     },
     ...splitMarkdownIntoSections(record.body)
   ];
 
   return createDocument({
-    contentType: 'blog',
+    contentType: "blog",
     documentId: `blog:${record.slug.current}`,
     publishedAt: record.publishedAt,
     sections,

@@ -1,7 +1,7 @@
-import { projects as fallbackProjects } from '@/constants/projects';
+import { projects as fallbackProjects } from "@/constants/projects";
 
-import log from './logger';
-import { getSanityClient } from './sanity';
+import log from "./logger";
+import { getSanityClient } from "./sanity";
 
 const PROJECTS_REVALIDATE_SECONDS = 60 * 60;
 
@@ -50,7 +50,7 @@ export async function getProjects(): Promise<Project[]> {
       {
         next: {
           revalidate: PROJECTS_REVALIDATE_SECONDS,
-          tags: ['projects']
+          tags: ["projects"]
         }
       }
     );
@@ -61,7 +61,7 @@ export async function getProjects(): Promise<Project[]> {
 
     return projects;
   } catch (error) {
-    log.warn('Error fetching projects from Sanity, using fallback', {
+    log.warn("Error fetching projects from Sanity, using fallback", {
       error: error instanceof Error ? error.message : String(error)
     });
     return getFallbackProjects();

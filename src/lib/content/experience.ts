@@ -1,7 +1,7 @@
-import type { NormalizedContentDocument } from '@/lib/content/types';
-import { getExperience, type Experience } from '@/lib/experience';
-import { createDocument, slugify } from '@/lib/ingestion/normalize';
-import { createExperienceSections } from '@/lib/ingestion/sections';
+import type { NormalizedContentDocument } from "@/lib/content/types";
+import { type Experience, getExperience } from "@/lib/experience";
+import { createDocument, slugify } from "@/lib/ingestion/normalize";
+import { createExperienceSections } from "@/lib/ingestion/sections";
 
 export function getExperienceSlug(title: string, company: string): string {
   return slugify(`${title}-${company}`);
@@ -19,7 +19,7 @@ export function normalizeExperienceRecord(experienceEntry: Experience): Normaliz
   const slug = getExperienceSlug(experienceEntry.title, experienceEntry.company);
 
   return createDocument({
-    contentType: 'experience',
+    contentType: "experience",
     documentId: getExperienceDocumentId(experienceEntry.title, experienceEntry.company),
     sections: createExperienceSections(experienceEntry),
     slug,
@@ -34,7 +34,7 @@ export function normalizeExperienceRecord(experienceEntry: Experience): Normaliz
     },
     tags: [experienceEntry.company, experienceEntry.title, experienceEntry.location],
     title: `${experienceEntry.title} at ${experienceEntry.company}`,
-    url: '/#experience'
+    url: "/#experience"
   });
 }
 

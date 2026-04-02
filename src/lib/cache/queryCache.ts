@@ -1,13 +1,13 @@
-import 'server-only';
+import "server-only";
 
-import { createHash } from 'node:crypto';
+import { createHash } from "node:crypto";
 
-import { tryParseJson } from '@/lib/json';
+import { tryParseJson } from "@/lib/json";
 
-import { getRedisClient } from './redis';
+import { getRedisClient } from "./redis";
 
 function normalizeKey(key: string): string {
-  return createHash('sha256').update(key.trim().toLowerCase()).digest('hex');
+  return createHash("sha256").update(key.trim().toLowerCase()).digest("hex");
 }
 
 interface QueryCacheOptions<T> {

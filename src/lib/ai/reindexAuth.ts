@@ -1,11 +1,11 @@
-import 'server-only';
+import "server-only";
 
-import { createHmac, timingSafeEqual } from 'node:crypto';
-import type { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
-import type { NextRequest } from 'next/server';
+import { createHmac, timingSafeEqual } from "node:crypto";
+import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import type { NextRequest } from "next/server";
 
-const AI_REINDEX_COOKIE_NAME = 'ai_reindex_session';
-const AI_REINDEX_COOKIE_PAYLOAD = 'ai-reindex-session:v1';
+const AI_REINDEX_COOKIE_NAME = "ai_reindex_session";
+const AI_REINDEX_COOKIE_PAYLOAD = "ai-reindex-session:v1";
 const AI_REINDEX_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
 function getConfiguredSecret(): string | null {
@@ -13,7 +13,7 @@ function getConfiguredSecret(): string | null {
 }
 
 function createSessionValue(secret: string): string {
-  return createHmac('sha256', secret).update(AI_REINDEX_COOKIE_PAYLOAD).digest('hex');
+  return createHmac("sha256", secret).update(AI_REINDEX_COOKIE_PAYLOAD).digest("hex");
 }
 
 export function validateAiReindexSecret(secret: string): boolean {
@@ -37,7 +37,7 @@ export function hasAiReindexSecret(): boolean {
   return getConfiguredSecret() !== null;
 }
 
-export function isValidAiReindexSession(cookieStore: Pick<ReadonlyRequestCookies, 'get'>): boolean {
+export function isValidAiReindexSession(cookieStore: Pick<ReadonlyRequestCookies, "get">): boolean {
   const configuredSecret = getConfiguredSecret();
 
   if (!configuredSecret) {
@@ -62,8 +62,8 @@ export function isValidAiReindexSession(cookieStore: Pick<ReadonlyRequestCookies
 }
 
 export function isAuthorizedAiReindexRequest(request: NextRequest): boolean {
-  const authHeader = request.headers.get('authorization');
-  const bearerSecret = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  const authHeader = request.headers.get("authorization");
+  const bearerSecret = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
 
   return (
     (bearerSecret ? validateAiReindexSecret(bearerSecret) : false) ||
@@ -75,7 +75,7 @@ export function getAiReindexSessionCookie() {
   const configuredSecret = getConfiguredSecret();
 
   if (!configuredSecret) {
-    throw new Error('AI_REINDEX_SECRET is not configured');
+    throw new Error("AI_REINDEX_SECRET is not configured");
   }
 
   return {
@@ -83,9 +83,9 @@ export function getAiReindexSessionCookie() {
     options: {
       httpOnly: true,
       maxAge: AI_REINDEX_COOKIE_MAX_AGE,
-      path: '/',
-      sameSite: 'lax' as const,
-      secure: process.env.NODE_ENV === 'production'
+      path: "/",
+      sameSite: "lax" as const,
+      secure: process.env.NODE_ENV === "production"
     },
     value: createSessionValue(configuredSecret)
   };
@@ -97,10 +97,10 @@ export function getClearedAiReindexSessionCookie() {
     options: {
       httpOnly: true,
       maxAge: 0,
-      path: '/',
-      sameSite: 'lax' as const,
-      secure: process.env.NODE_ENV === 'production'
+      path: "/",
+      sameSite: "lax" as const,
+      secure: process.env.NODE_ENV === "production"
     },
-    value: ''
+    value: ""
   };
 }

@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
 
-import NodeCanvas from './NodeCanvas';
+import NodeCanvas from "./NodeCanvas";
 
 const CYCLE_MS = 5000; // time between repositions
 const FADE_MS = 600; // canvas fade-out / fade-in duration
@@ -23,7 +24,7 @@ const NodeSection: React.FC = () => {
   useEffect(() => {
     const afterFade = () => {
       setSeed((s) => s + 1);
-      window.dispatchEvent(new CustomEvent('node-cycle'));
+      window.dispatchEvent(new CustomEvent("node-cycle"));
       setCanvasVisible(true);
     };
 
@@ -40,13 +41,13 @@ const NodeSection: React.FC = () => {
 
   return (
     <div
-      className='pointer-events-none absolute inset-0 overflow-visible'
+      className="pointer-events-none absolute inset-0 overflow-visible"
       style={{
         opacity: canvasVisible ? 1 : 0,
         transition: `opacity ${FADE_MS}ms ease-in-out`
       }}
     >
-      <NodeCanvas seed={seed} className='w-full h-full' />
+      <NodeCanvas seed={seed} className="h-full w-full" />
     </div>
   );
 };

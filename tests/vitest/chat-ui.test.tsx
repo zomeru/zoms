@@ -1,20 +1,19 @@
-/* eslint-disable max-lines -- chat UI behavior coverage intentionally lives in one integration-style test file */
 // @vitest-environment jsdom
 
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { useEffect } from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useEffect } from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import ChatComposer from '@/components/ai/ChatComposer';
-import ChatLauncher from '@/components/ai/ChatLauncher';
-import ChatMessageList from '@/components/ai/ChatMessageList';
-import ChatPanel from '@/components/ai/ChatPanel';
-import { useChatAssistant } from '@/components/ai/useChatAssistant';
+import ChatComposer from "@/components/ai/ChatComposer";
+import ChatLauncher from "@/components/ai/ChatLauncher";
+import ChatMessageList from "@/components/ai/ChatMessageList";
+import ChatPanel from "@/components/ai/ChatPanel";
+import { useChatAssistant } from "@/components/ai/useChatAssistant";
 
 function HookHarness() {
-  const assistant = useChatAssistant({ pathname: '/' });
+  const assistant = useChatAssistant({ pathname: "/" });
 
   useEffect(() => {
     assistant.setIsOpen(true);
@@ -22,12 +21,12 @@ function HookHarness() {
 
   return (
     <div>
-      <div data-testid='history-loading'>
-        {assistant.isHistoryLoadingInitial ? 'loading' : 'idle'}
+      <div data-testid="history-loading">
+        {assistant.isHistoryLoadingInitial ? "loading" : "idle"}
       </div>
-      <div data-testid='has-more-history'>{assistant.hasMoreHistory ? 'yes' : 'no'}</div>
+      <div data-testid="has-more-history">{assistant.hasMoreHistory ? "yes" : "no"}</div>
       <button
-        type='button'
+        type="button"
         onClick={() => {
           void assistant.loadOlderHistory();
         }}
@@ -41,44 +40,44 @@ function HookHarness() {
   );
 }
 
-describe('chat UI behaviors', () => {
+describe("chat UI behaviors", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('hydrates chat history from the secure session cookie on reload', async () => {
+  it("hydrates chat history from the secure session cookie on reload", async () => {
     vi.stubGlobal(
-      'fetch',
+      "fetch",
       vi.fn(async (input: string | URL | Request) => {
         const url =
-          typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+          typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
 
-        if (url.includes('/api/ai/chat')) {
+        if (url.includes("/api/ai/chat")) {
           return new Response(
             JSON.stringify({
               hasMore: false,
               limit: 10,
               messages: [
                 {
-                  content: 'Earlier question',
-                  id: 'user-1',
-                  role: 'user'
+                  content: "Earlier question",
+                  id: "user-1",
+                  role: "user"
                 },
                 {
-                  content: 'Earlier answer',
-                  id: 'assistant-1',
-                  messageId: 'assistant-1',
-                  role: 'assistant',
+                  content: "Earlier answer",
+                  id: "assistant-1",
+                  messageId: "assistant-1",
+                  role: "assistant",
                   supported: true
                 }
               ],
               offset: 0,
-              sessionKey: 'session-key',
+              sessionKey: "session-key",
               total: 2
             }),
             {
               headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json"
               },
               status: 200
             }
@@ -91,34 +90,34 @@ describe('chat UI behaviors', () => {
 
     render(<HookHarness />);
 
-    expect(screen.getByTestId('history-loading').textContent).toBe('loading');
+    expect(screen.getByTestId("history-loading").textContent).toBe("loading");
 
     await waitFor(() => {
-      expect(screen.getByText('Earlier question')).toBeTruthy();
-      expect(screen.getByText('Earlier answer')).toBeTruthy();
+      expect(screen.getByText("Earlier question")).toBeTruthy();
+      expect(screen.getByText("Earlier answer")).toBeTruthy();
     });
-    expect(screen.getByTestId('history-loading').textContent).toBe('idle');
+    expect(screen.getByTestId("history-loading").textContent).toBe("idle");
     expect(screen.getByText(/thanks for visiting my website/i)).toBeTruthy();
-    expect(window.localStorage.getItem('ai-chat-session')).toBeNull();
+    expect(window.localStorage.getItem("ai-chat-session")).toBeNull();
   });
 
-  it('does not show the welcome message while cookie-backed history is still loading', async () => {
+  it("does not show the welcome message while cookie-backed history is still loading", async () => {
     const pendingHistoryResponse = Promise.withResolvers<Response>().promise;
 
     vi.stubGlobal(
-      'fetch',
+      "fetch",
       vi.fn(async () => await pendingHistoryResponse)
     );
 
     render(<HookHarness />);
 
-    expect(screen.getByTestId('history-loading').textContent).toBe('loading');
+    expect(screen.getByTestId("history-loading").textContent).toBe("loading");
     expect(screen.queryByText(/thanks for visiting my website/i)).toBeNull();
   });
 
-  it('shows a persistent welcome message for a fresh conversation with no history', async () => {
+  it("shows a persistent welcome message for a fresh conversation with no history", async () => {
     vi.stubGlobal(
-      'fetch',
+      "fetch",
       vi.fn(async () => new Response(null, { status: 404 }))
     );
 
@@ -128,9 +127,9 @@ describe('chat UI behaviors', () => {
     expect(screen.getByText(/ask me about my projects, experience, blogs/i)).toBeTruthy();
   });
 
-  it('keeps the welcome message visible even when persisted history exists', async () => {
+  it("keeps the welcome message visible even when persisted history exists", async () => {
     vi.stubGlobal(
-      'fetch',
+      "fetch",
       vi.fn(
         async () =>
           new Response(
@@ -139,18 +138,18 @@ describe('chat UI behaviors', () => {
               limit: 10,
               messages: [
                 {
-                  content: 'Earlier question',
-                  id: 'user-1',
-                  role: 'user'
+                  content: "Earlier question",
+                  id: "user-1",
+                  role: "user"
                 }
               ],
               offset: 0,
-              sessionKey: 'session-key',
+              sessionKey: "session-key",
               total: 1
             }),
             {
               headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json"
               },
               status: 200
             }
@@ -161,74 +160,74 @@ describe('chat UI behaviors', () => {
     render(<HookHarness />);
 
     await waitFor(() => {
-      expect(screen.getByText('Earlier question')).toBeTruthy();
+      expect(screen.getByText("Earlier question")).toBeTruthy();
     });
     expect(screen.getByText(/thanks for visiting my website/i)).toBeTruthy();
   });
 
-  it('requests the latest history page first and can load older history on demand', async () => {
+  it("requests the latest history page first and can load older history on demand", async () => {
     const fetchSpy = vi.fn(async (input: string | URL | Request) => {
       const url =
-        typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+        typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
 
-      if (url.includes('offset=0')) {
+      if (url.includes("offset=0")) {
         return new Response(
           JSON.stringify({
             hasMore: true,
             limit: 10,
             messages: [
               {
-                content: 'Recent question',
-                id: 'user-recent',
-                role: 'user'
+                content: "Recent question",
+                id: "user-recent",
+                role: "user"
               },
               {
-                content: 'Recent answer',
-                id: 'assistant-recent',
-                messageId: 'assistant-recent',
-                role: 'assistant',
+                content: "Recent answer",
+                id: "assistant-recent",
+                messageId: "assistant-recent",
+                role: "assistant",
                 supported: true
               }
             ],
             offset: 0,
-            sessionKey: 'session-key',
+            sessionKey: "session-key",
             total: 4
           }),
           {
             headers: {
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json"
             },
             status: 200
           }
         );
       }
 
-      if (url.includes('offset=2')) {
+      if (url.includes("offset=2")) {
         return new Response(
           JSON.stringify({
             hasMore: false,
             limit: 10,
             messages: [
               {
-                content: 'Older question',
-                id: 'user-older',
-                role: 'user'
+                content: "Older question",
+                id: "user-older",
+                role: "user"
               },
               {
-                content: 'Older answer',
-                id: 'assistant-older',
-                messageId: 'assistant-older',
-                role: 'assistant',
+                content: "Older answer",
+                id: "assistant-older",
+                messageId: "assistant-older",
+                role: "assistant",
                 supported: true
               }
             ],
             offset: 2,
-            sessionKey: 'session-key',
+            sessionKey: "session-key",
             total: 4
           }),
           {
             headers: {
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json"
             },
             status: 200
           }
@@ -238,29 +237,29 @@ describe('chat UI behaviors', () => {
       return new Response(null, { status: 404 });
     });
 
-    vi.stubGlobal('fetch', fetchSpy);
+    vi.stubGlobal("fetch", fetchSpy);
 
     render(<HookHarness />);
 
     await waitFor(() => {
-      expect(screen.getByText('Recent question')).toBeTruthy();
+      expect(screen.getByText("Recent question")).toBeTruthy();
     });
 
-    expect(fetchSpy).toHaveBeenCalledWith('/api/ai/chat?limit=10&offset=0');
-    expect(screen.getByTestId('has-more-history').textContent).toBe('yes');
+    expect(fetchSpy).toHaveBeenCalledWith("/api/ai/chat?limit=10&offset=0");
+    expect(screen.getByTestId("has-more-history").textContent).toBe("yes");
 
-    fireEvent.click(screen.getByRole('button', { name: 'Load older' }));
+    fireEvent.click(screen.getByRole("button", { name: "Load older" }));
 
     await waitFor(() => {
-      expect(screen.getByText('Older question')).toBeTruthy();
+      expect(screen.getByText("Older question")).toBeTruthy();
     });
 
-    expect(fetchSpy).toHaveBeenCalledWith('/api/ai/chat?limit=10&offset=2');
+    expect(fetchSpy).toHaveBeenCalledWith("/api/ai/chat?limit=10&offset=2");
     expect(screen.getAllByText(/question$/)).toHaveLength(2);
-    expect(screen.getByTestId('has-more-history').textContent).toBe('no');
+    expect(screen.getByTestId("has-more-history").textContent).toBe("no");
   });
 
-  it('does not render feedback controls for assistant messages', () => {
+  it("does not render feedback controls for assistant messages", () => {
     render(
       <ChatMessageList
         hasMoreHistory={false}
@@ -268,58 +267,58 @@ describe('chat UI behaviors', () => {
         isLoadingOlderHistory={false}
         messages={[
           {
-            content: 'Completed answer',
-            id: 'assistant-done',
-            messageId: 'assistant-done',
-            role: 'assistant',
+            content: "Completed answer",
+            id: "assistant-done",
+            messageId: "assistant-done",
+            role: "assistant",
             supported: true
           }
         ]}
       />
     );
 
-    expect(screen.queryByRole('button', { name: 'Helpful' })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Not helpful' })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Helpful" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Not helpful" })).toBeNull();
   });
 
-  it('submits the composer when Enter is pressed without Shift', async () => {
+  it("submits the composer when Enter is pressed without Shift", async () => {
     const onSubmit = vi.fn(async () => undefined);
     render(<ChatComposer onSubmit={onSubmit} />);
 
-    const textarea = screen.getByLabelText('Assistant question');
-    fireEvent.change(textarea, { target: { value: 'Tell me about Evelan.' } });
-    fireEvent.keyDown(textarea, { key: 'Enter' });
+    const textarea = screen.getByLabelText("Assistant question");
+    fireEvent.change(textarea, { target: { value: "Tell me about Evelan." } });
+    fireEvent.keyDown(textarea, { key: "Enter" });
 
     await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith('Tell me about Evelan.');
+      expect(onSubmit).toHaveBeenCalledWith("Tell me about Evelan.");
     });
   });
 
-  it('submits the composer from the inline send button and enforces a max length', async () => {
+  it("submits the composer from the inline send button and enforces a max length", async () => {
     const onSubmit = vi.fn(async () => undefined);
     render(<ChatComposer onSubmit={onSubmit} />);
 
-    const textarea = screen.getByLabelText('Assistant question');
-    expect(textarea.getAttribute('maxLength')).toBe('500');
+    const textarea = screen.getByLabelText("Assistant question");
+    expect(textarea.getAttribute("maxLength")).toBe("500");
 
-    fireEvent.change(textarea, { target: { value: 'A concise question about the site.' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
+    fireEvent.change(textarea, { target: { value: "A concise question about the site." } });
+    fireEvent.click(screen.getByRole("button", { name: "Send message" }));
 
     await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith('A concise question about the site.');
+      expect(onSubmit).toHaveBeenCalledWith("A concise question about the site.");
     });
   });
 
-  it('shows a live character counter for the composer input', () => {
+  it("shows a live character counter for the composer input", () => {
     render(<ChatComposer onSubmit={vi.fn(async () => undefined)} />);
 
-    const textarea = screen.getByLabelText('Assistant question');
-    fireEvent.change(textarea, { target: { value: 'x'.repeat(132) } });
+    const textarea = screen.getByLabelText("Assistant question");
+    fireEvent.change(textarea, { target: { value: "x".repeat(132) } });
 
-    expect(screen.getByText('132/500')).toBeTruthy();
+    expect(screen.getByText("132/500")).toBeTruthy();
   });
 
-  it('shows animated typing dots while an assistant message is still pending', () => {
+  it("shows animated typing dots while an assistant message is still pending", () => {
     render(
       <ChatMessageList
         hasMoreHistory={false}
@@ -327,19 +326,19 @@ describe('chat UI behaviors', () => {
         isLoadingOlderHistory={false}
         messages={[
           {
-            content: '',
-            id: 'assistant-pending',
+            content: "",
+            id: "assistant-pending",
             isPending: true,
-            role: 'assistant'
+            role: "assistant"
           }
         ]}
       />
     );
 
-    expect(screen.getByLabelText('Assistant is responding')).toBeTruthy();
+    expect(screen.getByLabelText("Assistant is responding")).toBeTruthy();
   });
 
-  it('does not render the related content section inside chat messages', () => {
+  it("does not render the related content section inside chat messages", () => {
     render(
       <ChatMessageList
         hasMoreHistory={false}
@@ -347,19 +346,19 @@ describe('chat UI behaviors', () => {
         isLoadingOlderHistory={false}
         messages={[
           {
-            content: 'Here is an answer.',
-            id: 'assistant-1',
-            role: 'assistant'
+            content: "Here is an answer.",
+            id: "assistant-1",
+            role: "assistant"
           }
         ]}
       />
     );
 
-    expect(screen.queryByText('You might also want')).toBeNull();
-    expect(screen.queryByText('Related blog post')).toBeNull();
+    expect(screen.queryByText("You might also want")).toBeNull();
+    expect(screen.queryByText("Related blog post")).toBeNull();
   });
 
-  it('renders blog citations using the blog title as the card content', () => {
+  it("renders blog citations using the blog title as the card content", () => {
     render(
       <ChatMessageList
         hasMoreHistory={false}
@@ -369,28 +368,28 @@ describe('chat UI behaviors', () => {
           {
             citations: [
               {
-                contentType: 'blog',
-                id: 'blog-citation-1',
-                sectionTitle: 'Summary',
-                snippet: 'Building a grounded assistant',
-                title: 'Building a grounded assistant',
-                url: '/blog/grounded-assistant'
+                contentType: "blog",
+                id: "blog-citation-1",
+                sectionTitle: "Summary",
+                snippet: "Building a grounded assistant",
+                title: "Building a grounded assistant",
+                url: "/blog/grounded-assistant"
               }
             ],
-            content: 'Here is an answer.',
-            id: 'assistant-1',
-            role: 'assistant'
+            content: "Here is an answer.",
+            id: "assistant-1",
+            role: "assistant"
           }
         ]}
       />
     );
 
-    expect(screen.getByRole('link', { name: 'Building a grounded assistant' })).toBeTruthy();
-    expect(screen.queryByText('Summary')).toBeNull();
-    expect(screen.getAllByText('Building a grounded assistant')).toHaveLength(1);
+    expect(screen.getByRole("link", { name: "Building a grounded assistant" })).toBeTruthy();
+    expect(screen.queryByText("Summary")).toBeNull();
+    expect(screen.getAllByText("Building a grounded assistant")).toHaveLength(1);
   });
 
-  it('deduplicates duplicate citation cards in chat messages', () => {
+  it("deduplicates duplicate citation cards in chat messages", () => {
     render(
       <ChatMessageList
         hasMoreHistory={false}
@@ -400,34 +399,34 @@ describe('chat UI behaviors', () => {
           {
             citations: [
               {
-                contentType: 'blog',
-                id: 'direct:blog:latest:duplicate-1',
-                sectionTitle: 'Summary',
-                snippet: 'Duplicate blog post',
-                title: 'Duplicate blog post',
-                url: '/blog/duplicate-blog-post'
+                contentType: "blog",
+                id: "direct:blog:latest:duplicate-1",
+                sectionTitle: "Summary",
+                snippet: "Duplicate blog post",
+                title: "Duplicate blog post",
+                url: "/blog/duplicate-blog-post"
               },
               {
-                contentType: 'blog',
-                id: 'direct:blog:latest:duplicate-2',
-                sectionTitle: 'Summary',
-                snippet: 'Duplicate blog post',
-                title: 'Duplicate blog post',
-                url: '/blog/duplicate-blog-post'
+                contentType: "blog",
+                id: "direct:blog:latest:duplicate-2",
+                sectionTitle: "Summary",
+                snippet: "Duplicate blog post",
+                title: "Duplicate blog post",
+                url: "/blog/duplicate-blog-post"
               }
             ],
-            content: 'Here are the citations.',
-            id: 'assistant-duplicate-citations',
-            role: 'assistant'
+            content: "Here are the citations.",
+            id: "assistant-duplicate-citations",
+            role: "assistant"
           }
         ]}
       />
     );
 
-    expect(screen.getAllByRole('link', { name: 'Duplicate blog post' })).toHaveLength(1);
+    expect(screen.getAllByRole("link", { name: "Duplicate blog post" })).toHaveLength(1);
   });
 
-  it('renders fenced code blocks as code snippets inside assistant messages', () => {
+  it("renders fenced code blocks as code snippets inside assistant messages", () => {
     render(
       <ChatMessageList
         hasMoreHistory={false}
@@ -437,36 +436,36 @@ describe('chat UI behaviors', () => {
           {
             content:
               'Here is some TypeScript:\n```ts\nconst greeting: string = "hello";\nconsole.log(greeting);\n```',
-            id: 'assistant-code',
-            role: 'assistant'
+            id: "assistant-code",
+            role: "assistant"
           }
         ]}
       />
     );
 
-    expect(screen.getByText('Here is some TypeScript:')).toBeTruthy();
-    expect(screen.getByText('TypeScript')).toBeTruthy();
+    expect(screen.getByText("Here is some TypeScript:")).toBeTruthy();
+    expect(screen.getByText("TypeScript")).toBeTruthy();
     expect(
       screen.getByText(
         (_, element) =>
           element !== null &&
-          element.tagName === 'CODE' &&
-          typeof element.textContent === 'string' &&
+          element.tagName === "CODE" &&
+          typeof element.textContent === "string" &&
           element.textContent.includes('const greeting: string = "hello";')
       )
     ).toBeTruthy();
-    expect(screen.queryByText('```ts')).toBeNull();
+    expect(screen.queryByText("```ts")).toBeNull();
   });
 
-  it('defines highlight.js theme styles for chat code blocks', () => {
-    const globalsCss = readFileSync(join(process.cwd(), 'src/styles/globals.css'), 'utf8');
+  it("defines highlight.js theme styles for chat code blocks", () => {
+    const globalsCss = readFileSync(join(process.cwd(), "src/styles/globals.css"), "utf8");
 
-    expect(globalsCss).toContain('.llm-markdown .hljs');
-    expect(globalsCss).toContain('.llm-markdown .hljs-keyword');
-    expect(globalsCss).toContain('.llm-markdown .hljs-string');
+    expect(globalsCss).toContain(".llm-markdown .hljs");
+    expect(globalsCss).toContain(".llm-markdown .hljs-keyword");
+    expect(globalsCss).toContain(".llm-markdown .hljs-string");
   });
 
-  it('streams an open fenced code block before the closing fence arrives', () => {
+  it("streams an open fenced code block before the closing fence arrives", () => {
     render(
       <ChatMessageList
         hasMoreHistory={false}
@@ -474,21 +473,21 @@ describe('chat UI behaviors', () => {
         isLoadingOlderHistory={false}
         messages={[
           {
-            content: 'Streaming code:\n```typescript\nexport const answer = 42;',
-            id: 'assistant-code-stream',
+            content: "Streaming code:\n```typescript\nexport const answer = 42;",
+            id: "assistant-code-stream",
             isPending: true,
-            role: 'assistant'
+            role: "assistant"
           }
         ]}
       />
     );
 
-    expect(screen.getByText('Streaming code:')).toBeTruthy();
-    expect(screen.getByText('TypeScript')).toBeTruthy();
-    expect(screen.queryByText('```typescript')).toBeNull();
+    expect(screen.getByText("Streaming code:")).toBeTruthy();
+    expect(screen.getByText("TypeScript")).toBeTruthy();
+    expect(screen.queryByText("```typescript")).toBeNull();
   });
 
-  it('renders assistant markdown with inline code, lists, and links', () => {
+  it("renders assistant markdown with inline code, lists, and links", () => {
     render(
       <ChatMessageList
         hasMoreHistory={false}
@@ -497,29 +496,29 @@ describe('chat UI behaviors', () => {
         messages={[
           {
             content:
-              'Use `TypeScript` for this.\n\n- Strong typing\n- Great tooling\n\n[Read more](https://www.typescriptlang.org/)',
-            id: 'assistant-markdown',
-            role: 'assistant'
+              "Use `TypeScript` for this.\n\n- Strong typing\n- Great tooling\n\n[Read more](https://www.typescriptlang.org/)",
+            id: "assistant-markdown",
+            role: "assistant"
           }
         ]}
       />
     );
 
-    expect(screen.getByText('TypeScript')).toBeTruthy();
-    expect(screen.getByText('Strong typing')).toBeTruthy();
-    expect(screen.getByText('Great tooling')).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Read more' }).getAttribute('href')).toBe(
-      'https://www.typescriptlang.org/'
+    expect(screen.getByText("TypeScript")).toBeTruthy();
+    expect(screen.getByText("Strong typing")).toBeTruthy();
+    expect(screen.getByText("Great tooling")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Read more" }).getAttribute("href")).toBe(
+      "https://www.typescriptlang.org/"
     );
   });
 
-  it('updates the launcher and panel copy to chat with Zomer', () => {
+  it("updates the launcher and panel copy to chat with Zomer", () => {
     render(<ChatLauncher onClick={() => undefined} />);
 
-    expect(screen.getByText('Chat with Zomer')).toBeTruthy();
-    expect(screen.getByText('AI Persona')).toBeTruthy();
-    expect(screen.queryByText('Ask the site')).toBeNull();
-    expect(screen.queryByText('AI Personal')).toBeNull();
+    expect(screen.getByText("Chat with Zomer")).toBeTruthy();
+    expect(screen.getByText("AI Persona")).toBeTruthy();
+    expect(screen.queryByText("Ask the site")).toBeNull();
+    expect(screen.queryByText("AI Personal")).toBeNull();
 
     render(
       <ChatPanel
@@ -536,13 +535,13 @@ describe('chat UI behaviors', () => {
       />
     );
 
-    expect(screen.getAllByText('Chat with Zomer').length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Chat with Zomer").length).toBeGreaterThan(0);
   });
 
-  it('uses the same floating trigger shell language as the theme widget', async () => {
+  it("uses the same floating trigger shell language as the theme widget", async () => {
     const [{ ThemeProvider }, { ThemeRail }] = await Promise.all([
-      import('@/components/theme/ThemeProvider'),
-      import('@/components/theme/ThemeRail')
+      import("@/components/theme/ThemeProvider"),
+      import("@/components/theme/ThemeRail")
     ]);
 
     render(
@@ -554,20 +553,20 @@ describe('chat UI behaviors', () => {
       </>
     );
 
-    const chatLauncher = screen.getByRole('button', { name: /open chat with zomer/i });
-    const themeTrigger = screen.getByRole('button', { name: /open theme selector/i });
+    const chatLauncher = screen.getByRole("button", { name: /open chat with zomer/i });
+    const themeTrigger = screen.getByRole("button", { name: /open theme selector/i });
 
-    for (const token of ['rounded-[1.6rem]', 'border-border/80', 'bg-background/92']) {
+    for (const token of ["rounded-[1.6rem]", "border-border/80", "bg-background/92"]) {
       expect(chatLauncher.className).toContain(token);
       expect(themeTrigger.className).toContain(token);
     }
   });
 
-  it('uses the same floating panel shell language as the theme selector', async () => {
+  it("uses the same floating panel shell language as the theme selector", async () => {
     const [{ ThemeProvider }, { ThemeSelector }, { ThemeRail }] = await Promise.all([
-      import('@/components/theme/ThemeProvider'),
-      import('@/components/theme/ThemeSelector'),
-      import('@/components/theme/ThemeRail')
+      import("@/components/theme/ThemeProvider"),
+      import("@/components/theme/ThemeSelector"),
+      import("@/components/theme/ThemeRail")
     ]);
 
     render(
@@ -591,18 +590,18 @@ describe('chat UI behaviors', () => {
       </>
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /open theme selector/i }));
+    fireEvent.click(screen.getByRole("button", { name: /open theme selector/i }));
 
-    const themeSelector = await screen.findByRole('dialog', { name: /theme selector/i });
+    const themeSelector = await screen.findByRole("dialog", { name: /theme selector/i });
     const chatPanel = screen
-      .getByRole('button', { name: /minimize assistant/i })
-      .closest('section');
+      .getByRole("button", { name: /minimize assistant/i })
+      .closest("section");
 
     expect(chatPanel).toBeTruthy();
 
-    for (const token of ['border-border/80', 'bg-background/96', 'backdrop-blur-2xl']) {
+    for (const token of ["border-border/80", "bg-background/96", "backdrop-blur-2xl"]) {
       expect(themeSelector.className).toContain(token);
-      expect(chatPanel?.className ?? '').toContain(token);
+      expect(chatPanel?.className ?? "").toContain(token);
     }
   });
 });

@@ -1,6 +1,6 @@
-import 'server-only';
+import "server-only";
 
-import { getAiEnv, parseAiEnv, type AiEnv } from './env';
+import { type AiEnv, getAiEnv, parseAiEnv } from "./env";
 
 export interface AiConfig {
   auth: {
@@ -54,7 +54,7 @@ export function createAiConfig(env: NodeJS.ProcessEnv): AiConfig {
   return toConfig(parseAiEnv(env));
 }
 
-let cachedConfig: AiConfig | undefined = undefined;
+let cachedConfig: AiConfig | undefined;
 
 export function getAiConfig(): AiConfig {
   cachedConfig ??= toConfig(getAiEnv());

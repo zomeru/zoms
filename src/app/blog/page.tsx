@@ -1,34 +1,34 @@
-import React from 'react';
-import type { Metadata } from 'next';
-import Link from 'next/link';
+import type { Metadata } from "next";
+import Link from "next/link";
+import type React from "react";
 
-import { TerminalCard } from '@/components/ui';
-import { SITE_URL, staticOgImages } from '@/configs/seo';
-import { BLOG_POSTS_PAGE_SIZE } from '@/constants';
-import { getBlogPostCount, getBlogPosts } from '@/lib/blog';
+import { TerminalCard } from "@/components/ui";
+import { SITE_URL, staticOgImages } from "@/configs/seo";
+import { BLOG_POSTS_PAGE_SIZE } from "@/constants";
+import { getBlogPostCount, getBlogPosts } from "@/lib/blog";
 
-import BlogListClient from './BlogListClient';
+import BlogListClient from "./BlogListClient";
 
 export const metadata: Metadata = {
-  title: 'Blog',
+  title: "Blog",
   description: staticOgImages.blog.description,
   openGraph: {
-    title: 'Blog',
+    title: "Blog",
     description: staticOgImages.blog.description,
     url: `${SITE_URL}/blog`,
-    type: 'website',
+    type: "website",
     images: [
       {
         url: `${SITE_URL}/blog/opengraph-image`,
         width: 1200,
         height: 630,
-        alt: 'Blog index Open Graph image'
+        alt: "Blog index Open Graph image"
       }
     ]
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'Blog',
+    card: "summary_large_image",
+    title: "Blog",
     description: staticOgImages.blog.description,
     images: [`${SITE_URL}/blog/opengraph-image`]
   },
@@ -44,46 +44,44 @@ const BlogPageContent: React.FC = async (): Promise<React.JSX.Element> => {
   ]);
 
   return (
-    <>
-      <main className='relative z-10 min-h-screen'>
-        <div className='max-w-7xl mx-auto px-6 md:px-12 pb-16 pt-20'>
-          <div className='mb-12'>
-            <Link
-              href='/'
-              className='inline-flex items-center gap-2 text-primary hover:underline font-mono text-sm mb-8'
-            >
-              <span className='text-terminal-green'>cd</span>
-              <span className='text-text-secondary'>..</span>
-              <span className='text-primary'>→</span>
-              <span>home</span>
-            </Link>
+    <main className="relative z-10 min-h-screen">
+      <div className="mx-auto max-w-7xl px-6 pt-20 pb-16 md:px-12">
+        <div className="mb-12">
+          <Link
+            href="/"
+            className="mb-8 inline-flex items-center gap-2 font-mono text-primary text-sm hover:underline"
+          >
+            <span className="text-terminal-green">cd</span>
+            <span className="text-text-secondary">..</span>
+            <span className="text-primary">→</span>
+            <span>home</span>
+          </Link>
 
-            <TerminalCard title='blog.ts' bodyClassName='p-8'>
-              <h1 className='text-3xl md:text-4xl font-semibold mb-4 text-primary'>Blog</h1>
-              <p className='text-text-secondary font-mono text-sm'>
-                <span className='text-secondary'>const</span>{' '}
-                <span className='text-terminal-green'>description</span>{' '}
-                <span className='text-syntax-plain'>=</span>{' '}
-                <span className='text-terminal-purple'>
-                  "Technical articles about web development";
-                </span>
-              </p>
-            </TerminalCard>
-          </div>
-
-          {posts.length === 0 ? (
-            <TerminalCard showHeader={false} bodyClassName='p-8 font-mono text-sm'>
-              <span className='text-terminal-yellow'>console</span>
-              <span className='text-text-secondary'>.log(</span>
-              <span className='text-terminal-purple'>"No posts yet. Check back soon!"</span>
-              <span className='text-text-secondary'>)</span>
-            </TerminalCard>
-          ) : (
-            <BlogListClient initialPosts={posts} initialTotal={total} />
-          )}
+          <TerminalCard title="blog.ts" bodyClassName="p-8">
+            <h1 className="mb-4 font-semibold text-3xl text-primary md:text-4xl">Blog</h1>
+            <p className="font-mono text-sm text-text-secondary">
+              <span className="text-secondary">const</span>{" "}
+              <span className="text-terminal-green">description</span>{" "}
+              <span className="text-syntax-plain">=</span>{" "}
+              <span className="text-terminal-purple">
+                "Technical articles about web development";
+              </span>
+            </p>
+          </TerminalCard>
         </div>
-      </main>
-    </>
+
+        {posts.length === 0 ? (
+          <TerminalCard showHeader={false} bodyClassName="p-8 font-mono text-sm">
+            <span className="text-terminal-yellow">console</span>
+            <span className="text-text-secondary">.log(</span>
+            <span className="text-terminal-purple">"No posts yet. Check back soon!"</span>
+            <span className="text-text-secondary">)</span>
+          </TerminalCard>
+        ) : (
+          <BlogListClient initialPosts={posts} initialTotal={total} />
+        )}
+      </div>
+    </main>
   );
 };
 

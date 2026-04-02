@@ -1,8 +1,8 @@
-import type { Dispatch, SetStateAction } from 'react';
+import type { Dispatch, SetStateAction } from "react";
 
-import { appendStreamText } from '@/lib/ai/streaming';
+import { appendStreamText } from "@/lib/ai/streaming";
 
-import { isStreamEvent, type AssistantMessage, type StreamEvent } from './chatTypes';
+import { type AssistantMessage, isStreamEvent, type StreamEvent } from "./chatTypes";
 
 export function appendAssistantChunk(messageId: string, text: string) {
   return (currentMessages: AssistantMessage[]) =>
@@ -41,10 +41,10 @@ function safeParseJSON(input: string): unknown {
 }
 
 function parseStreamBuffer(buffer: string): { lines: string[]; remainder: string } {
-  const lines = buffer.split('\n');
+  const lines = buffer.split("\n");
   return {
     lines,
-    remainder: lines.pop() ?? ''
+    remainder: lines.pop() ?? ""
   };
 }
 
@@ -54,16 +54,16 @@ export function applyStreamEvent(
   setAssistantMessages: Dispatch<SetStateAction<AssistantMessage[]>>
 ) {
   switch (event.type) {
-    case 'session':
+    case "session":
       return;
 
-    case 'chunk':
+    case "chunk":
       if (event.text) {
         setAssistantMessages(appendAssistantChunk(assistantMessageId, event.text));
       }
       return;
 
-    case 'done':
+    case "done":
       if (event.answer) {
         setAssistantMessages(finalizeAssistantMessage(assistantMessageId, event));
       }
@@ -115,12 +115,11 @@ export async function extractErrorMessage(
     const payload: unknown = await response.json();
 
     if (
-      typeof payload === 'object' &&
+      typeof payload === "object" &&
       payload !== null &&
-      'error' in payload &&
-      typeof (payload as Record<string, unknown>).error === 'string'
+      "error" in payload &&
+      typeof (payload as Record<string, unknown>).error === "string"
     ) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- Guarded by typeof check above
       const errorValue = (payload as Record<string, unknown>).error as string;
       if (errorValue.length > 0) {
         return errorValue;

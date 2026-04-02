@@ -1,6 +1,4 @@
-/* eslint-disable no-await-in-loop -- Sequential requests are intentional to avoid GitHub API rate limiting */
-
-import log from '../logger';
+import log from "../logger";
 
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 const REQUEST_TIMEOUT_MS = 15000; // 15 seconds
@@ -94,8 +92,8 @@ export interface GraphQLRequestVariables {
 
 export function createGitHubHeaders(): HeadersInit {
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    'User-Agent': 'zoms-portfolio-app'
+    "Content-Type": "application/json",
+    "User-Agent": "zoms-portfolio-app"
   };
 
   const token = process.env.GITHUB_TOKEN;
@@ -115,7 +113,7 @@ export async function fetchWithTimeout(
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   const nextOptions = {
     revalidate: GITHUB_REVALIDATE_SECONDS,
-    tags: ['github-stats'],
+    tags: ["github-stats"],
     ...options.next
   };
 
@@ -131,15 +129,14 @@ export async function fetchWithTimeout(
 }
 
 export async function delay(ms: number): Promise<void> {
-  // eslint-disable-next-line promise/avoid-new -- Simple utility function to delay execution
   return await new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
 }
 
 export function handleRateLimitWarning(response: Response): void {
-  if (response.status === 403 && response.headers.get('X-RateLimit-Remaining') === '0') {
-    const resetTime = response.headers.get('X-RateLimit-Reset');
+  if (response.status === 403 && response.headers.get("X-RateLimit-Remaining") === "0") {
+    const resetTime = response.headers.get("X-RateLimit-Reset");
     if (resetTime) {
       const resetTimestamp = Number.parseInt(resetTime, 10) * 1000;
       const waitTime = resetTimestamp - Date.now();
@@ -167,7 +164,7 @@ export async function fetchWithRetry(
 
       return response;
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error('Unknown error');
+      lastError = error instanceof Error ? error : new Error("Unknown error");
 
       if (attempt < retries) {
         log.warn(
@@ -178,7 +175,7 @@ export async function fetchWithRetry(
     }
   }
 
-  throw lastError ?? new Error('GitHub API request failed after all retries');
+  throw lastError ?? new Error("GitHub API request failed after all retries");
 }
 
 export function isCacheValid<T>(cacheEntry: CacheEntry<T>): boolean {
@@ -266,38 +263,37 @@ export function formatDuration(ms: number): string {
 }
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
+  return typeof value === "object" && value !== null;
 }
 
-// eslint-disable-next-line complexity -- Type guards can be verbose but improve type safety
 function isGitHubRepository(value: unknown): value is GitHubRepository {
   if (!isRecord(value) || !isGitHubRepositoryOwner(value.owner)) {
     return false;
   }
 
   return (
-    typeof value.id === 'number' &&
-    typeof value.name === 'string' &&
-    typeof value.full_name === 'string' &&
-    typeof value.owner.login === 'string' &&
-    typeof value.owner.id === 'number' &&
-    typeof value.fork === 'boolean' &&
-    typeof value.size === 'number' &&
-    (typeof value.language === 'string' || value.language === null)
+    typeof value.id === "number" &&
+    typeof value.name === "string" &&
+    typeof value.full_name === "string" &&
+    typeof value.owner.login === "string" &&
+    typeof value.owner.id === "number" &&
+    typeof value.fork === "boolean" &&
+    typeof value.size === "number" &&
+    (typeof value.language === "string" || value.language === null)
   );
 }
 
-function isGitHubRepositoryOwner(value: unknown): value is GitHubRepository['owner'] {
-  return isRecord(value) && typeof value.login === 'string' && typeof value.id === 'number';
+function isGitHubRepositoryOwner(value: unknown): value is GitHubRepository["owner"] {
+  return isRecord(value) && typeof value.login === "string" && typeof value.id === "number";
 }
 
-function isGitHubContributorWeek(value: unknown): value is GitHubContributorStats['weeks'][number] {
+function isGitHubContributorWeek(value: unknown): value is GitHubContributorStats["weeks"][number] {
   return (
     isRecord(value) &&
-    typeof value.w === 'number' &&
-    typeof value.a === 'number' &&
-    typeof value.d === 'number' &&
-    typeof value.c === 'number'
+    typeof value.w === "number" &&
+    typeof value.a === "number" &&
+    typeof value.d === "number" &&
+    typeof value.c === "number"
   );
 }
 
@@ -305,21 +301,21 @@ function isGitHubContributorStats(value: unknown): value is GitHubContributorSta
   return (
     isRecord(value) &&
     isRecord(value.author) &&
-    typeof value.author.login === 'string' &&
-    typeof value.author.id === 'number' &&
-    typeof value.total === 'number' &&
+    typeof value.author.login === "string" &&
+    typeof value.author.id === "number" &&
+    typeof value.total === "number" &&
     Array.isArray(value.weeks) &&
     value.weeks.every(isGitHubContributorWeek)
   );
 }
 
 function isGraphQLError(value: unknown): value is GraphQLError {
-  return isRecord(value) && typeof value.message === 'string';
+  return isRecord(value) && typeof value.message === "string";
 }
 
 function isGraphQLContributionDay(value: unknown): value is GraphQLContributionDay {
   return (
-    isRecord(value) && typeof value.date === 'string' && typeof value.contributionCount === 'number'
+    isRecord(value) && typeof value.date === "string" && typeof value.contributionCount === "number"
   );
 }
 
@@ -334,7 +330,7 @@ function isGraphQLContributionWeek(value: unknown): value is GraphQLContribution
 function isGraphQLContributionCalendar(value: unknown): value is GraphQLContributionCalendar {
   return (
     isRecord(value) &&
-    typeof value.totalContributions === 'number' &&
+    typeof value.totalContributions === "number" &&
     Array.isArray(value.weeks) &&
     value.weeks.every(isGraphQLContributionWeek)
   );
@@ -343,7 +339,7 @@ function isGraphQLContributionCalendar(value: unknown): value is GraphQLContribu
 export function isGraphQLContributions(value: unknown): value is GraphQLContributions {
   return (
     isRecord(value) &&
-    typeof value.totalCommitContributions === 'number' &&
+    typeof value.totalCommitContributions === "number" &&
     isGraphQLContributionCalendar(value.contributionCalendar)
   );
 }
@@ -353,14 +349,14 @@ export function isGraphQLDevStatsData(value: unknown): value is GraphQLDevStatsD
     isRecord(value) &&
     isRecord(value.user) &&
     isRecord(value.user.repositories) &&
-    typeof value.user.repositories.totalCount === 'number' &&
+    typeof value.user.repositories.totalCount === "number" &&
     isRecord(value.user.pullRequests) &&
-    typeof value.user.pullRequests.totalCount === 'number'
+    typeof value.user.pullRequests.totalCount === "number"
   );
 }
 
 export function isGraphQLCreatedAtData(value: unknown): value is GraphQLCreatedAtData {
-  return isRecord(value) && isRecord(value.user) && typeof value.user.createdAt === 'string';
+  return isRecord(value) && isRecord(value.user) && typeof value.user.createdAt === "string";
 }
 
 function isGraphQLResponse<T>(
@@ -372,9 +368,9 @@ function isGraphQLResponse<T>(
   }
 
   const dataIsValid =
-    !Object.hasOwn(value, 'data') || value.data === undefined || isData(value.data);
+    !Object.hasOwn(value, "data") || value.data === undefined || isData(value.data);
   const errorsAreValid =
-    !Object.hasOwn(value, 'errors') ||
+    !Object.hasOwn(value, "errors") ||
     value.errors === undefined ||
     (Array.isArray(value.errors) && value.errors.every(isGraphQLError));
 
@@ -383,7 +379,7 @@ function isGraphQLResponse<T>(
 
 export function parseRepositoriesResponse(value: unknown): GitHubRepository[] {
   if (!Array.isArray(value) || !value.every(isGitHubRepository)) {
-    throw new Error('Unexpected repositories response from GitHub API');
+    throw new Error("Unexpected repositories response from GitHub API");
   }
 
   return value;
@@ -405,15 +401,15 @@ export async function fetchGitHubGraphQL<T>(
 ): Promise<T> {
   const token = process.env.GITHUB_TOKEN;
   if (!token) {
-    throw new Error('GITHUB_TOKEN is required for GitHub GraphQL API');
+    throw new Error("GITHUB_TOKEN is required for GitHub GraphQL API");
   }
 
   const response = await fetchWithTimeout(url, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       Authorization: `bearer ${token}`,
-      'User-Agent': 'zoms-portfolio-app'
+      "User-Agent": "zoms-portfolio-app"
     },
     body: JSON.stringify({ query, variables })
   });
@@ -427,15 +423,15 @@ export async function fetchGitHubGraphQL<T>(
   const raw: unknown = await response.json();
 
   if (!isGraphQLResponse(raw, isData)) {
-    throw new Error('Unexpected response from GitHub GraphQL');
+    throw new Error("Unexpected response from GitHub GraphQL");
   }
 
   if (raw.errors?.length) {
-    throw new Error(`GraphQL errors: ${raw.errors.map((error) => error.message).join(', ')}`);
+    throw new Error(`GraphQL errors: ${raw.errors.map((error) => error.message).join(", ")}`);
   }
 
   if (!raw.data) {
-    throw new Error('No data returned from GitHub GraphQL');
+    throw new Error("No data returned from GitHub GraphQL");
   }
 
   return raw.data;

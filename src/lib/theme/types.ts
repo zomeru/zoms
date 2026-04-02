@@ -1,4 +1,4 @@
-export type ThemeScheme = 'dark' | 'light';
+export type ThemeScheme = "dark" | "light";
 
 export interface ThemePreview {
   accent: string;
@@ -9,7 +9,7 @@ export interface ThemePreview {
 
 export interface ThemeDefinition {
   browserThemeColor: string;
-  group: 'builtin' | ThemeScheme;
+  group: "builtin" | ThemeScheme;
   id: string;
   keywords: string[];
   label: string;

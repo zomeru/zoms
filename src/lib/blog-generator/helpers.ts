@@ -1,28 +1,28 @@
-import { z } from 'zod';
+import { z } from "zod";
 
-import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from '@/constants';
+import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from "@/constants";
 
-import { getErrorMessage } from '../errorMessages';
-import { log } from '../logger';
+import { getErrorMessage } from "../errorMessages";
+import { log } from "../logger";
 
 export const PRIMARY_BLOG_DOMAINS = [
   `Web development (TypeScript-first: frontend, backend, fullstack)
   - Frontend frameworks and app frameworks: React, Vue, Svelte, Solid, Angular, Astro
   - Backend frameworks and server frameworks: Hono, NestJS, Express, Fastify, Elysia, Koa, AdonisJS, Nitro
   - Fullstack meta frameworks: Next.js, Remix, Nuxt, SvelteKit, TanStack Start, SolidStart, Qwik City, RedwoodJS, Blitz.js, AnalogJS, Fresh, Waku, Vike, Vinxi`,
-  'Mobile development (React Native, Expo, cross-platform TypeScript stacks)',
-  'Backend systems and APIs (Node.js, Bun, serverless, edge, distributed systems)',
-  'AI / LLM engineering (models, inference, agents, evaluation, memory, RAG)',
-  'Developer tooling and DX (build systems, testing, CI/CD, observability)',
-  'Security and privacy (web/mobile/app-layer security, auth, data protection)'
+  "Mobile development (React Native, Expo, cross-platform TypeScript stacks)",
+  "Backend systems and APIs (Node.js, Bun, serverless, edge, distributed systems)",
+  "AI / LLM engineering (models, inference, agents, evaluation, memory, RAG)",
+  "Developer tooling and DX (build systems, testing, CI/CD, observability)",
+  "Security and privacy (web/mobile/app-layer security, auth, data protection)"
 ] as const;
 
 export const SECONDARY_BLOG_DOMAINS = [
-  'AI tooling and platforms (evaluation tools, orchestration frameworks, tracing systems)',
-  'Databases and data management (SQL/NoSQL, vector databases, data modeling, ORMs such as Prisma, Drizzle, TypeORM)',
-  'Cloud and infrastructure (deployment patterns, scaling, edge computing)',
-  'Data layer (databases, caching, vector stores, streaming)',
-  'Performance optimization (rendering, networking, runtime efficiency)'
+  "AI tooling and platforms (evaluation tools, orchestration frameworks, tracing systems)",
+  "Databases and data management (SQL/NoSQL, vector databases, data modeling, ORMs such as Prisma, Drizzle, TypeORM)",
+  "Cloud and infrastructure (deployment patterns, scaling, edge computing)",
+  "Data layer (databases, caching, vector stores, streaming)",
+  "Performance optimization (rendering, networking, runtime efficiency)"
 ] as const;
 
 function pickRandomItem<T>(items: readonly T[]): T {
@@ -60,28 +60,28 @@ export const AIResponseSchema = z
     title: z
       .string()
       .trim()
-      .min(1, 'Missing title')
+      .min(1, "Missing title")
       .max(MAX_TITLE_LENGTH, `Title exceeds max length of ${MAX_TITLE_LENGTH}`),
 
     slug: z
       .string()
       .trim()
-      .min(1, 'Missing slug')
-      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be kebab-case'),
+      .min(1, "Missing slug")
+      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be kebab-case"),
 
     excerpt: z
       .string()
       .trim()
-      .min(1, 'Missing excerpt')
+      .min(1, "Missing excerpt")
       .max(MAX_SUMMARY_LENGTH, `Excerpt exceeds max length of ${MAX_SUMMARY_LENGTH}`),
 
     tags: z
-      .array(z.string().trim().min(1, 'Tag cannot be empty'))
-      .min(3, 'At least 3 tags are required')
-      .max(5, 'At most 5 tags are allowed')
+      .array(z.string().trim().min(1, "Tag cannot be empty"))
+      .min(3, "At least 3 tags are required")
+      .max(5, "At most 5 tags are allowed")
       .refine(
         (tags) => new Set(tags.map((tag) => tag.toLowerCase())).size === tags.length,
-        'Tags must be unique'
+        "Tags must be unique"
       ),
 
     content: z.string()
@@ -99,7 +99,7 @@ export function tryParseAIJSON(text: string): AiResponseType {
 
     return parsed;
   } catch (error) {
-    throw new Error(getErrorMessage('AI_JSON_PARSE_ERROR'), { cause: error });
+    throw new Error(getErrorMessage("AI_JSON_PARSE_ERROR"), { cause: error });
   }
 }
 
@@ -107,13 +107,13 @@ export function formatLLMText(text: string): string {
   return (
     text
       // convert escaped newlines -> real newlines
-      .replace(/\\n/g, '\n')
+      .replace(/\\n/g, "\n")
 
       // normalize Windows line endings
-      .replace(/\r\n/g, '\n')
+      .replace(/\r\n/g, "\n")
 
       // remove extra blank lines (max 2)
-      .replace(/\n{3,}/g, '\n\n')
+      .replace(/\n{3,}/g, "\n\n")
 
       // trim outer whitespace
       .trim()
@@ -122,13 +122,13 @@ export function formatLLMText(text: string): string {
 
 export const generatePrompt = (): string => {
   const currentDate = new Date().toISOString().slice(0, 10);
-  const recentWindow = '~3 weeks';
+  const recentWindow = "~3 weeks";
   const primaryDomain = pickPrimaryBlogDomain();
   const secondaryDomains = pickSecondaryBlogDomain();
   const secondaryDomainLine =
     secondaryDomains.length > 0
-      ? `- Secondary: ${secondaryDomains.join(' | ')}`
-      : '- Secondary: none';
+      ? `- Secondary: ${secondaryDomains.join(" | ")}`
+      : "- Secondary: none";
 
   const prompt = `
 Generate ONE production-ready technical blog post for software engineers.
@@ -163,7 +163,7 @@ Return valid JSON with this shape:
 }
 `;
 
-  log.info('Generating blog content with dynamic topic prompt', {
+  log.info("Generating blog content with dynamic topic prompt", {
     currentDate,
     primaryDomain,
     secondaryDomains

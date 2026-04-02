@@ -1,8 +1,7 @@
-/* eslint-disable max-lines -- route coverage intentionally exercises many POST/GET branches in one file */
-import { NextRequest } from 'next/server';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { NextRequest } from "next/server";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { QueryClassification } from '@/lib/retrieval/classify';
+import type { QueryClassification } from "@/lib/retrieval/classify";
 
 const checkBotId = vi.fn();
 interface RetrievalCallInput {
@@ -12,7 +11,7 @@ interface RetrievalCallInput {
 interface GroundedAnswerCallInput {
   conversationHistory: Array<{
     content: string;
-    role: 'assistant' | 'user';
+    role: "assistant" | "user";
   }>;
   memoryContext?: string;
 }
@@ -23,28 +22,28 @@ interface GeneralAnswerCallInput {
 
 function isRetrievalCallInput(value: unknown): value is RetrievalCallInput {
   return (
-    typeof value === 'object' &&
+    typeof value === "object" &&
     value !== null &&
-    'query' in value &&
-    typeof value.query === 'string'
+    "query" in value &&
+    typeof value.query === "string"
   );
 }
 
 function isGroundedAnswerCallInput(value: unknown): value is GroundedAnswerCallInput {
   return (
-    typeof value === 'object' &&
+    typeof value === "object" &&
     value !== null &&
-    'conversationHistory' in value &&
+    "conversationHistory" in value &&
     Array.isArray(value.conversationHistory)
   );
 }
 
 function isGeneralAnswerCallInput(value: unknown): value is GeneralAnswerCallInput {
-  if (typeof value !== 'object' || value === null) {
+  if (typeof value !== "object" || value === null) {
     return false;
   }
 
-  if (!('relatedBlogChunks' in value)) {
+  if (!("relatedBlogChunks" in value)) {
     return true;
   }
 
@@ -52,13 +51,13 @@ function isGeneralAnswerCallInput(value: unknown): value is GeneralAnswerCallInp
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
+  return typeof value === "object" && value !== null;
 }
 
 function parseStreamEvents(body: string): Array<Record<string, unknown>> {
   return body
     .trim()
-    .split('\n')
+    .split("\n")
     .filter((line) => line.length > 0)
     .flatMap((line) => {
       const payload: unknown = JSON.parse(line);
@@ -99,19 +98,19 @@ const log = {
   debug: vi.fn()
 };
 
-vi.mock('botid/server', () => ({
+vi.mock("botid/server", () => ({
   checkBotId
 }));
 
-vi.mock('@/lib/rateLimit', () => ({
+vi.mock("@/lib/rateLimit", () => ({
   rateLimitMiddleware
 }));
 
-vi.mock('@/lib/db/repositories', () => ({
+vi.mock("@/lib/db/repositories", () => ({
   repositories
 }));
 
-vi.mock('@/lib/retrieval/search', () => ({
+vi.mock("@/lib/retrieval/search", () => ({
   retrieveBlogs,
   retrieveExperience,
   retrievePortfolio,
@@ -119,53 +118,53 @@ vi.mock('@/lib/retrieval/search', () => ({
   retrieveRelevantChunks
 }));
 
-vi.mock('@/lib/ai/directAnswers', () => ({
+vi.mock("@/lib/ai/directAnswers", () => ({
   getDirectAssistantAnswer
 }));
 
-vi.mock('@/lib/ai/chat-stream', () => ({
+vi.mock("@/lib/ai/chat-stream", () => ({
   streamGeneralAnswer,
   streamGroundedAnswer
 }));
 
-vi.mock('@/lib/ai/transform', () => ({
+vi.mock("@/lib/ai/transform", () => ({
   generateBlogTransform
 }));
 
-vi.mock('@/lib/ingestion/reindex', () => ({
+vi.mock("@/lib/ingestion/reindex", () => ({
   runSiteReindex
 }));
 
-vi.mock('@/lib/cache/queryCache', () => ({
+vi.mock("@/lib/cache/queryCache", () => ({
   withQueryCache
 }));
 
-vi.mock('@/lib/blog', () => ({
+vi.mock("@/lib/blog", () => ({
   getBlogPostBySlug
 }));
 
-vi.mock('@/lib/ai/memory', () => ({
+vi.mock("@/lib/ai/memory", () => ({
   searchSessionMemory,
   storeSessionMemory
 }));
 
-vi.mock('@/lib/ai/reindexAuth', () => ({
+vi.mock("@/lib/ai/reindexAuth", () => ({
   getAiReindexSessionCookie,
   isAuthorizedAiReindexRequest
 }));
 
-vi.mock('@/lib/logger', () => ({
+vi.mock("@/lib/logger", () => ({
   default: log
 }));
 
-describe('AI routes', () => {
+describe("AI routes", () => {
   beforeEach(() => {
     const defaultClassification: QueryClassification = {
-      intent: 'GENERAL_KNOWLEDGE_QUERY',
-      preferredContentTypes: ['about', 'experience', 'project', 'blog'],
-      query: 'How does the assistant stay grounded?',
+      intent: "GENERAL_KNOWLEDGE_QUERY",
+      preferredContentTypes: ["about", "experience", "project", "blog"],
+      query: "How does the assistant stay grounded?",
       strictContentTypes: false,
-      tokens: ['how', 'does', 'the', 'assistant', 'stay', 'grounded']
+      tokens: ["how", "does", "the", "assistant", "stay", "grounded"]
     };
     rateLimitMiddleware.mockResolvedValue(null);
     checkBotId.mockResolvedValue({
@@ -175,11 +174,11 @@ describe('AI routes', () => {
       isVerifiedBot: false
     });
     repositories.touchChatSession.mockResolvedValue({
-      id: 'session-db-id',
-      sessionKey: 'session-key'
+      id: "session-db-id",
+      sessionKey: "session-key"
     });
-    repositories.createChatMessage.mockResolvedValue({ id: 'message-id' });
-    repositories.createRetrievalEvent.mockResolvedValue({ id: 'retrieval-id' });
+    repositories.createChatMessage.mockResolvedValue({ id: "message-id" });
+    repositories.createRetrievalEvent.mockResolvedValue({ id: "retrieval-id" });
     repositories.getChatHistoryPage.mockResolvedValue({
       hasMore: false,
       messages: [],
@@ -187,18 +186,18 @@ describe('AI routes', () => {
     });
     repositories.getRecentChatMessages.mockResolvedValue([]);
     repositories.getChatSession.mockResolvedValue({
-      id: 'session-db-id',
-      sessionKey: 'session-key'
+      id: "session-db-id",
+      sessionKey: "session-key"
     });
     retrieveRelevantChunks.mockResolvedValue({
       citations: [
         {
-          contentType: 'blog',
-          id: 'citation-1',
-          sectionTitle: 'Summary',
-          snippet: 'deterministic retrieval',
-          title: 'Grounded assistant',
-          url: '/blog/grounded-assistant'
+          contentType: "blog",
+          id: "citation-1",
+          sectionTitle: "Summary",
+          snippet: "deterministic retrieval",
+          title: "Grounded assistant",
+          url: "/blog/grounded-assistant"
         }
       ],
       classification: defaultClassification,
@@ -209,58 +208,58 @@ describe('AI routes', () => {
     streamGroundedAnswer.mockResolvedValue({
       citations: [
         {
-          contentType: 'blog',
-          id: 'citation-1',
-          sectionTitle: 'Summary',
-          snippet: 'deterministic retrieval',
-          title: 'Grounded assistant',
-          url: '/blog/grounded-assistant'
+          contentType: "blog",
+          id: "citation-1",
+          sectionTitle: "Summary",
+          snippet: "deterministic retrieval",
+          title: "Grounded assistant",
+          url: "/blog/grounded-assistant"
         }
       ],
       supported: true,
       textStream: (async function* () {
-        yield 'Grounded ';
-        yield 'response text.';
+        yield "Grounded ";
+        yield "response text.";
       })()
     });
     streamGeneralAnswer.mockResolvedValue({
       citations: [],
       supported: true,
       textStream: (async function* () {
-        yield 'Rust is ';
-        yield 'a systems programming language.';
+        yield "Rust is ";
+        yield "a systems programming language.";
       })()
     });
     generateBlogTransform.mockResolvedValue({
-      bullets: ['Short summary'],
-      mode: 'tldr',
-      title: 'TL;DR',
-      transformedText: 'Short transform text.'
+      bullets: ["Short summary"],
+      mode: "tldr",
+      title: "TL;DR",
+      transformedText: "Short transform text."
     });
     withQueryCache.mockImplementation(
       async (_key: string, loader: () => Promise<unknown>) => await loader()
     );
     getBlogPostBySlug.mockResolvedValue({
-      body: '# Post body',
-      slug: { current: 'grounded-assistant' },
-      summary: 'Summary',
-      title: 'Grounded assistant'
+      body: "# Post body",
+      slug: { current: "grounded-assistant" },
+      summary: "Summary",
+      title: "Grounded assistant"
     });
     searchSessionMemory.mockResolvedValue([]);
     storeSessionMemory.mockResolvedValue(undefined);
     isAuthorizedAiReindexRequest.mockReturnValue(true);
     getAiReindexSessionCookie.mockReturnValue({
-      name: 'ai_reindex_session',
+      name: "ai_reindex_session",
       options: {
         httpOnly: true,
-        path: '/',
-        sameSite: 'lax'
+        path: "/",
+        sameSite: "lax"
       },
-      value: 'signed'
+      value: "signed"
     });
     runSiteReindex.mockResolvedValue({
       processed: 3,
-      runId: 'run-id',
+      runId: "run-id",
       skipped: 1,
       updated: 2
     });
@@ -270,16 +269,16 @@ describe('AI routes', () => {
     vi.clearAllMocks();
   });
 
-  it('does not persist no-result analytics when the assistant cannot support an answer', async () => {
-    const { POST } = await import('@/app/api/ai/chat/route');
+  it("does not persist no-result analytics when the assistant cannot support an answer", async () => {
+    const { POST } = await import("@/app/api/ai/chat/route");
     retrieveRelevantChunks.mockResolvedValueOnce({
       citations: [],
       classification: {
-        intent: 'EXPERIENCE_QUERY',
-        preferredContentTypes: ['experience'],
-        query: 'What did Zomer do at unknown company?',
+        intent: "EXPERIENCE_QUERY",
+        preferredContentTypes: ["experience"],
+        query: "What did Zomer do at unknown company?",
         strictContentTypes: true,
-        tokens: ['what', 'did', 'zomer', 'do', 'at', 'unknown', 'company']
+        tokens: ["what", "did", "zomer", "do", "at", "unknown", "company"]
       },
       matches: [],
       shouldRefuse: true
@@ -288,93 +287,93 @@ describe('AI routes', () => {
       citations: [],
       supported: false,
       textStream: (async function* () {
-        yield 'I can only answer from content that is currently indexed on this site.';
+        yield "I can only answer from content that is currently indexed on this site.";
       })()
     });
 
     const response = await POST(
-      new NextRequest('http://localhost/api/ai/chat', {
+      new NextRequest("http://localhost/api/ai/chat", {
         body: JSON.stringify({
-          question: 'What did Zomer do at unknown company?'
+          question: "What did Zomer do at unknown company?"
         }),
-        method: 'POST'
+        method: "POST"
       })
     );
 
     expect(response.status).toBe(200);
-    await expect(response.text()).resolves.toContain('indexed on this site');
-    expect('createNoResultEvent' in repositories).toBe(false);
+    await expect(response.text()).resolves.toContain("indexed on this site");
+    expect("createNoResultEvent" in repositories).toBe(false);
   });
 
-  it('creates a chat session, validates the request, and streams a grounded answer', async () => {
-    const { POST } = await import('@/app/api/ai/chat/route');
+  it("creates a chat session, validates the request, and streams a grounded answer", async () => {
+    const { POST } = await import("@/app/api/ai/chat/route");
     retrieveRelevantChunks.mockResolvedValueOnce({
       citations: [
         {
-          contentType: 'blog',
-          id: 'citation-1',
-          sectionTitle: 'Summary',
-          snippet: 'deterministic retrieval',
-          title: 'Grounded assistant',
-          url: '/blog/grounded-assistant'
+          contentType: "blog",
+          id: "citation-1",
+          sectionTitle: "Summary",
+          snippet: "deterministic retrieval",
+          title: "Grounded assistant",
+          url: "/blog/grounded-assistant"
         }
       ],
       classification: {
-        intent: 'BLOG_QUERY',
-        preferredContentTypes: ['blog'],
-        query: 'What does the blog post say about grounded retrieval?',
+        intent: "BLOG_QUERY",
+        preferredContentTypes: ["blog"],
+        query: "What does the blog post say about grounded retrieval?",
         strictContentTypes: true,
-        tokens: ['what', 'does', 'the', 'blog', 'post', 'say', 'about', 'grounded', 'retrieval']
+        tokens: ["what", "does", "the", "blog", "post", "say", "about", "grounded", "retrieval"]
       },
       matches: [],
       shouldRefuse: false
     });
 
     const response = await POST(
-      new NextRequest('http://localhost/api/ai/chat', {
+      new NextRequest("http://localhost/api/ai/chat", {
         body: JSON.stringify({
-          blogSlug: 'grounded-assistant',
-          pathname: '/blog/grounded-assistant',
-          question: 'What does the blog post say about grounded retrieval?'
+          blogSlug: "grounded-assistant",
+          pathname: "/blog/grounded-assistant",
+          question: "What does the blog post say about grounded retrieval?"
         }),
-        method: 'POST'
+        method: "POST"
       })
     );
 
     expect(response.status).toBe(200);
     expect(repositories.touchChatSession).toHaveBeenCalledTimes(1);
-    expect(response.headers.get('set-cookie')).toContain('ai_chat_session=');
+    expect(response.headers.get("set-cookie")).toContain("ai_chat_session=");
 
     const body = await response.text();
     expect(body).toContain('"type":"chunk"');
-    expect(body).toContain('Grounded response text.');
+    expect(body).toContain("Grounded response text.");
     expect(body).toContain('"text":"Grounded "');
     expect(body).toContain('"text":"response text."');
     expect(body).not.toContain('"type":"session"');
   });
 
-  it('uses recent session messages as memory and exposes history for reload hydration', async () => {
+  it("uses recent session messages as memory and exposes history for reload hydration", async () => {
     searchSessionMemory.mockResolvedValueOnce([
-      'Previous discussion summary: Batibot is an AI-powered messaging companion project.'
+      "Previous discussion summary: Batibot is an AI-powered messaging companion project."
     ]);
     repositories.getChatHistoryPage.mockResolvedValueOnce({
       hasMore: false,
       messages: [
         {
           citations: null,
-          content: 'Tell me about Batibot.',
+          content: "Tell me about Batibot.",
           groundedAnswer: null,
-          id: 'user-1',
-          role: 'USER'
+          id: "user-1",
+          role: "USER"
         },
         {
           citations: [],
-          content: 'Batibot is an AI-powered messaging companion.',
+          content: "Batibot is an AI-powered messaging companion.",
           groundedAnswer: {
             supported: true
           },
-          id: 'assistant-1',
-          role: 'ASSISTANT'
+          id: "assistant-1",
+          role: "ASSISTANT"
         }
       ],
       total: 2
@@ -382,28 +381,28 @@ describe('AI routes', () => {
     repositories.getRecentChatMessages.mockResolvedValueOnce([
       {
         citations: null,
-        content: 'Tell me about Batibot.',
+        content: "Tell me about Batibot.",
         groundedAnswer: null,
-        id: 'user-1',
-        role: 'USER'
+        id: "user-1",
+        role: "USER"
       },
       {
         citations: [],
-        content: 'Batibot is an AI-powered messaging companion.',
+        content: "Batibot is an AI-powered messaging companion.",
         groundedAnswer: {
           supported: true
         },
-        id: 'assistant-1',
-        role: 'ASSISTANT'
+        id: "assistant-1",
+        role: "ASSISTANT"
       }
     ]);
 
-    const { GET, POST } = await import('@/app/api/ai/chat/route');
+    const { GET, POST } = await import("@/app/api/ai/chat/route");
 
     const historyResponse = await GET(
-      new NextRequest('http://localhost/api/ai/chat', {
+      new NextRequest("http://localhost/api/ai/chat", {
         headers: {
-          cookie: 'ai_chat_session=session-key'
+          cookie: "ai_chat_session=session-key"
         }
       })
     );
@@ -414,16 +413,16 @@ describe('AI routes', () => {
       limit: 10,
       messages: [
         {
-          content: 'Tell me about Batibot.',
-          id: 'user-1',
-          role: 'user'
+          content: "Tell me about Batibot.",
+          id: "user-1",
+          role: "user"
         },
         {
           citations: [],
-          content: 'Batibot is an AI-powered messaging companion.',
-          id: 'assistant-1',
-          messageId: 'assistant-1',
-          role: 'assistant',
+          content: "Batibot is an AI-powered messaging companion.",
+          id: "assistant-1",
+          messageId: "assistant-1",
+          role: "assistant",
           supported: true
         }
       ],
@@ -433,14 +432,14 @@ describe('AI routes', () => {
     });
 
     const response = await POST(
-      new NextRequest('http://localhost/api/ai/chat', {
+      new NextRequest("http://localhost/api/ai/chat", {
         body: JSON.stringify({
-          question: 'What stack did it use?'
+          question: "What stack did it use?"
         }),
         headers: {
-          cookie: 'ai_chat_session=session-key'
+          cookie: "ai_chat_session=session-key"
         },
-        method: 'POST'
+        method: "POST"
       })
     );
 
@@ -452,55 +451,55 @@ describe('AI routes', () => {
     expect(isGroundedAnswerCallInput(groundedAnswerInput)).toBe(true);
 
     if (!isRetrievalCallInput(retrievalInput) || !isGroundedAnswerCallInput(groundedAnswerInput)) {
-      throw new Error('Expected retrieval and grounded answer calls to receive structured input.');
+      throw new Error("Expected retrieval and grounded answer calls to receive structured input.");
     }
 
-    expect(retrievalInput.query).toContain('Tell me about Batibot.');
+    expect(retrievalInput.query).toContain("Tell me about Batibot.");
     expect(groundedAnswerInput.conversationHistory).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          content: 'Tell me about Batibot.',
-          role: 'user'
+          content: "Tell me about Batibot.",
+          role: "user"
         })
       ])
     );
-    expect(groundedAnswerInput.memoryContext).toContain('Batibot is an AI-powered messaging');
+    expect(groundedAnswerInput.memoryContext).toContain("Batibot is an AI-powered messaging");
     expect(searchSessionMemory).toHaveBeenCalledWith({
       limit: 3,
-      query: 'What stack did it use?',
-      sessionKey: 'session-key'
+      query: "What stack did it use?",
+      sessionKey: "session-key"
     });
     expect(repositories.getChatSession).not.toHaveBeenCalled();
-    expect(repositories.getRecentChatMessages).toHaveBeenCalledWith('session-key', 4);
+    expect(repositories.getRecentChatMessages).toHaveBeenCalledWith("session-key", 4);
   });
 
-  it('ignores leaked session keys in the query string and only trusts the chat cookie', async () => {
-    const { GET } = await import('@/app/api/ai/chat/route');
+  it("ignores leaked session keys in the query string and only trusts the chat cookie", async () => {
+    const { GET } = await import("@/app/api/ai/chat/route");
 
     const response = await GET(
-      new NextRequest('http://localhost/api/ai/chat?sessionKey=leaked-value', {
+      new NextRequest("http://localhost/api/ai/chat?sessionKey=leaked-value", {
         headers: {
-          cookie: 'ai_chat_session=trusted-cookie'
+          cookie: "ai_chat_session=trusted-cookie"
         }
       })
     );
 
     expect(response.status).toBe(200);
-    expect(repositories.getChatHistoryPage).toHaveBeenCalledWith('trusted-cookie', {
+    expect(repositories.getChatHistoryPage).toHaveBeenCalledWith("trusted-cookie", {
       limit: 10,
       offset: 0
     });
   });
 
-  it('answers broad general-knowledge questions without site retrieval', async () => {
-    const { POST } = await import('@/app/api/ai/chat/route');
+  it("answers broad general-knowledge questions without site retrieval", async () => {
+    const { POST } = await import("@/app/api/ai/chat/route");
 
     const response = await POST(
-      new NextRequest('http://localhost/api/ai/chat', {
+      new NextRequest("http://localhost/api/ai/chat", {
         body: JSON.stringify({
-          question: 'What are popular JavaScript frameworks right now?'
+          question: "What are popular JavaScript frameworks right now?"
         }),
-        method: 'POST'
+        method: "POST"
       })
     );
 
@@ -514,35 +513,35 @@ describe('AI routes', () => {
     expect(isGeneralAnswerCallInput(generalAnswerInput)).toBe(true);
 
     if (!isGeneralAnswerCallInput(generalAnswerInput)) {
-      throw new TypeError('Expected streamGeneralAnswer to receive a general answer input');
+      throw new TypeError("Expected streamGeneralAnswer to receive a general answer input");
     }
 
     expect(generalAnswerInput.relatedBlogChunks).toEqual([]);
   });
 
-  it('falls back cleanly when session memory lookup fails', async () => {
-    searchSessionMemory.mockRejectedValueOnce(new Error('memory unavailable'));
+  it("falls back cleanly when session memory lookup fails", async () => {
+    searchSessionMemory.mockRejectedValueOnce(new Error("memory unavailable"));
     repositories.getRecentChatMessages.mockResolvedValueOnce([
       {
         citations: null,
-        content: 'Tell me about Batibot.',
+        content: "Tell me about Batibot.",
         groundedAnswer: null,
-        id: 'user-1',
-        role: 'USER'
+        id: "user-1",
+        role: "USER"
       }
     ]);
 
-    const { POST } = await import('@/app/api/ai/chat/route');
+    const { POST } = await import("@/app/api/ai/chat/route");
 
     const response = await POST(
-      new NextRequest('http://localhost/api/ai/chat', {
+      new NextRequest("http://localhost/api/ai/chat", {
         body: JSON.stringify({
-          question: 'What stack did it use?'
+          question: "What stack did it use?"
         }),
         headers: {
-          cookie: 'ai_chat_session=session-key'
+          cookie: "ai_chat_session=session-key"
         },
-        method: 'POST'
+        method: "POST"
       })
     );
 
@@ -550,17 +549,17 @@ describe('AI routes', () => {
     await expect(response.text()).resolves.toContain('"type":"done"');
   });
 
-  it('falls back cleanly when session memory storage fails', async () => {
-    storeSessionMemory.mockRejectedValueOnce(new Error('store unavailable'));
+  it("falls back cleanly when session memory storage fails", async () => {
+    storeSessionMemory.mockRejectedValueOnce(new Error("store unavailable"));
 
-    const { POST } = await import('@/app/api/ai/chat/route');
+    const { POST } = await import("@/app/api/ai/chat/route");
 
     const response = await POST(
-      new NextRequest('http://localhost/api/ai/chat', {
+      new NextRequest("http://localhost/api/ai/chat", {
         body: JSON.stringify({
-          question: 'What are popular JavaScript frameworks right now?'
+          question: "What are popular JavaScript frameworks right now?"
         }),
-        method: 'POST'
+        method: "POST"
       })
     );
 
@@ -568,22 +567,22 @@ describe('AI routes', () => {
     await expect(response.text()).resolves.toContain('"type":"done"');
   });
 
-  it('keeps the final grounded answer when retrieval analytics fail after assistant persistence', async () => {
+  it("keeps the final grounded answer when retrieval analytics fail after assistant persistence", async () => {
     repositories.createChatMessage
-      .mockResolvedValueOnce({ id: 'user-message-id' })
-      .mockResolvedValueOnce({ id: 'assistant-message-id' });
-    repositories.createRetrievalEvent.mockRejectedValueOnce(new Error('analytics unavailable'));
+      .mockResolvedValueOnce({ id: "user-message-id" })
+      .mockResolvedValueOnce({ id: "assistant-message-id" });
+    repositories.createRetrievalEvent.mockRejectedValueOnce(new Error("analytics unavailable"));
 
-    const { POST } = await import('@/app/api/ai/chat/route');
+    const { POST } = await import("@/app/api/ai/chat/route");
 
     const response = await POST(
-      new NextRequest('http://localhost/api/ai/chat', {
+      new NextRequest("http://localhost/api/ai/chat", {
         body: JSON.stringify({
-          blogSlug: 'grounded-assistant',
-          pathname: '/blog/grounded-assistant',
-          question: 'What does the blog post say about grounded retrieval?'
+          blogSlug: "grounded-assistant",
+          pathname: "/blog/grounded-assistant",
+          question: "What does the blog post say about grounded retrieval?"
         }),
-        method: 'POST'
+        method: "POST"
       })
     );
 
@@ -594,89 +593,89 @@ describe('AI routes', () => {
 
     expect(doneEvent).toMatchObject({
       answer: {
-        answer: 'Grounded response text.',
+        answer: "Grounded response text.",
         citations: [
           expect.objectContaining({
-            id: 'citation-1'
+            id: "citation-1"
           })
         ],
         supported: true
       },
-      messageId: 'assistant-message-id',
-      type: 'done'
+      messageId: "assistant-message-id",
+      type: "done"
     });
   });
 
-  it('sets a secure chat cookie for new sessions in production', async () => {
-    vi.stubEnv('NODE_ENV', 'production');
+  it("sets a secure chat cookie for new sessions in production", async () => {
+    vi.stubEnv("NODE_ENV", "production");
 
     try {
-      const { POST } = await import('@/app/api/ai/chat/route');
+      const { POST } = await import("@/app/api/ai/chat/route");
 
       const response = await POST(
-        new NextRequest('http://localhost/api/ai/chat', {
+        new NextRequest("http://localhost/api/ai/chat", {
           body: JSON.stringify({
-            question: 'Tell me about grounded retrieval'
+            question: "Tell me about grounded retrieval"
           }),
-          method: 'POST'
+          method: "POST"
         })
       );
 
       expect(response.status).toBe(200);
-      expect(response.headers.get('set-cookie')).toContain('Secure');
+      expect(response.headers.get("set-cookie")).toContain("Secure");
     } finally {
       vi.unstubAllEnvs();
     }
   });
 
-  it('returns a rate-limited response when the limiter blocks chat requests', async () => {
-    const { NextResponse } = await import('next/server');
-    const { POST } = await import('@/app/api/ai/chat/route');
+  it("returns a rate-limited response when the limiter blocks chat requests", async () => {
+    const { NextResponse } = await import("next/server");
+    const { POST } = await import("@/app/api/ai/chat/route");
 
     rateLimitMiddleware.mockResolvedValueOnce(
-      NextResponse.json({ code: 'RATE_LIMIT_EXCEEDED' }, { status: 429 })
+      NextResponse.json({ code: "RATE_LIMIT_EXCEEDED" }, { status: 429 })
     );
 
     const response = await POST(
-      new NextRequest('http://localhost/api/ai/chat', {
-        body: JSON.stringify({ question: 'Blocked' }),
-        method: 'POST'
+      new NextRequest("http://localhost/api/ai/chat", {
+        body: JSON.stringify({ question: "Blocked" }),
+        method: "POST"
       })
     );
 
     expect(response.status).toBe(429);
   });
 
-  it('validates transform requests and returns grounded transforms', async () => {
-    const { POST } = await import('@/app/api/ai/transform/route');
+  it("validates transform requests and returns grounded transforms", async () => {
+    const { POST } = await import("@/app/api/ai/transform/route");
 
     const invalidResponse = await POST(
-      new NextRequest('http://localhost/api/ai/transform', {
+      new NextRequest("http://localhost/api/ai/transform", {
         body: JSON.stringify({
-          mode: 'invalid',
-          postSlug: 'grounded-assistant'
+          mode: "invalid",
+          postSlug: "grounded-assistant"
         }),
-        method: 'POST'
+        method: "POST"
       })
     );
 
     expect(invalidResponse.status).toBe(400);
     expect(log.error).toHaveBeenCalledWith(
-      'API Error',
+      "API Error",
       expect.objectContaining({
-        code: 'VALIDATION_ERROR',
-        path: '/api/ai/transform',
+        code: "VALIDATION_ERROR",
+        path: "/api/ai/transform",
         statusCode: 400
       })
     );
 
     const validResponse = await POST(
-      new NextRequest('http://localhost/api/ai/transform', {
+      new NextRequest("http://localhost/api/ai/transform", {
         body: JSON.stringify({
-          mode: 'tldr',
-          postSlug: 'grounded-assistant'
+          mode: "tldr",
+          postSlug: "grounded-assistant"
         }),
-        method: 'POST'
+        method: "POST"
       })
     );
 
@@ -684,31 +683,31 @@ describe('AI routes', () => {
     expect(generateBlogTransform).toHaveBeenCalledTimes(1);
   });
 
-  it('rejects unauthorized reindex requests and accepts authorized ones', async () => {
-    const { POST } = await import('@/app/api/ai/reindex/route');
+  it("rejects unauthorized reindex requests and accepts authorized ones", async () => {
+    const { POST } = await import("@/app/api/ai/reindex/route");
 
     isAuthorizedAiReindexRequest.mockReturnValueOnce(false);
 
     const unauthorized = await POST(
-      new NextRequest('http://localhost/api/ai/reindex', {
+      new NextRequest("http://localhost/api/ai/reindex", {
         body: JSON.stringify({}),
-        method: 'POST'
+        method: "POST"
       })
     );
 
     expect(unauthorized.status).toBe(401);
 
     const authorized = await POST(
-      new NextRequest('http://localhost/api/ai/reindex', {
-        body: JSON.stringify({ documentId: 'blog:grounded-assistant' }),
+      new NextRequest("http://localhost/api/ai/reindex", {
+        body: JSON.stringify({ documentId: "blog:grounded-assistant" }),
         headers: {
-          authorization: 'Bearer secret'
+          authorization: "Bearer secret"
         },
-        method: 'POST'
+        method: "POST"
       })
     );
 
     expect(authorized.status).toBe(200);
-    expect(runSiteReindex).toHaveBeenCalledWith({ documentId: 'blog:grounded-assistant' });
+    expect(runSiteReindex).toHaveBeenCalledWith({ documentId: "blog:grounded-assistant" });
   });
 });

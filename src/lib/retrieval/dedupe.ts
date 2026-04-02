@@ -1,4 +1,4 @@
-import type { RetrievedChunk } from './types';
+import type { RetrievedChunk } from "./types";
 
 export function dedupeRetrievedChunks(matches: RetrievedChunk[]): RetrievedChunk[] {
   const seen = new Set<string>();

@@ -1,18 +1,18 @@
-import { ChatMessageRole } from '@prisma/client';
+import { ChatMessageRole } from "@prisma/client";
 
-import type { Citation } from '@/lib/ai/schemas';
+import type { Citation } from "@/lib/ai/schemas";
 
 export interface ClientMessage {
   citations?: Citation[];
   content: string;
   id: string;
   messageId?: string;
-  role: 'assistant' | 'user';
+  role: "assistant" | "user";
   supported?: boolean;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 export function mapStoredMessages(
@@ -31,7 +31,7 @@ export function mapStoredMessages(
 
     const groundedAnswer = isRecord(message.groundedAnswer) ? message.groundedAnswer : undefined;
     const supported =
-      typeof groundedAnswer?.supported === 'boolean' ? groundedAnswer.supported : undefined;
+      typeof groundedAnswer?.supported === "boolean" ? groundedAnswer.supported : undefined;
 
     return [
       {
@@ -39,7 +39,7 @@ export function mapStoredMessages(
         content: message.content,
         id: message.id,
         messageId: message.role === ChatMessageRole.ASSISTANT ? message.id : undefined,
-        role: message.role === ChatMessageRole.USER ? 'user' : 'assistant',
+        role: message.role === ChatMessageRole.USER ? "user" : "assistant",
         supported
       }
     ];
@@ -48,7 +48,7 @@ export function mapStoredMessages(
 
 export function buildConversationHistory(messages: ClientMessage[]): Array<{
   content: string;
-  role: 'assistant' | 'user';
+  role: "assistant" | "user";
 }> {
   return messages.slice(-4).map((message) => ({
     content: message.content,

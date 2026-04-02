@@ -1,22 +1,22 @@
-html[data-theme='zomeru'],
-html[data-theme='vscode-dark-plus'],
-html[data-theme='github-dark'],
-html[data-theme='github-dark-dimmed'],
-html[data-theme='one-dark-pro'],
-html[data-theme='dracula'],
-html[data-theme='ayu-dark'],
-html[data-theme='ayu-mirage'],
-html[data-theme='monokai-pro'],
-html[data-theme='night-owl'],
-html[data-theme='tokyo-night'],
-html[data-theme='catppuccin-mocha'],
-html[data-theme='gruvbox-dark'],
-html[data-theme='nord'],
-html[data-theme='palenight'],
-html[data-theme='material-ocean'],
-html[data-theme='solarized-dark'],
-html[data-theme='rose-pine'],
-html[data-theme='kanagawa-wave'] {
+html[data-theme="zomeru"],
+html[data-theme="vscode-dark-plus"],
+html[data-theme="github-dark"],
+html[data-theme="github-dark-dimmed"],
+html[data-theme="one-dark-pro"],
+html[data-theme="dracula"],
+html[data-theme="ayu-dark"],
+html[data-theme="ayu-mirage"],
+html[data-theme="monokai-pro"],
+html[data-theme="night-owl"],
+html[data-theme="tokyo-night"],
+html[data-theme="catppuccin-mocha"],
+html[data-theme="gruvbox-dark"],
+html[data-theme="nord"],
+html[data-theme="palenight"],
+html[data-theme="material-ocean"],
+html[data-theme="solarized-dark"],
+html[data-theme="rose-pine"],
+html[data-theme="kanagawa-wave"] {
   --color-success: #22c55e;
   --color-warning: #eab308;
   --color-error: #ef4444;
@@ -27,14 +27,14 @@ html[data-theme='kanagawa-wave'] {
   --shadow-rgb: 2 6 23;
 }
 
-html[data-theme='vscode-light-plus'],
-html[data-theme='github-light'],
-html[data-theme='atom-one-light'],
-html[data-theme='ayu-light'],
-html[data-theme='catppuccin-latte'],
-html[data-theme='solarized-light'],
-html[data-theme='gruvbox-light'],
-html[data-theme='tokyo-night-day'] {
+html[data-theme="vscode-light-plus"],
+html[data-theme="github-light"],
+html[data-theme="atom-one-light"],
+html[data-theme="ayu-light"],
+html[data-theme="catppuccin-latte"],
+html[data-theme="solarized-light"],
+html[data-theme="gruvbox-light"],
+html[data-theme="tokyo-night-day"] {
   --color-success: #15803d;
   --color-warning: #b45309;
   --color-error: #dc2626;
@@ -45,7 +45,7 @@ html[data-theme='tokyo-night-day'] {
   --shadow-rgb: 15 23 42;
 }
 
-html[data-theme='zomeru'] {
+html[data-theme="zomeru"] {
   --color-background: #0a0a0f;
   --color-surface: #12121a;
   --color-surface-elevated: #181825;
@@ -86,7 +86,7 @@ html[data-theme='zomeru'] {
   --color-node-hub-3: #7c3aed;
 }
 
-html[data-theme='vscode-dark-plus'] {
+html[data-theme="vscode-dark-plus"] {
   --color-background: #1e1e1e;
   --color-surface: #252526;
   --color-surface-elevated: #2d2d30;
@@ -127,7 +127,7 @@ html[data-theme='vscode-dark-plus'] {
   --color-node-hub-3: #c586c0;
 }
 
-html[data-theme='github-dark'] {
+html[data-theme="github-dark"] {
   --color-background: #0d1117;
   --color-surface: #161b22;
   --color-surface-elevated: #21262d;
@@ -168,7 +168,7 @@ html[data-theme='github-dark'] {
   --color-node-hub-3: #bc8cff;
 }
 
-html[data-theme='github-dark-dimmed'] {
+html[data-theme="github-dark-dimmed"] {
   --color-background: #22272e;
   --color-surface: #2d333b;
   --color-surface-elevated: #373e47;
@@ -209,7 +209,7 @@ html[data-theme='github-dark-dimmed'] {
   --color-node-hub-3: #dcbdfb;
 }
 
-html[data-theme='one-dark-pro'] {
+html[data-theme="one-dark-pro"] {
   --color-background: #282c34;
   --color-surface: #2f343f;
   --color-surface-elevated: #363c48;
@@ -250,7 +250,7 @@ html[data-theme='one-dark-pro'] {
   --color-node-hub-3: #c678dd;
 }
 
-html[data-theme='dracula'] {
+html[data-theme="dracula"] {
   --color-background: #282a36;
   --color-surface: #303341;
   --color-surface-elevated: #383a4a;
@@ -291,7 +291,7 @@ html[data-theme='dracula'] {
   --color-node-hub-3: #bd93f9;
 }
 
-html[data-theme='ayu-dark'] {
+html[data-theme="ayu-dark"] {
   --color-background: #0b0e14;
   --color-surface: #131721;
   --color-surface-elevated: #1a1f2b;
@@ -332,7 +332,7 @@ html[data-theme='ayu-dark'] {
   --color-node-hub-3: #d2a6ff;
 }
 
-html[data-theme='ayu-mirage'] {
+html[data-theme="ayu-mirage"] {
   --color-background: #1f2430;
   --color-surface: #242936;
   --color-surface-elevated: #2d3343;
@@ -373,7 +373,7 @@ html[data-theme='ayu-mirage'] {
   --color-node-hub-3: #d4bfff;
 }
 
-html[data-theme='monokai-pro'] {
+html[data-theme="monokai-pro"] {
   --color-background: #2d2a2e;
   --color-surface: #36323b;
   --color-surface-elevated: #403b45;
@@ -414,7 +414,7 @@ html[data-theme='monokai-pro'] {
   --color-node-hub-3: #ab9df2;
 }
 
-html[data-theme='night-owl'] {
+html[data-theme="night-owl"] {
   --color-background: #011627;
   --color-surface: #0b1f33;
   --color-surface-elevated: #102844;
@@ -455,7 +455,7 @@ html[data-theme='night-owl'] {
   --color-node-hub-3: #c792ea;
 }
 
-html[data-theme='tokyo-night'] {
+html[data-theme="tokyo-night"] {
   --color-background: #1a1b26;
   --color-surface: #24283b;
   --color-surface-elevated: #2b3250;
@@ -496,7 +496,7 @@ html[data-theme='tokyo-night'] {
   --color-node-hub-3: #bb9af7;
 }
 
-html[data-theme='catppuccin-mocha'] {
+html[data-theme="catppuccin-mocha"] {
   --color-background: #1e1e2e;
   --color-surface: #313244;
   --color-surface-elevated: #45475a;
@@ -537,7 +537,7 @@ html[data-theme='catppuccin-mocha'] {
   --color-node-hub-3: #cba6f7;
 }
 
-html[data-theme='gruvbox-dark'] {
+html[data-theme="gruvbox-dark"] {
   --color-background: #282828;
   --color-surface: #32302f;
   --color-surface-elevated: #3c3836;
@@ -578,7 +578,7 @@ html[data-theme='gruvbox-dark'] {
   --color-node-hub-3: #d3869b;
 }
 
-html[data-theme='nord'] {
+html[data-theme="nord"] {
   --color-background: #2e3440;
   --color-surface: #3b4252;
   --color-surface-elevated: #434c5e;
@@ -619,7 +619,7 @@ html[data-theme='nord'] {
   --color-node-hub-3: #b48ead;
 }
 
-html[data-theme='palenight'] {
+html[data-theme="palenight"] {
   --color-background: #292d3e;
   --color-surface: #30364a;
   --color-surface-elevated: #3b4260;
@@ -660,7 +660,7 @@ html[data-theme='palenight'] {
   --color-node-hub-3: #c792ea;
 }
 
-html[data-theme='material-ocean'] {
+html[data-theme="material-ocean"] {
   --color-background: #0f111a;
   --color-surface: #191c28;
   --color-surface-elevated: #202431;
@@ -701,7 +701,7 @@ html[data-theme='material-ocean'] {
   --color-node-hub-3: #c792ea;
 }
 
-html[data-theme='solarized-dark'] {
+html[data-theme="solarized-dark"] {
   --color-background: #002b36;
   --color-surface: #073642;
   --color-surface-elevated: #0d4250;
@@ -742,7 +742,7 @@ html[data-theme='solarized-dark'] {
   --color-node-hub-3: #6c71c4;
 }
 
-html[data-theme='rose-pine'] {
+html[data-theme="rose-pine"] {
   --color-background: #191724;
   --color-surface: #1f1d2e;
   --color-surface-elevated: #26233a;
@@ -783,7 +783,7 @@ html[data-theme='rose-pine'] {
   --color-node-hub-3: #c4a7e7;
 }
 
-html[data-theme='kanagawa-wave'] {
+html[data-theme="kanagawa-wave"] {
   --color-background: #1f1f28;
   --color-surface: #2a2a37;
   --color-surface-elevated: #313244;
@@ -824,7 +824,7 @@ html[data-theme='kanagawa-wave'] {
   --color-node-hub-3: #957fb8;
 }
 
-html[data-theme='vscode-light-plus'] {
+html[data-theme="vscode-light-plus"] {
   --color-background: #ffffff;
   --color-surface: #f3f3f3;
   --color-surface-elevated: #ececec;
@@ -865,7 +865,7 @@ html[data-theme='vscode-light-plus'] {
   --color-node-hub-3: #af00db;
 }
 
-html[data-theme='github-light'] {
+html[data-theme="github-light"] {
   --color-background: #ffffff;
   --color-surface: #f6f8fa;
   --color-surface-elevated: #eff2f5;
@@ -906,7 +906,7 @@ html[data-theme='github-light'] {
   --color-node-hub-3: #8250df;
 }
 
-html[data-theme='atom-one-light'] {
+html[data-theme="atom-one-light"] {
   --color-background: #fafafa;
   --color-surface: #f0f1f3;
   --color-surface-elevated: #e6e8eb;
@@ -947,7 +947,7 @@ html[data-theme='atom-one-light'] {
   --color-node-hub-3: #a626a4;
 }
 
-html[data-theme='ayu-light'] {
+html[data-theme="ayu-light"] {
   --color-background: #fafafa;
   --color-surface: #f0f2f5;
   --color-surface-elevated: #e7eaee;
@@ -988,7 +988,7 @@ html[data-theme='ayu-light'] {
   --color-node-hub-3: #a37acc;
 }
 
-html[data-theme='catppuccin-latte'] {
+html[data-theme="catppuccin-latte"] {
   --color-background: #eff1f5;
   --color-surface: #e6e9ef;
   --color-surface-elevated: #dce0e8;
@@ -1029,7 +1029,7 @@ html[data-theme='catppuccin-latte'] {
   --color-node-hub-3: #8839ef;
 }
 
-html[data-theme='solarized-light'] {
+html[data-theme="solarized-light"] {
   --color-background: #fdf6e3;
   --color-surface: #eee8d5;
   --color-surface-elevated: #e6dfcb;
@@ -1070,7 +1070,7 @@ html[data-theme='solarized-light'] {
   --color-node-hub-3: #6c71c4;
 }
 
-html[data-theme='gruvbox-light'] {
+html[data-theme="gruvbox-light"] {
   --color-background: #fbf1c7;
   --color-surface: #f2e5bc;
   --color-surface-elevated: #ebdbb2;
@@ -1111,7 +1111,7 @@ html[data-theme='gruvbox-light'] {
   --color-node-hub-3: #8f3f71;
 }
 
-html[data-theme='tokyo-night-day'] {
+html[data-theme="tokyo-night-day"] {
   --color-background: #e1e2e7;
   --color-surface: #d5d6db;
   --color-surface-elevated: #cbccd1;

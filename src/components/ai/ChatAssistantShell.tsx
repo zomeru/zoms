@@ -1,18 +1,22 @@
-'use client';
+"use client";
 
-import { usePathname } from 'next/navigation';
+import { usePathname } from "next/navigation";
 
-import ChatLauncher from './ChatLauncher';
-import ChatPanel from './ChatPanel';
-import { useChatAssistant } from './useChatAssistant';
+import ChatLauncher from "./ChatLauncher";
+import ChatPanel from "./ChatPanel";
+import { useChatAssistant } from "./useChatAssistant";
 
 export default function ChatAssistantShell() {
   const pathname = usePathname();
 
-  if (pathname.startsWith('/admin')) {
+  if (pathname.startsWith("/admin")) {
     return null;
   }
 
+  return <PublicChatAssistantShell pathname={pathname} />;
+}
+
+function PublicChatAssistantShell({ pathname }: { pathname: string }) {
   const assistant = useChatAssistant({ pathname });
 
   return (

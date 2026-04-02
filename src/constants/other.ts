@@ -1,7 +1,7 @@
-import { AiFillGithub, AiOutlineInstagram, AiOutlineMail } from 'react-icons/ai';
-import { FaGitAlt, FaNodeJs, FaReact, FaRobot } from 'react-icons/fa';
-import { GiFox } from 'react-icons/gi';
-import { IoLogoLinkedin } from 'react-icons/io';
+import { AiFillGithub, AiOutlineInstagram, AiOutlineMail } from "react-icons/ai";
+import { FaGitAlt, FaNodeJs, FaReact, FaRobot } from "react-icons/fa";
+import { GiFox } from "react-icons/gi";
+import { IoLogoLinkedin } from "react-icons/io";
 import {
   SiExpress,
   SiFirebase,
@@ -12,107 +12,107 @@ import {
   SiTailwindcss,
   SiTrpc,
   SiTypescript
-} from 'react-icons/si';
-import { TbBrandSupabase } from 'react-icons/tb';
+} from "react-icons/si";
+import { TbBrandSupabase } from "react-icons/tb";
 
 export const socials = [
   {
-    url: 'mailto:zomergregorio@gmail.com',
+    url: "mailto:zomergregorio@gmail.com",
     Icon: AiOutlineMail
   },
   {
-    url: '/linkedin',
+    url: "/linkedin",
     Icon: IoLogoLinkedin
   },
   {
-    url: '/github',
+    url: "/github",
     Icon: AiFillGithub
   },
   {
-    url: '/instagram',
+    url: "/instagram",
     Icon: AiOutlineInstagram
   }
 ];
 
 export const navigation = [
   {
-    name: 'About',
-    url: '/#about'
+    name: "About",
+    url: "/#about"
   },
   {
-    name: 'Experience',
-    url: '/#experience'
+    name: "Experience",
+    url: "/#experience"
   },
   {
-    name: 'Projects',
-    url: '/#projects'
+    name: "Projects",
+    url: "/#projects"
   },
   {
-    name: 'Blog',
-    url: '/#blog'
+    name: "Blog",
+    url: "/#blog"
   }
 ];
 
 export const technologies = [
   {
-    name: 'Typescript',
+    name: "Typescript",
     Icon: SiTypescript,
-    color: '#3178c6'
+    color: "#3178c6"
   },
   {
-    name: 'React.js',
+    name: "React.js",
     Icon: FaReact,
-    color: '#61dafb'
+    color: "#61dafb"
   },
   {
-    name: 'Next.js',
+    name: "Next.js",
     Icon: SiNextdotjs,
-    color: '#000000'
+    color: "#000000"
   },
   {
-    name: 'React Native',
+    name: "React Native",
     Icon: FaReact,
-    color: '#61dafb'
+    color: "#61dafb"
   },
   {
-    name: 'Styled-Components',
+    name: "Styled-Components",
     Icon: SiStyledcomponents,
-    color: '#db7093'
+    color: "#db7093"
   },
   {
-    name: 'Tailwind CSS',
+    name: "Tailwind CSS",
     Icon: SiTailwindcss,
-    color: '#38bdf8'
+    color: "#38bdf8"
   },
   {
-    name: 'Node.js',
+    name: "Node.js",
     Icon: FaNodeJs,
-    color: '#339933'
+    color: "#339933"
   },
   {
-    name: 'tRPC',
+    name: "tRPC",
     Icon: SiTrpc,
-    color: '#398ccb'
+    color: "#398ccb"
   },
   {
-    name: 'Express.js',
+    name: "Express.js",
     Icon: SiExpress,
-    color: '#000000'
+    color: "#000000"
   },
   {
-    name: 'ElysiaJS',
+    name: "ElysiaJS",
     Icon: GiFox,
-    color: '#cccccc'
+    color: "#cccccc"
   },
   {
-    name: 'MongoDB',
+    name: "MongoDB",
     Icon: SiMongodb,
-    color: '#47a248'
+    color: "#47a248"
   },
   {
-    name: 'PostgreSQL',
+    name: "PostgreSQL",
     Icon: SiPostgresql,
-    color: '#336791'
+    color: "#336791"
   },
   // {
   //   name: 'GraphQL',
@@ -125,29 +125,29 @@ export const technologies = [
   //   color: '#61dafb'
   // },
   {
-    name: 'Firebase',
+    name: "Firebase",
     Icon: SiFirebase,
-    color: '#ffca28'
+    color: "#ffca28"
   },
   {
-    name: 'Supabase',
+    name: "Supabase",
     Icon: TbBrandSupabase,
-    color: '#3ecf8e'
+    color: "#3ecf8e"
   },
   {
-    name: 'Github',
+    name: "Github",
     Icon: AiFillGithub,
-    color: '#333'
+    color: "#333"
   },
   {
-    name: 'Git',
+    name: "Git",
     Icon: FaGitAlt,
-    color: '#f34f29'
+    color: "#f34f29"
   },
   {
-    name: 'AI & LLMs',
+    name: "AI & LLMs",
     Icon: FaRobot,
-    color: '#8a2be2'
+    color: "#8a2be2"
   }
 ];
 
@@ -155,4 +155,4 @@ export const MAX_PORTFOLIO_BLOG_POSTS = 6;
 export const BLOG_POSTS_PAGE_SIZE = 24;
 export const MAX_TITLE_LENGTH = 100;
 export const MAX_SUMMARY_LENGTH = 300;
-export const TITLE = 'Zomer Gregorio';
+export const TITLE = "Zomer Gregorio";

@@ -1,6 +1,6 @@
-import { Index } from '@upstash/vector';
+import { Index } from "@upstash/vector";
 
-import { getAiEnv } from '@/lib/ai/env';
+import { getAiEnv } from "@/lib/ai/env";
 
 export interface VectorChunkMetadata extends Record<string, string | string[] | undefined> {
   contentType: string;

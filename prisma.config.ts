@@ -1,15 +1,15 @@
-import { config as loadEnv } from 'dotenv';
-import { defineConfig, env } from 'prisma/config';
+import { config as loadEnv } from "dotenv";
+import { defineConfig, env } from "prisma/config";
 
-loadEnv({ path: '.env.local', override: false, quiet: true });
+loadEnv({ path: ".env.local", override: false, quiet: true });
 loadEnv({ quiet: true });
 
 export default defineConfig({
-  schema: 'prisma/schema.prisma',
+  schema: "prisma/schema.prisma",
   migrations: {
-    path: 'prisma/migrations'
+    path: "prisma/migrations"
   },
   datasource: {
-    url: env('DIRECT_URL')
+    url: env("DIRECT_URL")
   }
 });

@@ -1,12 +1,12 @@
 import {
-  spawnSync,
   type SpawnSyncOptions,
   type SpawnSyncOptionsWithStringEncoding,
-  type SpawnSyncReturns
-} from 'node:child_process';
-import { config as loadEnv } from 'dotenv';
+  type SpawnSyncReturns,
+  spawnSync
+} from "node:child_process";
+import { config as loadEnv } from "dotenv";
 
-type PnpmOptions = Omit<SpawnSyncOptions, 'encoding'>;
+type PnpmOptions = Omit<SpawnSyncOptions, "encoding">;
 
 export function loadScriptEnv(path: string): void {
   loadEnv({ path, override: false, quiet: true });
@@ -36,7 +36,7 @@ export function createScriptEnv(): NodeJS.ProcessEnv {
 }
 
 export function runPnpm(command: string[], options?: PnpmOptions): SpawnSyncReturns<Buffer> {
-  const result = spawnSync(process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm', command, {
+  const result = spawnSync(process.platform === "win32" ? "pnpm.cmd" : "pnpm", command, {
     shell: false,
     ...options
   });
@@ -52,7 +52,7 @@ export function runPnpmText(
   command: string[],
   options: SpawnSyncOptionsWithStringEncoding
 ): SpawnSyncReturns<string> {
-  const result = spawnSync(process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm', command, {
+  const result = spawnSync(process.platform === "win32" ? "pnpm.cmd" : "pnpm", command, {
     shell: false,
     ...options
   });

@@ -3,9 +3,9 @@
  * Supports both Upstash Redis (production) and in-memory fallback (development)
  */
 
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from "next/server";
 
-import log from './logger';
+import log from "./logger";
 
 // In-memory store for development
 class InMemoryRateLimiter {
@@ -75,40 +75,40 @@ export const RATE_LIMIT_CONFIGS = {
   AI_CHAT: {
     maxRequests: 20,
     windowMs: 60 * 1000,
-    message: 'Too many AI chat requests. Please try again later.'
+    message: "Too many AI chat requests. Please try again later."
   },
   AI_REINDEX: {
     maxRequests: 10,
     windowMs: 60 * 1000,
-    message: 'Too many reindex requests. Please try again later.'
+    message: "Too many reindex requests. Please try again later."
   },
   AI_RELATED: {
     maxRequests: 60,
     windowMs: 60 * 1000,
-    message: 'Too many related-content lookups. Please try again later.'
+    message: "Too many related-content lookups. Please try again later."
   },
   AI_TRANSFORM: {
     maxRequests: 20,
     windowMs: 60 * 1000,
-    message: 'Too many transform requests. Please try again later.'
+    message: "Too many transform requests. Please try again later."
   },
   // Stricter limit for blog generation endpoint
   BLOG_GENERATE: {
     maxRequests: 5,
     windowMs: 60 * 1000, // 1 minute
-    message: 'Too many blog generation requests. Please try again later.'
+    message: "Too many blog generation requests. Please try again later."
   },
   // Standard limit for blog API
   BLOG_API: {
     maxRequests: 100,
     windowMs: 60 * 1000, // 1 minute
-    message: 'Too many requests. Please try again later.'
+    message: "Too many requests. Please try again later."
   },
   // General API limit
   DEFAULT: {
     maxRequests: 60,
     windowMs: 60 * 1000, // 1 minute
-    message: 'Too many requests. Please try again later.'
+    message: "Too many requests. Please try again later."
   }
 } as const;
 
@@ -119,14 +119,18 @@ const upstashLimiters = new Map<string, UpstashRatelimit>();
 async function createUpstashRateLimiter(
   config: (typeof RATE_LIMIT_CONFIGS)[keyof typeof RATE_LIMIT_CONFIGS]
 ) {
-  const { Ratelimit } = await import('@upstash/ratelimit');
-  const { Redis } = await import('@upstash/redis');
+  const { Ratelimit } = await import("@upstash/ratelimit");
+  const { Redis } = await import("@upstash/redis");
+  const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (!redisUrl || !redisToken) {
+    throw new Error("Upstash Redis credentials are required to create a rate limiter.");
+  }
 
   const redis = new Redis({
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- Checked by caller before invoking
-    url: process.env.UPSTASH_REDIS_REST_URL!,
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- Checked by caller before invoking
-    token: process.env.UPSTASH_REDIS_REST_TOKEN!
+    url: redisUrl,
+    token: redisToken
   });
 
   return new Ratelimit({
@@ -173,11 +177,11 @@ const getInMemoryLimiter = (configKey: keyof typeof RATE_LIMIT_CONFIGS): InMemor
  */
 const getClientIdentifier = (request: NextRequest): string => {
   // Try to get IP from headers (Vercel provides these)
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  const realIp = request.headers.get('x-real-ip');
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  const realIp = request.headers.get("x-real-ip");
 
   if (forwardedFor) {
-    return forwardedFor.split(',')[0].trim();
+    return forwardedFor.split(",")[0].trim();
   }
 
   if (realIp) {
@@ -185,7 +189,7 @@ const getClientIdentifier = (request: NextRequest): string => {
   }
 
   // Fallback to a generic identifier
-  return 'anonymous';
+  return "anonymous";
 };
 
 /**
@@ -193,7 +197,7 @@ const getClientIdentifier = (request: NextRequest): string => {
  */
 export const checkRateLimit = async (
   request: NextRequest,
-  configKey: keyof typeof RATE_LIMIT_CONFIGS = 'DEFAULT'
+  configKey: keyof typeof RATE_LIMIT_CONFIGS = "DEFAULT"
 ): Promise<{ success: boolean; remaining: number }> => {
   const identifier = getClientIdentifier(request);
   const config = RATE_LIMIT_CONFIGS[configKey];
@@ -211,7 +215,7 @@ export const checkRateLimit = async (
           remaining: result.remaining
         };
       } catch (error) {
-        log.warn('Upstash rate limiting failed, falling back to in-memory', {
+        log.warn("Upstash rate limiting failed, falling back to in-memory", {
           error: error instanceof Error ? error.message : String(error)
         });
       }
@@ -221,7 +225,7 @@ export const checkRateLimit = async (
     const limiter = getInMemoryLimiter(configKey);
     return await limiter.limit(identifier);
   } catch (error) {
-    log.error('Rate limiting error', {
+    log.error("Rate limiting error", {
       error: error instanceof Error ? error.message : String(error),
       ...(error instanceof Error && error.stack ? { stack: error.stack } : {})
     });
@@ -237,13 +241,13 @@ export const checkRateLimit = async (
  */
 export const rateLimitMiddleware = async (
   request: NextRequest,
-  configKey: keyof typeof RATE_LIMIT_CONFIGS = 'DEFAULT'
+  configKey: keyof typeof RATE_LIMIT_CONFIGS = "DEFAULT"
 ): Promise<NextResponse | null> => {
   const result = await checkRateLimit(request, configKey);
   const config = RATE_LIMIT_CONFIGS[configKey];
 
   if (!result.success) {
-    log.warn('Rate limit exceeded', {
+    log.warn("Rate limit exceeded", {
       identifier: getClientIdentifier(request),
       path: request.nextUrl.pathname,
       config: configKey
@@ -252,20 +256,20 @@ export const rateLimitMiddleware = async (
     return NextResponse.json(
       {
         error: config.message,
-        code: 'RATE_LIMIT_EXCEEDED',
+        code: "RATE_LIMIT_EXCEEDED",
         retryAfter: Math.ceil(config.windowMs / 1000)
       },
       {
         status: 429,
         headers: {
-          'Retry-After': String(Math.ceil(config.windowMs / 1000)),
-          'X-RateLimit-Remaining': '0'
+          "Retry-After": String(Math.ceil(config.windowMs / 1000)),
+          "X-RateLimit-Remaining": "0"
         }
       }
     );
   }
 
-  log.debug('Rate limit check passed', {
+  log.debug("Rate limit check passed", {
     identifier: getClientIdentifier(request),
     remaining: result.remaining
   });
