@@ -85,8 +85,8 @@ importers:
         specifier: 19.2.4
         version: 19.2.4
       react-animated-counter:
-        specifier: ^1.8.4
-        version: 1.8.4(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: ^1.9.0
+        version: 1.9.0(react@19.2.4)
       react-dom:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
@@ -5628,8 +5628,8 @@ packages:
   rc9@2.1.2:
     resolution: {integrity: sha512-btXCnMmRIBINM2LDZoEmOogIZU7Qe7zn4BpomSKZ/ykbLObuBdvG+mFq11DL6fjH1DRwHhrlgtYWG96bJiC7Cg==}
 
-  react-animated-counter@1.8.4:
-    resolution: {integrity: sha512-HtwXwxKzoxXfYlIsF+WpP4/Vocp6l2EtHhcfqDq+AyEDQ0KzruIgMlfJRRVRgBU534Az0SOdy4fHMaDwfaElTA==}
+  react-animated-counter@1.9.0:
+    resolution: {integrity: sha512-wH/8e9hR7vzqC5RTGyQkFU4ucvwUFAFUwrfVhLW1ehTZEqyXv1Im2J55m1IclUHm1jE9dh60iL6kjNd0iYrFcw==}
     peerDependencies:
       react: '>=16'
 
@@ -12873,14 +12873,11 @@ snapshots:
       defu: 6.1.6
       destr: 2.0.5
 
-  react-animated-counter@1.8.4(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+  react-animated-counter@1.9.0(react@19.2.4):
     dependencies:
-      framer-motion: 12.38.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       lodash: 4.18.1
       react: 19.2.4
-    transitivePeerDependencies:
-      - '@emotion/is-prop-valid'
-      - react-dom
+      tslib: 2.8.1
 
   react-clientside-effect@1.2.8(react@19.2.4):
     dependencies:
