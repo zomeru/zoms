@@ -139,8 +139,8 @@ importers:
         specifier: ^0.0.1
         version: 0.0.1
       supermemory:
-        specifier: ^4.17.0
-        version: 4.17.0
+        specifier: ^4.21.1
+        version: 4.21.1
       tsparticles:
         specifier: ^3.9.1
         version: 3.9.1
@@ -6178,8 +6178,8 @@ packages:
   stylis@4.3.6:
     resolution: {integrity: sha512-yQ3rwFWRfwNUY7H5vpU0wfdkNSnvnJinhF9830Swlaxl03zsOjCfmX0ugac+3LtK0lYSgwL/KXc8oYL3mG4YFQ==}
 
-  supermemory@4.17.0:
-    resolution: {integrity: sha512-+37Lwl85cEtNxQRqLCg+b8L07KT9s/2Wuc1jzWOd+n+A9SIQpOZRgg8bIVWgsi3vLpnYcjFdu7/6xjTH+PUQsA==}
+  supermemory@4.21.1:
+    resolution: {integrity: sha512-KayOHtD94g7O+yN2qxaHEO5UIXtDl+duaKuhW7gvaraVtP1RHxFn80Pb5s5rKmqIvC+ruaARRlgMw7s/y+6LGQ==}
     hasBin: true
 
   supports-color@7.2.0:
@@ -13654,7 +13654,7 @@ snapshots:
 
   stylis@4.3.6: {}
 
-  supermemory@4.17.0: {}
+  supermemory@4.21.1: {}
 
   supports-color@7.2.0:
     dependencies:
