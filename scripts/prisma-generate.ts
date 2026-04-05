@@ -1,7 +1,7 @@
-import { loadScriptEnv, requireDatabaseEnv, runPnpm } from "./_helpers";
+import { createScriptEnv, loadScriptEnv, runPnpm } from "./_helpers";
 
 loadScriptEnv(".env.local");
-const env = requireDatabaseEnv(".env.local");
+const env = createScriptEnv();
 const result = runPnpm(["exec", "prisma", "generate"], {
   env,
   stdio: "inherit"

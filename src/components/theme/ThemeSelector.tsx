@@ -190,11 +190,11 @@ export function ThemeSelector(): React.JSX.Element | null {
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-start">
+    <div className="fixed inset-x-0 bottom-0 z-60">
       <button
         type="button"
         aria-label="Close theme selector"
-        className="absolute inset-0 size-full bg-background/58 backdrop-blur-[3px]"
+        className="fixed inset-0 size-full bg-background/58 backdrop-blur-[3px]"
         onMouseDown={(event) => {
           event.preventDefault();
           closeSelector();
@@ -204,7 +204,7 @@ export function ThemeSelector(): React.JSX.Element | null {
         role="dialog"
         aria-label="Theme selector"
         aria-modal="true"
-        className={`relative mx-4 mt-4 mb-24 flex h-[calc(100vh-8rem)] w-[min(33rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-[2rem] md:mb-8 md:ml-8 md:h-[min(44rem,calc(100vh-4rem))] ${FLOATING_WIDGET_PANEL_SHELL}`}
+        className={`relative mx-3 flex h-[82vh] max-h-184 flex-col overflow-hidden rounded-t-4xl md:mx-0 md:ml-8 md:h-[min(44rem,calc(100vh-4rem))] md:max-h-188 md:w-md md:rounded-4xl ${FLOATING_WIDGET_PANEL_SHELL}`}
         onKeyDown={(event) => {
           if (event.key === "ArrowDown") {
             event.preventDefault();
