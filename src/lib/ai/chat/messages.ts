@@ -1,4 +1,4 @@
-import { ChatMessageRole } from "@prisma/client";
+import { ChatMessageRole } from "@/generated/prisma/client";
 
 import type { Citation } from "@/lib/ai/schemas";
 

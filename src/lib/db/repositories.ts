@@ -4,7 +4,7 @@ import {
   type IngestionMode,
   IngestionStatus,
   type Prisma
-} from "@prisma/client";
+} from "@/generated/prisma/client";
 
 import { getPrismaClient } from "./prisma";
 

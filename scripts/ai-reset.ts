@@ -1,9 +1,11 @@
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface } from "node:readline/promises";
-import { PrismaClient } from "@prisma/client";
+import { PrismaNeon } from "@prisma/adapter-neon";
 import { Redis } from "@upstash/redis";
 import { Index } from "@upstash/vector";
 import Supermemory from "supermemory";
+
+import { PrismaClient } from "@/generated/prisma/client";
 
 import { parseAiEnv } from "../src/lib/ai/env";
 import { createScriptEnv, loadScriptEnv, requireDatabaseEnv, runPnpm } from "./_helpers";
@@ -31,8 +33,11 @@ async function confirmReset(): Promise<boolean> {
   }
 }
 
-async function getExistingSessionKeys(): Promise<string[]> {
-  const prisma = new PrismaClient();
+async function getExistingSessionKeys(databaseUrl: string): Promise<string[]> {
+  const adapter = new PrismaNeon({
+    connectionString: databaseUrl
+  });
+  const prisma = new PrismaClient({ adapter });
 
   try {
     const existingSessionKeys = await prisma.chatSession.findMany({
@@ -90,7 +95,7 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  const existingSessionKeys = await getExistingSessionKeys();
+  const existingSessionKeys = await getExistingSessionKeys(env.DATABASE_URL);
   const prismaResetResult = runPnpm(["exec", "prisma", "migrate", "reset", "--force"], {
     env,
     stdio: "inherit"

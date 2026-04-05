@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { ChatMessageRole } from "@prisma/client";
 import { type NextRequest, NextResponse } from "next/server";
+
+import { ChatMessageRole } from "@/generated/prisma/client";
 
 import { buildConversationHistory, mapStoredMessages } from "@/lib/ai/chat/messages";
 import { resolveGroundedAnswer } from "@/lib/ai/chat/retrieval";
