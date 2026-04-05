@@ -135,7 +135,7 @@ export async function runSiteReindex(
     { getVectorIndexClient },
     { getLegacyExperienceDocumentId }
   ] = await Promise.all([
-    import("@prisma/client"),
+    import("@/generated/prisma/client"),
     import("@/lib/db/repositories"),
     import("@/lib/vector/index"),
     import("@/lib/content/experience")

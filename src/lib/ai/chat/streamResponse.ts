@@ -1,4 +1,4 @@
-import { ChatMessageRole } from "@prisma/client";
+import { ChatMessageRole } from "@/generated/prisma/client";
 
 import type { streamGroundedAnswer } from "@/lib/ai/chat-stream";
 import { storeSessionMemory } from "@/lib/ai/memory";

@@ -65,7 +65,7 @@ function ThemeTrigger({ compact = false }: { compact?: boolean }): React.JSX.Ele
 
 export function ThemeRail(): React.JSX.Element {
   return (
-    <div className="fixed bottom-5 left-5 z-[45] md:bottom-8 md:left-8">
+    <div className="fixed bottom-5 left-5 z-45 md:bottom-8 md:left-8">
       <ThemeTrigger compact={true} />
     </div>
   );

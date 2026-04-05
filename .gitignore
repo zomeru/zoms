@@ -58,3 +58,7 @@ yarn-error.log*
 .serena/**
 .playwright-mcp
 docs/
+.opencode
+
+# Prisma v7 generated client
+/src/generated
