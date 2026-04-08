@@ -42,6 +42,33 @@ If nested `AGENTS.md` files are added later, the closest file should take preced
 - `.github/workflows`: CI (tests.yml — format, lint, types, unit tests, build, audit)
 - `.github/copilot-instructions.md`: GitHub Copilot instructions
 
+## Node environment
+Here’s a cleaner, more “agent-friendly” version with a bit more precision and guardrails:
+
+---
+
+## Node Environment
+
+- Use nvm to manage Node.js versions.
+- Always match the project’s required version:
+  - Prefer the version specified in `package.json` → `engines.node`
+  - Fallback to `.nvmrc` if `engines` is not defined
+
+- Before installing dependencies or running scripts:
+
+```bash
+nvm install
+nvm use
+```
+
+- Do not use a globally installed Node.js version that differs from the project requirement.
+- If multiple Node versions are installed, ensure the active version matches the project before executing any commands.
+
+---
+
+If you want, I can tighten it further for CI/CD or monorepo setups (Turbo + multiple Node targets).
+
+
 ## Common Commands
 
 Run these from the repository root:

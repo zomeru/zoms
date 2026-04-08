@@ -1,222 +1,227 @@
 "use client";
 
-import {
-  type Container,
-  InteractivityDetect,
-  type ISourceOptions,
-  MoveDirection,
-  OutMode
-} from "@tsparticles/engine";
-import Particles, { initParticlesEngine } from "@tsparticles/react";
-import { loadSlim } from "@tsparticles/slim";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import { readThemeVisualTokens, THEME_CHANGE_EVENT } from "@/lib/theme/dom";
 
-const DEFAULT_THEME_VISUALS = {
-  nodeLink: "rgba(148, 163, 184, 0.28)",
-  particle1: "#8b5cf6",
-  particle2: "#3b82f6",
-  particle3: "#6366f1"
-};
+const PARTICLE_COUNT = 70;
+const LINK_DISTANCE = 140;
+const LINK_OPACITY = 0.15;
+const REPULSE_DISTANCE = 140;
+const PARTICLE_SPEED = 0.3;
+const FPS_INTERVAL = 1000 / 60;
 
-function updateParticleSourceOptions(
-  sourceOptions: ISourceOptions | undefined,
-  themeVisuals: typeof DEFAULT_THEME_VISUALS
-): boolean {
-  if (!sourceOptions?.particles) {
-    return false;
-  }
+interface Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  colorIndex: number;
+}
 
-  const { particles } = sourceOptions;
+function hexToRgb(hex: string): [number, number, number] {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? [
+        Number.parseInt(result[1], 16),
+        Number.parseInt(result[2], 16),
+        Number.parseInt(result[3], 16)
+      ]
+    : [139, 92, 246];
+}
 
-  particles.color = {
-    value: [themeVisuals.particle1, themeVisuals.particle2, themeVisuals.particle3]
-  };
-  particles.links = {
-    ...(particles.links ?? {}),
-    color: themeVisuals.nodeLink
-  };
-
-  return true;
+function parseRgba(rgba: string): [number, number, number] {
+  const match = rgba.match(/(\d+)/g);
+  return match ? [Number(match[0]), Number(match[1]), Number(match[2])] : [148, 163, 184];
 }
 
 const ParticleBackground = () => {
-  const [init, setInit] = useState(false);
-  const containerRef = useRef<Container | undefined>(undefined);
-  const refreshTimerRef = useRef<number | null>(null);
-  const isRefreshingRef = useRef(false);
-  const queuedRefreshRef = useRef(false);
-  const themeVisualsRef = useRef(DEFAULT_THEME_VISUALS);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rafRef = useRef<number | null>(null);
+  const particlesRef = useRef<Particle[]>([]);
+  const mouseRef = useRef({ x: -9999, y: -9999 });
+  const isVisibleRef = useRef(true);
+  const colorsRef = useRef<[number, number, number][]>([
+    [139, 92, 246],
+    [59, 130, 246],
+    [99, 102, 241]
+  ]);
+  const linkColorRef = useRef<[number, number, number]>([148, 163, 184]);
+  const lastFrameRef = useRef(0);
+  const sizeRef = useRef({ w: 0, h: 0 });
 
   useEffect(() => {
-    void initParticlesEngine(async (engine) => {
-      await loadSlim(engine);
-    }).then(() => {
-      setInit(true);
-    });
-  }, []);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-  useEffect(() => {
-    const applyThemeVisuals = async () => {
-      const container = containerRef.current;
+    const ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) return;
 
-      if (!container) {
-        return;
-      }
-
-      const nextThemeVisuals = themeVisualsRef.current;
-
-      if (!updateParticleSourceOptions(container.sourceOptions, nextThemeVisuals)) {
-        return;
-      }
-
-      await container.refresh();
+    const syncTheme = () => {
+      const tokens = readThemeVisualTokens();
+      colorsRef.current = [
+        hexToRgb(tokens.particle1),
+        hexToRgb(tokens.particle2),
+        hexToRgb(tokens.particle3)
+      ];
+      linkColorRef.current = parseRgba(tokens.nodeLink);
     };
 
-    const flushThemeRefresh = async () => {
-      if (isRefreshingRef.current) {
-        queuedRefreshRef.current = true;
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio, 2);
+      const parent = canvas.parentElement;
+      const w = parent?.clientWidth ?? window.innerWidth;
+      const h = parent?.clientHeight ?? window.innerHeight;
+      sizeRef.current = { w, h };
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    const initParticles = () => {
+      const { w, h } = sizeRef.current;
+      particlesRef.current = Array.from({ length: PARTICLE_COUNT }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * PARTICLE_SPEED * 2,
+        vy: (Math.random() - 0.5) * PARTICLE_SPEED * 2,
+        size: 1 + Math.random() * 2,
+        colorIndex: Math.floor(Math.random() * 3)
+      }));
+    };
+
+    const draw = (timestamp: number) => {
+      if (!isVisibleRef.current) {
+        rafRef.current = requestAnimationFrame(draw);
         return;
       }
 
-      isRefreshingRef.current = true;
+      const elapsed = timestamp - lastFrameRef.current;
+      if (elapsed < FPS_INTERVAL) {
+        rafRef.current = requestAnimationFrame(draw);
+        return;
+      }
+      lastFrameRef.current = timestamp - (elapsed % FPS_INTERVAL);
 
-      try {
-        await applyThemeVisuals();
-      } finally {
-        isRefreshingRef.current = false;
+      const { w, h } = sizeRef.current;
+      const particles = particlesRef.current;
+      const mouse = mouseRef.current;
 
-        if (queuedRefreshRef.current) {
-          queuedRefreshRef.current = false;
-          scheduleThemeRefresh();
+      ctx.clearRect(0, 0, w, h);
+
+      // Update positions
+      for (const p of particles) {
+        // Mouse repulse
+        const dx = p.x - mouse.x;
+        const dy = p.y - mouse.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < REPULSE_DISTANCE && dist > 0) {
+          const force = (REPULSE_DISTANCE - dist) / REPULSE_DISTANCE;
+          p.vx += (dx / dist) * force * 0.8;
+          p.vy += (dy / dist) * force * 0.8;
+        }
+
+        // Dampen velocity
+        p.vx *= 0.98;
+        p.vy *= 0.98;
+
+        // Clamp speed
+        const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+        if (speed > PARTICLE_SPEED * 3) {
+          p.vx = (p.vx / speed) * PARTICLE_SPEED * 3;
+          p.vy = (p.vy / speed) * PARTICLE_SPEED * 3;
+        }
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Bounce
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < 0 || p.y > h) p.vy *= -1;
+        p.x = Math.max(0, Math.min(w, p.x));
+        p.y = Math.max(0, Math.min(h, p.y));
+      }
+
+      // Draw links
+      const [lr, lg, lb] = linkColorRef.current;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < LINK_DISTANCE) {
+            const opacity = LINK_OPACITY * (1 - dist / LINK_DISTANCE);
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(${lr},${lg},${lb},${opacity})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
         }
       }
-    };
 
-    const scheduleThemeRefresh = () => {
-      if (refreshTimerRef.current !== null) {
-        window.clearTimeout(refreshTimerRef.current);
+      // Draw particles
+      const colors = colorsRef.current;
+      for (const p of particles) {
+        const [r, g, b] = colors[p.colorIndex];
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${r},${g},${b},0.4)`;
+        ctx.fill();
       }
 
-      refreshTimerRef.current = window.setTimeout(() => {
-        refreshTimerRef.current = null;
-        void flushThemeRefresh();
-      }, 40);
+      rafRef.current = requestAnimationFrame(draw);
     };
 
-    const syncThemeVisuals = () => {
-      themeVisualsRef.current = {
-        ...DEFAULT_THEME_VISUALS,
-        ...readThemeVisualTokens()
-      };
+    syncTheme();
+    resize();
+    initParticles();
+    rafRef.current = requestAnimationFrame(draw);
 
-      scheduleThemeRefresh();
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
     };
 
-    syncThemeVisuals();
-    window.addEventListener(THEME_CHANGE_EVENT, syncThemeVisuals);
+    const handleMouseLeave = () => {
+      mouseRef.current = { x: -9999, y: -9999 };
+    };
+
+    const ro = new ResizeObserver(() => {
+      resize();
+      initParticles();
+    });
+    ro.observe(canvas);
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+      },
+      { threshold: 0 }
+    );
+    io.observe(canvas);
+
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    window.addEventListener("mouseleave", handleMouseLeave);
+    window.addEventListener(THEME_CHANGE_EVENT, syncTheme);
 
     return () => {
-      if (refreshTimerRef.current !== null) {
-        window.clearTimeout(refreshTimerRef.current);
-      }
-
-      window.removeEventListener(THEME_CHANGE_EVENT, syncThemeVisuals);
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      ro.disconnect();
+      io.disconnect();
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener(THEME_CHANGE_EVENT, syncTheme);
     };
   }, []);
 
-  const optionsRef = useRef<ISourceOptions>({
-    background: {
-      color: { value: "transparent" }
-    },
-    fullScreen: {
-      enable: false
-    },
-    interactivity: {
-      detectsOn: InteractivityDetect.window,
-      events: {
-        onHover: {
-          enable: true,
-          mode: "repulse"
-        },
-        resize: {
-          enable: true
-        }
-      },
-      modes: {
-        repulse: {
-          distance: 140,
-          duration: 0.5,
-          factor: 120,
-          maxSpeed: 18,
-          speed: 1
-        }
-      }
-    },
-    fpsLimit: 60,
-    particles: {
-      color: {
-        value: [
-          DEFAULT_THEME_VISUALS.particle1,
-          DEFAULT_THEME_VISUALS.particle2,
-          DEFAULT_THEME_VISUALS.particle3
-        ]
-      },
-      links: {
-        color: DEFAULT_THEME_VISUALS.nodeLink,
-        distance: 140,
-        enable: true,
-        opacity: 0.15,
-        width: 1
-      },
-      move: {
-        direction: MoveDirection.none,
-        enable: true,
-        outModes: { default: OutMode.bounce },
-        random: true,
-        speed: 0.5,
-        straight: false
-      },
-      number: {
-        density: { enable: true },
-        value: 90
-      },
-      opacity: { value: 0.4 },
-      shape: { type: "circle" },
-      size: { value: { min: 1, max: 3 } }
-    },
-    detectRetina: true
-  });
-
-  if (init) {
-    return (
-      <Particles
-        id="tsparticles"
-        className="pointer-events-none absolute inset-0 block h-full w-full"
-        options={optionsRef.current}
-        particlesLoaded={async (container) => {
-          if (!container) {
-            return;
-          }
-
-          containerRef.current = container;
-          themeVisualsRef.current = {
-            ...DEFAULT_THEME_VISUALS,
-            ...readThemeVisualTokens()
-          };
-
-          if (!updateParticleSourceOptions(container.sourceOptions, themeVisualsRef.current)) {
-            return;
-          }
-
-          await container.refresh();
-        }}
-      />
-    );
-  }
-
-  return null;
+  return (
+    <canvas ref={canvasRef} className="pointer-events-none absolute inset-0 block h-full w-full" />
+  );
 };
 
 export default ParticleBackground;

@@ -2,7 +2,6 @@
 
 import type React from "react";
 import { useEffect, useState } from "react";
-import { AnimatedCounter } from "react-animated-counter";
 
 interface Language {
   name: string;
@@ -17,13 +16,11 @@ interface WakaTimeTickerProps {
  * WakaTimeTicker
  *
  * Fixed top-right badge that cycles through WakaTime languages one at a time,
- * showing hours coded per language. Inspired by vexp.dev's top-right token counter.
- * Uses react-animated-counter for Robinhood-style rolling digit animation.
+ * showing hours coded per language. Uses CSS-only opacity/transform animations
+ * (GPU-compositable) to avoid CLS from non-composited color animations.
  * Data is passed from the server (SSR) so it's available on first paint.
  */
 const WakaTimeTicker: React.FC<WakaTimeTickerProps> = ({ initialLanguages = [] }) => {
-  // Initialize without shuffle so server and client render the same HTML (no hydration mismatch).
-  // Shuffle happens client-side in useEffect, before the 50ms entrance delay fires.
   const [languages, setLanguages] = useState<Language[]>(() =>
     initialLanguages.filter((l) => l.hours >= 1)
   );
@@ -43,15 +40,12 @@ const WakaTimeTicker: React.FC<WakaTimeTickerProps> = ({ initialLanguages = [] }
   const [labelVisible, setLabelVisible] = useState(true);
   const [show, setShow] = useState(false);
 
-  // Entrance animation — trigger after mount so the transition plays on first paint
   useEffect(() => {
     if (languages.length === 0) return;
     const t = setTimeout(() => setShow(true), 50);
     return () => clearTimeout(t);
   }, [languages.length]);
 
-  // Advance language in sync with the NodeSection's node-cycle event.
-  // The label fades out, index advances, then fades back in.
   useEffect(() => {
     if (languages.length < 2) return;
 
@@ -77,28 +71,23 @@ const WakaTimeTicker: React.FC<WakaTimeTickerProps> = ({ initialLanguages = [] }
       style={{
         opacity: show ? 1 : 0,
         transform: show ? "translateY(0)" : "translateY(-6px)",
-        transition: "opacity 600ms ease-out, transform 600ms ease-out"
+        transition: "opacity 600ms ease-out, transform 600ms ease-out",
+        contain: "layout style"
       }}
     >
-      {/* Number row — react-animated-counter rolls digits between values */}
-      <div className="flex items-end justify-end gap-1">
-        <AnimatedCounter
-          value={current.hours}
-          fontSize="24px"
-          color="var(--color-terminal-green)"
-          incrementColor="var(--color-terminal-green)"
-          decrementColor="var(--color-terminal-green)"
-          includeDecimals={false}
-          includeCommas
-          containerStyles={{ fontFamily: "inherit", fontWeight: 500, lineHeight: 1 }}
-        />
+      <div className="flex h-6 items-end justify-end gap-1 overflow-hidden">
+        <span className="font-medium text-2xl text-terminal-green tabular-nums leading-none">
+          {current.hours.toLocaleString()}
+        </span>
         <span className="mb-0.5 font-medium text-sm text-terminal-green leading-none">hrs</span>
       </div>
 
-      {/* Language label — fades between languages */}
       <div
-        className="mt-0.5 text-terminal-green text-xs tracking-wide transition-opacity duration-350 ease-in-out"
-        style={{ opacity: labelVisible ? 0.75 : 0 }}
+        className="mt-0.5 h-4 text-terminal-green text-xs tracking-wide"
+        style={{
+          opacity: labelVisible ? 0.75 : 0,
+          transition: "opacity 350ms ease-in-out"
+        }}
       >
         {current.name}
       </div>

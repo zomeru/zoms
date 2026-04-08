@@ -1,8 +1,7 @@
 "use client";
 
 import type { PortableTextBlock } from "@portabletext/types";
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ExperienceData {
   _id?: string;
@@ -17,6 +16,31 @@ interface ExperienceData {
   order: number;
 }
 
+function useInView(margin = "-80px") {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isInView, setIsInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: margin }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [margin]);
+
+  return { ref, isInView };
+}
+
 function TimelineItem({
   experience,
   index,
@@ -26,37 +50,37 @@ function TimelineItem({
   index: number;
   isFirst: boolean;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-80px" });
+  const { ref, isInView } = useInView();
+  const delay = index * 100;
 
   return (
     <div ref={ref} className="relative flex gap-6 md:gap-10">
       {/* Timeline node */}
       <div className="relative flex flex-col items-center">
-        <motion.div
-          className="relative z-10 flex h-4 w-4 shrink-0 items-center justify-center"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
-          transition={{ duration: 0.4, delay: index * 0.1 }}
+        <div
+          className="relative z-10 flex h-4 w-4 shrink-0 items-center justify-center transition-all duration-400 ease-out"
+          style={{
+            transform: isInView ? "scale(1)" : "scale(0)",
+            opacity: isInView ? 1 : 0,
+            transitionDelay: `${delay}ms`
+          }}
         >
           <div className="h-3 w-3 rounded-full border-2 border-primary bg-background" />
           {isFirst && (
-            <motion.div
-              className="absolute h-3 w-3 rounded-full bg-primary"
-              animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }}
-              transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-            />
+            <div className="absolute h-3 w-3 animate-[pulse-ring_2s_ease-in-out_infinite] rounded-full bg-primary" />
           )}
-        </motion.div>
+        </div>
         <div className="w-px grow bg-border" />
       </div>
 
       {/* Card */}
-      <motion.div
-        className="group mb-8 flex-1 rounded-xl border border-code-border bg-code-bg p-5 transition-all duration-300 hover:border-border-hover hover:shadow-[0_0_24px_rgba(99,102,241,0.08)]"
-        initial={{ opacity: 0, x: 30, y: 10 }}
-        animate={isInView ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, x: 30, y: 10 }}
-        transition={{ duration: 0.5, delay: index * 0.1 + 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
+      <div
+        className="group mb-8 flex-1 rounded-xl border border-code-border bg-code-bg p-5 transition-all duration-500 ease-out hover:border-border-hover hover:shadow-[0_0_24px_rgba(99,102,241,0.08)]"
+        style={{
+          opacity: isInView ? 1 : 0,
+          transform: isInView ? "translateY(0)" : "translateY(10px)",
+          transitionDelay: `${delay + 150}ms`
+        }}
       >
         {/* Header */}
         <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
@@ -110,24 +134,56 @@ function TimelineItem({
             ))}
           </div>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 }
 
 function ProgressLine({ containerRef }: { containerRef: React.RefObject<HTMLDivElement | null> }) {
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start 0.8", "end 0.4"]
-  });
+  const [progress, setProgress] = useState(0);
 
-  const scaleY = useTransform(scrollYProgress, [0, 1], [0, 1]);
-  const opacity = useTransform(scrollYProgress, [0, 0.05], [0, 1]);
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const updateProgress = () => {
+      const rect = container.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const start = viewportHeight * 0.8;
+      const end = viewportHeight * 0.4;
+
+      const topRelative = rect.top;
+      const bottomRelative = rect.bottom;
+
+      if (topRelative > start) {
+        setProgress(0);
+        return;
+      }
+
+      if (bottomRelative < end) {
+        setProgress(1);
+        return;
+      }
+
+      const totalScrollRange = rect.height - (viewportHeight - start) + (viewportHeight - end);
+      const scrolled = start - topRelative;
+      setProgress(Math.max(0, Math.min(1, scrolled / totalScrollRange)));
+    };
+
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    updateProgress();
+
+    return () => window.removeEventListener("scroll", updateProgress);
+  }, [containerRef]);
 
   return (
-    <motion.div
+    <div
       className="absolute top-0 left-1.75 h-full w-0.5 origin-top bg-linear-to-b from-primary via-secondary to-accent"
-      style={{ scaleY, opacity }}
+      style={{
+        transform: `scaleY(${progress})`,
+        opacity: progress > 0.01 ? 1 : 0,
+        transition: "opacity 0.3s ease"
+      }}
     />
   );
 }

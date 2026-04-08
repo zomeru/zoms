@@ -41,10 +41,11 @@ const NodeSection: React.FC = () => {
 
   return (
     <div
-      className="pointer-events-none absolute inset-0 overflow-visible"
+      className="pointer-events-none absolute inset-0 overflow-hidden"
       style={{
         opacity: canvasVisible ? 1 : 0,
-        transition: `opacity ${FADE_MS}ms ease-in-out`
+        transition: `opacity ${FADE_MS}ms ease-in-out`,
+        contain: "layout size style"
       }}
     >
       <NodeCanvas seed={seed} className="h-full w-full" />

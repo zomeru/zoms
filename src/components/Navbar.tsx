@@ -19,19 +19,25 @@ const Navbar = (): React.JSX.Element => {
     // Only track active section on home page
     if (!isHomePage) return;
 
-    const handleScroll = (): void => {
-      const sections = navigation.map((nav) => nav.url.replace("/#", ""));
+    let rafId: number | null = null;
 
-      for (const section of sections.reverse()) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 120) {
-            setActiveSection(section);
-            break;
+    const handleScroll = (): void => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const sections = navigation.map((nav) => nav.url.replace("/#", ""));
+
+        for (const section of sections.reverse()) {
+          const element = document.getElementById(section);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            if (rect.top <= 120) {
+              setActiveSection(section);
+              break;
+            }
           }
         }
-      }
+      });
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -39,6 +45,7 @@ const Navbar = (): React.JSX.Element => {
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      if (rafId !== null) cancelAnimationFrame(rafId);
     };
   }, [isHomePage]);
 
