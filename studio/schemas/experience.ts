@@ -31,6 +31,20 @@ export default defineType({
       validation: (Rule) => Rule.required()
     }),
     defineField({
+      name: "summary",
+      title: "Summary",
+      type: "string",
+      description: "A single sentence summarizing the role's focus or impact"
+    }),
+    defineField({
+      name: "techStack",
+      title: "Tech Stack",
+      type: "array",
+      of: [{ type: "string" }],
+      description: "Key technologies used in this role",
+      options: { layout: "tags" }
+    }),
+    defineField({
       name: "duties",
       title: "Responsibilities",
       type: "blockContent",

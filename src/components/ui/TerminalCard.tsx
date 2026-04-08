@@ -13,7 +13,7 @@ const TerminalCard: React.FC<TerminalCardProps> = ({
   title = "terminal",
   className = "",
   bodyClassName = "p-4 font-mono text-sm",
-  showHeader = true
+  showHeader = false
 }) => {
   return (
     <div

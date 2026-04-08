@@ -71,7 +71,7 @@ const BlogPageContent: React.FC = async (): Promise<React.JSX.Element> => {
         </div>
 
         {posts.length === 0 ? (
-          <TerminalCard showHeader={false} bodyClassName="p-8 font-mono text-sm">
+          <TerminalCard bodyClassName="p-8 font-mono text-sm">
             <span className="text-terminal-yellow">console</span>
             <span className="text-text-secondary">.log(</span>
             <span className="text-terminal-purple">"No posts yet. Check back soon!"</span>
