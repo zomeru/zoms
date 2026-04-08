@@ -8,3 +8,6 @@ studio
 .vscode
 .env.example
 README.md
+AGENTS.md
+CLAUDE.md
+tests

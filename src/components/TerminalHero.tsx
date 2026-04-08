@@ -154,7 +154,7 @@ const TerminalHero: React.FC<TerminalHeroProps> = ({ name, title, descriptions }
   const showDescription = isCodeComplete && isDescriptionActive;
 
   return (
-    <div className="w-full max-w-2xl">
+    <div className="w-full max-w-2xl" style={{ contain: "layout style" }}>
       <TerminalCard
         title="about.ts"
         className="shadow-2xl"

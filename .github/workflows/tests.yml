@@ -18,29 +18,11 @@ jobs:
         node-version: [24.x]
 
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      DATABASE_URL: postgresql://postgres:password@localhost:5432/zoms
+      DIRECT_URL: postgresql://postgres:password@localhost:5432/zoms
       NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
       NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
-      SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
-      NEXT_PUBLIC_SANITY_APP_ID: ${{ secrets.NEXT_PUBLIC_SANITY_APP_ID }}
-      BLOG_GENERATION_SECRET: ${{ secrets.BLOG_GENERATION_SECRET }}
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
-      CRON_SECRET: ${{ secrets.CRON_SECRET }}
-      UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
-      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
-      UPSTASH_VECTOR_REST_URL: ${{ secrets.UPSTASH_VECTOR_REST_URL }}
-      UPSTASH_VECTOR_REST_TOKEN: ${{ secrets.UPSTASH_VECTOR_REST_TOKEN }}
-      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-      OPENROUTER_CHAT_MODEL: ${{ secrets.OPENROUTER_CHAT_MODEL }}
-      OPENROUTER_EMBEDDING_MODEL: ${{ secrets.OPENROUTER_EMBEDDING_MODEL }}
-      GITHUB_USERNAME: ${{ github.repository_owner }}
-      WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
       SITE_URL: ${{ secrets.SITE_URL }}
-      ENABLE_EXPERIMENTAL_COREPACK: ${{ secrets.ENABLE_EXPERIMENTAL_COREPACK }}
-      AI_REINDEX_SECRET: ${{ secrets.AI_REINDEX_SECRET }}
-      SUPERMEMORY_API_KEY: ${{ secrets.SUPERMEMORY_API_KEY }}
 
     steps:
       - name: Checkout repo

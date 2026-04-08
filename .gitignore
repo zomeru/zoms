@@ -59,6 +59,7 @@ yarn-error.log*
 .playwright-mcp
 docs/
 .opencode
+/*.png
 
 # Prisma v7 generated client
 /src/generated

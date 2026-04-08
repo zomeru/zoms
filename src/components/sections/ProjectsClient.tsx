@@ -35,15 +35,22 @@ const ProjectDescription: React.FC<ProjectDescriptionProps> = ({
   const [canExpand, setCanExpand] = useState(false);
   const descriptionRef = useRef<HTMLParagraphElement | null>(null);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: info changes update the rendered paragraph contents, so this measurement effect must rerun after those DOM updates.
   useEffect(() => {
-    const descriptionElement = descriptionRef.current;
+    const el = descriptionRef.current;
+    if (!el) return;
 
-    setCanExpand(
-      descriptionElement !== null &&
-        descriptionElement.scrollHeight > descriptionElement.clientHeight + 1
-    );
-  }, [info]);
+    const measure = () => {
+      setCanExpand(el.scrollHeight > el.clientHeight + 1);
+    };
+
+    measure();
+
+    if (typeof ResizeObserver === "undefined") return;
+
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   return (
     <div className="mb-4">
@@ -76,11 +83,22 @@ const ProjectTechStack: React.FC<ProjectTechStackProps> = ({ name, techs }): Rea
   const [canExpand, setCanExpand] = useState(false);
   const stackRef = useRef<HTMLDivElement | null>(null);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: techs changes alter the rendered badge row, so the overflow measurement needs to rerun after each render.
   useEffect(() => {
-    const stackElement = stackRef.current;
-    setCanExpand(stackElement !== null && stackElement.scrollWidth > stackElement.clientWidth + 1);
-  }, [techs]);
+    const el = stackRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      setCanExpand(el.scrollWidth > el.clientWidth + 1);
+    };
+
+    measure();
+
+    if (typeof ResizeObserver === "undefined") return;
+
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   return (
     <div className="mb-4">

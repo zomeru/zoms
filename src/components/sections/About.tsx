@@ -93,10 +93,10 @@ const About = async (): Promise<React.JSX.Element> => {
         </div>
 
         {/* Right column — NodeSection owns fade cycle + random positions */}
-        <div className="relative min-h-105 overflow-visible">
-          <div className="absolute inset-0 flex items-center justify-center overflow-visible">
+        <div className="relative min-h-105 overflow-hidden">
+          <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
             {/* Canvas fades in/out on each cycle */}
-            <div className="relative mx-auto flex h-full w-full items-center justify-center overflow-visible p-5">
+            <div className="relative mx-auto flex h-full w-full items-center justify-center overflow-hidden p-5">
               <NodeSection />
 
               {/* Card stays still — never fades */}

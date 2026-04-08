@@ -113,7 +113,7 @@ export function createExperienceSummary(experienceEntries: Experience[]): string
 export function createExperienceSections(experienceEntry: Experience): NormalizedContentSection[] {
   const responsibilities = experienceEntry.duties.map(flattenDutyText).filter(Boolean);
 
-  return [
+  const sections: NormalizedContentSection[] = [
     {
       content: [
         `Position: ${experienceEntry.title}`,
@@ -136,6 +136,16 @@ export function createExperienceSections(experienceEntry: Experience): Normalize
       title: "Responsibilities"
     }
   ];
+
+  if (experienceEntry.techStack && experienceEntry.techStack.length > 0) {
+    sections.push({
+      content: experienceEntry.techStack.join(", "),
+      id: "tech-stack",
+      title: "Tech Stack"
+    });
+  }
+
+  return sections;
 }
 
 export function createAboutSections(source: AboutContentSource): NormalizedContentSection[] {

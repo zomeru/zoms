@@ -30,7 +30,6 @@ const Blog: React.FC = async (): Promise<React.JSX.Element> => {
               <TerminalCard
                 key={_id}
                 title={`${slug.current}.md`}
-                showHeader={true}
                 className="group h-full transition-colors hover:border-primary/30"
               >
                 <div className="flex h-full gap-3">

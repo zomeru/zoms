@@ -6,6 +6,7 @@ interface CodeEditorCardProps {
   language?: string;
   className?: string;
   showLineNumbers?: boolean;
+  showHeader?: boolean;
 }
 
 const CodeEditorCard: React.FC<CodeEditorCardProps> = ({
@@ -13,7 +14,8 @@ const CodeEditorCard: React.FC<CodeEditorCardProps> = ({
   filename = "untitled.tsx",
   language = "typescript",
   className = "",
-  showLineNumbers = false
+  showLineNumbers = false,
+  showHeader = false
 }) => {
   const lines = React.Children.toArray(children);
 
@@ -22,19 +24,21 @@ const CodeEditorCard: React.FC<CodeEditorCardProps> = ({
       className={`flex h-full flex-col overflow-hidden rounded-lg border border-code-border bg-code-bg ${className}
       `}
     >
-      <div className="flex items-center justify-between border-code-border border-b bg-surface-elevated/65 px-3 py-2">
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1.5">
-            <div className="size-3 rounded-full bg-terminal-red" />
-            <div className="size-3 rounded-full bg-terminal-yellow" />
-            <div className="size-3 rounded-full bg-terminal-green" />
+      {showHeader && (
+        <div className="flex items-center justify-between border-code-border border-b bg-surface-elevated/65 px-3 py-2">
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1.5">
+              <div className="size-3 rounded-full bg-terminal-red" />
+              <div className="size-3 rounded-full bg-terminal-yellow" />
+              <div className="size-3 rounded-full bg-terminal-green" />
+            </div>
+            <div className="ml-2 flex items-center gap-2">
+              <span className="font-mono text-text-secondary text-xs">{filename}</span>
+            </div>
           </div>
-          <div className="ml-2 flex items-center gap-2">
-            <span className="font-mono text-text-secondary text-xs">{filename}</span>
-          </div>
+          <span className="font-mono text-text-muted text-xs">{language}</span>
         </div>
-        <span className="font-mono text-text-muted text-xs">{language}</span>
-      </div>
+      )}
       <div className="flex-1 overflow-x-auto p-4 font-mono text-sm">
         {showLineNumbers ? (
           <div className="flex">
