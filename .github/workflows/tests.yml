@@ -22,8 +22,7 @@ jobs:
       DIRECT_URL: postgresql://postgres:password@localhost:5432/zoms
       NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
       NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
-      SITE_URL: ${{ secrets.SITE_URL }}
-
+      SITE_URL: http://localhost:3000
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
