@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import type React from "react";
 
 import BlogDeleteMenu from "@/components/blog/BlogDeleteMenu";
-import { TechBadge, TerminalCard } from "@/components/ui";
+import { AdBanner, TechBadge, TerminalCard } from "@/components/ui";
 import { SITE_URL } from "@/configs/seo";
 import { TITLE } from "@/constants";
 import { getBlogPostBySlug, getBlogPostSeoBySlug } from "@/lib/blog";
@@ -168,10 +168,20 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
               <div className="text-lg text-text-secondary leading-relaxed">{post.summary}</div>
             </header>
 
+            <AdBanner
+              slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_BLOG_POST ?? ""}
+              className="mb-8"
+            />
+
             <BlogContent body={content} />
+
+            <AdBanner
+              slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_BLOG_POST ?? ""}
+              className="mt-8"
+            />
           </TerminalCard>
 
-          <footer className="mt-8 border-border border-t pt-8">
+          <footer className="mt-8 border-border border-t pt-8 pb-20 md:pb-16">
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-mono text-primary text-sm hover:underline"
