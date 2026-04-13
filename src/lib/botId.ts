@@ -1,6 +1,8 @@
 import { checkBotId } from "botid/server";
 import { type NextRequest, NextResponse } from "next/server";
 
+import log from "./logger";
+
 export interface BotIdProtectedRoute {
   method: string;
   path: string;
@@ -26,7 +28,15 @@ export async function verifyBotIdRequest(
     return null;
   }
 
-  const verification = await checkBotId();
+  let verification: Awaited<ReturnType<typeof checkBotId>>;
+  try {
+    verification = await checkBotId();
+  } catch (error) {
+    log.warn("BotId check failed, allowing request through", {
+      error: error instanceof Error ? error.message : String(error)
+    });
+    return null;
+  }
 
   if (!verification.isBot || verification.isVerifiedBot) {
     return null;

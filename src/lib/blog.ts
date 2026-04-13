@@ -201,6 +201,13 @@ export interface BlogPostSitemapItem {
   modifiedAt?: string;
 }
 
+export interface BlogPostIndexItem {
+  title: string;
+  slug: string;
+  summary: string;
+  publishedAt: string;
+}
+
 /**
  * Fetch all published blog post slugs and dates for sitemap generation.
  * Intentionally minimal — only requests fields needed by the sitemap.
@@ -220,6 +227,31 @@ export async function getBlogPostsForSitemap(): Promise<BlogPostSitemapItem[]> {
     return posts;
   } catch (error) {
     log.error("Error fetching blog posts for sitemap", {
+      error: error instanceof Error ? error.message : String(error)
+    });
+    return [];
+  }
+}
+
+/**
+ * Fetch all blog posts for llms-full.txt index generation
+ */
+export async function getBlogPostsForIndex(): Promise<BlogPostIndexItem[]> {
+  try {
+    const posts = await getSanityClient().fetch<BlogPostIndexItem[]>(
+      `*[_type == "blogPost"] | order(publishedAt desc) {
+        title,
+        "slug": slug.current,
+        summary,
+        publishedAt
+      }`,
+      {},
+      { next: { revalidate: 3600 } }
+    );
+
+    return posts;
+  } catch (error) {
+    log.error("Error fetching blog posts for index", {
       error: error instanceof Error ? error.message : String(error)
     });
     return [];

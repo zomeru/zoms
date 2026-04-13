@@ -1,13 +1,20 @@
 import { SITE_URL } from "@/configs/seo";
-import { TITLE } from "@/constants";
+import { projects, TITLE } from "@/constants";
 import { getLatestBlogPosts } from "@/lib/blog";
+import { getExperience } from "@/lib/experience";
 
 export async function GET(): Promise<Response> {
-  const recentPosts = await getLatestBlogPosts(10);
+  const [recentPosts, experiences] = await Promise.all([getLatestBlogPosts(10), getExperience()]);
 
   const recentPostLines = recentPosts
     .map((post) => `- [${post.title}](${SITE_URL}/blog/${post.slug.current})`)
     .join("\n");
+
+  const experienceLines = experiences
+    .map((e) => `- ${e.title} at ${e.company} (${e.range}) — ${e.summary ?? ""}`)
+    .join("\n");
+
+  const projectLines = projects.map((p) => `- ${p.name}: ${p.info}`).join("\n");
 
   const content = `# ${TITLE}
 
@@ -17,6 +24,18 @@ export async function GET(): Promise<Response> {
 
 - [Home](${SITE_URL}): Portfolio overview with skills, projects, and professional experience
 - [Blog](${SITE_URL}/blog): Long-form technical articles on web development topics
+
+## Full Content Index
+
+For a complete list of all blog posts with summaries, see: ${SITE_URL}/llms-full.txt
+
+## Experience
+
+${experienceLines}
+
+## Projects
+
+${projectLines}
 
 ## 10 Recent Blog Posts
 
