@@ -48,7 +48,7 @@
     "@upstash/vector": "^1.2.3",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
-    "ai": "^6.0.159",
+    "ai": "^6.0.160",
     "botid": "^1.5.11",
     "dotenv": "^17.4.2",
     "next": "16.2.3",
