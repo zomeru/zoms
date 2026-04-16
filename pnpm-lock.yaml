@@ -22,8 +22,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       '@openrouter/ai-sdk-provider':
-        specifier: ^2.5.1
-        version: 2.5.1(ai@6.0.159(zod@4.3.6))(zod@4.3.6)
+        specifier: ^2.8.0
+        version: 2.8.0(ai@6.0.159(zod@4.3.6))(zod@4.3.6)
       '@portabletext/react':
         specifier: ^6.0.3
         version: 6.0.3(react@19.2.5)
@@ -1899,8 +1899,8 @@ packages:
   '@octokit/types@16.0.0':
     resolution: {integrity: sha512-sKq+9r1Mm4efXW1FCk7hFSeJo4QKreL/tTbR0rz/qx/r1Oa2VV83LTA/H/MuCOX7uCIJmQVRKBcbmWoySjAnSg==}
 
-  '@openrouter/ai-sdk-provider@2.5.1':
-    resolution: {integrity: sha512-r1fJL1Cb3gQDa2MpWH/sfx1BsEW0uzlRriJM6eihaKqbtKDmZoBisF32VcVaQYassighX7NGCkF68EsrZA43uQ==}
+  '@openrouter/ai-sdk-provider@2.8.0':
+    resolution: {integrity: sha512-oDDW/0KMqz4suHVloB9sNv0YyKLGNYf1FTevXH6adDkid5dsmbbcYuiEsbIhpZSZtHa6o5AVjK1jEAfePOLxww==}
     engines: {node: '>=18'}
     peerDependencies:
       ai: ^6.0.0
@@ -4562,8 +4562,8 @@ packages:
     resolution: {integrity: sha512-6BoLX9xuvr+B/f05MOhJnzRdF8Za5YYh82n45ndun9EU3uhJv9kIwnYrOrvuA7MoGwZgCMI7RUhBRzfw/l63SQ==}
     engines: {node: '>=14'}
 
-  langsmith@0.5.18:
-    resolution: {integrity: sha512-3zuZUWffTHQ+73EAwnodADtf534VNEZUpXr9jC12qyG8/IQuJET7PRsCpTb9wX2lmBspakwLUpqpj3tNm/0bVA==}
+  langsmith@0.5.20:
+    resolution: {integrity: sha512-ULhLM8RswvQDXufLtNtvclHrWCBx8Cb5UPI6lAZC+8Dq59iHsVPz/3Ac9khWNm1VIvChRsuykixD/WrmzuuA3Q==}
     peerDependencies:
       '@opentelemetry/api': '*'
       '@opentelemetry/exporter-trace-otlp-proto': '*'
@@ -8165,7 +8165,7 @@ snapshots:
       camelcase: 6.3.0
       decamelize: 1.2.0
       js-tiktoken: 1.0.21
-      langsmith: 0.5.18(@opentelemetry/api@1.9.0)(ws@8.20.0)
+      langsmith: 0.5.20(@opentelemetry/api@1.9.0)(ws@8.20.0)
       mustache: 4.2.0
       p-queue: 6.6.2
       uuid: 11.1.0
@@ -8366,7 +8366,7 @@ snapshots:
     dependencies:
       '@octokit/openapi-types': 27.0.0
 
-  '@openrouter/ai-sdk-provider@2.5.1(ai@6.0.159(zod@4.3.6))(zod@4.3.6)':
+  '@openrouter/ai-sdk-provider@2.8.0(ai@6.0.159(zod@4.3.6))(zod@4.3.6)':
     dependencies:
       ai: 6.0.159(zod@4.3.6)
       zod: 4.3.6
@@ -11298,7 +11298,7 @@ snapshots:
 
   lambda-runtimes@2.0.5: {}
 
-  langsmith@0.5.18(@opentelemetry/api@1.9.0)(ws@8.20.0):
+  langsmith@0.5.20(@opentelemetry/api@1.9.0)(ws@8.20.0):
     dependencies:
       p-queue: 6.6.2
       uuid: 10.0.0
