@@ -35,7 +35,7 @@
   "dependencies": {
     "@google/genai": "^1.50.1",
     "@langchain/textsplitters": "^1.0.1",
-    "@neondatabase/serverless": "^1.0.2",
+    "@neondatabase/serverless": "^1.1.0",
     "@openrouter/ai-sdk-provider": "^2.8.0",
     "@portabletext/react": "^6.0.3",
     "@portabletext/types": "^4.0.2",
