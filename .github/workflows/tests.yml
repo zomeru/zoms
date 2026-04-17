@@ -20,8 +20,8 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres:password@localhost:5432/zoms
       DIRECT_URL: postgresql://postgres:password@localhost:5432/zoms
-      NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
-      NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
+      NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ vars.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+      NEXT_PUBLIC_SANITY_DATASET: ${{ vars.NEXT_PUBLIC_SANITY_DATASET }}
       SITE_URL: http://localhost:3000
     steps:
       - name: Checkout repo
