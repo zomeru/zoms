@@ -73,7 +73,7 @@ If you want, I can tighten it further for CI/CD or monorepo setups (Turbo + mult
 
 Run these from the repository root:
 
-- `pnpm dev`: start Next.js app (webpack mode)
+- `pnpm dev`: start Next.js app (webpack mode) — served via portless at **http://zoms.localhost:1355**
 - `pnpm dev:turbo`: start Next.js app (Turbopack)
 - `pnpm build`: build the Next.js app (`next build` only — no quality gates)
 - `pnpm start`: start production build

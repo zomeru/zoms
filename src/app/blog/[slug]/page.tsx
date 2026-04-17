@@ -116,84 +116,76 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
         // biome-ignore lint/security/noDangerouslySetInnerHtml: serializeJsonForScript escapes the JSON-LD payload for a safe inline script.
         dangerouslySetInnerHTML={{ __html: serializeJsonForScript(jsonLd) }}
       />
-      <main className="relative z-10 min-h-screen">
-        <div className="mx-auto max-w-7xl px-6 pt-20 pb-16 md:px-12">
+      <div className="mx-auto max-w-7xl px-6 pt-20 pb-16 md:px-12">
+        <Link
+          href="/blog"
+          className="mb-8 inline-flex items-center gap-2 font-mono text-primary text-sm hover:underline"
+        >
+          <span className="text-terminal-green">cd</span>
+          <span className="text-text-secondary">..</span>
+          <span className="text-terminal-blue">→</span>
+          <span>blog</span>
+        </Link>
+
+        <TerminalCard title={`${slug}.md`} bodyClassName="p-8">
+          <header className="mb-8">
+            <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <h1 className="font-semibold text-3xl text-primary md:text-4xl">{post.title}</h1>
+              <BlogDeleteMenu
+                slug={slug}
+                title={post.title}
+                redirectTo="/blog"
+                refreshOnDelete={false}
+              />
+            </div>
+
+            <div className="mb-6 flex flex-wrap items-center gap-3 font-mono text-sm text-text-muted">
+              <span>
+                <span className="text-secondary">const</span>{" "}
+                <span className="text-terminal-green">published</span>{" "}
+                <span className="text-syntax-plain">=</span>{" "}
+                <span className="text-terminal-purple">"{publishedDate}";</span>
+              </span>
+              {post.readTime && (
+                <span>
+                  <span className="text-secondary">const</span>{" "}
+                  <span className="text-terminal-green">readTime</span>{" "}
+                  <span className="text-syntax-plain">=</span>{" "}
+                  <span className="text-terminal-purple">{post.readTime} min;</span>
+                </span>
+              )}
+            </div>
+
+            {post.tags && post.tags.length > 0 && (
+              <div className="mb-6 flex flex-wrap gap-2">
+                {post.tags.map((tag) => (
+                  <TechBadge key={tag}>{tag}</TechBadge>
+                ))}
+              </div>
+            )}
+
+            <div className="text-lg text-text-secondary leading-relaxed">{post.summary}</div>
+          </header>
+
+          <AdBanner slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_BLOG_POST ?? ""} className="mb-8" />
+
+          <BlogContent body={content} />
+
+          <AdBanner slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_BLOG_POST ?? ""} className="mt-8" />
+        </TerminalCard>
+
+        <footer className="mt-8 border-border border-t pt-8 pb-20 md:pb-16">
           <Link
             href="/blog"
-            className="mb-8 inline-flex items-center gap-2 font-mono text-primary text-sm hover:underline"
+            className="inline-flex items-center gap-2 font-mono text-primary text-sm hover:underline"
           >
             <span className="text-terminal-green">cd</span>
             <span className="text-text-secondary">..</span>
             <span className="text-terminal-blue">→</span>
-            <span>blog</span>
+            <span>back to blog</span>
           </Link>
-
-          <TerminalCard title={`${slug}.md`} bodyClassName="p-8">
-            <header className="mb-8">
-              <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <h1 className="font-semibold text-3xl text-primary md:text-4xl">{post.title}</h1>
-                <BlogDeleteMenu
-                  slug={slug}
-                  title={post.title}
-                  redirectTo="/blog"
-                  refreshOnDelete={false}
-                />
-              </div>
-
-              <div className="mb-6 flex flex-wrap items-center gap-3 font-mono text-sm text-text-muted">
-                <span>
-                  <span className="text-secondary">const</span>{" "}
-                  <span className="text-terminal-green">published</span>{" "}
-                  <span className="text-syntax-plain">=</span>{" "}
-                  <span className="text-terminal-purple">"{publishedDate}";</span>
-                </span>
-                {post.readTime && (
-                  <span>
-                    <span className="text-secondary">const</span>{" "}
-                    <span className="text-terminal-green">readTime</span>{" "}
-                    <span className="text-syntax-plain">=</span>{" "}
-                    <span className="text-terminal-purple">{post.readTime} min;</span>
-                  </span>
-                )}
-              </div>
-
-              {post.tags && post.tags.length > 0 && (
-                <div className="mb-6 flex flex-wrap gap-2">
-                  {post.tags.map((tag) => (
-                    <TechBadge key={tag}>{tag}</TechBadge>
-                  ))}
-                </div>
-              )}
-
-              <div className="text-lg text-text-secondary leading-relaxed">{post.summary}</div>
-            </header>
-
-            <AdBanner
-              slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_BLOG_POST ?? ""}
-              className="mb-8"
-            />
-
-            <BlogContent body={content} />
-
-            <AdBanner
-              slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_BLOG_POST ?? ""}
-              className="mt-8"
-            />
-          </TerminalCard>
-
-          <footer className="mt-8 border-border border-t pt-8 pb-20 md:pb-16">
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-2 font-mono text-primary text-sm hover:underline"
-            >
-              <span className="text-terminal-green">cd</span>
-              <span className="text-text-secondary">..</span>
-              <span className="text-terminal-blue">→</span>
-              <span>back to blog</span>
-            </Link>
-          </footer>
-        </div>
-      </main>
+        </footer>
+      </div>
     </>
   );
 };

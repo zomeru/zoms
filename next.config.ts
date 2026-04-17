@@ -13,11 +13,12 @@ const securityHeaders = [
       "default-src 'self'",
       // 'unsafe-eval' is required in dev mode for Next.js react-refresh (HMR).
       // It is NOT included in production builds where react-refresh is absent.
-      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://va.vercel-scripts.com https://vercel.live`,
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://va.vercel-scripts.com https://vercel.live https://pagead2.googlesyndication.com https://adservice.google.com https://*.googletagservices.com https://partner.googleadservices.com https://*.adtrafficquality.google`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https: blob:",
       "font-src 'self' data:",
-      "connect-src 'self' https://va.vercel-scripts.com https://vercel.live https://*.upstash.io https://openrouter.ai https://*.googleapis.com",
+      "connect-src 'self' https://va.vercel-scripts.com https://vercel.live https://*.upstash.io https://openrouter.ai https://*.googleapis.com https://pagead2.googlesyndication.com https://adservice.google.com https://*.doubleclick.net https://googleads.g.doubleclick.net https://*.adtrafficquality.google",
+      "frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com https://*.adtrafficquality.google",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'"

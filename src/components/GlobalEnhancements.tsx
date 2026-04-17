@@ -6,9 +6,7 @@ import { usePathname } from "next/navigation";
 const ChatAssistantShell = dynamic(async () => await import("@/components/ai/ChatAssistantShell"), {
   ssr: false
 });
-const DotBackground = dynamic(async () => await import("@/components/DotBackground"), {
-  ssr: false
-});
+
 const ParticleBackground = dynamic(async () => await import("@/components/ParticleBackground"), {
   ssr: false
 });
@@ -22,7 +20,6 @@ export default function GlobalEnhancements() {
 
   return (
     <>
-      <DotBackground />
       <ParticleBackground />
       <ChatAssistantShell />
     </>

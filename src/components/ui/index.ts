@@ -1,5 +1,7 @@
 export { default as AdBanner } from "./AdBanner";
+export { default as AdSenseScript } from "./AdSenseScript";
 export { default as CodeEditorCard } from "./CodeEditorCard";
+export { default as CookieConsent } from "./CookieConsent";
 export { default as DevStatsCard } from "./DevStatsCard";
 export { default as NodeCanvas } from "./NodeCanvas";
 export { default as NodeSection } from "./NodeSection";
