@@ -9,11 +9,12 @@ import { BotIdClient } from "botid/client";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import type React from "react";
-import { Navbar } from "@/components";
+import { Footer, Navbar } from "@/components";
 import GlobalEnhancements from "@/components/GlobalEnhancements";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ThemeRail } from "@/components/theme/ThemeRail";
 import { ThemeSelector } from "@/components/theme/ThemeSelector";
+import { CookieConsent } from "@/components/ui";
 import { seo } from "@/configs";
 import { BOTID_PROTECTED_ROUTES } from "@/lib/botId";
 import { createThemeBootstrapScript } from "@/lib/theme/bootstrap";
@@ -53,19 +54,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
       <head>
         <BotIdClient protect={BOTID_PROTECTED_ROUTES} />
       </head>
-      <body className="min-h-screen bg-background text-text-primary">
+      <body className="flex min-h-screen flex-col bg-background text-text-primary">
         <Script id="theme-bootstrap" strategy="beforeInteractive">
           {createThemeBootstrapScript()}
         </Script>
         <ThemeProvider>
+          <GlobalEnhancements />
           <ThemeRail />
           <ThemeSelector />
           <Navbar />
-          <div id="my-root" className="relative min-h-screen">
-            <GlobalEnhancements />
+          <main id="my-root" className="relative z-10 flex h-full flex-1 flex-col">
             {children}
-          </div>
+          </main>
+          <Footer />
         </ThemeProvider>
+        <CookieConsent />
         {shouldRenderVercelInsights ? <Analytics /> : null}
         {shouldRenderVercelInsights ? <SpeedInsights /> : null}
       </body>

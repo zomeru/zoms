@@ -1,14 +1,22 @@
-import Link from "next/link";
-import type React from "react";
+"use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import type React from "react";
 import { TITLE } from "@/constants";
 
+const FOOTER_LINKS = ["github", "linkedin", "instagram", "contact", "privacy"] as const;
+
 const Footer: React.FC = (): React.JSX.Element => {
+  const pathname = usePathname();
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer id="contact" className="mt-8 border-border border-t pt-16 pb-28 md:pb-16">
-      <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+    <footer
+      id="contact"
+      className="relative z-10 mx-auto mt-8 w-full max-w-7xl px-6 pb-28 md:px-12 md:pb-16"
+    >
+      <div className="flex flex-col items-start justify-between gap-6 border-border border-t pt-8 md:flex-row md:items-center">
         <div>
           <h3 className="mb-2 font-medium text-lg text-primary">
             Let&apos;s build something together
@@ -59,15 +67,21 @@ const Footer: React.FC = (): React.JSX.Element => {
         </div>
 
         <div className="flex flex-wrap justify-center gap-6 font-mono text-sm">
-          <Link href="/github" className="text-text-muted transition-colors hover:text-primary">
-            github
-          </Link>
-          <Link href="/linkedin" className="text-text-muted transition-colors hover:text-primary">
-            linkedin
-          </Link>
-          <Link href="/instagram" className="text-text-muted transition-colors hover:text-primary">
-            instagram
-          </Link>
+          {FOOTER_LINKS.map((link) => {
+            if (link === "privacy" && pathname !== "/privacy" && !pathname?.startsWith("/blog")) {
+              return null;
+            }
+
+            return (
+              <Link
+                key={link}
+                href={`/${link}`}
+                className="text-text-muted transition-colors hover:text-primary"
+              >
+                {link}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </footer>

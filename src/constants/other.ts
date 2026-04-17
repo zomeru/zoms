@@ -36,6 +36,10 @@ export const navigation = [
   {
     name: "Blog",
     url: "/#blog"
+  },
+  {
+    name: "Contact",
+    url: "/contact"
   }
 ];
 

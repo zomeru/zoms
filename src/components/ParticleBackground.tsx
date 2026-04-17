@@ -41,7 +41,6 @@ const ParticleBackground = () => {
   const rafRef = useRef<number | null>(null);
   const particlesRef = useRef<Particle[]>([]);
   const mouseRef = useRef({ x: -9999, y: -9999 });
-  const isVisibleRef = useRef(true);
   const colorsRef = useRef<[number, number, number][]>([
     [139, 92, 246],
     [59, 130, 246],
@@ -70,9 +69,8 @@ const ParticleBackground = () => {
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio, 2);
-      const parent = canvas.parentElement;
-      const w = parent?.clientWidth ?? window.innerWidth;
-      const h = parent?.clientHeight ?? window.innerHeight;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
       sizeRef.current = { w, h };
       canvas.width = w * dpr;
       canvas.height = h * dpr;
@@ -94,11 +92,6 @@ const ParticleBackground = () => {
     };
 
     const draw = (timestamp: number) => {
-      if (!isVisibleRef.current) {
-        rafRef.current = requestAnimationFrame(draw);
-        return;
-      }
-
       const elapsed = timestamp - lastFrameRef.current;
       if (elapsed < FPS_INTERVAL) {
         rafRef.current = requestAnimationFrame(draw);
@@ -191,19 +184,11 @@ const ParticleBackground = () => {
       mouseRef.current = { x: -9999, y: -9999 };
     };
 
-    const ro = new ResizeObserver(() => {
+    const handleResize = () => {
       resize();
       initParticles();
-    });
-    ro.observe(canvas);
-
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        isVisibleRef.current = entry.isIntersecting;
-      },
-      { threshold: 0 }
-    );
-    io.observe(canvas);
+    };
+    window.addEventListener("resize", handleResize, { passive: true });
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     window.addEventListener("mouseleave", handleMouseLeave);
@@ -211,8 +196,7 @@ const ParticleBackground = () => {
 
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-      ro.disconnect();
-      io.disconnect();
+      window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseleave", handleMouseLeave);
       window.removeEventListener(THEME_CHANGE_EVENT, syncTheme);
@@ -220,7 +204,7 @@ const ParticleBackground = () => {
   }, []);
 
   return (
-    <canvas ref={canvasRef} className="pointer-events-none absolute inset-0 block h-full w-full" />
+    <canvas ref={canvasRef} className="pointer-events-none fixed inset-0 block h-full w-full" />
   );
 };
 

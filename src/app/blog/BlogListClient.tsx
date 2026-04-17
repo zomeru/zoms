@@ -164,7 +164,7 @@ const BlogListClient = ({ initialPosts, initialTotal }: BlogListClientProps) => 
         </div>
       )}
 
-      <div className="col-span-full border-code-border border-t pt-8 pb-20 text-center font-mono text-sm text-text-muted md:pb-16">
+      <div className="col-span-full pt-8 text-center font-mono text-sm text-text-muted">
         Showing <span className="text-terminal-blue">{posts.length}</span> of{" "}
         <span className="text-terminal-blue">{total}</span> posts
       </div>

@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
 
 import { navigation } from "@/constants";
+
+const NAV_OFFSET = 100; // px — fixed navbar height
 
 const Navbar = (): React.JSX.Element => {
   const pathname = usePathname();
@@ -12,69 +14,46 @@ const Navbar = (): React.JSX.Element => {
   const [isLoaded, setIsLoaded] = React.useState(false);
 
   const isHomePage = pathname === "/";
+  const isBlogPage = pathname.startsWith("/blog") || pathname === "/privacy";
 
+  // Entrance animation
   React.useEffect(() => {
     setIsLoaded(true);
+  }, []);
 
-    // Only track active section on home page
+  // Track active section via IntersectionObserver (home page only)
+  React.useEffect(() => {
     if (!isHomePage) return;
 
-    let rafId: number | null = null;
+    const sectionIds = navigation.map((nav) => nav.url.replace("/#", ""));
+    const elements = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter(Boolean) as HTMLElement[];
 
-    const handleScroll = (): void => {
-      if (rafId !== null) return;
-      rafId = requestAnimationFrame(() => {
-        rafId = null;
-        const sections = navigation.map((nav) => nav.url.replace("/#", ""));
-
-        for (const section of sections.reverse()) {
-          const element = document.getElementById(section);
-          if (element) {
-            const rect = element.getBoundingClientRect();
-            if (rect.top <= 120) {
-              setActiveSection(section);
-              break;
-            }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
           }
         }
-      });
-    };
+      },
+      // Fires when section crosses 100px from top (accounts for fixed navbar)
+      { rootMargin: `-${NAV_OFFSET}px 0px -60% 0px`, threshold: 0 }
+    );
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (rafId !== null) cancelAnimationFrame(rafId);
-    };
+    for (const el of elements) observer.observe(el);
+    return () => observer.disconnect();
   }, [isHomePage]);
 
-  const handleNavClick = (
-    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
-    sectionId: string
-  ): void => {
-    // Only prevent default and smooth scroll on home page
-    if (isHomePage) {
-      e.preventDefault();
-
-      const element = document.getElementById(sectionId);
-      const offset = 100;
-
-      if (element) {
-        const bodyRect = document.body.getBoundingClientRect().top;
-        const elementRect = element.getBoundingClientRect().top;
-        const elementPosition = elementRect - bodyRect;
-        const offsetPosition = elementPosition - offset;
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: "smooth"
-        });
-
-        setActiveSection(sectionId);
-      }
-    }
-    // On other pages, let Next.js handle the navigation to /#section
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string): void => {
+    if (!isHomePage) return;
+    const el = document.getElementById(sectionId);
+    if (!el) return; // no element = page route, let Next.js handle it
+    e.preventDefault();
+    const top = el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
+    window.scrollTo({ top, behavior: "smooth" });
+    setActiveSection(sectionId);
   };
 
   return (
@@ -84,22 +63,21 @@ const Navbar = (): React.JSX.Element => {
           isLoaded ? "translate-y-0 opacity-100" : "-translate-y-5 opacity-0"
         } border-border/50 bg-background/60`}
       >
-        {/* Logo */}
         <Link href="/" className="flex shrink-0 items-center pr-3 pl-2" aria-label="zoms home">
           <span className="font-bold text-lg text-text-primary">zoms</span>
         </Link>
 
-        {/* Desktop Navigation Links */}
+        {/* Desktop */}
         <div className="hidden items-center gap-1 md:flex">
           {navigation.map(({ name, url }) => {
             const sectionId = url.replace("/#", "");
-            const isActive = activeSection === sectionId;
-            const _url = !isHomePage && name === "Blog" ? "/blog" : url;
+            const href = !isHomePage && name === "Blog" ? "/blog" : url;
+            const isActive = isHomePage ? activeSection === sectionId : pathname === href;
 
             return (
               <Link
                 key={url}
-                href={_url}
+                href={href}
                 onClick={(e) => handleNavClick(e, sectionId)}
                 className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
                   isActive
@@ -111,13 +89,26 @@ const Navbar = (): React.JSX.Element => {
               </Link>
             );
           })}
+          {isBlogPage && (
+            <Link
+              href="/privacy"
+              className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
+                pathname === "/privacy"
+                  ? "bg-overlay-strong text-text-primary"
+                  : "text-text-secondary hover:bg-overlay hover:text-text-primary"
+              }`}
+            >
+              Privacy
+            </Link>
+          )}
         </div>
 
-        {/* Mobile Menu Button */}
         <MobileMenu
           activeSection={activeSection}
           onNavClick={handleNavClick}
           isHomePage={isHomePage}
+          isBlogPage={isBlogPage}
+          pathname={pathname}
         />
       </nav>
     </header>
@@ -127,56 +118,55 @@ const Navbar = (): React.JSX.Element => {
 const MobileMenu = ({
   activeSection,
   onNavClick,
-  isHomePage
+  isHomePage,
+  isBlogPage,
+  pathname
 }: {
   activeSection: string;
-  onNavClick: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, sectionId: string) => void;
+  onNavClick: (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => void;
   isHomePage: boolean;
+  isBlogPage: boolean;
+  pathname: string;
 }): React.JSX.Element => {
   const [isOpen, setIsOpen] = React.useState(false);
 
+  // Close on desktop resize
   React.useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        setIsOpen(false);
-      }
+    const close = () => {
+      if (window.innerWidth >= 768) setIsOpen(false);
     };
-
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    window.addEventListener("resize", close);
+    return () => window.removeEventListener("resize", close);
   }, []);
+
+  // Close on route change — pathname is a trigger, not read in body
+  // biome-ignore lint/correctness/useExhaustiveDependencies: pathname triggers close, not consumed
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
   return (
     <>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsOpen((v) => !v)}
         className="ml-1 flex h-8 w-8 items-center justify-center rounded-full text-text-primary transition-colors hover:bg-overlay md:hidden"
         aria-label="Open menu"
         aria-expanded={isOpen}
       >
         <div className="relative flex h-3 w-4 flex-col justify-between">
           <span
-            className={`block h-[1.5px] w-full origin-center rounded-full bg-current transition-all duration-300 ${
-              isOpen ? "translate-y-1.25 rotate-45" : ""
-            }`}
-          ></span>
+            className={`block h-[1.5px] w-full origin-center rounded-full bg-current transition-all duration-300 ${isOpen ? "translate-y-1.25 rotate-45" : ""}`}
+          />
           <span
-            className={`block h-[1.5px] w-full rounded-full bg-current transition-all duration-300 ${
-              isOpen ? "opacity-0" : ""
-            }`}
-          ></span>
+            className={`block h-[1.5px] w-full rounded-full bg-current transition-all duration-300 ${isOpen ? "opacity-0" : ""}`}
+          />
           <span
-            className={`block h-[1.5px] w-full origin-center rounded-full bg-current transition-all duration-300 ${
-              isOpen ? "-translate-y-1.25 -rotate-45" : ""
-            }`}
-          ></span>
+            className={`block h-[1.5px] w-full origin-center rounded-full bg-current transition-all duration-300 ${isOpen ? "-translate-y-1.25 -rotate-45" : ""}`}
+          />
         </div>
       </button>
 
-      {/* Mobile Menu Dropdown */}
       <div
         className={`pointer-events-none fixed top-20 right-0 left-0 flex justify-center transition-all duration-300 md:hidden ${
           isOpen ? "visible opacity-100" : "invisible opacity-0"
@@ -186,20 +176,20 @@ const MobileMenu = ({
           <ul className="space-y-1">
             {navigation.map(({ name, url }) => {
               const sectionId = url.replace("/#", "");
-              const isActive = isHomePage && activeSection === sectionId;
-              const _url = !isHomePage && name === "Blog" ? "/blog" : url;
+              const href = !isHomePage && name === "Blog" ? "/blog" : url;
+              const isActive = isHomePage ? activeSection === sectionId : pathname === href;
 
               return (
                 <li key={url}>
                   <Link
-                    href={_url}
+                    href={href}
                     onClick={(e) => {
                       onNavClick(e, sectionId);
                       setIsOpen(false);
                     }}
                     className={`block rounded-xl px-4 py-2.5 font-medium text-sm transition-all duration-200 ${
                       isActive
-                        ? "bg-surface/80 text-text-primary"
+                        ? "bg-overlay-strong text-text-primary"
                         : "text-text-secondary hover:bg-surface/40 hover:text-text-primary"
                     }`}
                   >
@@ -208,6 +198,21 @@ const MobileMenu = ({
                 </li>
               );
             })}
+            {isBlogPage && (
+              <li>
+                <Link
+                  href="/privacy"
+                  onClick={() => setIsOpen(false)}
+                  className={`block rounded-xl px-4 py-2.5 font-medium text-sm transition-all duration-200 ${
+                    pathname === "/privacy"
+                      ? "bg-overlay-strong text-text-primary"
+                      : "text-text-secondary hover:bg-surface/40 hover:text-text-primary"
+                  }`}
+                >
+                  Privacy
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
       </div>
