@@ -6,6 +6,7 @@ import type React from "react";
 import { TITLE } from "@/constants";
 
 const FOOTER_LINKS = ["github", "linkedin", "instagram", "contact", "privacy"] as const;
+const SOCIAL_LINKS = new Set(["github", "linkedin", "instagram"]);
 
 const Footer: React.FC = (): React.JSX.Element => {
   const pathname = usePathname();
@@ -70,6 +71,20 @@ const Footer: React.FC = (): React.JSX.Element => {
           {FOOTER_LINKS.map((link) => {
             if (link === "privacy" && pathname !== "/privacy" && !pathname?.startsWith("/blog")) {
               return null;
+            }
+
+            if (SOCIAL_LINKS.has(link)) {
+              return (
+                <a
+                  key={link}
+                  href={`/${link}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-text-muted transition-colors hover:text-primary"
+                >
+                  {link}
+                </a>
+              );
             }
 
             return (

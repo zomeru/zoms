@@ -18,6 +18,7 @@ declare global {
 
 const AdBanner = ({ slot, format = "auto", className }: AdBannerProps) => {
   const insRef = useRef<HTMLModElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const tryInit = () => {
@@ -49,9 +50,28 @@ const AdBanner = ({ slot, format = "auto", className }: AdBannerProps) => {
     return () => window.removeEventListener("storage", handler);
   }, []);
 
-  const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+  // Hide wrapper when AdSense marks slot as unfilled to avoid blank placeholder
+  useEffect(() => {
+    const ins = insRef.current;
+    const wrapper = wrapperRef.current;
+    if (!ins || !wrapper) return;
 
-  if (process.env.NODE_ENV === "development") {
+    const observer = new MutationObserver(() => {
+      if (ins.getAttribute("data-ad-status") === "unfilled") {
+        wrapper.style.display = "none";
+      }
+    });
+
+    observer.observe(ins, { attributes: true, attributeFilter: ["data-ad-status"] });
+    return () => observer.disconnect();
+  }, []);
+
+  const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+  const isDev = process.env.NODE_ENV !== "production";
+
+  if (!clientId || !slot) return null;
+
+  if (isDev) {
     return (
       <div
         className={className}
@@ -72,10 +92,8 @@ const AdBanner = ({ slot, format = "auto", className }: AdBannerProps) => {
     );
   }
 
-  if (!clientId || !slot) return null;
-
   return (
-    <div className={className}>
+    <div ref={wrapperRef} className={className}>
       <ins
         ref={insRef}
         className="adsbygoogle"

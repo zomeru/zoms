@@ -22,12 +22,16 @@ interface BlogPostPageProps {
 }
 
 export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
-  const slugs = await getSanityClient().fetch<Array<{ slug: string }>>(
-    `*[_type == "blogPost"]{ "slug": slug.current }`,
-    {},
-    { next: { revalidate: 3600 } }
-  );
-  return slugs;
+  try {
+    const slugs = await getSanityClient().fetch<Array<{ slug: string }>>(
+      `*[_type == "blogPost"]{ "slug": slug.current }`,
+      {},
+      { next: { revalidate: 3600 } }
+    );
+    return slugs;
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
