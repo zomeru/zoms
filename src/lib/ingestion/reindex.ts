@@ -1,4 +1,5 @@
 import type { NormalizedContentDocument } from "@/lib/content/types";
+import { withDbRetry } from "@/lib/db/retry";
 import { toPrismaJsonValue } from "@/lib/json";
 import type { VectorIndexClient, VectorUpsertRecord } from "@/lib/vector/index";
 
@@ -11,6 +12,7 @@ export interface IndexedDocumentSnapshot {
 
 export interface IndexedDocumentStore {
   getByDocumentId: (documentId: string) => Promise<IndexedDocumentSnapshot | null>;
+  listAllHashes?: () => Promise<Map<string, string>>;
   upsert: (input: {
     chunkCount: number;
     contentHash: string;
@@ -64,43 +66,93 @@ function toVectorRecords(
   }));
 }
 
+async function mapLimit<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T, index: number) => Promise<R>
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let cursor = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (true) {
+      const i = cursor++;
+      if (i >= items.length) return;
+      // biome-ignore lint/style/noNonNullAssertion: bounded index
+      results[i] = await fn(items[i]!, i);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
 export async function reindexDocuments(
   input: ReindexDocumentsInput
 ): Promise<ReindexDocumentsResult> {
-  const results = await Promise.all(
+  // Single SELECT of all existing hashes — avoids N findUnique roundtrips.
+  const hashMap = (await input.indexedDocumentStore.listAllHashes?.()) ?? new Map<string, string>();
+
+  // Classify: skip unchanged, collect changed with pre-computed chunks.
+  type Changed = {
+    chunks: Awaited<ReturnType<typeof chunkDocument>>;
+    contentHash: string;
+    document: NormalizedContentDocument;
+  };
+
+  const changed: Changed[] = [];
+  let skipped = 0;
+
+  await Promise.all(
     input.documents.map(async (document) => {
       const contentHash = createDocumentHash(document);
-      const existing = await input.indexedDocumentStore.getByDocumentId(document.documentId);
+      const existing = hashMap.get(document.documentId);
 
-      if (existing?.contentHash === contentHash) {
-        return "skipped" as const;
+      if (existing === contentHash) {
+        skipped++;
+        return;
       }
 
       const chunks = await chunkDocument(document);
-
-      await input.vectorClient.deleteByPrefix(createDocumentVectorPrefix(document.documentId));
-      await input.vectorClient.upsert(toVectorRecords(document, chunks));
-      await input.indexedDocumentStore.upsert({
-        chunkCount: chunks.length,
-        contentHash,
-        contentType: document.contentType,
-        documentId: document.documentId,
-        publishedAt: document.publishedAt,
-        slug: document.slug,
-        sourceMeta: document.sourceMeta,
-        tags: document.tags,
-        title: document.title,
-        url: document.url
-      });
-
-      return "updated" as const;
+      changed.push({ chunks, contentHash, document });
     })
   );
 
+  if (changed.length === 0) {
+    return {
+      processed: input.documents.length,
+      skipped,
+      updated: 0
+    };
+  }
+
+  // Clear + upsert metadata rows in parallel (bounded). Must finish before embedding UPDATE
+  // since the vector UPDATE targets rows by documentId.
+  await mapLimit(changed, 5, async ({ chunks, contentHash, document }) => {
+    await input.vectorClient.deleteByPrefix(createDocumentVectorPrefix(document.documentId));
+    await input.indexedDocumentStore.upsert({
+      chunkCount: chunks.length,
+      contentHash,
+      contentType: document.contentType,
+      documentId: document.documentId,
+      publishedAt: document.publishedAt,
+      slug: document.slug,
+      sourceMeta: document.sourceMeta,
+      tags: document.tags,
+      title: document.title,
+      url: document.url
+    });
+  });
+
+  // Single vectorClient.upsert call with all chunks — lets the implementation batch
+  // embedding calls (one HTTP round-trip for up to 32 docs) and parallelize UPDATEs.
+  const vectorRecords = changed.flatMap(({ chunks, document }) =>
+    toVectorRecords(document, chunks)
+  );
+  await input.vectorClient.upsert(vectorRecords);
+
   return {
     processed: input.documents.length,
-    skipped: results.filter((result) => result === "skipped").length,
-    updated: results.filter((result) => result === "updated").length
+    skipped,
+    updated: changed.length
   };
 }
 
@@ -161,10 +213,14 @@ export async function runSiteReindex(
         return IndexedContentType.PROJECT;
     }
   };
-  const run = await repositories.createIngestionRun({
-    mode: options.documentId ? IngestionMode.TARGETED : IngestionMode.FULL,
-    targetDocumentId: options.documentId
-  });
+  const run = await withDbRetry(
+    () =>
+      repositories.createIngestionRun({
+        mode: options.documentId ? IngestionMode.TARGETED : IngestionMode.FULL,
+        targetDocumentId: options.documentId
+      }),
+    { label: "createIngestionRun" }
+  );
 
   try {
     const legacyExperienceDocumentIds = filteredDocuments
@@ -178,18 +234,21 @@ export async function runSiteReindex(
       .filter((documentId): documentId is string => Boolean(documentId));
     const vectorClient = getVectorIndexClient();
 
-    await Promise.all(
-      legacyExperienceDocumentIds.map(async (documentId) => {
-        await vectorClient.deleteByPrefix(createDocumentVectorPrefix(documentId));
-        await repositories.deleteIndexedDocument(documentId);
-      })
-    );
+    for (const documentId of legacyExperienceDocumentIds) {
+      await vectorClient.deleteByPrefix(createDocumentVectorPrefix(documentId));
+      await withDbRetry(() => repositories.deleteIndexedDocument(documentId), {
+        label: "deleteIndexedDocument"
+      });
+    }
 
     const result = await reindexDocuments({
       documents: filteredDocuments,
       indexedDocumentStore: {
         async getByDocumentId(documentId) {
-          const indexedDocument = await repositories.getIndexedDocument(documentId);
+          const indexedDocument = await withDbRetry(
+            () => repositories.getIndexedDocument(documentId),
+            { label: "getIndexedDocument" }
+          );
 
           return indexedDocument
             ? {
@@ -197,41 +256,65 @@ export async function runSiteReindex(
               }
             : null;
         },
-        async upsert(document) {
-          await repositories.upsertIndexedDocument({
-            chunkCount: document.chunkCount,
-            contentHash: document.contentHash,
-            contentType: mapContentType(document.contentType),
-            documentId: document.documentId,
-            ingestionRunId: run.id,
-            publishedAt: document.publishedAt ? new Date(document.publishedAt) : undefined,
-            slug: document.slug,
-            sourceMeta: toPrismaJsonValue(document.sourceMeta),
-            tags: document.tags,
-            title: document.title,
-            url: document.url
+        async listAllHashes() {
+          return await withDbRetry(() => repositories.listIndexedDocumentHashes(), {
+            label: "listIndexedDocumentHashes"
           });
+        },
+        async upsert(document) {
+          await withDbRetry(
+            () =>
+              repositories.upsertIndexedDocument({
+                chunkCount: document.chunkCount,
+                contentHash: document.contentHash,
+                contentType: mapContentType(document.contentType),
+                documentId: document.documentId,
+                ingestionRunId: run.id,
+                publishedAt: document.publishedAt ? new Date(document.publishedAt) : undefined,
+                slug: document.slug,
+                sourceMeta: toPrismaJsonValue(document.sourceMeta),
+                tags: document.tags,
+                title: document.title,
+                url: document.url
+              }),
+            { label: "upsertIndexedDocument" }
+          );
         }
       },
       vectorClient
     });
 
-    await repositories.finishIngestionRun({
-      id: run.id,
-      status: IngestionStatus.SUCCEEDED,
-      summary: toPrismaJsonValue(result)
-    });
+    await withDbRetry(
+      () =>
+        repositories.finishIngestionRun({
+          id: run.id,
+          status: IngestionStatus.SUCCEEDED,
+          summary: toPrismaJsonValue(result)
+        }),
+      { label: "finishIngestionRun" }
+    );
 
     return {
       ...result,
       runId: run.id
     };
   } catch (error) {
-    await repositories.finishIngestionRun({
-      errorMessage: error instanceof Error ? error.message : String(error),
-      id: run.id,
-      status: IngestionStatus.FAILED
-    });
+    try {
+      await withDbRetry(
+        () =>
+          repositories.finishIngestionRun({
+            errorMessage: error instanceof Error ? error.message : String(error),
+            id: run.id,
+            status: IngestionStatus.FAILED
+          }),
+        { label: "finishIngestionRun(failed)" }
+      );
+    } catch (finishErr) {
+      console.warn(
+        "[reindex] failed to mark ingestion run as failed:",
+        finishErr instanceof Error ? finishErr.message : String(finishErr)
+      );
+    }
 
     throw error;
   }

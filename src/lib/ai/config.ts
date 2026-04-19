@@ -13,16 +13,13 @@ export interface AiConfig {
   openRouter: {
     apiKey: string;
     chatModel: string;
+    embeddingModel: string;
   };
   redis: {
     token: string;
     url: string;
   };
   siteUrl?: string;
-  vector: {
-    token: string;
-    url: string;
-  };
 }
 
 function toConfig(env: AiEnv): AiConfig {
@@ -36,17 +33,14 @@ function toConfig(env: AiEnv): AiConfig {
     },
     openRouter: {
       apiKey: env.OPENROUTER_API_KEY,
-      chatModel: env.OPENROUTER_CHAT_MODEL
+      chatModel: env.OPENROUTER_CHAT_MODEL,
+      embeddingModel: env.OPENROUTER_EMBEDDING_MODEL
     },
     redis: {
       token: env.UPSTASH_REDIS_REST_TOKEN,
       url: env.UPSTASH_REDIS_REST_URL
     },
-    siteUrl: env.NEXT_PUBLIC_SITE_URL,
-    vector: {
-      token: env.UPSTASH_VECTOR_REST_TOKEN,
-      url: env.UPSTASH_VECTOR_REST_URL
-    }
+    siteUrl: env.NEXT_PUBLIC_SITE_URL
   };
 }
 

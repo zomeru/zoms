@@ -16,11 +16,13 @@
     "test:unit": "tsx ./scripts/run-vitest.ts",
     "test:all": "pnpm run check && pnpm run test:unit",
     "test:all:build": "pnpm run test:all && pnpm run build",
-    "prisma:generate": "tsx ./scripts/prisma-generate.ts",
-    "prisma:generate:prod": "tsx ./scripts/prisma-generate-prod.ts",
-    "prisma:deploy": "prisma migrate deploy",
-    "prisma:migrate": "tsx ./scripts/prisma-migrate.ts",
-    "prisma:migrate:prod": "tsx ./scripts/prisma-migrate-prod.ts",
+    "db:generate": "tsx ./scripts/prisma-generate.ts",
+    "db:generate:prod": "tsx ./scripts/prisma-generate-prod.ts",
+    "db:deploy": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset --force && pnpm run db:generate",
+    "db:truncate": "tsx ./scripts/prisma-truncate.ts",
+    "db:migrate": "tsx ./scripts/prisma-migrate.ts",
+    "db:migrate:prod": "tsx ./scripts/prisma-migrate-prod.ts",
     "ai:reindex": "tsx src/lib/ingestion/cli.ts",
     "ai:reset": "tsx ./scripts/ai-reset.ts",
     "ai:reindex:prod": "tsx ./scripts/ai-reindex-prod.ts",
@@ -34,18 +36,16 @@
   },
   "dependencies": {
     "@google/genai": "^1.50.1",
-    "@langchain/textsplitters": "^1.0.1",
-    "@neondatabase/serverless": "^1.0.2",
     "@openrouter/ai-sdk-provider": "^2.8.0",
     "@portabletext/react": "^6.0.3",
     "@portabletext/types": "^4.0.2",
-    "@prisma/adapter-neon": "^7.7.0",
+    "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
     "@rehype-pretty/transformers": "^0.13.2",
     "@sanity/client": "^7.21.0",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.37.0",
-    "@upstash/vector": "^1.2.3",
+    "pg": "^8.16.3",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "ai": "^6.0.168",
@@ -72,7 +72,6 @@
     "server-only": "^0.0.1",
     "supermemory": "^4.21.1",
     "unified": "^11.0.5",
-    "ws": "^8.20.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -84,7 +83,7 @@
     "@types/node": "25.6.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "@types/ws": "^8.18.1",
+    "@types/pg": "^8.15.4",
     "@vitest/coverage-v8": "^4.1.4",
     "audit-ci": "^7.1.0",
     "autoprefixer": "^10.5.0",
@@ -108,9 +107,6 @@
   },
   "packageManager": "pnpm@10.33.0",
   "engines": {
-    "node": "24.x.x"
-  },
-  "volta": {
     "node": "24.x.x"
   },
   "pnpm": {

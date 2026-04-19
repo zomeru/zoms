@@ -32,7 +32,6 @@ describe("AI reindex CLI", () => {
     expect(source).toContain('prisma", "migrate", "reset", "--force"');
     expect(source).toContain("const existingSessionKeys = await prisma.chatSession.findMany");
     expect(source).toContain("redis.flushdb()");
-    expect(source).toContain("vectorIndex.reset({ all: true })");
     expect(source).toContain("client.memories.forget({");
     expect(source).toContain('tsx", "src/lib/ingestion/cli.ts');
   });

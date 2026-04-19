@@ -1,8 +1,8 @@
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface } from "node:readline/promises";
-import { PrismaNeon } from "@prisma/adapter-neon";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { Redis } from "@upstash/redis";
-import { Index } from "@upstash/vector";
+import { Pool } from "pg";
 import Supermemory from "supermemory";
 
 import { PrismaClient } from "@/generated/prisma/client";
@@ -15,7 +15,6 @@ async function confirmReset(): Promise<boolean> {
     "This will permanently reset the local assistant data sources:",
     "- Prisma database via `prisma migrate reset --force`",
     "- Upstash Redis via `flushdb()`",
-    "- Upstash Vector via `reset({ all: true })`",
     "- Supermemory chat-session memories (when `SUPERMEMORY_API_KEY` is set)",
     "- Then run a full `ai:reindex`",
     "",
@@ -34,9 +33,11 @@ async function confirmReset(): Promise<boolean> {
 }
 
 async function getExistingSessionKeys(databaseUrl: string): Promise<string[]> {
-  const adapter = new PrismaNeon({
-    connectionString: databaseUrl
+  const pool = new Pool({
+    connectionString: databaseUrl,
+    ssl: { rejectUnauthorized: false }
   });
+  const adapter = new PrismaPg(pool);
   const prisma = new PrismaClient({ adapter });
 
   try {
@@ -49,6 +50,7 @@ async function getExistingSessionKeys(databaseUrl: string): Promise<string[]> {
     return existingSessionKeys.map(({ sessionKey }) => sessionKey);
   } finally {
     await prisma.$disconnect();
+    await pool.end();
   }
 }
 
@@ -105,21 +107,13 @@ async function main(): Promise<void> {
     process.exit(prismaResetResult.status ?? 1);
   }
 
-  console.log("Clearing Upstash Redis and Vector...");
+  console.log("Clearing Upstash Redis...");
   const redis = new Redis({
     token: aiEnv.UPSTASH_REDIS_REST_TOKEN,
     url: aiEnv.UPSTASH_REDIS_REST_URL
   });
   await redis.flushdb();
   console.log("Upstash Redis cleared.");
-
-  console.log("Resetting Upstash Vector index...");
-  const vectorIndex = new Index({
-    token: aiEnv.UPSTASH_VECTOR_REST_TOKEN,
-    url: aiEnv.UPSTASH_VECTOR_REST_URL
-  });
-  await vectorIndex.reset({ all: true });
-  console.log("Upstash Vector index reset.");
 
   await clearSupermemorySessionMemories(existingSessionKeys, aiEnv.SUPERMEMORY_API_KEY);
 

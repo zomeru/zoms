@@ -15,11 +15,10 @@ const aiEnvSchema = z.object({
   NEXT_PUBLIC_SITE_URL: z.string().trim().min(1).optional(),
   OPENROUTER_API_KEY: requiredString("OPENROUTER_API_KEY"),
   OPENROUTER_CHAT_MODEL: requiredString("OPENROUTER_CHAT_MODEL"),
+  OPENROUTER_EMBEDDING_MODEL: requiredString("OPENROUTER_EMBEDDING_MODEL"),
   SUPERMEMORY_API_KEY: z.string().trim().min(1).optional(),
   UPSTASH_REDIS_REST_TOKEN: requiredString("UPSTASH_REDIS_REST_TOKEN"),
-  UPSTASH_REDIS_REST_URL: requiredString("UPSTASH_REDIS_REST_URL"),
-  UPSTASH_VECTOR_REST_TOKEN: requiredString("UPSTASH_VECTOR_REST_TOKEN"),
-  UPSTASH_VECTOR_REST_URL: requiredString("UPSTASH_VECTOR_REST_URL")
+  UPSTASH_REDIS_REST_URL: requiredString("UPSTASH_REDIS_REST_URL")
 });
 
 export type AiEnv = z.infer<typeof aiEnvSchema>;
@@ -52,4 +51,8 @@ let cachedEnv: AiEnv | undefined;
 export function getAiEnv(): AiEnv {
   cachedEnv ??= parseAiEnv(process.env);
   return cachedEnv;
+}
+
+export function getEmbeddingModel(env: AiEnv): string {
+  return env.OPENROUTER_EMBEDDING_MODEL;
 }
