@@ -20,8 +20,7 @@ if (!siteUrl) {
 }
 export const SITE_URL = siteUrl;
 
-export const description =
-  "Software Engineer from the Philippines building full-stack products with React, TypeScript, Next.js, and AI.";
+export const description = `Hi, I'm ${TITLE}, a Software Engineer from the Philippines building full-stack products with React, TypeScript, Next.js, and AI.`;
 
 export const staticOgImages: Record<"home" | "blog", StaticOgImageContent> = {
   home: {
@@ -41,10 +40,10 @@ export const staticOgImages: Record<"home" | "blog", StaticOgImageContent> = {
 
 export const seo: Metadata = {
   title: {
-    default: TITLE,
+    default: `${TITLE} | Software Engineer`,
     template: `%s | ${TITLE}`
   },
-  description: `Hi, I'm ${TITLE}, a ${description}`,
+  description,
   metadataBase: new URL(SITE_URL),
   alternates: {
     canonical: "/",
@@ -60,6 +59,9 @@ export const seo: Metadata = {
   },
   creator: TITLE,
   authors: [{ name: TITLE, url: SITE_URL }],
+  verification: {
+    yandex: "562fe148132d2334"
+  },
   openGraph: {
     url: SITE_URL,
     title: TITLE,

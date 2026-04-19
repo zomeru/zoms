@@ -229,6 +229,13 @@ describe("content normalization and ingestion", () => {
 
         return null;
       }),
+      listAllHashes: vi.fn(
+        async () =>
+          new Map<string, string>([
+            [unchanged.documentId, createDocumentHash(unchanged)],
+            [changed.documentId, "outdated-hash"]
+          ])
+      ),
       upsert: vi.fn(async () => undefined)
     };
 

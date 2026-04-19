@@ -5,8 +5,10 @@ import {
   IngestionStatus,
   type Prisma
 } from "@/generated/prisma/client";
+import { generateEmbedding } from "@/lib/vector/index";
 
 import { getPrismaClient } from "./prisma";
+import { withDbRetry } from "./retry";
 
 export interface ChatSessionInput {
   blogSlugHint?: string;
@@ -51,9 +53,83 @@ function getDb() {
 
 export const repositories = {
   async createChatMessage(input: ChatMessageInput) {
-    return await getDb().chatMessage.create({
+    const message = await getDb().chatMessage.create({
       data: input
     });
+
+    // Fire-and-forget embedding so retrieval doesn't block the response stream.
+    // Failures are swallowed — a message without an embedding simply won't surface in
+    // future semantic searches.
+    void (async () => {
+      try {
+        const embedding = await generateEmbedding(input.content);
+        const vectorStr = `[${embedding.join(",")}]`;
+        await withDbRetry(
+          () =>
+            getDb().$executeRawUnsafe(
+              `UPDATE "ChatMessage" SET embedding = $1::vector WHERE id = $2`,
+              vectorStr,
+              message.id
+            ),
+          { label: "embedChatMessage" }
+        );
+      } catch (err) {
+        console.warn(
+          "[embedChatMessage] failed:",
+          err instanceof Error ? err.message : String(err)
+        );
+      }
+    })();
+
+    return message;
+  },
+
+  async searchChatMessages(input: { limit: number; query: string; sessionKey: string }): Promise<
+    Array<{
+      content: string;
+      createdAt: Date;
+      id: string;
+      role: ChatMessageRole;
+    }>
+  > {
+    if (input.sessionKey.length === 0) return [];
+
+    const embedding = await generateEmbedding(input.query);
+    const vectorStr = `[${embedding.join(",")}]`;
+
+    const rows = await withDbRetry(
+      () =>
+        getDb().$queryRawUnsafe<
+          Array<{
+            content: string;
+            createdAt: Date;
+            id: string;
+            role: string;
+          }>
+        >(
+          `SELECT cm.id, cm.role::text AS role, cm.content, cm."createdAt"
+           FROM "ChatMessage" cm
+           JOIN "ChatSession" cs ON cs.id = cm."sessionId"
+           WHERE cs."sessionKey" = $1
+             AND cm.embedding IS NOT NULL
+           ORDER BY cm.embedding <=> $2::vector
+           LIMIT $3`,
+          input.sessionKey,
+          vectorStr,
+          input.limit
+        ),
+      { label: "searchChatMessages" }
+    );
+
+    // Order by createdAt ascending so the conversation reads chronologically in the prompt.
+    return rows
+      .map((row) => ({
+        content: row.content,
+        createdAt: row.createdAt,
+        id: row.id,
+        role: row.role as ChatMessageRole
+      }))
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
   },
 
   async createIngestionRun(input: IngestionRunInput) {
@@ -194,6 +270,16 @@ export const repositories = {
         documentId
       }
     });
+  },
+
+  async listIndexedDocumentHashes(): Promise<Map<string, string>> {
+    const rows = await getDb().indexedDocument.findMany({
+      select: {
+        contentHash: true,
+        documentId: true
+      }
+    });
+    return new Map(rows.map((row) => [row.documentId, row.contentHash]));
   },
 
   async touchChatSession(input: ChatSessionInput) {

@@ -85,9 +85,12 @@ Run these from the repository root:
 - `pnpm test:unit`: run Vitest unit tests
 - `pnpm test:all`: run format + lint + types + unit tests
 - `pnpm test:all:build`: run `test:all` then `build`
-- `pnpm prisma:generate`: generate Prisma client
-- `pnpm prisma:migrate`: create/apply SQL migrations
-- `pnpm ai:reindex`: index content into Upstash Vector (local CLI)
+- `pnpm db:generate`: generate Prisma client
+- `pnpm db:migrate`: create/apply SQL migrations (dev)
+- `pnpm db:deploy`: apply pending migrations (prod-style, no prompts)
+- `pnpm db:reset`: `prisma migrate reset --force` then regenerate client
+- `pnpm db:truncate`: truncate tables without dropping the schema
+- `pnpm ai:reindex`: index content into Supabase pgvector (local CLI, uses DIRECT_URL)
 - `pnpm ai:reset`: reset AI/vector state
 - `pnpm sanity:seed:projects`: seed Sanity with project data
 - `pnpm studio:dev`: start Sanity Studio
@@ -128,7 +131,8 @@ Before concluding substantial code changes:
 - Run `pnpm test:all` at minimum for normal app code changes.
 - Run `pnpm test:all:build` when changes affect routes, metadata, server code, config, or rendering behavior.
 - Run `pnpm studio:build` when changing files inside `studio/`.
-- Run `pnpm prisma:generate` after changing `prisma/schema.prisma`.
+- Run `pnpm db:generate` after changing `prisma/schema.prisma`.
+- When creating a vector-related migration, use `prisma migrate dev --create-only` and review the SQL — Prisma does not understand HNSW indexes and will propose DROP INDEX statements for them. Remove any such drops before applying.
 
 If you cannot run a relevant check, say so explicitly.
 

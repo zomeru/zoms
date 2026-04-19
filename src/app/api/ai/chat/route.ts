@@ -96,10 +96,17 @@ export async function POST(request: NextRequest): Promise<Response> {
       pathnameHint: input.pathname,
       sessionKey
     });
+    // RAG over chat history: semantic search scoped to the current session instead of
+    // blindly feeding the last N messages. Returns results chronologically so the prompt
+    // still reads as a conversation.
     const previousMessages =
       isNew || sessionKey.length === 0
         ? []
-        : await repositories.getRecentChatMessages(sessionKey, 4);
+        : await repositories.searchChatMessages({
+            limit: 6,
+            query: input.question,
+            sessionKey
+          });
     const conversationHistory = buildConversationHistory(mapStoredMessages(previousMessages));
     const followUpQuery = isFollowUpQuery(input.question);
     let memoryContext = "";

@@ -7,6 +7,14 @@ datasource db {
   provider = "postgresql"
 }
 
+// pgvector NOTE:
+// `embedding Unsupported("vector(1536)")?` columns are declared here so Prisma is aware they
+// exist, but all vector-related SQL (column type, HNSW indexes, `<=>` queries) is managed
+// via raw-SQL migrations under prisma/migrations/*_pgvector_*/ and *_chatmessage_embedding/.
+// Prisma does NOT understand HNSW, so `prisma migrate dev` will propose DROP INDEX for any
+// HNSW index it sees. Always run with `--create-only` and review the generated SQL — delete
+// any DropIndex statements for *_hnsw_idx before applying.
+
 enum ChatMessageRole {
   USER
   ASSISTANT
@@ -57,6 +65,7 @@ model ChatMessage {
   model                     String?
   createdAt                 DateTime          @default(now())
   updatedAt                 DateTime          @updatedAt
+  embedding                 Unsupported("vector(1536)")?
   session                   ChatSession       @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   retrievalEventsAsUser     RetrievalEvent[]  @relation("RetrievalUserMessage")
   retrievalEventsAsAssistant RetrievalEvent[] @relation("RetrievalAssistantMessage")
@@ -111,8 +120,10 @@ model IndexedDocument {
   contentHash   String
   chunkCount    Int                @default(0)
   sourceMeta    Json
+  content       String?            @db.Text
   lastIndexedAt DateTime           @default(now())
   ingestionRunId String?
+  embedding     Unsupported("vector(1536)")?
   ingestionRun  IngestionRun?      @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
 
   @@index([contentType, publishedAt(sort: Desc)])

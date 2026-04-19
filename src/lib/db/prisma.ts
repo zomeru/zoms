@@ -1,4 +1,5 @@
-import { PrismaNeon } from "@prisma/adapter-neon";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 import { PrismaClient } from "@/generated/prisma/client";
 
 import { getAiEnv } from "@/lib/ai/env";
@@ -9,9 +10,29 @@ declare global {
 
 function createPrismaClient(): PrismaClient {
   const env = getAiEnv();
-  const adapter = new PrismaNeon({
-    connectionString: env.DATABASE_URL
+  const useDirect = process.env.PRISMA_USE_DIRECT_URL === "1";
+  const connectionString = useDirect ? env.DIRECT_URL : env.DATABASE_URL;
+
+  try {
+    const url = new URL(connectionString);
+    console.log(
+      `[prisma] connecting via ${useDirect ? "DIRECT_URL" : "DATABASE_URL"} → ${url.host}`
+    );
+  } catch {
+    // Non-fatal; continue
+  }
+
+  const pool = new Pool({
+    connectionString,
+    ssl: { rejectUnauthorized: false },
+    max: useDirect ? 3 : 10,
+    idleTimeoutMillis: 30_000,
+    connectionTimeoutMillis: 15_000
   });
+  pool.on("error", (err) => {
+    console.warn("[prisma pool] idle client error:", err.message);
+  });
+  const adapter = new PrismaPg(pool);
 
   return new PrismaClient({
     adapter,
