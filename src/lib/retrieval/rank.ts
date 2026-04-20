@@ -20,6 +20,19 @@ function calculateRecencyBoost(publishedAt?: string): number {
   return freshness * 0.15;
 }
 
+const EXPERIENCE_ORDER_CAP = 10;
+
+function calculateExperienceOrderBoost(
+  contentType: RetrievedChunk["contentType"],
+  orderIndex: number | undefined
+): number {
+  if (contentType !== "experience" || orderIndex === undefined || orderIndex < 0) {
+    return 0;
+  }
+  const normalized = Math.min(orderIndex, EXPERIENCE_ORDER_CAP) / EXPERIENCE_ORDER_CAP;
+  return normalized * 0.15;
+}
+
 function calculateTitleBoost(title: string, exactQuery: string, queryTokens: string[]): number {
   let boost = 0;
 
@@ -99,7 +112,8 @@ export function rankRetrievedChunks(input: {
         calculateSectionBoost(sectionTitle, queryTokens) +
         calculateContentTypeBoost(match.contentType, input.classification) +
         calculateCurrentPageBoost(input.currentBlogSlug, match.slug) +
-        calculateRecencyBoost(match.publishedAt);
+        calculateRecencyBoost(match.publishedAt) +
+        calculateExperienceOrderBoost(match.contentType, match.orderIndex);
 
       return {
         ...match,

@@ -53,13 +53,13 @@ function getDb() {
 
 export const repositories = {
   async createChatMessage(input: ChatMessageInput) {
-    const message = await getDb().chatMessage.create({
-      data: input
+    const message = await withDbRetry(() => getDb().chatMessage.create({ data: input }), {
+      label: "createChatMessage"
     });
 
     // Fire-and-forget embedding so retrieval doesn't block the response stream.
-    // Failures are swallowed — a message without an embedding simply won't surface in
-    // future semantic searches.
+    // Failures are swallowed — a message without an embedding simply won't surface
+    // in future semantic searches.
     void (async () => {
       try {
         const embedding = await generateEmbedding(input.content);
@@ -67,7 +67,7 @@ export const repositories = {
         await withDbRetry(
           () =>
             getDb().$executeRawUnsafe(
-              `UPDATE "ChatMessage" SET embedding = $1::vector WHERE id = $2`,
+              `UPDATE "ChatMessage" SET embedding = $1::halfvec WHERE id = $2`,
               vectorStr,
               message.id
             ),
@@ -112,7 +112,7 @@ export const repositories = {
            JOIN "ChatSession" cs ON cs.id = cm."sessionId"
            WHERE cs."sessionKey" = $1
              AND cm.embedding IS NOT NULL
-           ORDER BY cm.embedding <=> $2::vector
+           ORDER BY cm.embedding <=> $2::halfvec
            LIMIT $3`,
           input.sessionKey,
           vectorStr,
@@ -121,7 +121,7 @@ export const repositories = {
       { label: "searchChatMessages" }
     );
 
-    // Order by createdAt ascending so the conversation reads chronologically in the prompt.
+    // Return chronologically so the prompt reads as a conversation.
     return rows
       .map((row) => ({
         content: row.content,
@@ -133,13 +133,17 @@ export const repositories = {
   },
 
   async createIngestionRun(input: IngestionRunInput) {
-    return await getDb().ingestionRun.create({
-      data: {
-        mode: input.mode,
-        status: IngestionStatus.RUNNING,
-        targetDocumentId: input.targetDocumentId
-      }
-    });
+    return await withDbRetry(
+      () =>
+        getDb().ingestionRun.create({
+          data: {
+            mode: input.mode,
+            status: IngestionStatus.RUNNING,
+            targetDocumentId: input.targetDocumentId
+          }
+        }),
+      { label: "createIngestionRun" }
+    );
   },
 
   async createRetrievalEvent(input: {
@@ -153,19 +157,23 @@ export const repositories = {
     sessionId?: string;
     userMessageId?: string;
   }) {
-    return await getDb().retrievalEvent.create({
-      data: {
-        assistantMessageId: input.assistantMessageId,
-        matchCount: input.matchCount ?? 0,
-        noAnswer: input.noAnswer ?? false,
-        pagePath: input.pagePath,
-        pageSlug: input.pageSlug,
-        payload: input.payload,
-        query: input.query,
-        sessionId: input.sessionId,
-        userMessageId: input.userMessageId
-      }
-    });
+    return await withDbRetry(
+      () =>
+        getDb().retrievalEvent.create({
+          data: {
+            assistantMessageId: input.assistantMessageId,
+            matchCount: input.matchCount ?? 0,
+            noAnswer: input.noAnswer ?? false,
+            pagePath: input.pagePath,
+            pageSlug: input.pageSlug,
+            payload: input.payload,
+            query: input.query,
+            sessionId: input.sessionId,
+            userMessageId: input.userMessageId
+          }
+        }),
+      { label: "createRetrievalEvent" }
+    );
   },
 
   async finishIngestionRun(input: {
@@ -174,165 +182,149 @@ export const repositories = {
     status: IngestionStatus;
     summary?: Prisma.InputJsonValue;
   }) {
-    return await getDb().ingestionRun.update({
-      where: {
-        id: input.id
-      },
-      data: {
-        errorMessage: input.errorMessage,
-        finishedAt: new Date(),
-        status: input.status,
-        summary: input.summary
-      }
-    });
+    return await withDbRetry(
+      () =>
+        getDb().ingestionRun.update({
+          where: { id: input.id },
+          data: {
+            errorMessage: input.errorMessage,
+            finishedAt: new Date(),
+            status: input.status,
+            summary: input.summary
+          }
+        }),
+      { label: "finishIngestionRun" }
+    );
   },
 
   async deleteIndexedDocument(documentId: string) {
-    await getDb().indexedDocument.deleteMany({
-      where: {
-        documentId
-      }
+    await withDbRetry(() => getDb().indexedDocument.deleteMany({ where: { documentId } }), {
+      label: "deleteIndexedDocument"
     });
   },
 
   async getChatSession(sessionKey: string) {
-    return await getDb().chatSession.findUnique({
-      where: {
-        sessionKey
-      },
-      include: {
-        messages: {
-          orderBy: {
-            createdAt: "asc"
-          }
-        }
-      }
-    });
+    return await withDbRetry(
+      () =>
+        getDb().chatSession.findUnique({
+          where: { sessionKey },
+          include: { messages: { orderBy: { createdAt: "asc" } } }
+        }),
+      { label: "getChatSession" }
+    );
   },
 
   async getChatHistoryPage(sessionKey: string, input: { limit: number; offset: number }) {
-    const where = {
-      session: {
-        sessionKey
-      }
-    } as const;
+    const where = { session: { sessionKey } } as const;
 
-    const [messages, total] = await Promise.all([
-      getDb().chatMessage.findMany({
-        orderBy: [
-          {
-            createdAt: "desc"
-          },
-          {
-            id: "desc"
-          }
-        ],
-        skip: input.offset,
-        take: input.limit,
-        where
-      }),
-      getDb().chatMessage.count({
-        where
-      })
-    ]);
+    return await withDbRetry(
+      async () => {
+        const [messages, total] = await Promise.all([
+          getDb().chatMessage.findMany({
+            orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+            skip: input.offset,
+            take: input.limit,
+            where
+          }),
+          getDb().chatMessage.count({ where })
+        ]);
 
-    return {
-      hasMore: input.offset + messages.length < total,
-      messages: messages.reverse(),
-      total
-    };
+        return {
+          hasMore: input.offset + messages.length < total,
+          messages: messages.reverse(),
+          total
+        };
+      },
+      { label: "getChatHistoryPage" }
+    );
   },
 
   async getRecentChatMessages(sessionKey: string, limit: number) {
-    const messages = await getDb().chatMessage.findMany({
-      orderBy: [
-        {
-          createdAt: "desc"
-        },
-        {
-          id: "desc"
-        }
-      ],
-      take: limit,
-      where: {
-        session: {
-          sessionKey
-        }
-      }
-    });
+    const messages = await withDbRetry(
+      () =>
+        getDb().chatMessage.findMany({
+          orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+          take: limit,
+          where: { session: { sessionKey } }
+        }),
+      { label: "getRecentChatMessages" }
+    );
 
     return messages.reverse();
   },
 
   async getIndexedDocument(documentId: string) {
-    return await getDb().indexedDocument.findUnique({
-      where: {
-        documentId
-      }
+    return await withDbRetry(() => getDb().indexedDocument.findUnique({ where: { documentId } }), {
+      label: "getIndexedDocument"
     });
   },
 
   async listIndexedDocumentHashes(): Promise<Map<string, string>> {
-    const rows = await getDb().indexedDocument.findMany({
-      select: {
-        contentHash: true,
-        documentId: true
-      }
-    });
+    const rows = await withDbRetry(
+      () =>
+        getDb().indexedDocument.findMany({
+          select: { contentHash: true, documentId: true }
+        }),
+      { label: "listIndexedDocumentHashes" }
+    );
     return new Map(rows.map((row) => [row.documentId, row.contentHash]));
   },
 
   async touchChatSession(input: ChatSessionInput) {
-    return await getDb().chatSession.upsert({
-      where: {
-        sessionKey: input.sessionKey
-      },
-      update: {
-        blogSlugHint: input.blogSlugHint,
-        lastActiveAt: new Date(),
-        pathnameHint: input.pathnameHint
-      },
-      create: {
-        blogSlugHint: input.blogSlugHint,
-        lastActiveAt: new Date(),
-        pathnameHint: input.pathnameHint,
-        sessionKey: input.sessionKey
-      }
-    });
+    return await withDbRetry(
+      () =>
+        getDb().chatSession.upsert({
+          where: { sessionKey: input.sessionKey },
+          update: {
+            blogSlugHint: input.blogSlugHint,
+            lastActiveAt: new Date(),
+            pathnameHint: input.pathnameHint
+          },
+          create: {
+            blogSlugHint: input.blogSlugHint,
+            lastActiveAt: new Date(),
+            pathnameHint: input.pathnameHint,
+            sessionKey: input.sessionKey
+          }
+        }),
+      { label: "touchChatSession" }
+    );
   },
 
   async upsertIndexedDocument(input: IndexedDocumentInput) {
-    return await getDb().indexedDocument.upsert({
-      where: {
-        documentId: input.documentId
-      },
-      update: {
-        chunkCount: input.chunkCount,
-        contentHash: input.contentHash,
-        contentType: input.contentType,
-        ingestionRunId: input.ingestionRunId,
-        lastIndexedAt: input.lastIndexedAt ?? new Date(),
-        publishedAt: input.publishedAt,
-        slug: input.slug,
-        sourceMeta: input.sourceMeta,
-        tags: input.tags ?? [],
-        title: input.title,
-        url: input.url
-      },
-      create: {
-        chunkCount: input.chunkCount,
-        contentHash: input.contentHash,
-        contentType: input.contentType,
-        documentId: input.documentId,
-        ingestionRunId: input.ingestionRunId,
-        lastIndexedAt: input.lastIndexedAt ?? new Date(),
-        publishedAt: input.publishedAt,
-        slug: input.slug,
-        sourceMeta: input.sourceMeta,
-        tags: input.tags ?? [],
-        title: input.title,
-        url: input.url
-      }
-    });
+    return await withDbRetry(
+      () =>
+        getDb().indexedDocument.upsert({
+          where: { documentId: input.documentId },
+          update: {
+            chunkCount: input.chunkCount,
+            contentHash: input.contentHash,
+            contentType: input.contentType,
+            ingestionRunId: input.ingestionRunId,
+            lastIndexedAt: input.lastIndexedAt ?? new Date(),
+            publishedAt: input.publishedAt,
+            slug: input.slug,
+            sourceMeta: input.sourceMeta,
+            tags: input.tags ?? [],
+            title: input.title,
+            url: input.url
+          },
+          create: {
+            chunkCount: input.chunkCount,
+            contentHash: input.contentHash,
+            contentType: input.contentType,
+            documentId: input.documentId,
+            ingestionRunId: input.ingestionRunId,
+            lastIndexedAt: input.lastIndexedAt ?? new Date(),
+            publishedAt: input.publishedAt,
+            slug: input.slug,
+            sourceMeta: input.sourceMeta,
+            tags: input.tags ?? [],
+            title: input.title,
+            url: input.url
+          }
+        }),
+      { label: "upsertIndexedDocument" }
+    );
   }
 };

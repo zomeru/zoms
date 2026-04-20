@@ -52,7 +52,3 @@ export function getAiEnv(): AiEnv {
   cachedEnv ??= parseAiEnv(process.env);
   return cachedEnv;
 }
-
-export function getEmbeddingModel(env: AiEnv): string {
-  return env.OPENROUTER_EMBEDDING_MODEL;
-}

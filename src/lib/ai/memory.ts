@@ -25,8 +25,8 @@ function createSupermemoryClient(): Supermemory | null {
 
   return new Supermemory({
     apiKey: env.SUPERMEMORY_API_KEY,
-    maxRetries: 0,
-    timeout: 5000
+    maxRetries: 2,
+    timeout: 20000
   });
 }
 

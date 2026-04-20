@@ -4,6 +4,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { ChatMessageRole } from "@/generated/prisma/client";
 
 import { buildConversationHistory, mapStoredMessages } from "@/lib/ai/chat/messages";
+import { resolveChatHistoryLimit } from "@/lib/ai/chat/metaQuestion";
 import { resolveGroundedAnswer } from "@/lib/ai/chat/retrieval";
 import {
   AI_CHAT_COOKIE_NAME,
@@ -96,17 +97,11 @@ export async function POST(request: NextRequest): Promise<Response> {
       pathnameHint: input.pathname,
       sessionKey
     });
-    // RAG over chat history: semantic search scoped to the current session instead of
-    // blindly feeding the last N messages. Returns results chronologically so the prompt
-    // still reads as a conversation.
+    const historyLimit = resolveChatHistoryLimit(input.question);
     const previousMessages =
       isNew || sessionKey.length === 0
         ? []
-        : await repositories.searchChatMessages({
-            limit: 6,
-            query: input.question,
-            sessionKey
-          });
+        : await repositories.getRecentChatMessages(sessionKey, historyLimit);
     const conversationHistory = buildConversationHistory(mapStoredMessages(previousMessages));
     const followUpQuery = isFollowUpQuery(input.question);
     let memoryContext = "";

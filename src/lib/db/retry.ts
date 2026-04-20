@@ -7,9 +7,17 @@ const TRANSIENT_DB_ERRORS = [
   "DbHandler exited",
   "Connection ended unexpectedly",
   "terminating connection",
+  "Can't reach database server",
+  "Timed out fetching a new connection from the connection pool",
+  "P1001",
+  "P1002",
+  "P1008",
+  "P1017",
   "ECONNRESET",
   "ETIMEDOUT",
   "EPIPE",
+  "EAI_AGAIN",
+  "ENOTFOUND",
   "socket hang up"
 ];
 

@@ -120,7 +120,7 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
         // biome-ignore lint/security/noDangerouslySetInnerHtml: serializeJsonForScript escapes the JSON-LD payload for a safe inline script.
         dangerouslySetInnerHTML={{ __html: serializeJsonForScript(jsonLd) }}
       />
-      <div className="mx-auto max-w-7xl px-6 pt-20 pb-16 md:px-12">
+      <div className="mx-auto max-w-7xl px-6 md:px-12">
         <Link
           href="/blog"
           className="mb-8 inline-flex items-center gap-2 font-mono text-primary text-sm hover:underline"
@@ -178,7 +178,7 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
           <AdBanner slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_BLOG_POST ?? ""} className="mt-8" />
         </TerminalCard>
 
-        <footer className="mt-8 border-border border-t pt-8 pb-20 md:pb-16">
+        <div className="py-8">
           <Link
             href="/blog"
             className="inline-flex items-center gap-2 font-mono text-primary text-sm hover:underline"
@@ -188,7 +188,7 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
             <span className="text-terminal-blue">→</span>
             <span>back to blog</span>
           </Link>
-        </footer>
+        </div>
       </div>
     </>
   );

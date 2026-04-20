@@ -72,7 +72,6 @@ const repositories = {
   createRetrievalEvent: vi.fn(),
   getChatHistoryPage: vi.fn(),
   getRecentChatMessages: vi.fn(),
-  searchChatMessages: vi.fn(),
   getChatSession: vi.fn(),
   touchChatSession: vi.fn()
 };
@@ -186,7 +185,6 @@ describe("AI routes", () => {
       total: 0
     });
     repositories.getRecentChatMessages.mockResolvedValue([]);
-    repositories.searchChatMessages.mockResolvedValue([]);
     repositories.getChatSession.mockResolvedValue({
       id: "session-db-id",
       sessionKey: "session-key"
@@ -404,7 +402,6 @@ describe("AI routes", () => {
       messages: historyMessages,
       total: 2
     });
-    repositories.searchChatMessages.mockResolvedValueOnce(historyMessages);
 
     const { GET, POST } = await import("@/app/api/ai/chat/route");
 
@@ -479,11 +476,26 @@ describe("AI routes", () => {
       sessionKey: "session-key"
     });
     expect(repositories.getChatSession).not.toHaveBeenCalled();
-    expect(repositories.searchChatMessages).toHaveBeenCalledWith({
-      limit: 6,
-      query: "What stack did it use?",
-      sessionKey: "session-key"
-    });
+    expect(repositories.getRecentChatMessages).toHaveBeenCalledWith("session-key", 12);
+  });
+
+  it("expands chat history window when the user asks a chat-meta question", async () => {
+    const { POST } = await import("@/app/api/ai/chat/route");
+
+    const response = await POST(
+      new NextRequest("http://localhost/api/ai/chat", {
+        body: JSON.stringify({
+          question: "summarize our conversation so far"
+        }),
+        headers: {
+          cookie: "ai_chat_session=session-key"
+        },
+        method: "POST"
+      })
+    );
+
+    expect(response.status).toBe(200);
+    expect(repositories.getRecentChatMessages).toHaveBeenCalledWith("session-key", 50);
   });
 
   it("ignores leaked session keys in the query string and only trusts the chat cookie", async () => {
@@ -534,7 +546,7 @@ describe("AI routes", () => {
 
   it("falls back cleanly when session memory lookup fails", async () => {
     searchSessionMemory.mockRejectedValueOnce(new Error("memory unavailable"));
-    repositories.searchChatMessages.mockResolvedValueOnce([
+    repositories.getRecentChatMessages.mockResolvedValueOnce([
       {
         citations: null,
         content: "Tell me about Batibot.",

@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import type React from "react";
 import { TITLE } from "@/constants";
 
@@ -9,7 +6,6 @@ const FOOTER_LINKS = ["github", "linkedin", "instagram", "contact", "privacy"] a
 const SOCIAL_LINKS = new Set(["github", "linkedin", "instagram"]);
 
 const Footer: React.FC = (): React.JSX.Element => {
-  const pathname = usePathname();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -69,10 +65,6 @@ const Footer: React.FC = (): React.JSX.Element => {
 
         <div className="flex flex-wrap justify-center gap-6 font-mono text-sm">
           {FOOTER_LINKS.map((link) => {
-            if (link === "privacy" && pathname !== "/privacy" && !pathname?.startsWith("/blog")) {
-              return null;
-            }
-
             if (SOCIAL_LINKS.has(link)) {
               return (
                 <a
