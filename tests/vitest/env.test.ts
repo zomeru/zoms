@@ -3,15 +3,13 @@ import { describe, expect, it } from "vitest";
 import { createAiConfig } from "@/lib/ai/config";
 import { parseAiEnv } from "@/lib/ai/env";
 
-const EMBEDDING_MODEL = "nvidia/llama-nemotron-embed-vl-1b-v2";
-
 const createBaseEnv = (): NodeJS.ProcessEnv => ({
   NODE_ENV: "test",
   DATABASE_URL: "postgresql://user:password@localhost:5432/zoms",
   DIRECT_URL: "postgresql://user:password@localhost:5432/zoms_direct",
   OPENROUTER_API_KEY: "openrouter-key",
   OPENROUTER_CHAT_MODEL: "openai/gpt-4.1-mini",
-  OPENROUTER_EMBEDDING_MODEL: EMBEDDING_MODEL,
+  OPENROUTER_EMBEDDING_MODEL: "nvidia/llama-nemotron-embed-vl-1b-v2",
   UPSTASH_REDIS_REST_URL: "https://redis.example.com",
   UPSTASH_REDIS_REST_TOKEN: "redis-token",
   AI_REINDEX_SECRET: "reindex-secret"
@@ -40,18 +38,19 @@ describe("parseAiEnv", () => {
     expect(() => parseAiEnv(env)).toThrow(/UPSTASH_REDIS_REST_TOKEN/i);
   });
 
-  it("throws when embedding model is missing", () => {
+  it("throws when openrouter embedding model is missing", () => {
     const env = createBaseEnv();
     delete env.OPENROUTER_EMBEDDING_MODEL;
 
     expect(() => parseAiEnv(env)).toThrow(/OPENROUTER_EMBEDDING_MODEL/i);
   });
 
-  it("returns chat, database, redis, embedding, and auth config when env vars are valid", () => {
+  it("returns chat, database, redis, openrouter, and auth config when env vars are valid", () => {
     const config = createAiConfig(createBaseEnv());
 
     expect(config.openRouter.chatModel).toBe("openai/gpt-4.1-mini");
-    expect(config.openRouter.embeddingModel).toBe(EMBEDDING_MODEL);
+    expect(config.openRouter.apiKey).toBe("openrouter-key");
+    expect(config.openRouter.embeddingModel).toBe("nvidia/llama-nemotron-embed-vl-1b-v2");
     expect(config.database.directUrl).toBe("postgresql://user:password@localhost:5432/zoms_direct");
     expect(config.auth.reindexSecret).toBe("reindex-secret");
   });

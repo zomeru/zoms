@@ -47,6 +47,7 @@ function toRetrievedChunk(match: VectorQueryMatch): RetrievedChunk | null {
     contentType: match.metadata.contentType,
     documentId: match.metadata.documentId,
     id: String(match.id),
+    orderIndex: match.metadata.orderIndex,
     publishedAt: match.metadata.publishedAt,
     score: match.score,
     sectionId: match.metadata.sectionId,

@@ -87,18 +87,16 @@ export function createStreamingChatResponse(input: {
           });
         }
 
-        try {
-          await storeSessionMemory({
-            answer: finalAnswer.answer,
-            question: input.input.question,
-            sessionKey: input.sessionKey
-          });
-        } catch (memoryError) {
+        void storeSessionMemory({
+          answer: finalAnswer.answer,
+          question: input.input.question,
+          sessionKey: input.sessionKey
+        }).catch((memoryError) => {
           log.warn("Failed to store session memory", {
             sessionKey: input.sessionKey,
             error: memoryError instanceof Error ? memoryError.message : String(memoryError)
           });
-        }
+        });
       } catch {
         sendEvent({
           answer: {

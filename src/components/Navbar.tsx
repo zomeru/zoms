@@ -14,7 +14,6 @@ const Navbar = (): React.JSX.Element => {
   const [isLoaded, setIsLoaded] = React.useState(false);
 
   const isHomePage = pathname === "/";
-  const isBlogPage = pathname.startsWith("/blog") || pathname === "/privacy";
 
   // Entrance animation
   React.useEffect(() => {
@@ -89,25 +88,12 @@ const Navbar = (): React.JSX.Element => {
               </Link>
             );
           })}
-          {isBlogPage && (
-            <Link
-              href="/privacy"
-              className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
-                pathname === "/privacy"
-                  ? "bg-overlay-strong text-text-primary"
-                  : "text-text-secondary hover:bg-overlay hover:text-text-primary"
-              }`}
-            >
-              Privacy
-            </Link>
-          )}
         </div>
 
         <MobileMenu
           activeSection={activeSection}
           onNavClick={handleNavClick}
           isHomePage={isHomePage}
-          isBlogPage={isBlogPage}
           pathname={pathname}
         />
       </nav>
@@ -119,13 +105,11 @@ const MobileMenu = ({
   activeSection,
   onNavClick,
   isHomePage,
-  isBlogPage,
   pathname
 }: {
   activeSection: string;
   onNavClick: (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => void;
   isHomePage: boolean;
-  isBlogPage: boolean;
   pathname: string;
 }): React.JSX.Element => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -198,21 +182,6 @@ const MobileMenu = ({
                 </li>
               );
             })}
-            {isBlogPage && (
-              <li>
-                <Link
-                  href="/privacy"
-                  onClick={() => setIsOpen(false)}
-                  className={`block rounded-xl px-4 py-2.5 font-medium text-sm transition-all duration-200 ${
-                    pathname === "/privacy"
-                      ? "bg-overlay-strong text-text-primary"
-                      : "text-text-secondary hover:bg-surface/40 hover:text-text-primary"
-                  }`}
-                >
-                  Privacy
-                </Link>
-              </li>
-            )}
           </ul>
         </div>
       </div>

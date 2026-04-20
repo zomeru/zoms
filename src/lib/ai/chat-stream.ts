@@ -38,6 +38,7 @@ function formatRetrievedContext(chunks: RetrievedChunk[]): string {
         `Title: ${chunk.title}`,
         `Content type: ${chunk.contentType}`,
         `Section: ${chunk.sectionTitle}`,
+        chunk.publishedAt ? `Published: ${chunk.publishedAt}` : "",
         chunk.tags.length > 0 ? `Tags: ${chunk.tags.join(", ")}` : "",
         `URL: ${chunk.url}`,
         `Content:\n${chunk.content}`

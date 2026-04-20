@@ -40,6 +40,10 @@ export const navigation = [
   {
     name: "Contact",
     url: "/contact"
+  },
+  {
+    name: "Privacy",
+    url: "/privacy"
   }
 ];
 

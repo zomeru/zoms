@@ -7,6 +7,7 @@ export interface RetrievedChunk {
   contentType: ContentType;
   documentId: string;
   id: string;
+  orderIndex?: number;
   publishedAt?: string;
   score: number;
   sectionId: string;
