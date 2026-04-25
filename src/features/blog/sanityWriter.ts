@@ -4,9 +4,9 @@ import type { BlogGenerationTriggerMode, GeneratedBlogDraft } from "@/lib/blog-g
 import { ApiError } from "@/lib/errorHandler";
 import { getErrorMessage } from "@/lib/errorMessages";
 import log from "@/lib/logger";
-import { err, ok, type Result } from "@/lib/result";
+import { err, fromThrowable, ok, type Result } from "@/lib/result";
 
-import { resolveUniqueBlogSlug } from "./slug";
+import { tryResolveUniqueBlogSlug } from "./slug";
 
 type SanityEnv = {
   apiToken: string;
@@ -54,19 +54,36 @@ export async function createBlogPost(
   content: GeneratedBlogDraft,
   triggerMode: BlogGenerationTriggerMode
 ) {
-  const slug = await resolveUniqueBlogSlug(sanityClient, content.suggestedSlug || content.title);
+  const slugResult = await tryResolveUniqueBlogSlug(
+    sanityClient,
+    content.suggestedSlug || content.title
+  );
+
+  if (!slugResult.ok) {
+    throw slugResult.error;
+  }
+
+  const slug = slugResult.data;
   const sourceTrigger = triggerMode === "scheduled" ? "automated" : "manual";
 
-  return await sanityClient.create({
-    _type: "blogPost",
-    title: content.title,
-    slug: { _type: "slug", current: slug },
-    summary: content.summary,
-    body: content.body,
-    publishedAt: new Date().toISOString(),
-    tags: content.tags,
-    source: `${sourceTrigger}/${content.provider}`,
-    generated: true,
-    readTime: content.readTime
-  });
+  const createPostResult = await fromThrowable(async () =>
+    sanityClient.create({
+      _type: "blogPost",
+      title: content.title,
+      slug: { _type: "slug", current: slug },
+      summary: content.summary,
+      body: content.body,
+      publishedAt: new Date().toISOString(),
+      tags: content.tags,
+      source: `${sourceTrigger}/${content.provider}`,
+      generated: true,
+      readTime: content.readTime
+    })
+  );
+
+  if (!createPostResult.ok) {
+    throw createPostResult.error;
+  }
+
+  return createPostResult.data;
 }
