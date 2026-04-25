@@ -4,9 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const checkBotId = vi.fn();
 const rateLimitMiddleware = vi.fn();
 const repositories = {
-  createChatMessage: vi.fn(),
-  createRetrievalEvent: vi.fn(),
-  touchChatSession: vi.fn()
+  createAssistantReplyWithRetrievalEvent: vi.fn(),
+  createUserTurn: vi.fn()
 };
 const getDirectAssistantAnswer = vi.fn();
 const streamGeneralAnswer = vi.fn();
@@ -56,12 +55,11 @@ describe("direct answer chat route", () => {
       isVerifiedBot: false
     });
     rateLimitMiddleware.mockResolvedValue(null);
-    repositories.touchChatSession.mockResolvedValue({
-      id: "session-db-id",
-      sessionKey: "session-key"
+    repositories.createUserTurn.mockResolvedValue({
+      sessionId: "session-db-id",
+      userMessageId: "message-id"
     });
-    repositories.createChatMessage.mockResolvedValue({ id: "message-id" });
-    repositories.createRetrievalEvent.mockResolvedValue({ id: "retrieval-id" });
+    repositories.createAssistantReplyWithRetrievalEvent.mockResolvedValue({ id: "retrieval-id" });
     getDirectAssistantAnswer.mockResolvedValue({
       citations: [
         {

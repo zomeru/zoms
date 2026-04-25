@@ -68,12 +68,11 @@ function parseStreamEvents(body: string): Array<Record<string, unknown>> {
 
 const rateLimitMiddleware = vi.fn();
 const repositories = {
-  createChatMessage: vi.fn(),
-  createRetrievalEvent: vi.fn(),
+  createAssistantReplyWithRetrievalEvent: vi.fn(),
+  createUserTurn: vi.fn(),
   getChatHistoryPage: vi.fn(),
   getRecentChatMessages: vi.fn(),
-  getChatSession: vi.fn(),
-  touchChatSession: vi.fn()
+  getChatSession: vi.fn()
 };
 const retrieveRelevantChunks = vi.fn();
 const retrieveBlogs = retrieveRelevantChunks;
@@ -173,12 +172,11 @@ describe("AI routes", () => {
       isHuman: true,
       isVerifiedBot: false
     });
-    repositories.touchChatSession.mockResolvedValue({
-      id: "session-db-id",
-      sessionKey: "session-key"
+    repositories.createUserTurn.mockResolvedValue({
+      sessionId: "session-db-id",
+      userMessageId: "message-id"
     });
-    repositories.createChatMessage.mockResolvedValue({ id: "message-id" });
-    repositories.createRetrievalEvent.mockResolvedValue({ id: "retrieval-id" });
+    repositories.createAssistantReplyWithRetrievalEvent.mockResolvedValue({ id: "retrieval-id" });
     repositories.getChatHistoryPage.mockResolvedValue({
       hasMore: false,
       messages: [],
@@ -187,7 +185,7 @@ describe("AI routes", () => {
     repositories.getRecentChatMessages.mockResolvedValue([]);
     repositories.getChatSession.mockResolvedValue({
       id: "session-db-id",
-      sessionKey: "session-key"
+      sessionKey: "00000000-0000-0000-0000-000000000001"
     });
     retrieveRelevantChunks.mockResolvedValue({
       citations: [
@@ -341,7 +339,7 @@ describe("AI routes", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(repositories.touchChatSession).toHaveBeenCalledTimes(1);
+    expect(repositories.createUserTurn).toHaveBeenCalledTimes(1);
     expect(response.headers.get("set-cookie")).toContain("ai_chat_session=");
 
     const body = await response.text();
@@ -408,7 +406,7 @@ describe("AI routes", () => {
     const historyResponse = await GET(
       new NextRequest("http://localhost/api/ai/chat", {
         headers: {
-          cookie: "ai_chat_session=session-key"
+          cookie: "ai_chat_session=00000000-0000-0000-0000-000000000001"
         }
       })
     );
@@ -443,7 +441,7 @@ describe("AI routes", () => {
           question: "What stack did it use?"
         }),
         headers: {
-          cookie: "ai_chat_session=session-key"
+          cookie: "ai_chat_session=00000000-0000-0000-0000-000000000001"
         },
         method: "POST"
       })
@@ -473,10 +471,13 @@ describe("AI routes", () => {
     expect(searchSessionMemory).toHaveBeenCalledWith({
       limit: 3,
       query: "What stack did it use?",
-      sessionKey: "session-key"
+      sessionKey: "00000000-0000-0000-0000-000000000001"
     });
     expect(repositories.getChatSession).not.toHaveBeenCalled();
-    expect(repositories.getRecentChatMessages).toHaveBeenCalledWith("session-key", 12);
+    expect(repositories.getRecentChatMessages).toHaveBeenCalledWith(
+      "00000000-0000-0000-0000-000000000001",
+      12
+    );
   });
 
   it("expands chat history window when the user asks a chat-meta question", async () => {
@@ -488,14 +489,17 @@ describe("AI routes", () => {
           question: "summarize our conversation so far"
         }),
         headers: {
-          cookie: "ai_chat_session=session-key"
+          cookie: "ai_chat_session=00000000-0000-0000-0000-000000000001"
         },
         method: "POST"
       })
     );
 
     expect(response.status).toBe(200);
-    expect(repositories.getRecentChatMessages).toHaveBeenCalledWith("session-key", 50);
+    expect(repositories.getRecentChatMessages).toHaveBeenCalledWith(
+      "00000000-0000-0000-0000-000000000001",
+      50
+    );
   });
 
   it("ignores leaked session keys in the query string and only trusts the chat cookie", async () => {
@@ -564,7 +568,7 @@ describe("AI routes", () => {
           question: "What stack did it use?"
         }),
         headers: {
-          cookie: "ai_chat_session=session-key"
+          cookie: "ai_chat_session=00000000-0000-0000-0000-000000000001"
         },
         method: "POST"
       })
@@ -592,11 +596,10 @@ describe("AI routes", () => {
     await expect(response.text()).resolves.toContain('"type":"done"');
   });
 
-  it("keeps the final grounded answer when retrieval analytics fail after assistant persistence", async () => {
-    repositories.createChatMessage
-      .mockResolvedValueOnce({ id: "user-message-id" })
-      .mockResolvedValueOnce({ id: "assistant-message-id" });
-    repositories.createRetrievalEvent.mockRejectedValueOnce(new Error("analytics unavailable"));
+  it("streams grounded answer chunks and includes messageId in done event", async () => {
+    repositories.createAssistantReplyWithRetrievalEvent.mockResolvedValueOnce({
+      id: "assistant-message-id"
+    });
 
     const { POST } = await import("@/app/api/ai/chat/route");
 
@@ -629,6 +632,36 @@ describe("AI routes", () => {
       messageId: "assistant-message-id",
       type: "done"
     });
+  });
+
+  it("streams answer text even when atomic db write fails after streaming", async () => {
+    repositories.createAssistantReplyWithRetrievalEvent.mockRejectedValueOnce(
+      new Error("db unavailable")
+    );
+
+    const { POST } = await import("@/app/api/ai/chat/route");
+
+    const response = await POST(
+      new NextRequest("http://localhost/api/ai/chat", {
+        body: JSON.stringify({
+          blogSlug: "grounded-assistant",
+          pathname: "/blog/grounded-assistant",
+          question: "What does the blog post say about grounded retrieval?"
+        }),
+        method: "POST"
+      })
+    );
+
+    expect(response.status).toBe(200);
+
+    const events = parseStreamEvents(await response.text());
+    const doneEvent = events.at(-1);
+
+    expect(doneEvent).toMatchObject({
+      answer: expect.objectContaining({ answer: "Grounded response text." }),
+      type: "done"
+    });
+    expect(doneEvent).not.toHaveProperty("messageId");
   });
 
   it("sets a secure chat cookie for new sessions in production", async () => {
