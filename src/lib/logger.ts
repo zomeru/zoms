@@ -5,7 +5,6 @@
 
 type LogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal";
 
-const IS_DEVELOPMENT = process.env.NODE_ENV === "development";
 const IS_EDGE = typeof process !== "undefined" && process.env.NEXT_RUNTIME === "edge";
 
 // Log level hierarchy for filtering
@@ -18,15 +17,15 @@ const LOG_LEVELS: Record<LogLevel, number> = {
   fatal: 5
 };
 
-// Get configured log level
+// Get configured log level (override with NEXLOG_LEVEL env var)
 const getLogLevel = (): LogLevel => {
-  const level = process.env.NEXLOG_LEVEL ?? (IS_DEVELOPMENT ? "debug" : "info");
+  const defaultLevel = process.env.NODE_ENV === "development" ? "debug" : "info";
+  const level = process.env.NEXLOG_LEVEL ?? defaultLevel;
   const validLevels: LogLevel[] = ["trace", "debug", "info", "warn", "error", "fatal"];
   return validLevels.includes(level as LogLevel) ? (level as LogLevel) : "info";
 };
 
 const currentLevel = getLogLevel();
-const useStructured = process.env.NEXLOG_STRUCTURED === "true" || !IS_DEVELOPMENT;
 
 // Sanitize sensitive data (GDPR compliant)
 const sensitivePatterns = [
@@ -82,35 +81,19 @@ const shouldLog = (level: LogLevel): boolean => {
 const formatLog = (level: LogLevel, message: string, metadata?: Record<string, unknown>): void => {
   if (!shouldLog(level)) return;
 
-  const timestamp = new Date().toISOString();
   const sanitizedMetadata = metadata ? sanitizeValue(metadata) : undefined;
 
-  if (useStructured) {
-    // Structured JSON logging for production
-    const logEntry = {
-      timestamp,
-      level: level.toUpperCase(),
-      message,
-      service: "zoms-portfolio",
-      environment: process.env.NODE_ENV,
-      runtime: IS_EDGE ? "edge" : "node",
-      ...(sanitizedMetadata as object)
-    };
-    console.log(JSON.stringify(logEntry));
-  } else {
-    // Pretty logging for development
-    const emoji = {
-      trace: "🔍",
-      debug: "🐛",
-      info: "ℹ️",
-      warn: "⚠️",
-      error: "❌",
-      fatal: "💥"
-    }[level];
+  const logEntry = {
+    timestamp: new Date().toISOString(),
+    level: level.toUpperCase(),
+    message,
+    service: "zoms-portfolio",
+    environment: process.env.NODE_ENV,
+    runtime: IS_EDGE ? "edge" : "node",
+    ...(sanitizedMetadata as object)
+  };
 
-    const coloredLevel = level.toUpperCase().padEnd(5);
-    console.log(`${emoji} [${timestamp}] ${coloredLevel} ${message}`, sanitizedMetadata ?? "");
-  }
+  console.log(JSON.stringify(logEntry));
 };
 
 /**

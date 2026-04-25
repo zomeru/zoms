@@ -10,8 +10,6 @@ import { getErrorMessage } from "./errorMessages";
 import log from "./logger";
 import type { ErrorResponse } from "./schemas";
 
-const IS_DEVELOPMENT = process.env.NODE_ENV === "development";
-
 /**
  * Custom error class for API errors
  */
@@ -28,28 +26,19 @@ export class ApiError extends Error {
 }
 
 /**
- * Sanitize error message for production
- * Removes sensitive information and provides user-friendly messages
+ * Resolve the client-facing error message.
+ * Errors thrown via getErrorMessage() already carry the env-appropriate text.
+ * ZodError gets a safe generic message. Unknown values get the generic SERVER_ERROR.
  */
-const sanitizeErrorMessage = (error: unknown): string => {
-  if (IS_DEVELOPMENT) {
-    // In development, provide detailed error messages
-    if (error instanceof Error) {
-      return error.message;
-    }
-    return String(error);
-  }
-
-  // In production, provide safe, user-friendly messages
-  if (error instanceof ApiError) {
-    return error.message;
-  }
-
+const resolveClientMessage = (error: unknown): string => {
   if (error instanceof ZodError) {
     return getErrorMessage("INVALID_REQUEST_DATA");
   }
 
-  // Generic error for production
+  if (error instanceof Error) {
+    return error.message;
+  }
+
   return getErrorMessage("SERVER_ERROR");
 };
 
@@ -132,21 +121,11 @@ export const getErrorOrigin = (error: unknown): string | undefined => {
   return undefined;
 };
 
-/**
- * Get error details for logging (dev only)
- */
 const getErrorDetails = (error: unknown): unknown => {
-  if (!IS_DEVELOPMENT) {
-    return undefined;
-  }
+  if (process.env.NODE_ENV !== "development") return undefined;
 
-  if (error instanceof ZodError) {
-    return error.issues;
-  }
-
-  if (error instanceof Error && error.stack) {
-    return { stack: error.stack };
-  }
+  if (error instanceof ZodError) return error.issues;
+  if (error instanceof Error && error.stack) return { stack: error.stack };
 
   return undefined;
 };
@@ -165,7 +144,7 @@ export const handleApiError = (
 ): NextResponse<ErrorResponse> => {
   const statusCode = getErrorStatusCode(error);
   const code = getErrorCode(error);
-  const message = sanitizeErrorMessage(error);
+  const message = resolveClientMessage(error);
   const details = getErrorDetails(error);
   const stack = getErrorStackTrace(error);
   const origin = getErrorOrigin(error);
@@ -188,7 +167,7 @@ export const handleApiError = (
     error: message,
     code,
     timestamp: new Date().toISOString(),
-    ...(IS_DEVELOPMENT && details ? { details } : {})
+    ...(details ? { details } : {})
   };
 
   return NextResponse.json(errorResponse, { status: statusCode });
