@@ -28,6 +28,30 @@ export const blogPostFullSchema = blogPostListItemSchema.extend({
   body: z.string()
 });
 
+export const blogPostSeoSchema = z.object({
+  _id: z.string(),
+  title: z.string(),
+  slug: blogPostSlugSchema,
+  summary: z.string(),
+  publishedAt: z.string(),
+  modifiedAt: z.string().optional(),
+  tags: z.array(z.string()).optional()
+});
+
+// Sanity queries for sitemap/index project slug.current into a flat string field.
+export const blogPostSitemapItemSchema = z.object({
+  slug: z.string(),
+  publishedAt: z.string(),
+  modifiedAt: z.string().optional()
+});
+
+export const blogPostIndexItemSchema = z.object({
+  title: z.string(),
+  slug: z.string(),
+  summary: z.string(),
+  publishedAt: z.string()
+});
+
 // API Query Schemas
 export const blogListQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(25),
