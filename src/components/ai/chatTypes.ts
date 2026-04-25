@@ -1,4 +1,5 @@
 import type { Citation, TransformResult } from "@/lib/ai/schemas";
+import { isRecord } from "@/lib/utils";
 
 export interface AssistantMessage {
   citations?: Citation[];
@@ -48,10 +49,6 @@ export function createId(prefix: string): string {
 export function getBlogSlugFromPathname(pathname: string): string | undefined {
   const match = /^\/blog\/([^/?#]+)/.exec(pathname);
   return match?.[1];
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
 }
 
 export function isStreamEvent(value: unknown): value is StreamEvent {

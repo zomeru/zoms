@@ -1,13 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
-import {
-  ApiError,
-  getErrorOrigin,
-  getErrorStackTrace,
-  safeValidate,
-  validateSchema
-} from "@/lib/errorHandler";
+import { ApiError, getErrorOrigin, getErrorStackTrace, validateSchema } from "@/lib/errorHandler";
 import { getErrorMessage, getResponseErrorMessage } from "@/lib/errorMessages";
 
 describe("ApiError", () => {
@@ -50,18 +44,6 @@ describe("validateSchema", () => {
     expect(caught).toBeDefined();
     expect(caught?.statusCode).toBe(400);
     expect(caught?.code).toBe("VALIDATION_ERROR");
-  });
-});
-
-describe("safeValidate", () => {
-  const schema = z.object({ id: z.number() });
-
-  it("returns parsed data for valid input", () => {
-    expect(safeValidate(schema, { id: 42 })).toEqual({ id: 42 });
-  });
-
-  it("returns undefined for invalid input", () => {
-    expect(safeValidate(schema, { id: "not-a-number" })).toBeUndefined();
   });
 });
 

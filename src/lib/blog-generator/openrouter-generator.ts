@@ -19,12 +19,10 @@ function getOpenRouterProvider() {
   return createOpenRouter({ apiKey });
 }
 
+const MIN_BLOG_WORD_COUNT = 700;
+
 export async function openrouterGenerateBlogContent(): Promise<GeneratedBlogDraft> {
   const model = process.env.OPENROUTER_BLOG_MODEL ?? "openrouter/free";
-
-  if (!model) {
-    throw new Error("OPENROUTER_BLOG_MODEL environment variable is required for blog generation");
-  }
   const prompt = generatePrompt();
   const provider = getOpenRouterProvider();
 
@@ -42,7 +40,7 @@ export async function openrouterGenerateBlogContent(): Promise<GeneratedBlogDraf
     const parsed = tryParseAIJSON(result.text);
     const wordCount = parsed.content.split(/\s+/).filter(Boolean).length;
 
-    if (wordCount < 700) {
+    if (wordCount < MIN_BLOG_WORD_COUNT) {
       throw new Error(getErrorMessage("AI_GENERATION_TOO_SHORT"));
     }
 

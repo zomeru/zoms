@@ -213,20 +213,6 @@ export const validateSchema = <T>(
 };
 
 /**
- * Safe parse that returns result or undefined
- */
-export const safeValidate = <T>(
-  schema: { safeParse: (data: unknown) => { success: boolean; data?: T; error?: ZodError } },
-  data: unknown
-): T | undefined => {
-  const result = schema.safeParse(data);
-  if (result.success && result.data !== undefined) {
-    return result.data;
-  }
-  return undefined;
-};
-
-/**
  * Wrap async API handler with error handling
  */
 export const withErrorHandling = async <T>(

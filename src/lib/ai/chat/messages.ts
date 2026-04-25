@@ -1,6 +1,7 @@
 import { ChatMessageRole } from "@/generated/prisma/client";
 
 import type { Citation } from "@/lib/ai/schemas";
+import { isRecord } from "@/lib/utils";
 
 export interface ClientMessage {
   citations?: Citation[];
@@ -9,10 +10,6 @@ export interface ClientMessage {
   messageId?: string;
   role: "assistant" | "user";
   supported?: boolean;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 export function mapStoredMessages(

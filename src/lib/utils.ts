@@ -1,3 +1,7 @@
+export function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 export function formatDate(dateString: string): string {
   const date = new Date(dateString).toLocaleDateString("en-US", {
     year: "numeric",
