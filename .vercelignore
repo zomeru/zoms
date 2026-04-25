@@ -11,3 +11,5 @@ README.md
 AGENTS.md
 CLAUDE.md
 tests
+.mcp.json
+skills-lock.json
