@@ -4,8 +4,8 @@ import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getBlogPostBySlug } from "@/lib/blog";
+import { requireBlogGenerationAuth } from "@/lib/blogAuth";
 import { scheduleDeletedBlogCleanup } from "@/lib/blogDeleteCleanup";
-import { isValidBlogGenerationSession } from "@/lib/blogGenerationAuth";
 import { verifyBotIdRequest } from "@/lib/botId";
 import { ApiError, handleApiError, validateSchema } from "@/lib/errorHandler";
 import { getErrorMessage } from "@/lib/errorMessages";
@@ -17,25 +17,6 @@ export const dynamic = "force-dynamic";
 const slugParamsSchema = z.object({
   slug: z.string().min(1)
 });
-
-async function validateSecret(request: NextRequest): Promise<void> {
-  const authHeader = request.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
-  const blogGenerationSecret = process.env.BLOG_GENERATION_SECRET ?? cronSecret;
-  const hasValidCookie = isValidBlogGenerationSession(request.cookies);
-  const hasValidBearer =
-    (cronSecret !== undefined && authHeader === `Bearer ${cronSecret}`) ||
-    (blogGenerationSecret !== undefined && authHeader === `Bearer ${blogGenerationSecret}`);
-
-  if (!hasValidCookie && !hasValidBearer) {
-    log.warn("Unauthorized blog deletion attempt", {
-      hasAuthHeader: !!authHeader,
-      hasCookie: hasValidCookie,
-      hasSecret: !!blogGenerationSecret
-    });
-    throw new ApiError(getErrorMessage("UNAUTHORIZED"), 401, "UNAUTHORIZED");
-  }
-}
 
 function createSanityWriteClient(): SanityClient {
   const apiToken = process.env.SANITY_API_TOKEN;
@@ -140,7 +121,7 @@ export async function DELETE(
       return rateLimitResponse;
     }
 
-    await validateSecret(request);
+    await requireBlogGenerationAuth(request);
 
     const resolvedParams = await params;
     const { slug } = validateSchema(slugParamsSchema, resolvedParams);

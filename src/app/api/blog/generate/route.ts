@@ -7,7 +7,7 @@ import {
   type GeneratedBlogDraft,
   generateBlogContent
 } from "@/lib/blog-generator";
-import { isValidBlogGenerationSession } from "@/lib/blogGenerationAuth";
+import { requireBlogGenerationAuth } from "@/lib/blogAuth";
 import { scheduleBlogReindex } from "@/lib/blogReindex";
 import { verifyBotIdRequest } from "@/lib/botId";
 import { ApiError, handleApiError, validateSchema } from "@/lib/errorHandler";
@@ -18,25 +18,6 @@ import { blogGenerateRequestSchema } from "@/lib/schemas";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // Vercel serverless function timeout
-
-async function validateSecret(request: NextRequest): Promise<void> {
-  const authHeader = request.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
-  const blogGenerationSecret = process.env.BLOG_GENERATION_SECRET ?? cronSecret;
-  const hasValidCookie = isValidBlogGenerationSession(request.cookies);
-  const hasValidBearer =
-    (cronSecret !== undefined && authHeader === `Bearer ${cronSecret}`) ||
-    (blogGenerationSecret !== undefined && authHeader === `Bearer ${blogGenerationSecret}`);
-
-  if (!hasValidCookie && !hasValidBearer) {
-    log.warn("Unauthorized blog generation attempt", {
-      hasAuthHeader: !!authHeader,
-      hasCookie: hasValidCookie,
-      hasSecret: !!blogGenerationSecret
-    });
-    throw new ApiError(getErrorMessage("UNAUTHORIZED"), 401, "UNAUTHORIZED");
-  }
-}
 
 function validateSanityEnv() {
   const apiToken = process.env.SANITY_API_TOKEN;
@@ -147,7 +128,7 @@ async function handleGenerate(request: NextRequest): Promise<NextResponse> {
 
     log.request(method, path);
 
-    await validateSecret(request);
+    await requireBlogGenerationAuth(request);
 
     let triggerMode: BlogGenerationTriggerMode = method === "GET" ? "scheduled" : "manual";
 

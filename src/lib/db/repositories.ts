@@ -53,35 +53,39 @@ function getDb() {
 
 export const repositories = {
   async createChatMessage(input: ChatMessageInput) {
-    const message = await withDbRetry(() => getDb().chatMessage.create({ data: input }), {
+    // Generate embedding before opening a DB connection. If embedding fails, we
+    // still save the message — the row just won't surface in semantic search.
+    let vectorStr: string | null = null;
+    try {
+      const embedding = await generateEmbedding(input.content);
+      vectorStr = `[${embedding.join(",")}]`;
+    } catch (err) {
+      console.warn(
+        "[createChatMessage] embedding generation failed, proceeding without embedding:",
+        err instanceof Error ? err.message : String(err)
+      );
+    }
+
+    if (vectorStr !== null) {
+      const vec = vectorStr;
+      return await withDbRetry(
+        () =>
+          getDb().$transaction(async (tx) => {
+            const message = await tx.chatMessage.create({ data: input });
+            await tx.$executeRawUnsafe(
+              `UPDATE "ChatMessage" SET embedding = $1::halfvec WHERE id = $2`,
+              vec,
+              message.id
+            );
+            return message;
+          }),
+        { label: "createChatMessage" }
+      );
+    }
+
+    return await withDbRetry(() => getDb().chatMessage.create({ data: input }), {
       label: "createChatMessage"
     });
-
-    // Fire-and-forget embedding so retrieval doesn't block the response stream.
-    // Failures are swallowed — a message without an embedding simply won't surface
-    // in future semantic searches.
-    void (async () => {
-      try {
-        const embedding = await generateEmbedding(input.content);
-        const vectorStr = `[${embedding.join(",")}]`;
-        await withDbRetry(
-          () =>
-            getDb().$executeRawUnsafe(
-              `UPDATE "ChatMessage" SET embedding = $1::halfvec WHERE id = $2`,
-              vectorStr,
-              message.id
-            ),
-          { label: "embedChatMessage" }
-        );
-      } catch (err) {
-        console.warn(
-          "[embedChatMessage] failed:",
-          err instanceof Error ? err.message : String(err)
-        );
-      }
-    })();
-
-    return message;
   },
 
   async searchChatMessages(input: { limit: number; query: string; sessionKey: string }): Promise<
