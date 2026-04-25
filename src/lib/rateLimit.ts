@@ -10,61 +10,41 @@ import log from "./logger";
 // In-memory store for development
 class InMemoryRateLimiter {
   private readonly requests = new Map<string, number[]>();
-  private cleanupTimer: ReturnType<typeof setInterval> | undefined;
+  // Sweep all expired identifiers once the map grows past this size.
+  private static readonly CLEANUP_THRESHOLD = 100;
 
   constructor(
     private readonly maxRequests: number,
     private readonly windowMs: number
-  ) {
-    // Run cleanup every 60 seconds instead of probabilistically
-    this.cleanupTimer = setInterval(() => this.cleanup(), 60_000);
-  }
-
-  destroy(): void {
-    if (this.cleanupTimer) {
-      clearInterval(this.cleanupTimer);
-      this.cleanupTimer = undefined;
-    }
-    this.requests.clear();
-  }
+  ) {}
 
   async limit(identifier: string): Promise<{ success: boolean; remaining: number }> {
     const now = Date.now();
     const windowStart = now - this.windowMs;
-
-    // Get existing requests for this identifier
     const requests = this.requests.get(identifier) ?? [];
-
-    // Filter out requests outside the current window
     const recentRequests = requests.filter((timestamp) => timestamp > windowStart);
 
-    // Check if limit exceeded
     if (recentRequests.length >= this.maxRequests) {
-      return {
-        success: false,
-        remaining: 0
-      };
+      return { success: false, remaining: 0 };
     }
 
-    // Add current request
     recentRequests.push(now);
     this.requests.set(identifier, recentRequests);
 
-    return {
-      success: true,
-      remaining: this.maxRequests - recentRequests.length
-    };
+    // Lazy sweep so we never accumulate unbounded memory.
+    if (this.requests.size > InMemoryRateLimiter.CLEANUP_THRESHOLD) {
+      this.cleanup();
+    }
+
+    return { success: true, remaining: this.maxRequests - recentRequests.length };
   }
 
   private cleanup(): void {
     const now = Date.now();
     for (const [key, timestamps] of this.requests.entries()) {
       const windowStart = now - this.windowMs;
-      const recentRequests = timestamps.filter((timestamp) => timestamp > windowStart);
-      if (recentRequests.length === 0) {
+      if (timestamps.every((t) => t <= windowStart)) {
         this.requests.delete(key);
-      } else {
-        this.requests.set(key, recentRequests);
       }
     }
   }

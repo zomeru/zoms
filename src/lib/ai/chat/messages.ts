@@ -46,11 +46,15 @@ export function mapStoredMessages(
   });
 }
 
+// Max turns kept as context for the model. Increase with care — each extra
+// turn adds tokens to every subsequent request in that session.
+const CONVERSATION_HISTORY_TURNS = 4;
+
 export function buildConversationHistory(messages: ClientMessage[]): Array<{
   content: string;
   role: "assistant" | "user";
 }> {
-  return messages.slice(-4).map((message) => ({
+  return messages.slice(-CONVERSATION_HISTORY_TURNS).map((message) => ({
     content: message.content,
     role: message.role
   }));

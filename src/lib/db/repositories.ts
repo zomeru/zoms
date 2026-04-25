@@ -47,10 +47,6 @@ export interface IndexedDocumentInput {
   url: string;
 }
 
-function getDb() {
-  return getPrismaClient();
-}
-
 export const repositories = {
   async createChatMessage(input: ChatMessageInput) {
     // Generate embedding before opening a DB connection. If embedding fails, we
@@ -70,7 +66,7 @@ export const repositories = {
       const vec = vectorStr;
       return await withDbRetry(
         () =>
-          getDb().$transaction(async (tx) => {
+          getPrismaClient().$transaction(async (tx) => {
             const message = await tx.chatMessage.create({ data: input, select: { id: true } });
             await tx.$executeRawUnsafe(
               `UPDATE "ChatMessage" SET embedding = $1::halfvec WHERE id = $2`,
@@ -84,7 +80,7 @@ export const repositories = {
     }
 
     return await withDbRetry(
-      () => getDb().chatMessage.create({ data: input, select: { id: true } }),
+      () => getPrismaClient().chatMessage.create({ data: input, select: { id: true } }),
       { label: "createChatMessage" }
     );
   },
@@ -104,7 +100,7 @@ export const repositories = {
 
     const rows = await withDbRetry(
       () =>
-        getDb().$queryRawUnsafe<
+        getPrismaClient().$queryRawUnsafe<
           Array<{
             content: string;
             createdAt: Date;
@@ -140,7 +136,7 @@ export const repositories = {
   async createIngestionRun(input: IngestionRunInput) {
     return await withDbRetry(
       () =>
-        getDb().ingestionRun.create({
+        getPrismaClient().ingestionRun.create({
           data: {
             mode: input.mode,
             status: IngestionStatus.RUNNING,
@@ -164,7 +160,7 @@ export const repositories = {
   }) {
     return await withDbRetry(
       () =>
-        getDb().retrievalEvent.create({
+        getPrismaClient().retrievalEvent.create({
           data: {
             assistantMessageId: input.assistantMessageId,
             matchCount: input.matchCount ?? 0,
@@ -189,7 +185,7 @@ export const repositories = {
   }) {
     return await withDbRetry(
       () =>
-        getDb().ingestionRun.update({
+        getPrismaClient().ingestionRun.update({
           where: { id: input.id },
           data: {
             errorMessage: input.errorMessage,
@@ -203,15 +199,18 @@ export const repositories = {
   },
 
   async deleteIndexedDocument(documentId: string) {
-    await withDbRetry(() => getDb().indexedDocument.deleteMany({ where: { documentId } }), {
-      label: "deleteIndexedDocument"
-    });
+    await withDbRetry(
+      () => getPrismaClient().indexedDocument.deleteMany({ where: { documentId } }),
+      {
+        label: "deleteIndexedDocument"
+      }
+    );
   },
 
   async getChatSession(sessionKey: string) {
     return await withDbRetry(
       () =>
-        getDb().chatSession.findUnique({
+        getPrismaClient().chatSession.findUnique({
           where: { sessionKey },
           select: {
             id: true,
@@ -250,15 +249,15 @@ export const repositories = {
 
     return await withDbRetry(
       () =>
-        getDb().$transaction([
-          getDb().chatMessage.findMany({
+        getPrismaClient().$transaction([
+          getPrismaClient().chatMessage.findMany({
             orderBy: [{ createdAt: "desc" }, { id: "desc" }],
             select,
             skip: input.offset,
             take: input.limit,
             where
           }),
-          getDb().chatMessage.count({ where })
+          getPrismaClient().chatMessage.count({ where })
         ]),
       { label: "getChatHistoryPage" }
     ).then(([messages, total]) => ({
@@ -271,7 +270,7 @@ export const repositories = {
   async getRecentChatMessages(sessionKey: string, limit: number) {
     const messages = await withDbRetry(
       () =>
-        getDb().chatMessage.findMany({
+        getPrismaClient().chatMessage.findMany({
           orderBy: [{ createdAt: "desc" }, { id: "desc" }],
           select: {
             id: true,
@@ -293,7 +292,7 @@ export const repositories = {
   async getIndexedDocument(documentId: string) {
     return await withDbRetry(
       () =>
-        getDb().indexedDocument.findUnique({
+        getPrismaClient().indexedDocument.findUnique({
           where: { documentId },
           select: { contentHash: true }
         }),
@@ -304,7 +303,7 @@ export const repositories = {
   async listIndexedDocumentHashes(): Promise<Map<string, string>> {
     const rows = await withDbRetry(
       () =>
-        getDb().indexedDocument.findMany({
+        getPrismaClient().indexedDocument.findMany({
           select: { contentHash: true, documentId: true }
         }),
       { label: "listIndexedDocumentHashes" }
@@ -315,7 +314,7 @@ export const repositories = {
   async touchChatSession(input: ChatSessionInput) {
     return await withDbRetry(
       () =>
-        getDb().chatSession.upsert({
+        getPrismaClient().chatSession.upsert({
           where: { sessionKey: input.sessionKey },
           update: {
             blogSlugHint: input.blogSlugHint,
@@ -337,7 +336,7 @@ export const repositories = {
   async upsertIndexedDocument(input: IndexedDocumentInput) {
     return await withDbRetry(
       () =>
-        getDb().indexedDocument.upsert({
+        getPrismaClient().indexedDocument.upsert({
           where: { documentId: input.documentId },
           update: {
             chunkCount: input.chunkCount,
