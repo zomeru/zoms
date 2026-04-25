@@ -22,6 +22,25 @@ export interface ChatMessageInput {
   transformMode?: string;
 }
 
+export interface CreateUserTurnInput {
+  blogSlugHint?: string;
+  pathnameHint?: string;
+  question: string;
+  sessionKey: string;
+}
+
+export interface CreateAssistantReplyWithRetrievalEventInput {
+  citations?: Prisma.InputJsonValue;
+  content: string;
+  groundedAnswer?: Prisma.InputJsonValue;
+  matchCount?: number;
+  noAnswer?: boolean;
+  payload: Prisma.InputJsonValue;
+  query: string;
+  sessionId: string;
+  userMessageId: string;
+}
+
 export const chatRepository = {
   async createChatMessage(input: ChatMessageInput) {
     let vectorStr: string | null = null;
@@ -205,6 +224,95 @@ export const chatRepository = {
           select: { id: true }
         }),
       { label: "touchChatSession" }
+    );
+  },
+
+  async createUserTurn(input: CreateUserTurnInput) {
+    return await withDbRetry(
+      () =>
+        getPrismaClient().$transaction(async (tx) => {
+          const session = await tx.chatSession.upsert({
+            where: { sessionKey: input.sessionKey },
+            update: {
+              blogSlugHint: input.blogSlugHint,
+              lastActiveAt: new Date(),
+              pathnameHint: input.pathnameHint
+            },
+            create: {
+              blogSlugHint: input.blogSlugHint,
+              lastActiveAt: new Date(),
+              pathnameHint: input.pathnameHint,
+              sessionKey: input.sessionKey
+            },
+            select: { id: true }
+          });
+
+          const userMessage = await tx.chatMessage.create({
+            data: {
+              content: input.question,
+              role: "USER",
+              sessionId: session.id
+            },
+            select: { id: true }
+          });
+
+          return { sessionId: session.id, userMessageId: userMessage.id };
+        }),
+      { label: "createUserTurn" }
+    );
+  },
+
+  async createAssistantReplyWithRetrievalEvent(input: CreateAssistantReplyWithRetrievalEventInput) {
+    let vectorStr: string | null = null;
+    try {
+      const embedding = await generateEmbedding(input.content);
+      vectorStr = `[${embedding.join(",")}]`;
+    } catch (err) {
+      log.warn(
+        "[createAssistantReplyWithRetrievalEvent] embedding generation failed, proceeding without embedding",
+        {
+          error: err instanceof Error ? err.message : String(err)
+        }
+      );
+    }
+
+    return await withDbRetry(
+      () =>
+        getPrismaClient().$transaction(async (tx) => {
+          const assistantMessage = await tx.chatMessage.create({
+            data: {
+              citations: input.citations,
+              content: input.content,
+              groundedAnswer: input.groundedAnswer,
+              role: "ASSISTANT",
+              sessionId: input.sessionId
+            },
+            select: { id: true }
+          });
+
+          if (vectorStr !== null) {
+            await tx.$executeRawUnsafe(
+              `UPDATE "ChatMessage" SET embedding = $1::halfvec WHERE id = $2`,
+              vectorStr,
+              assistantMessage.id
+            );
+          }
+
+          await tx.retrievalEvent.create({
+            data: {
+              assistantMessageId: assistantMessage.id,
+              matchCount: input.matchCount ?? 0,
+              noAnswer: input.noAnswer ?? false,
+              payload: input.payload,
+              query: input.query,
+              sessionId: input.sessionId,
+              userMessageId: input.userMessageId
+            }
+          });
+
+          return assistantMessage;
+        }),
+      { label: "createAssistantReplyWithRetrievalEvent" }
     );
   }
 };

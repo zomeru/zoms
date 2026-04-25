@@ -1,8 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { type NextRequest, NextResponse } from "next/server";
 
-import { ChatMessageRole } from "@/generated/prisma/client";
-
 import { buildConversationHistory, mapStoredMessages } from "@/lib/ai/chat/messages";
 import { resolveChatHistoryLimit } from "@/lib/ai/chat/metaQuestion";
 import { resolveGroundedAnswer } from "@/lib/ai/chat/retrieval";
@@ -94,11 +92,6 @@ export async function POST(request: NextRequest): Promise<Response> {
     const body: unknown = await request.json();
     const input = validateSchema(chatRequestSchema, body);
     const { sessionKey, isNew } = getSessionKey(request);
-    const session = await repositories.touchChatSession({
-      blogSlugHint: input.blogSlug,
-      pathnameHint: input.pathname,
-      sessionKey
-    });
     const historyLimit = resolveChatHistoryLimit(input.question);
     const previousMessages =
       isNew || sessionKey.length === 0
@@ -125,10 +118,11 @@ export async function POST(request: NextRequest): Promise<Response> {
       }
     }
 
-    const userMessage = await repositories.createChatMessage({
-      content: input.question,
-      role: ChatMessageRole.USER,
-      sessionId: session.id
+    const userTurn = await repositories.createUserTurn({
+      blogSlugHint: input.blogSlug,
+      pathnameHint: input.pathname,
+      question: input.question,
+      sessionKey
     });
     const classification = classifyQueryIntent(input.question);
     const { groundedAnswer, retrievalMetadata } = await resolveGroundedAnswer({
@@ -145,9 +139,9 @@ export async function POST(request: NextRequest): Promise<Response> {
       input,
       isNew,
       retrievalMetadata,
-      sessionId: session.id,
+      sessionId: userTurn.sessionId,
       sessionKey,
-      userMessageId: userMessage.id
+      userMessageId: userTurn.userMessageId
     });
   } catch (error) {
     return handleApiError(error, {
