@@ -4,10 +4,17 @@ import type { BlogGenerationTriggerMode, GeneratedBlogDraft } from "@/lib/blog-g
 import { ApiError } from "@/lib/errorHandler";
 import { getErrorMessage } from "@/lib/errorMessages";
 import log from "@/lib/logger";
+import { err, ok, type Result } from "@/lib/result";
 
 import { resolveUniqueBlogSlug } from "./slug";
 
-function validateSanityEnv(logLabel: string) {
+type SanityEnv = {
+  apiToken: string;
+  dataset: string;
+  projectId: string;
+};
+
+function validateSanityEnv(logLabel: string): Result<SanityEnv, ApiError> {
   const apiToken = process.env.SANITY_API_TOKEN;
   const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
   const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
@@ -18,14 +25,20 @@ function validateSanityEnv(logLabel: string) {
       hasProjectId: !!projectId,
       hasDataset: !!dataset
     });
-    throw new ApiError(getErrorMessage("MISSING_SANITY_CONFIG"), 500, "CONFIG_ERROR");
+    return err(new ApiError(getErrorMessage("MISSING_SANITY_CONFIG"), 500, "CONFIG_ERROR"));
   }
 
-  return { apiToken, projectId, dataset };
+  return ok({ apiToken, projectId, dataset });
 }
 
 export function createSanityWriteClient(logLabel = ""): SanityClient {
-  const { apiToken, projectId, dataset } = validateSanityEnv(logLabel);
+  const sanityEnvResult = validateSanityEnv(logLabel);
+
+  if (!sanityEnvResult.ok) {
+    throw sanityEnvResult.error;
+  }
+
+  const { apiToken, projectId, dataset } = sanityEnvResult.data;
 
   return createClient({
     apiVersion: "2026-03-31",
