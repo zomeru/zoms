@@ -1,8 +1,7 @@
-import { createClient, type SanityClient } from "@sanity/client";
 import { revalidatePath } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-
+import { createSanityWriteClient } from "@/features/blog/sanityWriter";
 import { getBlogPostBySlug } from "@/lib/blog";
 import { requireBlogGenerationAuth } from "@/lib/blogAuth";
 import { scheduleDeletedBlogCleanup } from "@/lib/blogDeleteCleanup";
@@ -17,29 +16,6 @@ export const dynamic = "force-dynamic";
 const slugParamsSchema = z.object({
   slug: z.string().min(1)
 });
-
-function createSanityWriteClient(): SanityClient {
-  const apiToken = process.env.SANITY_API_TOKEN;
-  const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-  const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
-
-  if (!apiToken || !projectId || !dataset) {
-    log.error("Sanity environment variables missing for blog deletion", {
-      hasApiToken: !!apiToken,
-      hasDataset: !!dataset,
-      hasProjectId: !!projectId
-    });
-    throw new ApiError(getErrorMessage("MISSING_SANITY_CONFIG"), 500, "CONFIG_ERROR");
-  }
-
-  return createClient({
-    apiVersion: "2026-03-31",
-    dataset,
-    projectId,
-    token: apiToken,
-    useCdn: false
-  });
-}
 
 /**
  * GET /api/blog/[slug]
@@ -138,7 +114,7 @@ export async function DELETE(
       throw new ApiError(getErrorMessage("BLOG_POST_NOT_FOUND"), 404, "NOT_FOUND");
     }
 
-    const writeClient = createSanityWriteClient();
+    const writeClient = createSanityWriteClient("blog deletion");
 
     await log.timeAsync(
       "Delete blog post from Sanity",
