@@ -71,7 +71,7 @@ export const repositories = {
       return await withDbRetry(
         () =>
           getDb().$transaction(async (tx) => {
-            const message = await tx.chatMessage.create({ data: input });
+            const message = await tx.chatMessage.create({ data: input, select: { id: true } });
             await tx.$executeRawUnsafe(
               `UPDATE "ChatMessage" SET embedding = $1::halfvec WHERE id = $2`,
               vec,
@@ -83,9 +83,10 @@ export const repositories = {
       );
     }
 
-    return await withDbRetry(() => getDb().chatMessage.create({ data: input }), {
-      label: "createChatMessage"
-    });
+    return await withDbRetry(
+      () => getDb().chatMessage.create({ data: input, select: { id: true } }),
+      { label: "createChatMessage" }
+    );
   },
 
   async searchChatMessages(input: { limit: number; query: string; sessionKey: string }): Promise<
@@ -212,7 +213,25 @@ export const repositories = {
       () =>
         getDb().chatSession.findUnique({
           where: { sessionKey },
-          include: { messages: { orderBy: { createdAt: "asc" } } }
+          select: {
+            id: true,
+            sessionKey: true,
+            pathnameHint: true,
+            blogSlugHint: true,
+            createdAt: true,
+            lastActiveAt: true,
+            messages: {
+              orderBy: { createdAt: "asc" },
+              select: {
+                id: true,
+                role: true,
+                content: true,
+                citations: true,
+                groundedAnswer: true,
+                createdAt: true
+              }
+            }
+          }
         }),
       { label: "getChatSession" }
     );
@@ -220,27 +239,33 @@ export const repositories = {
 
   async getChatHistoryPage(sessionKey: string, input: { limit: number; offset: number }) {
     const where = { session: { sessionKey } } as const;
+    const select = {
+      id: true,
+      role: true,
+      content: true,
+      citations: true,
+      groundedAnswer: true,
+      createdAt: true
+    } as const;
 
     return await withDbRetry(
-      async () => {
-        const [messages, total] = await Promise.all([
+      () =>
+        getDb().$transaction([
           getDb().chatMessage.findMany({
             orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+            select,
             skip: input.offset,
             take: input.limit,
             where
           }),
           getDb().chatMessage.count({ where })
-        ]);
-
-        return {
-          hasMore: input.offset + messages.length < total,
-          messages: messages.reverse(),
-          total
-        };
-      },
+        ]),
       { label: "getChatHistoryPage" }
-    );
+    ).then(([messages, total]) => ({
+      hasMore: input.offset + messages.length < total,
+      messages: messages.reverse(),
+      total
+    }));
   },
 
   async getRecentChatMessages(sessionKey: string, limit: number) {
@@ -248,6 +273,14 @@ export const repositories = {
       () =>
         getDb().chatMessage.findMany({
           orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+          select: {
+            id: true,
+            role: true,
+            content: true,
+            citations: true,
+            groundedAnswer: true,
+            createdAt: true
+          },
           take: limit,
           where: { session: { sessionKey } }
         }),
@@ -258,9 +291,14 @@ export const repositories = {
   },
 
   async getIndexedDocument(documentId: string) {
-    return await withDbRetry(() => getDb().indexedDocument.findUnique({ where: { documentId } }), {
-      label: "getIndexedDocument"
-    });
+    return await withDbRetry(
+      () =>
+        getDb().indexedDocument.findUnique({
+          where: { documentId },
+          select: { contentHash: true }
+        }),
+      { label: "getIndexedDocument" }
+    );
   },
 
   async listIndexedDocumentHashes(): Promise<Map<string, string>> {
@@ -289,7 +327,8 @@ export const repositories = {
             lastActiveAt: new Date(),
             pathnameHint: input.pathnameHint,
             sessionKey: input.sessionKey
-          }
+          },
+          select: { id: true }
         }),
       { label: "touchChatSession" }
     );
