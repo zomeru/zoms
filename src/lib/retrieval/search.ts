@@ -84,7 +84,13 @@ function createStrictFilter(classification: QueryClassification): string | undef
     return undefined;
   }
 
-  return `contentType = '${classification.preferredContentTypes[0]}'`;
+  const contentType = classification.preferredContentTypes[0];
+  // Runtime guard: reject any value not in the known enum before it enters the DSL.
+  if (!isContentType(contentType)) {
+    return undefined;
+  }
+
+  return `contentType = '${contentType}'`;
 }
 
 function createClassification(

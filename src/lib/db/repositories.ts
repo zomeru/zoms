@@ -5,6 +5,7 @@ import {
   IngestionStatus,
   type Prisma
 } from "@/generated/prisma/client";
+import log from "@/lib/logger";
 import { generateEmbedding } from "@/lib/vector/index";
 
 import { getPrismaClient } from "./prisma";
@@ -56,10 +57,9 @@ export const repositories = {
       const embedding = await generateEmbedding(input.content);
       vectorStr = `[${embedding.join(",")}]`;
     } catch (err) {
-      console.warn(
-        "[createChatMessage] embedding generation failed, proceeding without embedding:",
-        err instanceof Error ? err.message : String(err)
-      );
+      log.warn("[createChatMessage] embedding generation failed, proceeding without embedding", {
+        error: err instanceof Error ? err.message : String(err)
+      });
     }
 
     if (vectorStr !== null) {

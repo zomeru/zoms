@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AiOutlineArrowUp } from "react-icons/ai";
 import { FiGithub } from "react-icons/fi";
@@ -27,10 +26,7 @@ interface ProjectTechStackProps {
   techs: string[];
 }
 
-const ProjectDescription: React.FC<ProjectDescriptionProps> = ({
-  info,
-  name
-}): React.JSX.Element => {
+function ProjectDescription({ info, name }: ProjectDescriptionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [canExpand, setCanExpand] = useState(false);
   const descriptionRef = useRef<HTMLParagraphElement | null>(null);
@@ -76,9 +72,9 @@ const ProjectDescription: React.FC<ProjectDescriptionProps> = ({
       ) : null}
     </div>
   );
-};
+}
 
-const ProjectTechStack: React.FC<ProjectTechStackProps> = ({ name, techs }): React.JSX.Element => {
+function ProjectTechStack({ name, techs }: ProjectTechStackProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [canExpand, setCanExpand] = useState(false);
   const stackRef = useRef<HTMLDivElement | null>(null);
@@ -132,9 +128,9 @@ const ProjectTechStack: React.FC<ProjectTechStackProps> = ({ name, techs }): Rea
       </div>
     </div>
   );
-};
+}
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ project }): React.JSX.Element => {
+function ProjectCard({ project }: ProjectCardProps) {
   const { name, alt, image, info, techs, links } = project;
 
   return (
@@ -183,9 +179,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }): React.JSX.Element
       </div>
     </CodeEditorCard>
   );
-};
+}
 
-const ProjectsClient: React.FC<ProjectsClientProps> = ({ projects }): React.JSX.Element => {
+function ProjectsClient({ projects }: ProjectsClientProps) {
   const [perPage, setPerPage] = useState(4);
 
   const filteredProjects = useMemo(() => projects.slice(0, perPage), [perPage, projects]);
@@ -213,6 +209,6 @@ const ProjectsClient: React.FC<ProjectsClientProps> = ({ projects }): React.JSX.
       </div>
     </>
   );
-};
+}
 
 export default ProjectsClient;

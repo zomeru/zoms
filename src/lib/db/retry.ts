@@ -1,3 +1,5 @@
+import log from "@/lib/logger";
+
 const TRANSIENT_DB_ERRORS = [
   "Connection terminated unexpectedly",
   "Server has closed the connection",
@@ -48,9 +50,12 @@ export async function withDbRetry<T>(fn: () => Promise<T>, options: RetryOptions
       if (!isTransientDbError(err)) throw err;
       const delay = Math.min(baseDelayMs * 2 ** i, maxDelayMs);
       const msg = err instanceof Error ? err.message : String(err);
-      console.warn(
-        `[${label}] transient error (attempt ${i + 1}/${attempts}), retrying in ${delay}ms: ${msg}`
-      );
+      log.warn(`[${label}] transient error, retrying`, {
+        attempt: i + 1,
+        attempts,
+        delayMs: delay,
+        error: msg
+      });
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
