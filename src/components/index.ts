@@ -1,5 +1,5 @@
-export { default as Footer } from "./Footer";
-export { default as Navbar } from "./Navbar";
-export { default as ParticleBackground } from "./ParticleBackground";
-export { default as TerminalHero } from "./TerminalHero";
+export { Footer } from "./Footer";
+export { Navbar } from "./Navbar";
+export { ParticleBackground } from "./ParticleBackground";
+export { TerminalHero } from "./TerminalHero";
 export * from "./ui";

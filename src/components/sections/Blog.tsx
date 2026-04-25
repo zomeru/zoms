@@ -1,13 +1,12 @@
 import Link from "next/link";
-import type React from "react";
 
-import BlogDeleteMenu from "@/components/blog/BlogDeleteMenu";
+import { BlogDeleteMenu } from "@/components/blog/BlogDeleteMenu";
 import { TechBadge, TerminalCard } from "@/components/ui";
 import { MAX_PORTFOLIO_BLOG_POSTS } from "@/constants";
 import { getLatestBlogPosts } from "@/lib/blog";
 import { formatDate } from "@/lib/utils";
 
-const Blog: React.FC = async (): Promise<React.JSX.Element> => {
+export async function Blog() {
   const posts = await getLatestBlogPosts(MAX_PORTFOLIO_BLOG_POSTS);
 
   return (
@@ -72,6 +71,4 @@ const Blog: React.FC = async (): Promise<React.JSX.Element> => {
       </div>
     </section>
   );
-};
-
-export default Blog;
+}

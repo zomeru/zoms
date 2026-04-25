@@ -1,14 +1,13 @@
 "use client";
 
-import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
-import NodeCanvas from "./NodeCanvas";
+import { NodeCanvas } from "./NodeCanvas";
 
 const CYCLE_MS = 5000; // time between repositions
 const FADE_MS = 600; // canvas fade-out / fade-in duration
 
-const NodeSection: React.FC = () => {
+export function NodeSection() {
   const [canvasVisible, setCanvasVisible] = useState(false);
   const [seed, setSeed] = useState(0);
   const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -51,6 +50,4 @@ const NodeSection: React.FC = () => {
       <NodeCanvas seed={seed} className="h-full w-full" />
     </div>
   );
-};
-
-export default NodeSection;
+}

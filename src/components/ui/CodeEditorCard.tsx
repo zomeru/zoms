@@ -9,14 +9,14 @@ interface CodeEditorCardProps {
   showHeader?: boolean;
 }
 
-const CodeEditorCard: React.FC<CodeEditorCardProps> = ({
+export function CodeEditorCard({
   children,
   filename = "untitled.tsx",
   language = "typescript",
   className = "",
   showLineNumbers = false,
   showHeader = false
-}) => {
+}: CodeEditorCardProps) {
   const lines = React.Children.toArray(children);
 
   return (
@@ -63,6 +63,4 @@ const CodeEditorCard: React.FC<CodeEditorCardProps> = ({
       </div>
     </div>
   );
-};
-
-export default CodeEditorCard;
+}

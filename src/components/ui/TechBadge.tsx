@@ -1,20 +1,20 @@
-import type React from "react";
+import type { ReactNode } from "react";
 
 interface TechBadgeProps {
-  children: React.ReactNode;
-  icon?: React.ReactNode;
+  children: ReactNode;
+  icon?: ReactNode;
   dotColor?: string;
   variant?: "icon" | "dot";
   className?: string;
 }
 
-const TechBadge: React.FC<TechBadgeProps> = ({
+export function TechBadge({
   children,
   icon,
   dotColor,
   variant = "icon",
   className = ""
-}) => {
+}: TechBadgeProps) {
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 font-mono text-[10px] text-text-secondary transition-all duration-200 hover:border-primary/30 hover:bg-primary/15 hover:text-primary ${className}
@@ -27,6 +27,4 @@ const TechBadge: React.FC<TechBadgeProps> = ({
       {children}
     </span>
   );
-};
-
-export default TechBadge;
+}

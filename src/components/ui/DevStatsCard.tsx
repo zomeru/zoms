@@ -1,5 +1,3 @@
-import type React from "react";
-
 import type { GitHubDevStats } from "@/lib/github";
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -10,41 +8,45 @@ interface MetricRowProps {
   value: number;
 }
 
-const MetricRow: React.FC<MetricRowProps> = ({ filled, label, value }) => (
-  <div className="flex items-center justify-between gap-8 py-0.75">
-    <span className="flex items-center gap-2">
-      <span className={filled ? "text-terminal-green" : "text-text-muted"} aria-hidden="true">
-        {filled ? "●" : "○"}
+function MetricRow({ filled, label, value }: MetricRowProps) {
+  return (
+    <div className="flex items-center justify-between gap-8 py-0.75">
+      <span className="flex items-center gap-2">
+        <span className={filled ? "text-terminal-green" : "text-text-muted"} aria-hidden="true">
+          {filled ? "●" : "○"}
+        </span>
+        <span className="text-text-secondary text-xs">{label}</span>
       </span>
-      <span className="text-text-secondary text-xs">{label}</span>
-    </span>
-    <span
-      className={`font-mono text-xs tabular-nums ${filled ? "text-terminal-green" : "text-text-primary"}`}
-    >
-      {value}
-    </span>
-  </div>
-);
+      <span
+        className={`font-mono text-xs tabular-nums ${filled ? "text-terminal-green" : "text-text-primary"}`}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
 
 interface CardBodyProps {
   gh: GitHubDevStats;
 }
 
-const CardBody: React.FC<CardBodyProps> = ({ gh }) => (
-  <>
-    <div className="px-4 pt-3 pb-2">
-      <p className="mb-1.5 text-[10px] text-text-muted tracking-wider">{"// github"}</p>
-      <MetricRow filled label="contributions" value={gh.totalContributions} />
-      <MetricRow filled label="commits" value={gh.totalCommits} />
-      <MetricRow filled={false} label="pull requests" value={gh.totalPRs} />
-      <MetricRow filled={false} label="repositories" value={gh.totalRepos} />
-      <MetricRow filled={false} label="longest streak (days)" value={gh.longestStreak} />
-    </div>
-    <div className="border-border border-t px-4 py-2">
-      <span className="text-[10px] text-terminal-yellow">{`updated ${gh.lastUpdated}`}</span>
-    </div>
-  </>
-);
+function CardBody({ gh }: CardBodyProps) {
+  return (
+    <>
+      <div className="px-4 pt-3 pb-2">
+        <p className="mb-1.5 text-[10px] text-text-muted tracking-wider">{"// github"}</p>
+        <MetricRow filled label="contributions" value={gh.totalContributions} />
+        <MetricRow filled label="commits" value={gh.totalCommits} />
+        <MetricRow filled={false} label="pull requests" value={gh.totalPRs} />
+        <MetricRow filled={false} label="repositories" value={gh.totalRepos} />
+        <MetricRow filled={false} label="longest streak (days)" value={gh.longestStreak} />
+      </div>
+      <div className="border-border border-t px-4 py-2">
+        <span className="text-[10px] text-terminal-yellow">{`updated ${gh.lastUpdated}`}</span>
+      </div>
+    </>
+  );
+}
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
@@ -63,7 +65,7 @@ interface DevStatsCardProps {
   initialData?: GitHubDevStats;
 }
 
-const DevStatsCard: React.FC<DevStatsCardProps> = ({ className = "", initialData }) => {
+export function DevStatsCard({ className = "", initialData }: DevStatsCardProps) {
   const gh = initialData ?? UNAVAILABLE;
 
   return (
@@ -86,6 +88,4 @@ const DevStatsCard: React.FC<DevStatsCardProps> = ({ className = "", initialData
       <CardBody gh={gh} />
     </div>
   );
-};
-
-export default DevStatsCard;
+}

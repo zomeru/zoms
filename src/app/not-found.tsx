@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import type React from "react";
 
 import { TerminalCard } from "@/components/ui";
 import { seo } from "@/configs";
@@ -13,7 +12,7 @@ export const metadata: Metadata = {
   }
 };
 
-const NotFound = (): React.JSX.Element => {
+export default function NotFound() {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-6 py-16">
       <TerminalCard title="404.tsx" bodyClassName="p-6 font-mono text-sm md:p-8">
@@ -54,6 +53,4 @@ const NotFound = (): React.JSX.Element => {
       </TerminalCard>
     </div>
   );
-};
-
-export default NotFound;
+}

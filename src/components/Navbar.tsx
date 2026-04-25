@@ -2,26 +2,26 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { navigation } from "@/constants";
 
 const NAV_OFFSET = 100; // px — fixed navbar height
 
-const Navbar = (): React.JSX.Element => {
+export function Navbar() {
   const pathname = usePathname();
-  const [activeSection, setActiveSection] = React.useState("");
-  const [isLoaded, setIsLoaded] = React.useState(false);
+  const [activeSection, setActiveSection] = useState("");
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const isHomePage = pathname === "/";
 
   // Entrance animation
-  React.useEffect(() => {
+  useEffect(() => {
     setIsLoaded(true);
   }, []);
 
   // Track active section via IntersectionObserver (home page only)
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isHomePage) return;
 
     const sectionIds = navigation.map((nav) => nav.url.replace("/#", ""));
@@ -99,7 +99,7 @@ const Navbar = (): React.JSX.Element => {
       </nav>
     </header>
   );
-};
+}
 
 const MobileMenu = ({
   activeSection,
@@ -111,11 +111,11 @@ const MobileMenu = ({
   onNavClick: (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => void;
   isHomePage: boolean;
   pathname: string;
-}): React.JSX.Element => {
-  const [isOpen, setIsOpen] = React.useState(false);
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
 
   // Close on desktop resize
-  React.useEffect(() => {
+  useEffect(() => {
     const close = () => {
       if (window.innerWidth >= 768) setIsOpen(false);
     };
@@ -188,5 +188,3 @@ const MobileMenu = ({
     </>
   );
 };
-
-export default Navbar;

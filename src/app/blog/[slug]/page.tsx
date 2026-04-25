@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type React from "react";
 
-import BlogDeleteMenu from "@/components/blog/BlogDeleteMenu";
+import { BlogDeleteMenu } from "@/components/blog/BlogDeleteMenu";
 import { AdBanner, TechBadge, TerminalCard } from "@/components/ui";
 import { SITE_URL } from "@/configs/seo";
 import { TITLE } from "@/constants";
@@ -83,7 +82,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   };
 }
 
-const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.Element> => {
+export async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
   const post = await getBlogPostBySlug(slug);
 
@@ -192,6 +191,6 @@ const BlogPostPage = async ({ params }: BlogPostPageProps): Promise<React.JSX.El
       </div>
     </>
   );
-};
+}
 
 export default BlogPostPage;

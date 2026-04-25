@@ -1,11 +1,10 @@
 import Link from "next/link";
-import type React from "react";
 import { TITLE } from "@/constants";
 
 const FOOTER_LINKS = ["github", "linkedin", "instagram", "contact", "privacy"] as const;
 const SOCIAL_LINKS = new Set(["github", "linkedin", "instagram"]);
 
-const Footer: React.FC = (): React.JSX.Element => {
+export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -93,6 +92,4 @@ const Footer: React.FC = (): React.JSX.Element => {
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

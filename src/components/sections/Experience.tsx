@@ -1,8 +1,6 @@
-import type React from "react";
+import { ExperienceTimeline } from "./ExperienceTimeline";
 
-import ExperienceTimeline from "./ExperienceTimeline";
-
-const Experience: React.FC = async (): Promise<React.JSX.Element> => {
+export async function Experience() {
   const { getExperience } = await import("@/lib/experience");
   const experience = await getExperience();
 
@@ -26,6 +24,4 @@ const Experience: React.FC = async (): Promise<React.JSX.Element> => {
       </div>
     </section>
   );
-};
-
-export default Experience;
+}

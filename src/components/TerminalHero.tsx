@@ -1,6 +1,5 @@
 "use client";
 
-import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { TerminalCard } from "./ui/TerminalCard";
@@ -26,7 +25,7 @@ const syntaxColors: Record<string, string> = {
   variable: "var(--color-syntax-variable)"
 };
 
-const TerminalHero: React.FC<TerminalHeroProps> = ({ name, title, descriptions }) => {
+export function TerminalHero({ name, title, descriptions }: TerminalHeroProps) {
   const [displayedCode, setDisplayedCode] = useState("");
   const [displayedDescription, setDisplayedDescription] = useState("");
 
@@ -174,6 +173,4 @@ const TerminalHero: React.FC<TerminalHeroProps> = ({ name, title, descriptions }
       </TerminalCard>
     </div>
   );
-};
-
-export default TerminalHero;
+}

@@ -36,7 +36,7 @@ function parseRgba(rgba: string): [number, number, number] {
   return match ? [Number(match[0]), Number(match[1]), Number(match[2])] : [148, 163, 184];
 }
 
-const ParticleBackground = () => {
+export const ParticleBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number | null>(null);
   const particlesRef = useRef<Particle[]>([]);
@@ -207,5 +207,3 @@ const ParticleBackground = () => {
     <canvas ref={canvasRef} className="pointer-events-none fixed inset-0 block h-full w-full" />
   );
 };
-
-export default ParticleBackground;

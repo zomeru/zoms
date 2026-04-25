@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import type React from "react";
 
 import { TerminalCard } from "@/components/ui";
 import { SITE_URL, staticOgImages } from "@/configs/seo";
@@ -37,7 +36,7 @@ export const metadata: Metadata = {
   }
 };
 
-const BlogPageContent: React.FC = async (): Promise<React.JSX.Element> => {
+export default async function BlogPageContent() {
   const [posts, total] = await Promise.all([
     getBlogPosts(BLOG_POSTS_PAGE_SIZE, 0),
     getBlogPostCount()
@@ -81,6 +80,4 @@ const BlogPageContent: React.FC = async (): Promise<React.JSX.Element> => {
       )}
     </div>
   );
-};
-
-export default BlogPageContent;
+}

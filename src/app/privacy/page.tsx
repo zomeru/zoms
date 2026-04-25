@@ -13,16 +13,18 @@ export const metadata: Metadata = {
   }
 };
 
-const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="mb-8">
-    <h2 className="mb-3 font-semibold text-lg text-primary">{title}</h2>
-    <div className="space-y-3 font-mono text-sm text-text-secondary leading-relaxed">
-      {children}
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="mb-8">
+      <h2 className="mb-3 font-semibold text-lg text-primary">{title}</h2>
+      <div className="space-y-3 font-mono text-sm text-text-secondary leading-relaxed">
+        {children}
+      </div>
     </div>
-  </div>
-);
+  );
+}
 
-const PrivacyPage: React.FC = (): React.JSX.Element => {
+export default function PrivacyPage() {
   const lastUpdated = "April 17, 2026";
 
   return (
@@ -173,6 +175,4 @@ const PrivacyPage: React.FC = (): React.JSX.Element => {
       </div>
     </div>
   );
-};
-
-export default PrivacyPage;
+}

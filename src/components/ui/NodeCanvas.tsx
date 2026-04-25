@@ -1,6 +1,5 @@
 "use client";
 
-import type React from "react";
 import { useEffect, useRef } from "react";
 
 import { readThemeVisualTokens, THEME_CHANGE_EVENT } from "@/lib/theme/dom";
@@ -142,7 +141,7 @@ function randomNodes(): Node[] {
   ]);
 }
 
-const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = "", seed = 0 }) => {
+export function NodeCanvas({ className = "", seed = 0 }: NodeCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number | null>(null);
   const nodesRef = useRef<Node[]>(randomNodes());
@@ -391,6 +390,4 @@ const NodeCanvas: React.FC<NodeCanvasProps> = ({ className = "", seed = 0 }) => 
   }, []);
 
   return <canvas ref={canvasRef} className={`block h-full w-full ${className}`} />;
-};
-
-export default NodeCanvas;
+}

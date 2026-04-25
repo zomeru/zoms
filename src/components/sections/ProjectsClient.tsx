@@ -181,7 +181,7 @@ function ProjectCard({ project }: ProjectCardProps) {
   );
 }
 
-function ProjectsClient({ projects }: ProjectsClientProps) {
+export function ProjectsClient({ projects }: ProjectsClientProps) {
   const [perPage, setPerPage] = useState(4);
 
   const filteredProjects = useMemo(() => projects.slice(0, perPage), [perPage, projects]);
@@ -210,5 +210,3 @@ function ProjectsClient({ projects }: ProjectsClientProps) {
     </>
   );
 }
-
-export default ProjectsClient;

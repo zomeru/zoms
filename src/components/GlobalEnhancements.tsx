@@ -11,11 +11,15 @@ const ChatAssistantShell = dynamic(
   }
 );
 
-const ParticleBackground = dynamic(async () => await import("@/components/ParticleBackground"), {
-  ssr: false
-});
+const ParticleBackground = dynamic(
+  async () =>
+    await import("@/components/ParticleBackground").then((module) => module.ParticleBackground),
+  {
+    ssr: false
+  }
+);
 
-export default function GlobalEnhancements() {
+export function GlobalEnhancements() {
   const pathname = usePathname();
 
   if (pathname.startsWith("/admin")) {

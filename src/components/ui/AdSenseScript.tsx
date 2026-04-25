@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 import { CONSENT_STORAGE_KEY } from "@/lib/consent";
 
-const AdSenseScript = () => {
+export function AdSenseScript() {
   const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
 
   useEffect(() => {
@@ -39,6 +39,4 @@ const AdSenseScript = () => {
   }, [clientId]);
 
   return null;
-};
-
-export default AdSenseScript;
+}

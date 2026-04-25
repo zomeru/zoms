@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import type React from "react";
 import { useEffect, useState } from "react";
 
 import { BlogGenerateButton } from "@/components/admin/BlogGenerateButton";
@@ -14,7 +13,7 @@ interface AdminAccessState {
   blogGenerationAuthorized: boolean;
 }
 
-const AdminConsole: React.FC = () => {
+export function AdminConsole() {
   const [accessState, setAccessState] = useState<AdminAccessState | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -106,6 +105,4 @@ const AdminConsole: React.FC = () => {
       ) : null}
     </div>
   );
-};
-
-export { AdminConsole };
+}

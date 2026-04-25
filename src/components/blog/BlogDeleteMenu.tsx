@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 
@@ -25,7 +24,7 @@ export function BlogDeleteMenu({
   refreshOnDelete = true,
   slug,
   title
-}: BlogDeleteMenuProps): React.JSX.Element | null {
+}: BlogDeleteMenuProps) {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const isAuthorized = useBlogAdminAuthorization(initialAuthorized);
@@ -134,5 +133,3 @@ export function BlogDeleteMenu({
     </div>
   );
 }
-
-export default BlogDeleteMenu;
