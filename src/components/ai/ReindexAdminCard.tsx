@@ -3,7 +3,7 @@
 import type React from "react";
 import { useState } from "react";
 
-import TerminalCard from "@/components/ui/TerminalCard";
+import { TerminalCard } from "@/components/ui/TerminalCard";
 import {
   CLIENT_ERROR_MESSAGES,
   getClientErrorMessage,
@@ -270,4 +270,4 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
   );
 };
 
-export default ReindexAdminCard;
+export { ReindexAdminCard };

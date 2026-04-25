@@ -3,7 +3,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import ChatMessageList from "@/components/ai/ChatMessageList";
+import { ChatMessageList } from "@/components/ai/ChatMessageList";
 import { WELCOME_MESSAGE } from "@/components/ai/useChatAssistant";
 
 describe("chat message list", () => {

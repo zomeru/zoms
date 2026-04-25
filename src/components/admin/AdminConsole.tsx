@@ -4,8 +4,8 @@ import Link from "next/link";
 import type React from "react";
 import { useEffect, useState } from "react";
 
-import BlogGenerateButton from "@/components/admin/BlogGenerateButton";
-import ReindexAdminCard from "@/components/ai/ReindexAdminCard";
+import { BlogGenerateButton } from "@/components/admin/BlogGenerateButton";
+import { ReindexAdminCard } from "@/components/ai/ReindexAdminCard";
 import { TerminalCard } from "@/components/ui";
 import { getResponseErrorMessage } from "@/lib/errorMessages";
 
@@ -108,4 +108,4 @@ const AdminConsole: React.FC = () => {
   );
 };
 
-export default AdminConsole;
+export { AdminConsole };

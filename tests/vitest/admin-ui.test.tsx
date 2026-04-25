@@ -3,8 +3,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import AdminConsole from "@/components/admin/AdminConsole";
-import ReindexAdminCard from "@/components/ai/ReindexAdminCard";
+import { AdminConsole } from "@/components/admin/AdminConsole";
+import { ReindexAdminCard } from "@/components/ai/ReindexAdminCard";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({

@@ -9,7 +9,7 @@ import {
   clearBlogAdminAuthorization,
   markBlogAdminAuthorized
 } from "@/components/blog/useBlogAdminAuthorization";
-import TerminalCard from "@/components/ui/TerminalCard";
+import { TerminalCard } from "@/components/ui/TerminalCard";
 import {
   CLIENT_ERROR_MESSAGES,
   getClientErrorMessage,
@@ -254,4 +254,4 @@ const BlogGenerateButton: React.FC<BlogGenerateButtonProps> = ({ initialAuthoriz
   );
 };
 
-export default BlogGenerateButton;
+export { BlogGenerateButton };

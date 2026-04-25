@@ -139,7 +139,7 @@ function getLanguageLabel(language: string | null): string {
   );
 }
 
-export default function ChatMessageContent({
+export function ChatMessageContent({
   content,
   isStreaming = false
 }: {

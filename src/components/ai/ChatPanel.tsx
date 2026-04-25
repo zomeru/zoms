@@ -6,8 +6,8 @@ import {
   FLOATING_WIDGET_PANEL_SHELL
 } from "@/components/ui/floatingWidgetStyles";
 
-import ChatComposer from "./ChatComposer";
-import ChatMessageList from "./ChatMessageList";
+import { ChatComposer } from "./ChatComposer";
+import { ChatMessageList } from "./ChatMessageList";
 import type { AssistantMessage } from "./useChatAssistant";
 
 interface ChatPanelProps {
@@ -25,7 +25,7 @@ interface ChatPanelProps {
   onTransform: (mode: "advanced" | "beginner" | "tldr") => Promise<void>;
 }
 
-export default function ChatPanel({
+export function ChatPanel({
   blogSlug,
   error,
   hasMoreHistory,

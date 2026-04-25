@@ -2,11 +2,11 @@
 
 import { usePathname } from "next/navigation";
 
-import ChatLauncher from "./ChatLauncher";
-import ChatPanel from "./ChatPanel";
+import { ChatLauncher } from "./ChatLauncher";
+import { ChatPanel } from "./ChatPanel";
 import { useChatAssistant } from "./useChatAssistant";
 
-export default function ChatAssistantShell() {
+export function ChatAssistantShell() {
   const pathname = usePathname();
 
   if (pathname.startsWith("/admin")) {

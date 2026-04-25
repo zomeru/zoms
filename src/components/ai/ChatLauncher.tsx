@@ -13,7 +13,7 @@ interface ChatLauncherProps {
   onClick: () => void;
 }
 
-export default function ChatLauncher({ onClick }: ChatLauncherProps) {
+export function ChatLauncher({ onClick }: ChatLauncherProps) {
   return (
     <button
       type="button"

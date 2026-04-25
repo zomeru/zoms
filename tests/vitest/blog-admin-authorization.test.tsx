@@ -63,7 +63,7 @@ describe("blog admin authorization state", () => {
   it("syncs unlock and forget actions across blog admin surfaces without a full reload", async () => {
     vi.stubGlobal("fetch", createBlogAuthFetchMock());
 
-    const { default: BlogGenerateButton } = await import("@/app/blog/BlogGenerateButton");
+    const { BlogGenerateButton } = await import("@/app/blog/BlogGenerateButton");
     const { BlogDeleteMenu } = await import("@/components/blog/BlogDeleteMenu");
 
     render(

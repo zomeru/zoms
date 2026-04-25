@@ -1,1 +1,1 @@
-export { default } from "@/components/admin/BlogGenerateButton";
+export { BlogGenerateButton } from "@/components/admin/BlogGenerateButton";

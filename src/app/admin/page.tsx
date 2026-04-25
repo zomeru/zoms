@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type React from "react";
 
-import AdminConsole from "@/components/admin/AdminConsole";
+import { AdminConsole } from "@/components/admin/AdminConsole";
 import { SITE_URL } from "@/configs/seo";
 
 export const metadata: Metadata = {

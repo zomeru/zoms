@@ -3,7 +3,7 @@
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import TerminalCard from "./ui/TerminalCard";
+import { TerminalCard } from "./ui/TerminalCard";
 
 interface TerminalHeroProps {
   name: string;

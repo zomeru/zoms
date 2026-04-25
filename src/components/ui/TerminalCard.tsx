@@ -37,4 +37,4 @@ const TerminalCard: React.FC<TerminalCardProps> = ({
   );
 };
 
-export default TerminalCard;
+export { TerminalCard };

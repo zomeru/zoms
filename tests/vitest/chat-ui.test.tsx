@@ -6,10 +6,10 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useEffect } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import ChatComposer from "@/components/ai/ChatComposer";
-import ChatLauncher from "@/components/ai/ChatLauncher";
-import ChatMessageList from "@/components/ai/ChatMessageList";
-import ChatPanel from "@/components/ai/ChatPanel";
+import { ChatComposer } from "@/components/ai/ChatComposer";
+import { ChatLauncher } from "@/components/ai/ChatLauncher";
+import { ChatMessageList } from "@/components/ai/ChatMessageList";
+import { ChatPanel } from "@/components/ai/ChatPanel";
 import { useChatAssistant } from "@/components/ai/useChatAssistant";
 
 function HookHarness() {
