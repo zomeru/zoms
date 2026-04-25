@@ -1,0 +1,31 @@
+export const SCORING = {
+  // Refuse-answer thresholds
+  STRICT_THRESHOLD: 0.45,
+  RELAXED_THRESHOLD: 0.35,
+
+  // Title boost
+  TITLE_EXACT_BOOST: 0.45,
+  TITLE_TOKEN_BOOST_PER: 0.12,
+  TITLE_TOKEN_CAP: 3,
+
+  // Slug / tag / section boosts
+  SLUG_EXACT_BOOST: 0.35,
+  TAG_BOOST_PER: 0.1,
+  SECTION_BOOST: 0.15,
+
+  // Content-type boosts / penalties
+  CONTENT_TYPE_PREFERRED_STRICT: 0.55,
+  CONTENT_TYPE_PREFERRED_RELAXED: 0.2,
+  CONTENT_TYPE_PENALTY_STRICT: -0.45,
+
+  // Contextual boosts
+  CURRENT_PAGE_BOOST: 0.25,
+  RECENCY_BOOST_MAX: 0.15,
+  RECENCY_WINDOW_DAYS: 365,
+  EXPERIENCE_ORDER_BOOST_MAX: 0.15,
+  EXPERIENCE_ORDER_CAP: 10,
+
+  // Retrieval pipeline
+  TOP_K: 12,
+  CHUNKS_PER_DOCUMENT_LIMIT: 3
+} as const;

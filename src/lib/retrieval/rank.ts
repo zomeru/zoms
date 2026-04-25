@@ -1,4 +1,5 @@
 import type { QueryClassification } from "./classify";
+import { SCORING } from "./scoring";
 import type { RetrievedChunk } from "./types";
 
 function tokenize(value: string): string[] {
@@ -15,12 +16,11 @@ function calculateRecencyBoost(publishedAt?: string): number {
 
   const published = new Date(publishedAt).getTime();
   const ageInDays = Math.max(0, (Date.now() - published) / (1000 * 60 * 60 * 24));
-  const freshness = Math.max(0, 365 - ageInDays) / 365;
+  const freshness =
+    Math.max(0, SCORING.RECENCY_WINDOW_DAYS - ageInDays) / SCORING.RECENCY_WINDOW_DAYS;
 
-  return freshness * 0.15;
+  return freshness * SCORING.RECENCY_BOOST_MAX;
 }
-
-const EXPERIENCE_ORDER_CAP = 10;
 
 function calculateExperienceOrderBoost(
   contentType: RetrievedChunk["contentType"],
@@ -29,22 +29,26 @@ function calculateExperienceOrderBoost(
   if (contentType !== "experience" || orderIndex === undefined || orderIndex < 0) {
     return 0;
   }
-  const normalized = Math.min(orderIndex, EXPERIENCE_ORDER_CAP) / EXPERIENCE_ORDER_CAP;
-  return normalized * 0.15;
+  const normalized =
+    Math.min(orderIndex, SCORING.EXPERIENCE_ORDER_CAP) / SCORING.EXPERIENCE_ORDER_CAP;
+  return normalized * SCORING.EXPERIENCE_ORDER_BOOST_MAX;
 }
 
 function calculateTitleBoost(title: string, exactQuery: string, queryTokens: string[]): number {
   let boost = 0;
 
   if (title === exactQuery || title.includes(exactQuery)) {
-    boost += 0.45;
+    boost += SCORING.TITLE_EXACT_BOOST;
   }
 
   const matchingTitleTokens = queryTokens.filter(
     (token) => token.length > 2 && title.includes(token)
   );
 
-  return boost + Math.min(matchingTitleTokens.length, 3) * 0.12;
+  return (
+    boost +
+    Math.min(matchingTitleTokens.length, SCORING.TITLE_TOKEN_CAP) * SCORING.TITLE_TOKEN_BOOST_PER
+  );
 }
 
 function calculateSlugBoost(slug: string | undefined, exactQuery: string): number {
@@ -53,7 +57,7 @@ function calculateSlugBoost(slug: string | undefined, exactQuery: string): numbe
   }
 
   if (slug === exactQuery || exactQuery.includes(slug)) {
-    return 0.35;
+    return SCORING.SLUG_EXACT_BOOST;
   }
 
   return 0;
@@ -61,11 +65,11 @@ function calculateSlugBoost(slug: string | undefined, exactQuery: string): numbe
 
 function calculateTagBoost(tags: string[], queryTokens: string[]): number {
   const matchingTags = tags.filter((tag) => queryTokens.some((token) => tag.includes(token)));
-  return matchingTags.length * 0.1;
+  return matchingTags.length * SCORING.TAG_BOOST_PER;
 }
 
 function calculateSectionBoost(sectionTitle: string, queryTokens: string[]): number {
-  return queryTokens.some((token) => sectionTitle.includes(token)) ? 0.15 : 0;
+  return queryTokens.some((token) => sectionTitle.includes(token)) ? SCORING.SECTION_BOOST : 0;
 }
 
 function calculateContentTypeBoost(
@@ -75,17 +79,19 @@ function calculateContentTypeBoost(
   const preferredContentType = classification.preferredContentTypes.includes(contentType);
 
   if (preferredContentType) {
-    return classification.strictContentTypes ? 0.55 : 0.2;
+    return classification.strictContentTypes
+      ? SCORING.CONTENT_TYPE_PREFERRED_STRICT
+      : SCORING.CONTENT_TYPE_PREFERRED_RELAXED;
   }
 
-  return classification.strictContentTypes ? -0.45 : 0;
+  return classification.strictContentTypes ? SCORING.CONTENT_TYPE_PENALTY_STRICT : 0;
 }
 
 function calculateCurrentPageBoost(
   currentBlogSlug: string | undefined,
   slug: string | undefined
 ): number {
-  return currentBlogSlug && slug === currentBlogSlug ? 0.25 : 0;
+  return currentBlogSlug && slug === currentBlogSlug ? SCORING.CURRENT_PAGE_BOOST : 0;
 }
 
 export function rankRetrievedChunks(input: {

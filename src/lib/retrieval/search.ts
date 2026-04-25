@@ -7,6 +7,7 @@ import { buildCitations } from "./citations";
 import { classifyQueryIntent, type QueryClassification, type QueryIntent } from "./classify";
 import { dedupeRetrievedChunks, limitChunksPerDocument } from "./dedupe";
 import { rankRetrievedChunks } from "./rank";
+import { SCORING } from "./scoring";
 import type { RetrievalResult, RetrievedChunk } from "./types";
 
 interface RetrievalSearchInput {
@@ -19,8 +20,6 @@ interface RetrievalSearchInput {
     topK: number;
   }) => Promise<VectorQueryMatch[]>;
 }
-
-const TOP_K = 12;
 
 function tokenize(value: string): string[] {
   return value
@@ -76,7 +75,7 @@ function rankMatches(input: {
         query: input.query
       })
     ),
-    3
+    SCORING.CHUNKS_PER_DOCUMENT_LIMIT
   );
 }
 
@@ -111,7 +110,9 @@ export function shouldRefuseAnswer(
     return true;
   }
 
-  const strongThreshold = classification.strictContentTypes ? 0.45 : 0.35;
+  const strongThreshold = classification.strictContentTypes
+    ? SCORING.STRICT_THRESHOLD
+    : SCORING.RELAXED_THRESHOLD;
   const strongestScore = matches[0]?.score ?? 0;
   const strongMatches = matches.filter((match) => match.score >= strongThreshold);
 
@@ -130,7 +131,7 @@ export async function retrieveRelevantChunks(
   const filteredMatches = await input.vectorQuery({
     filter: strictFilter,
     query: input.query,
-    topK: TOP_K
+    topK: SCORING.TOP_K
   });
 
   let matches = rankMatches({
@@ -140,10 +141,13 @@ export async function retrieveRelevantChunks(
     query: input.query
   });
 
-  if (strictFilter && (matches.length === 0 || (matches[0]?.score ?? 0) < 0.45)) {
+  if (
+    strictFilter &&
+    (matches.length === 0 || (matches[0]?.score ?? 0) < SCORING.STRICT_THRESHOLD)
+  ) {
     const fallbackMatches = await input.vectorQuery({
       query: input.query,
-      topK: TOP_K
+      topK: SCORING.TOP_K
     });
 
     matches = rankMatches({

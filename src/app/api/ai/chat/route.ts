@@ -23,10 +23,12 @@ import { classifyQueryIntent, isFollowUpQuery } from "@/lib/retrieval/classify";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function getSessionKey(request: NextRequest): { isNew: boolean; sessionKey: string } {
   const existing = request.cookies.get(AI_CHAT_COOKIE_NAME)?.value;
 
-  if (existing) {
+  if (existing && UUID_RE.test(existing)) {
     return { isNew: false, sessionKey: existing };
   }
 

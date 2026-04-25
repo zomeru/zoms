@@ -97,7 +97,11 @@ export function createStreamingChatResponse(input: {
             error: memoryError instanceof Error ? memoryError.message : String(memoryError)
           });
         });
-      } catch {
+      } catch (streamError) {
+        log.error("Chat stream failed", {
+          sessionKey: input.sessionKey,
+          error: streamError instanceof Error ? streamError.message : String(streamError)
+        });
         sendEvent({
           answer: {
             answer:
