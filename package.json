@@ -39,10 +39,10 @@
     "@openrouter/ai-sdk-provider": "^2.8.0",
     "@portabletext/react": "^6.0.3",
     "@portabletext/types": "^4.0.2",
-    "@prisma/adapter-pg": "^7.7.0",
-    "@prisma/client": "^7.7.0",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
     "@rehype-pretty/transformers": "^0.13.2",
-    "@sanity/client": "^7.21.0",
+    "@sanity/client": "^7.22.0",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.37.0",
     "@vercel/analytics": "^2.0.1",
@@ -75,8 +75,8 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.12",
-    "@tailwindcss/postcss": "^4.2.2",
+    "@biomejs/biome": "^2.4.13",
+    "@tailwindcss/postcss": "^4.2.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
@@ -84,7 +84,7 @@
     "@types/pg": "^8.20.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "@vitest/coverage-v8": "^4.1.4",
+    "@vitest/coverage-v8": "^4.1.5",
     "audit-ci": "^7.1.0",
     "autoprefixer": "^10.5.0",
     "babel-plugin-react-compiler": "^1.0.0",
@@ -92,13 +92,13 @@
     "jsdom": "^29.0.2",
     "lint-staged": "^16.4.0",
     "postcss": "8.5.10",
-    "prisma": "^7.7.0",
-    "sanity": "^5.21.0",
-    "tailwindcss": "^4.2.2",
+    "prisma": "^7.8.0",
+    "sanity": "^5.22.0",
+    "tailwindcss": "^4.2.4",
     "tsx": "^4.21.0",
     "typescript": "6.0.3",
     "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.1.4"
+    "vitest": "^4.1.5"
   },
   "lint-staged": {
     "*": [

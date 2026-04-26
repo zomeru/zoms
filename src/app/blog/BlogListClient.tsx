@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 
-import BlogDeleteMenu from "@/components/blog/BlogDeleteMenu";
+import { BlogDeleteMenu } from "@/components/blog/BlogDeleteMenu";
 import { AdBanner, TechBadge } from "@/components/ui";
 import { BLOG_POSTS_PAGE_SIZE } from "@/constants";
 import type { BlogPostListItem } from "@/lib/blog";

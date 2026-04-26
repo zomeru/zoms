@@ -1,12 +1,6 @@
 /**
- * Centralized error messages
- * Provides environment-aware error messages for consistent error handling
- */
-
-const IS_DEVELOPMENT = process.env.NODE_ENV === "development";
-
-/**
- * Error message definitions with development and production variants
+ * Error message definitions with development and production variants.
+ * Logging is always structured JSON. Only client-facing messages are env-specific.
  */
 export const ERROR_MESSAGES = {
   // Authentication & Authorization
@@ -84,12 +78,10 @@ export const ERROR_MESSAGES = {
   }
 } as const;
 
-/**
- * Get environment-appropriate error message
- */
+/** Returns dev-friendly message in development, user-friendly message in production. */
 export const getErrorMessage = (messageKey: keyof typeof ERROR_MESSAGES): string => {
   const messages = ERROR_MESSAGES[messageKey];
-  return IS_DEVELOPMENT ? messages.dev : messages.prod;
+  return process.env.NODE_ENV === "development" ? messages.dev : messages.prod;
 };
 
 /**

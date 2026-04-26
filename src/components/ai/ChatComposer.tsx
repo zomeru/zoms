@@ -18,7 +18,7 @@ interface ChatComposerProps {
 }
 
 const MAX_VISIBLE_LINES = 4;
-export default function ChatComposer({ disabled = false, onSubmit }: ChatComposerProps) {
+export function ChatComposer({ disabled = false, onSubmit }: ChatComposerProps) {
   const [question, setQuestion] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 

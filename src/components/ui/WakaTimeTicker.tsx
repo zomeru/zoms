@@ -1,6 +1,5 @@
 "use client";
 
-import type React from "react";
 import { useEffect, useState } from "react";
 
 interface Language {
@@ -20,7 +19,7 @@ interface WakaTimeTickerProps {
  * (GPU-compositable) to avoid CLS from non-composited color animations.
  * Data is passed from the server (SSR) so it's available on first paint.
  */
-const WakaTimeTicker: React.FC<WakaTimeTickerProps> = ({ initialLanguages = [] }) => {
+export function WakaTimeTicker({ initialLanguages = [] }: WakaTimeTickerProps) {
   const [languages, setLanguages] = useState<Language[]>(() =>
     initialLanguages.filter((l) => l.hours >= 1)
   );
@@ -93,6 +92,4 @@ const WakaTimeTicker: React.FC<WakaTimeTickerProps> = ({ initialLanguages = [] }
       </div>
     </div>
   );
-};
-
-export default WakaTimeTicker;
+}

@@ -1,8 +1,9 @@
-import { GoogleGenAI, ThinkingLevel } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 
 import { MAX_SUMMARY_LENGTH, MAX_TITLE_LENGTH } from "@/constants";
 
 import { getErrorMessage } from "../errorMessages";
+import { log } from "../logger";
 import { SYSTEM_INSTRUCTION } from "./constants";
 import { generatePrompt, tryParseAIJSON } from "./helpers";
 import type { GeneratedBlogDraft } from "./types";
@@ -60,15 +61,16 @@ export async function geminiGenerateBlogContent(): Promise<GeneratedBlogDraft> {
       candidateCount: 1,
       temperature: 0.2,
       topP: 0.9,
-      seed: 42,
-      maxOutputTokens: 3000,
+      maxOutputTokens: 8192,
       thinkingConfig: {
-        thinkingLevel: ThinkingLevel.LOW
+        thinkingBudget: 0
       }
     }
   });
 
   if (!result.text) {
+    const finishReason = result.candidates?.[0]?.finishReason;
+    log.error("Gemini returned no text", { finishReason, modelVersion: result.modelVersion });
     throw new Error(getErrorMessage("AI_GENERATION_FAILED"));
   }
 

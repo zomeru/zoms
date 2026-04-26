@@ -55,50 +55,78 @@ export function pickSecondaryBlogDomain(): Array<(typeof SECONDARY_BLOG_DOMAINS)
   return pickRandomItems(SECONDARY_BLOG_DOMAINS, selectionCount);
 }
 
-export const AIResponseSchema = z
-  .object({
-    title: z
-      .string()
-      .trim()
-      .min(1, "Missing title")
-      .max(MAX_TITLE_LENGTH, `Title exceeds max length of ${MAX_TITLE_LENGTH}`),
+export const AIResponseSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(1, "Missing title")
+    .max(MAX_TITLE_LENGTH, `Title exceeds max length of ${MAX_TITLE_LENGTH}`),
 
-    slug: z
-      .string()
-      .trim()
-      .min(1, "Missing slug")
-      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be kebab-case"),
+  slug: z
+    .string()
+    .trim()
+    .min(1, "Missing slug")
+    .transform((s) =>
+      s
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "")
+    ),
 
-    excerpt: z
-      .string()
-      .trim()
-      .min(1, "Missing excerpt")
-      .max(MAX_SUMMARY_LENGTH, `Excerpt exceeds max length of ${MAX_SUMMARY_LENGTH}`),
+  excerpt: z
+    .string()
+    .trim()
+    .min(1, "Missing excerpt")
+    .max(MAX_SUMMARY_LENGTH, `Excerpt exceeds max length of ${MAX_SUMMARY_LENGTH}`),
 
-    tags: z
-      .array(z.string().trim().min(1, "Tag cannot be empty"))
-      .min(3, "At least 3 tags are required")
-      .max(5, "At most 5 tags are allowed")
-      .refine(
-        (tags) => new Set(tags.map((tag) => tag.toLowerCase())).size === tags.length,
-        "Tags must be unique"
-      ),
+  tags: z
+    .array(z.string().trim().min(1, "Tag cannot be empty"))
+    .min(3, "At least 3 tags are required")
+    .max(5, "At most 5 tags are allowed")
+    .refine(
+      (tags) => new Set(tags.map((tag) => tag.toLowerCase())).size === tags.length,
+      "Tags must be unique"
+    ),
 
-    content: z.string()
-  })
-  .strict();
+  content: z.string()
+});
 
 type AiResponseType = z.infer<typeof AIResponseSchema>;
 
+function extractJSON(text: string): string {
+  const trimmed = text.trim();
+
+  // Strip markdown code fences (```json...``` or ```...```)
+  const fenceMatch = trimmed.match(/^```(?:json)?\s*\n?([\s\S]*?)\n?```\s*$/);
+  if (fenceMatch?.[1]) {
+    return fenceMatch[1].trim();
+  }
+
+  // Find first { ... } block if there's surrounding noise
+  const braceStart = trimmed.indexOf("{");
+  const braceEnd = trimmed.lastIndexOf("}");
+  if (braceStart !== -1 && braceEnd > braceStart) {
+    return trimmed.slice(braceStart, braceEnd + 1);
+  }
+
+  return trimmed;
+}
+
 export function tryParseAIJSON(text: string): AiResponseType {
   try {
-    const trimmed = text.trim();
-    const parsed = AIResponseSchema.parse(JSON.parse(trimmed));
+    const json = extractJSON(text);
+    const parsed = AIResponseSchema.parse(JSON.parse(json));
 
     parsed.content = formatLLMText(parsed.content);
 
     return parsed;
   } catch (error) {
+    log.error("AI JSON parse failed", {
+      rawTextLength: text.length,
+      rawTextPreview: text.slice(0, 300),
+      error: error instanceof Error ? error.message : String(error)
+    });
     throw new Error(getErrorMessage("AI_JSON_PARSE_ERROR"), { cause: error });
   }
 }

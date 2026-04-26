@@ -188,7 +188,7 @@ function ProgressLine({ containerRef }: { containerRef: React.RefObject<HTMLDivE
   );
 }
 
-export default function ExperienceTimeline({ experiences }: { experiences: ExperienceData[] }) {
+export function ExperienceTimeline({ experiences }: { experiences: ExperienceData[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   return (

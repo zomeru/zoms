@@ -8,9 +8,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { BotIdClient } from "botid/client";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
-import type React from "react";
 import { Footer, Navbar } from "@/components";
-import GlobalEnhancements from "@/components/GlobalEnhancements";
+import { GlobalEnhancements } from "@/components/GlobalEnhancements";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ThemeRail } from "@/components/theme/ThemeRail";
 import { ThemeSelector } from "@/components/theme/ThemeSelector";
@@ -41,7 +40,7 @@ export const viewport: Viewport = {
   themeColor: "#0a0a0f"
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }): React.JSX.Element {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   const shouldRenderVercelInsights = process.env.VERCEL === "1";
 
   return (

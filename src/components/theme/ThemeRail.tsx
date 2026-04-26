@@ -1,7 +1,5 @@
 "use client";
 
-import type React from "react";
-
 import {
   FLOATING_WIDGET_ICON_SHELL,
   FLOATING_WIDGET_META,
@@ -35,7 +33,7 @@ function ThemeSwatch({
   );
 }
 
-function ThemeTrigger({ compact = false }: { compact?: boolean }): React.JSX.Element {
+function ThemeTrigger({ compact = false }: { compact?: boolean }) {
   const { currentTheme, openSelector } = useThemeSystem();
 
   return (
@@ -63,7 +61,7 @@ function ThemeTrigger({ compact = false }: { compact?: boolean }): React.JSX.Ele
   );
 }
 
-export function ThemeRail(): React.JSX.Element {
+export function ThemeRail() {
   return (
     <div className="fixed bottom-5 left-5 z-45 md:bottom-8 md:left-8">
       <ThemeTrigger compact={true} />

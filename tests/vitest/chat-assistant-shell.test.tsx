@@ -15,7 +15,7 @@ vi.mock("@/components/ai/useChatAssistant", () => ({
 }));
 
 vi.mock("@/components/ai/ChatLauncher", () => ({
-  default: ({ onClick }: { onClick: () => void }) => (
+  ChatLauncher: ({ onClick }: { onClick: () => void }) => (
     <button type="button" aria-label="Open chat with Zomer" onClick={onClick}>
       launcher
     </button>
@@ -23,7 +23,7 @@ vi.mock("@/components/ai/ChatLauncher", () => ({
 }));
 
 vi.mock("@/components/ai/ChatPanel", () => ({
-  default: () => <section aria-label="Chat panel">panel</section>
+  ChatPanel: () => <section aria-label="Chat panel">panel</section>
 }));
 
 describe("ChatAssistantShell", () => {
@@ -48,7 +48,7 @@ describe("ChatAssistantShell", () => {
   it("does not mount the assistant shell on the admin route", async () => {
     usePathname.mockReturnValue("/admin");
 
-    const { default: ChatAssistantShell } = await import("@/components/ai/ChatAssistantShell");
+    const { ChatAssistantShell } = await import("@/components/ai/ChatAssistantShell");
 
     render(<ChatAssistantShell />);
 
@@ -59,7 +59,7 @@ describe("ChatAssistantShell", () => {
   it("mounts the assistant shell on public routes", async () => {
     usePathname.mockReturnValue("/");
 
-    const { default: ChatAssistantShell } = await import("@/components/ai/ChatAssistantShell");
+    const { ChatAssistantShell } = await import("@/components/ai/ChatAssistantShell");
 
     render(<ChatAssistantShell />);
 

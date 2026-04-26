@@ -3,7 +3,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import Footer from "@/components/Footer";
+import { Footer } from "@/components/Footer";
 
 describe("Footer", () => {
   it("centers the identity row and reserves extra bottom space for floating widgets on small screens", () => {

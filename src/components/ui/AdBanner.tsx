@@ -16,7 +16,7 @@ declare global {
   }
 }
 
-const AdBanner = ({ slot, format = "auto", className }: AdBannerProps) => {
+export function AdBanner({ slot, format = "auto", className }: AdBannerProps) {
   const insRef = useRef<HTMLModElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -105,6 +105,4 @@ const AdBanner = ({ slot, format = "auto", className }: AdBannerProps) => {
       />
     </div>
   );
-};
-
-export default AdBanner;
+}

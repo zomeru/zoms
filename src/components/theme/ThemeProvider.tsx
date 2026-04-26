@@ -1,7 +1,16 @@
 "use client";
 
-import React from "react";
-
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import { applyThemeToDocument, getThemeFromDocument } from "@/lib/theme/dom";
 import {
   DEFAULT_THEME_ID,
@@ -25,7 +34,7 @@ interface ThemeContextValue {
   themes: typeof orderedThemes;
 }
 
-const ThemeContext = React.createContext<ThemeContextValue | null>(null);
+const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
@@ -40,19 +49,19 @@ function isEditableTarget(target: EventTarget | null): boolean {
   );
 }
 
-export function ThemeProvider({ children }: { children: React.ReactNode }): React.JSX.Element {
-  const [committedThemeId, setCommittedThemeId] = React.useState<ThemeId>(DEFAULT_THEME_ID);
-  const [isSelectorOpen, setIsSelectorOpen] = React.useState(false);
-  const previewThemeIdRef = React.useRef<ThemeId | null>(null);
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [committedThemeId, setCommittedThemeId] = useState<ThemeId>(DEFAULT_THEME_ID);
+  const [isSelectorOpen, setIsSelectorOpen] = useState(false);
+  const previewThemeIdRef = useRef<ThemeId | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const initialThemeId = resolveInitialThemeId();
 
     setCommittedThemeId(initialThemeId);
     applyThemeToDocument(initialThemeId);
   }, []);
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!isSelectorOpen) {
       return;
     }
@@ -69,11 +78,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
     };
   }, [isSelectorOpen]);
 
-  const openSelector = React.useCallback(() => {
+  const openSelector = useCallback(() => {
     setIsSelectorOpen(true);
   }, []);
 
-  const closeSelector = React.useCallback(
+  const closeSelector = useCallback(
     (options?: { revertPreview?: boolean }) => {
       const shouldRevertPreview = options?.revertPreview ?? true;
       const previewThemeId = previewThemeIdRef.current;
@@ -88,7 +97,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
     [committedThemeId]
   );
 
-  const previewTheme = React.useCallback((themeId: ThemeId) => {
+  const previewTheme = useCallback((themeId: ThemeId) => {
     if (previewThemeIdRef.current === themeId) {
       return;
     }
@@ -97,7 +106,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
     applyThemeToDocument(themeId);
   }, []);
 
-  const commitTheme = React.useCallback(
+  const commitTheme = useCallback(
     (themeId: ThemeId) => {
       const resolvedThemeId = applyThemeToDocument(themeId);
 
@@ -113,7 +122,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
     [committedThemeId]
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const isShortcutPressed =
         event.altKey &&
@@ -146,7 +155,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
     throw new Error("Default theme is missing from the theme registry.");
   }
 
-  const contextValue = React.useMemo(
+  const contextValue = useMemo(
     () => ({
       activeThemeId,
       closeSelector,
@@ -184,7 +193,7 @@ function resolveInitialThemeId(): ThemeId {
 }
 
 export function useThemeSystem(): ThemeContextValue {
-  const context = React.useContext(ThemeContext);
+  const context = useContext(ThemeContext);
 
   if (!context) {
     throw new Error("useThemeSystem must be used inside ThemeProvider.");

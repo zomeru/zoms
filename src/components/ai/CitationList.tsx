@@ -30,7 +30,7 @@ function dedupeCitations(citations: Citation[]): Citation[] {
   });
 }
 
-export default function CitationList({ citations }: CitationListProps) {
+export function CitationList({ citations }: CitationListProps) {
   const uniqueCitations = dedupeCitations(citations);
 
   if (uniqueCitations.length === 0) {

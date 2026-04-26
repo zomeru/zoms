@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import type React from "react";
 
 import { TerminalCard } from "@/components/ui";
 import { SITE_URL } from "@/configs/seo";
@@ -14,7 +13,7 @@ export const metadata: Metadata = {
   }
 };
 
-const ContactPage: React.FC = (): React.JSX.Element => {
+export default function ContactPage() {
   return (
     <div className="mx-auto flex max-w-3xl flex-1 flex-col justify-center px-6 pt-24 pb-16 md:px-12 md:pt-32">
       <div className="mb-12">
@@ -81,6 +80,4 @@ const ContactPage: React.FC = (): React.JSX.Element => {
       </div>
     </div>
   );
-};
-
-export default ContactPage;
+}

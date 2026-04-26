@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Personal portfolio site with an AI-assisted technical blog and a site-wide grounded AI assistant. Built with Next.js 16 App Router, React 19, TypeScript 5.9 (strict), Tailwind CSS v4, Sanity CMS, Google Gemini (blog generation), and OpenRouter + Vercel AI SDK (chat assistant). Data layer: Prisma ORM + Neon PostgreSQL for session/analytics, Upstash Vector for RAG retrieval, Upstash Redis for rate limiting. Bot protection via botid. Deployed on Vercel.
+Personal portfolio site with an AI-assisted technical blog and a site-wide grounded AI assistant. Built with Next.js 16 App Router, React 19, TypeScript 6.0.3 (strict), Tailwind CSS v4, Sanity CMS, Google Gemini (blog generation), and OpenRouter + Vercel AI SDK (chat assistant). Data layer: Prisma ORM + Neon PostgreSQL for session/analytics, Upstash Vector for RAG retrieval, Upstash Redis for rate limiting. Bot protection via botid. Deployed on Vercel.
 
 The root workspace contains two areas:
 
@@ -42,18 +42,12 @@ If nested `AGENTS.md` files are added later, the closest file should take preced
 - `.github/workflows`: CI (tests.yml — format, lint, types, unit tests, build, audit)
 - `.github/copilot-instructions.md`: GitHub Copilot instructions
 
-## Node environment
-Here’s a cleaner, more “agent-friendly” version with a bit more precision and guardrails:
-
----
-
 ## Node Environment
 
 - Use nvm to manage Node.js versions.
 - Always match the project’s required version:
   - Prefer the version specified in `package.json` → `engines.node`
   - Fallback to `.nvmrc` if `engines` is not defined
-
 - Before installing dependencies or running scripts:
 
 ```bash
@@ -64,10 +58,6 @@ nvm use
 - Do not use a globally installed Node.js version that differs from the project requirement.
 - If multiple Node versions are installed, ensure the active version matches the project before executing any commands.
 
----
-
-If you want, I can tighten it further for CI/CD or monorepo setups (Turbo + multiple Node targets).
-
 
 ## Common Commands
 
@@ -77,10 +67,10 @@ Run these from the repository root:
 - `pnpm dev:turbo`: start Next.js app (Turbopack)
 - `pnpm build`: build the Next.js app (`next build` only — no quality gates)
 - `pnpm start`: start production build
-- `pnpm check:format`: verify Prettier formatting
-- `pnpm format`: apply Prettier formatting
-- `pnpm check:lint`: run ESLint without edits
-- `pnpm lint`: run ESLint with `--fix`
+- `pnpm check:format`: verify Biome formatting
+- `pnpm format`: apply Biome formatting
+- `pnpm check:lint`: run Biome lint without edits
+- `pnpm lint`: run Biome lint with `--fix`
 - `pnpm check:types`: run the TypeScript checker
 - `pnpm test:unit`: run Vitest unit tests
 - `pnpm test:all`: run format + lint + types + unit tests
@@ -90,7 +80,7 @@ Run these from the repository root:
 - `pnpm db:deploy`: apply pending migrations (prod-style, no prompts)
 - `pnpm db:reset`: `prisma migrate reset --force` then regenerate client
 - `pnpm db:truncate`: truncate tables without dropping the schema
-- `pnpm ai:reindex`: index content into Supabase pgvector (local CLI, uses DIRECT_URL)
+- `pnpm ai:reindex`: index content into Upstash Vector (local CLI, uses DIRECT_URL)
 - `pnpm ai:reset`: reset AI/vector state
 - `pnpm sanity:seed:projects`: seed Sanity with project data
 - `pnpm studio:dev`: start Sanity Studio
@@ -121,8 +111,8 @@ The project has a Vitest test suite in `tests/vitest/` (~37 test files) covering
 
 The full automated safety gate is `pnpm test:all`:
 
-1. `pnpm check:format` — Prettier formatting check
-2. `pnpm check:lint` — ESLint check
+1. `pnpm check:format` — Biome formatting check
+2. `pnpm check:lint` — Biome lint check
 3. `pnpm check:types` — TypeScript type check
 4. `pnpm test:unit` — Vitest unit/integration tests
 

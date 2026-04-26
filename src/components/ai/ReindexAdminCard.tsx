@@ -1,9 +1,8 @@
 "use client";
 
-import type React from "react";
 import { useState } from "react";
 
-import TerminalCard from "@/components/ui/TerminalCard";
+import { TerminalCard } from "@/components/ui/TerminalCard";
 import {
   CLIENT_ERROR_MESSAGES,
   getClientErrorMessage,
@@ -22,7 +21,7 @@ interface ReindexResult {
 }
 
 // This component intentionally keeps the terminal auth and run state machine inline.
-const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }) => {
+export function ReindexAdminCard({ initialAuthorized }: ReindexAdminCardProps) {
   const [secret, setSecret] = useState("");
   const [documentId, setDocumentId] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -268,6 +267,4 @@ const ReindexAdminCard: React.FC<ReindexAdminCardProps> = ({ initialAuthorized }
       </div>
     </TerminalCard>
   );
-};
-
-export default ReindexAdminCard;
+}

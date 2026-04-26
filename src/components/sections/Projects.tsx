@@ -1,10 +1,8 @@
-import type React from "react";
-
 import { getProjects } from "@/lib/projects";
 
-import ProjectsClient from "./ProjectsClient";
+import { ProjectsClient } from "./ProjectsClient";
 
-const Projects: React.FC = async (): Promise<React.JSX.Element> => {
+export async function Projects() {
   const projects = await getProjects();
 
   return (
@@ -13,6 +11,4 @@ const Projects: React.FC = async (): Promise<React.JSX.Element> => {
       <ProjectsClient projects={projects} />
     </section>
   );
-};
-
-export default Projects;
+}

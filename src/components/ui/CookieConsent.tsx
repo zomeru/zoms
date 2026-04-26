@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import type { ConsentStatus } from "@/lib/consent";
 import { CONSENT_STORAGE_KEY } from "@/lib/consent";
 
-const CookieConsent = () => {
+export function CookieConsent() {
   const pathname = usePathname();
   // undefined = not yet hydrated | null = hydrated, no decision | ConsentStatus = decided
   const [status, setStatus] = useState<ConsentStatus | null | undefined>(undefined);
@@ -74,6 +74,4 @@ const CookieConsent = () => {
       </div>
     </div>
   );
-};
-
-export default CookieConsent;
+}

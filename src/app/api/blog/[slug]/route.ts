@@ -1,11 +1,10 @@
-import { createClient, type SanityClient } from "@sanity/client";
 import { revalidatePath } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-
+import { createSanityWriteClient } from "@/features/blog/sanityWriter";
 import { getBlogPostBySlug } from "@/lib/blog";
+import { requireBlogGenerationAuth } from "@/lib/blogAuth";
 import { scheduleDeletedBlogCleanup } from "@/lib/blogDeleteCleanup";
-import { isValidBlogGenerationSession } from "@/lib/blogGenerationAuth";
 import { verifyBotIdRequest } from "@/lib/botId";
 import { ApiError, handleApiError, validateSchema } from "@/lib/errorHandler";
 import { getErrorMessage } from "@/lib/errorMessages";
@@ -17,48 +16,6 @@ export const dynamic = "force-dynamic";
 const slugParamsSchema = z.object({
   slug: z.string().min(1)
 });
-
-async function validateSecret(request: NextRequest): Promise<void> {
-  const authHeader = request.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
-  const blogGenerationSecret = process.env.BLOG_GENERATION_SECRET ?? cronSecret;
-  const hasValidCookie = isValidBlogGenerationSession(request.cookies);
-  const hasValidBearer =
-    (cronSecret !== undefined && authHeader === `Bearer ${cronSecret}`) ||
-    (blogGenerationSecret !== undefined && authHeader === `Bearer ${blogGenerationSecret}`);
-
-  if (!hasValidCookie && !hasValidBearer) {
-    log.warn("Unauthorized blog deletion attempt", {
-      hasAuthHeader: !!authHeader,
-      hasCookie: hasValidCookie,
-      hasSecret: !!blogGenerationSecret
-    });
-    throw new ApiError(getErrorMessage("UNAUTHORIZED"), 401, "UNAUTHORIZED");
-  }
-}
-
-function createSanityWriteClient(): SanityClient {
-  const apiToken = process.env.SANITY_API_TOKEN;
-  const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-  const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
-
-  if (!apiToken || !projectId || !dataset) {
-    log.error("Sanity environment variables missing for blog deletion", {
-      hasApiToken: !!apiToken,
-      hasDataset: !!dataset,
-      hasProjectId: !!projectId
-    });
-    throw new ApiError(getErrorMessage("MISSING_SANITY_CONFIG"), 500, "CONFIG_ERROR");
-  }
-
-  return createClient({
-    apiVersion: "2026-03-31",
-    dataset,
-    projectId,
-    token: apiToken,
-    useCdn: false
-  });
-}
 
 /**
  * GET /api/blog/[slug]
@@ -140,7 +97,7 @@ export async function DELETE(
       return rateLimitResponse;
     }
 
-    await validateSecret(request);
+    await requireBlogGenerationAuth(request);
 
     const resolvedParams = await params;
     const { slug } = validateSchema(slugParamsSchema, resolvedParams);
@@ -157,7 +114,7 @@ export async function DELETE(
       throw new ApiError(getErrorMessage("BLOG_POST_NOT_FOUND"), 404, "NOT_FOUND");
     }
 
-    const writeClient = createSanityWriteClient();
+    const writeClient = createSanityWriteClient("blog deletion");
 
     await log.timeAsync(
       "Delete blog post from Sanity",

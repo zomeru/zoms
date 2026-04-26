@@ -1,20 +1,20 @@
-import type React from "react";
+import type { ReactNode } from "react";
 
 interface TerminalCardProps {
-  children: React.ReactNode;
+  children: ReactNode;
   title?: string;
   className?: string;
   bodyClassName?: string;
   showHeader?: boolean;
 }
 
-const TerminalCard: React.FC<TerminalCardProps> = ({
+export function TerminalCard({
   children,
   title = "terminal",
   className = "",
   bodyClassName = "p-4 font-mono text-sm",
   showHeader = false
-}) => {
+}: TerminalCardProps) {
   return (
     <div
       className={`overflow-hidden rounded-lg border border-code-border bg-code-bg ${className}
@@ -35,6 +35,4 @@ const TerminalCard: React.FC<TerminalCardProps> = ({
       <div className={bodyClassName}>{children}</div>
     </div>
   );
-};
-
-export default TerminalCard;
+}

@@ -1,6 +1,6 @@
 # Zoms Portfolio & AI Blog
 
-Modern personal portfolio. Built with **Next.js 16 App Router**, **React 19**, **TypeScript 5.9 (strict)**, **TailwindCSS v4**, **Sanity CMS**, and **Google Gemini** for automated post generation. Includes a site-wide grounded AI assistant backed by **OpenRouter**, **Upstash Vector**, **Upstash Redis**, **Supermemory**, and **Prisma + Neon PostgreSQL**, plus structured logging, centralized error handling, adaptive rate limiting, and bot protection via **botid**.
+Modern personal portfolio. Built with **Next.js 16 App Router**, **React 19**, **TypeScript 6.0.3 (strict)**, **TailwindCSS v4**, **Sanity CMS**, and **Google Gemini** for automated post generation. Includes a site-wide grounded AI assistant backed by **OpenRouter**, **Upstash Vector**, **Upstash Redis**, **Supermemory**, and **Prisma + Neon PostgreSQL**, plus structured logging, centralized error handling, adaptive rate limiting, and bot protection via **botid**.
 
 ---
 
@@ -68,7 +68,7 @@ Two modes currently supported:
 | Layer                         | Tools                                                                       |
 | ----------------------------- | --------------------------------------------------------------------------- |
 | Framework                     | Next.js 16 (App Router)                                                     |
-| Language                      | TypeScript 5.9 (strict)                                                     |
+| Language                      | TypeScript 6.0.3 (strict)                                                   |
 | UI                            | React 19, TailwindCSS v4                                                    |
 | CMS                           | Sanity (`@sanity/client`, `next-sanity`)                                    |
 | AI                            | Google Gemini (`@google/genai`), OpenRouter + Vercel AI SDK, Supermemory    |
@@ -127,7 +127,7 @@ cp .env.example .env.local
 Then run:
 
 ```bash
-pnpm dev        # Next.js app (http://localhost:3000)
+pnpm dev        # Next.js app (http://zoms.localhost:1355)
 pnpm studio:dev # Sanity Studio (http://localhost:3333)
 ```
 
@@ -145,6 +145,8 @@ pnpm studio:dev # Sanity Studio (http://localhost:3333)
 | `DIRECT_URL`                    | For migrations    | Direct Postgres URL used by Prisma migrate                      |
 | `OPENROUTER_API_KEY`            | For AI assistant  | OpenRouter API key for grounded answers and transforms          |
 | `OPENROUTER_CHAT_MODEL`         | For AI assistant  | Chat model used for grounded answers and transforms             |
+| `OPENROUTER_BLOG_MODEL`         | For AI generation | OpenRouter model ID used as blog generation fallback            |
+| `BLOG_GENERATION_PROVIDER`      | Optional          | `gemini` (default) or `openrouter` — selects generation backend |
 | `UPSTASH_REDIS_REST_URL`        | Optional          | Enables distributed rate limiting                               |
 | `UPSTASH_REDIS_REST_TOKEN`      | Optional          | Token for Upstash Redis                                         |
 | `UPSTASH_VECTOR_REST_URL`       | For AI assistant  | Upstash Vector REST endpoint for the hosted-embedding index     |
@@ -180,9 +182,11 @@ pnpm check:lint        # ESLint check only
 pnpm test:unit         # Run Vitest suite (~37 test files)
 pnpm test:all          # format + lint + types + unit tests
 pnpm test:all:build    # test:all + build
-pnpm prisma:generate   # Generate Prisma client
-pnpm prisma:migrate    # Create/update SQL migration artifacts
-pnpm prisma:deploy     # Apply pending migrations (production)
+pnpm db:generate       # Generate Prisma client
+pnpm db:migrate        # Create/update SQL migration artifacts
+pnpm db:deploy         # Apply pending migrations (production)
+pnpm db:reset          # Reset and regenerate (dev only)
+pnpm db:truncate       # Truncate tables without dropping schema
 pnpm ai:reindex        # Index blog/about/project content into Upstash Vector
 pnpm ai:reset          # Reset AI/vector state
 pnpm sanity:seed:projects # Seed Sanity with project data
@@ -281,8 +285,8 @@ The assistant is mounted once in the root layout and stays alive across navigati
 ### Indexing And Verification
 
 ```bash
-pnpm prisma:generate
-pnpm prisma:migrate
+pnpm db:generate
+pnpm db:migrate
 pnpm ai:reindex
 pnpm test:unit
 pnpm test:all:build

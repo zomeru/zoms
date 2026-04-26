@@ -1,16 +1,15 @@
 import Link from "next/link";
-import type React from "react";
 
 import { TITLE, technologies } from "@/constants";
 import { getGitHubDevStats } from "@/lib/github";
 import { formatIsoDate } from "@/lib/utils";
 import { getWakaTimeStats } from "@/lib/wakatime";
 
-import Socials from "../Socials";
-import TerminalHero from "../TerminalHero";
+import { Socials } from "../Socials";
+import { TerminalHero } from "../TerminalHero";
 import { DevStatsCard, NodeSection, TechBadge, WakaTimeTicker } from "../ui";
 
-const About = async (): Promise<React.JSX.Element> => {
+export async function About() {
   const [wakaStats, ghStats] = await Promise.all([
     getWakaTimeStats(),
     getGitHubDevStats("zomeru").catch(() => ({
@@ -109,6 +108,4 @@ const About = async (): Promise<React.JSX.Element> => {
       </div>
     </section>
   );
-};
-
-export default About;
+}

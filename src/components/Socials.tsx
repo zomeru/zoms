@@ -1,8 +1,6 @@
-import type React from "react";
-
 import { socials } from "@/constants";
 
-const Socials = (): React.JSX.Element => {
+export function Socials() {
   return (
     <div className="flex items-center space-x-3">
       {socials.map(({ url, Icon }) => {
@@ -16,6 +14,4 @@ const Socials = (): React.JSX.Element => {
       })}
     </div>
   );
-};
-
-export default Socials;
+}

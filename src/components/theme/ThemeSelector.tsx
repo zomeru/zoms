@@ -1,6 +1,16 @@
 "use client";
 
-import React, { startTransition, useDeferredValue } from "react";
+import {
+  forwardRef,
+  memo,
+  startTransition,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 
 import {
   FLOATING_WIDGET_META,
@@ -16,8 +26,8 @@ type ThemeFilter = "all" | "dark" | "light";
 
 const FILTERS: ThemeFilter[] = ["all", "dark", "light"];
 
-const ThemeOption = React.memo(
-  React.forwardRef<
+const ThemeOption = memo(
+  forwardRef<
     HTMLButtonElement,
     {
       isActive: boolean;
@@ -72,7 +82,7 @@ const ThemeOption = React.memo(
   })
 );
 
-export function ThemeSelector(): React.JSX.Element | null {
+export function ThemeSelector() {
   const {
     activeThemeId,
     closeSelector,
@@ -83,15 +93,15 @@ export function ThemeSelector(): React.JSX.Element | null {
     selectedThemeId,
     themes
   } = useThemeSystem();
-  const [query, setQuery] = React.useState("");
-  const [filter, setFilter] = React.useState<ThemeFilter>("all");
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<ThemeFilter>("all");
   const deferredQuery = useDeferredValue(query);
   const normalizedQuery = deferredQuery.trim().toLowerCase();
-  const searchInputRef = React.useRef<HTMLInputElement>(null);
-  const optionRefs = React.useRef<Record<string, HTMLButtonElement | null>>({});
-  const [activeOptionId, setActiveOptionId] = React.useState<ThemeId>(activeThemeId);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const optionRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [activeOptionId, setActiveOptionId] = useState<ThemeId>(activeThemeId);
 
-  const visibleThemes = React.useMemo(() => {
+  const visibleThemes = useMemo(() => {
     const pinnedTheme = themes.find((theme) => theme.id === "zomeru");
     const matchingThemes = themes.filter((theme) => {
       if (theme.id === "zomeru") {
@@ -112,7 +122,7 @@ export function ThemeSelector(): React.JSX.Element | null {
     return pinnedTheme ? [pinnedTheme, ...matchingThemes] : matchingThemes;
   }, [filter, normalizedQuery, themes]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isSelectorOpen) {
       return;
     }
@@ -121,7 +131,7 @@ export function ThemeSelector(): React.JSX.Element | null {
     searchInputRef.current?.focus();
   }, [activeThemeId, isSelectorOpen]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isSelectorOpen) {
       return;
     }
@@ -131,7 +141,7 @@ export function ThemeSelector(): React.JSX.Element | null {
     }
   }, [activeOptionId, activeThemeId, isSelectorOpen, visibleThemes]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isSelectorOpen) {
       return;
     }
@@ -145,7 +155,7 @@ export function ThemeSelector(): React.JSX.Element | null {
     }
   }, [isSelectorOpen, selectedThemeId]);
 
-  const activateTheme = React.useCallback(
+  const activateTheme = useCallback(
     (nextThemeId: ThemeId) => {
       setActiveOptionId((currentThemeId) => {
         if (currentThemeId === nextThemeId) {
@@ -159,7 +169,7 @@ export function ThemeSelector(): React.JSX.Element | null {
     [previewTheme]
   );
 
-  const commitActiveTheme = React.useCallback(
+  const commitActiveTheme = useCallback(
     (themeId: ThemeId) => {
       commitTheme(themeId);
       setQuery("");

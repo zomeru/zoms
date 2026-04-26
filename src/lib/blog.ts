@@ -1,46 +1,20 @@
+import type { z } from "zod";
+
 import log from "./logger";
 import { getSanityClient } from "./sanity";
+import type {
+  blogPostFullSchema,
+  blogPostIndexItemSchema,
+  blogPostListItemSchema,
+  blogPostSeoSchema,
+  blogPostSitemapItemSchema
+} from "./schemas";
 
-export interface BlogPost {
-  _id: string;
-  title: string;
-  slug: {
-    current: string;
-  };
-  summary: string;
-  publishedAt: string;
-  modifiedAt?: string;
-  body: string;
-  tags?: string[];
-  source?: string;
-  generated?: boolean;
-  readTime?: number;
-}
-
-export interface BlogPostListItem {
-  _id: string;
-  title: string;
-  slug: {
-    current: string;
-  };
-  summary: string;
-  publishedAt: string;
-  tags?: string[];
-  generated?: boolean;
-  readTime?: number;
-}
-
-export interface BlogPostSeo {
-  _id: string;
-  title: string;
-  slug: {
-    current: string;
-  };
-  summary: string;
-  publishedAt: string;
-  modifiedAt?: string;
-  tags?: string[];
-}
+export type BlogPost = z.infer<typeof blogPostFullSchema>;
+export type BlogPostListItem = z.infer<typeof blogPostListItemSchema>;
+export type BlogPostSeo = z.infer<typeof blogPostSeoSchema>;
+export type BlogPostSitemapItem = z.infer<typeof blogPostSitemapItemSchema>;
+export type BlogPostIndexItem = z.infer<typeof blogPostIndexItemSchema>;
 
 /**
  * Fetch blog posts with pagination
@@ -193,19 +167,6 @@ export async function getLatestBlogPosts(limit = 3): Promise<BlogPostListItem[]>
 
 export async function getOldestBlogPosts(limit = 1): Promise<BlogPostListItem[]> {
   return await getBoundaryBlogPosts(limit, "asc");
-}
-
-export interface BlogPostSitemapItem {
-  slug: string;
-  publishedAt: string;
-  modifiedAt?: string;
-}
-
-export interface BlogPostIndexItem {
-  title: string;
-  slug: string;
-  summary: string;
-  publishedAt: string;
 }
 
 /**

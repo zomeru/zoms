@@ -1,8 +1,6 @@
 import type { Prisma } from "@/generated/prisma/client";
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
+import { isRecord } from "@/lib/utils";
 
 export function toPrismaJsonValue(value: unknown): Prisma.InputJsonValue {
   if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {

@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import type React from "react";
 import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -9,7 +8,7 @@ import {
   clearBlogAdminAuthorization,
   markBlogAdminAuthorized
 } from "@/components/blog/useBlogAdminAuthorization";
-import TerminalCard from "@/components/ui/TerminalCard";
+import { TerminalCard } from "@/components/ui/TerminalCard";
 import {
   CLIENT_ERROR_MESSAGES,
   getClientErrorMessage,
@@ -21,7 +20,7 @@ interface BlogGenerateButtonProps {
 }
 
 // This component intentionally keeps the terminal auth state machine inline.
-const BlogGenerateButton: React.FC<BlogGenerateButtonProps> = ({ initialAuthorized }) => {
+export function BlogGenerateButton({ initialAuthorized }: BlogGenerateButtonProps) {
   const router = useRouter();
   const [secret, setSecret] = useState("");
   const [isAuthorized, setIsAuthorized] = useState(initialAuthorized);
@@ -252,6 +251,4 @@ const BlogGenerateButton: React.FC<BlogGenerateButtonProps> = ({ initialAuthoriz
       </div>
     </>
   );
-};
-
-export default BlogGenerateButton;
+}

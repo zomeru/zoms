@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-import ChatMessageContent from "./ChatMessageContent";
-import CitationList from "./CitationList";
+import { ChatMessageContent } from "./ChatMessageContent";
+import { CitationList } from "./CitationList";
 import { type AssistantMessage, WELCOME_MESSAGE_ID } from "./useChatAssistant";
 
 interface ChatMessageListProps {
@@ -14,7 +14,7 @@ interface ChatMessageListProps {
   onLoadOlderHistory?: () => Promise<void>;
 }
 
-export default function ChatMessageList({
+export function ChatMessageList({
   hasMoreHistory,
   isHistoryLoadingInitial,
   isLoadingOlderHistory,

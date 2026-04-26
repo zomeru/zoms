@@ -1,37 +1,19 @@
-import { randomUUID } from "node:crypto";
 import { type NextRequest, NextResponse } from "next/server";
-
-import { ChatMessageRole } from "@/generated/prisma/client";
-
-import { buildConversationHistory, mapStoredMessages } from "@/lib/ai/chat/messages";
-import { resolveChatHistoryLimit } from "@/lib/ai/chat/metaQuestion";
-import { resolveGroundedAnswer } from "@/lib/ai/chat/retrieval";
+import { handleChatPost } from "@/features/chat/orchestrator";
+import { getSessionKey } from "@/features/chat/session";
+import { mapStoredMessages } from "@/lib/ai/chat/messages";
 import {
   AI_CHAT_COOKIE_NAME,
   chatHistoryQuerySchema,
   chatRequestSchema
 } from "@/lib/ai/chat/schemas";
-import { createStreamingChatResponse } from "@/lib/ai/chat/streamResponse";
-import { searchSessionMemory } from "@/lib/ai/memory";
 import { verifyBotIdRequest } from "@/lib/botId";
 import { repositories } from "@/lib/db/repositories";
 import { handleApiError, validateSchema } from "@/lib/errorHandler";
-import log from "@/lib/logger";
 import { rateLimitMiddleware } from "@/lib/rateLimit";
-import { classifyQueryIntent, isFollowUpQuery } from "@/lib/retrieval/classify";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
-
-function getSessionKey(request: NextRequest): { isNew: boolean; sessionKey: string } {
-  const existing = request.cookies.get(AI_CHAT_COOKIE_NAME)?.value;
-
-  if (existing) {
-    return { isNew: false, sessionKey: existing };
-  }
-
-  return { isNew: true, sessionKey: randomUUID() };
-}
 
 export async function GET(request: NextRequest): Promise<Response> {
   try {
@@ -92,60 +74,11 @@ export async function POST(request: NextRequest): Promise<Response> {
     const body: unknown = await request.json();
     const input = validateSchema(chatRequestSchema, body);
     const { sessionKey, isNew } = getSessionKey(request);
-    const session = await repositories.touchChatSession({
-      blogSlugHint: input.blogSlug,
-      pathnameHint: input.pathname,
-      sessionKey
-    });
-    const historyLimit = resolveChatHistoryLimit(input.question);
-    const previousMessages =
-      isNew || sessionKey.length === 0
-        ? []
-        : await repositories.getRecentChatMessages(sessionKey, historyLimit);
-    const conversationHistory = buildConversationHistory(mapStoredMessages(previousMessages));
-    const followUpQuery = isFollowUpQuery(input.question);
-    let memoryContext = "";
 
-    if (conversationHistory.length > 0 && followUpQuery) {
-      try {
-        const sessionMemories = await searchSessionMemory({
-          limit: 3,
-          query: input.question,
-          sessionKey
-        });
-
-        memoryContext = sessionMemories.join("\n");
-      } catch (memoryError) {
-        log.warn("Failed to search session memory", {
-          sessionKey,
-          error: memoryError instanceof Error ? memoryError.message : String(memoryError)
-        });
-      }
-    }
-
-    const userMessage = await repositories.createChatMessage({
-      content: input.question,
-      role: ChatMessageRole.USER,
-      sessionId: session.id
-    });
-    const classification = classifyQueryIntent(input.question);
-    const { groundedAnswer, retrievalMetadata } = await resolveGroundedAnswer({
-      blogSlug: input.blogSlug,
-      classification,
-      conversationHistory,
-      memoryContext,
-      pathname: input.pathname,
-      question: input.question
-    });
-    return createStreamingChatResponse({
-      classification,
-      groundedAnswer,
-      input,
+    return await handleChatPost({
+      body: input,
       isNew,
-      retrievalMetadata,
-      sessionId: session.id,
-      sessionKey,
-      userMessageId: userMessage.id
+      sessionKey
     });
   } catch (error) {
     return handleApiError(error, {

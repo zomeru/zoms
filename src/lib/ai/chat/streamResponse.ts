@@ -1,5 +1,3 @@
-import { ChatMessageRole } from "@/generated/prisma/client";
-
 import type { streamGroundedAnswer } from "@/lib/ai/chat-stream";
 import { storeSessionMemory } from "@/lib/ai/memory";
 import { appendStreamText } from "@/lib/ai/streaming";
@@ -53,39 +51,26 @@ export function createStreamingChatResponse(input: {
           citations: input.groundedAnswer.citations,
           supported: input.groundedAnswer.supported
         };
-        const assistantMessage = await repositories.createChatMessage({
+        const assistantMessage = await repositories.createAssistantReplyWithRetrievalEvent({
           citations: finalAnswer.citations,
           content: finalAnswer.answer,
           groundedAnswer: finalAnswer,
-          role: ChatMessageRole.ASSISTANT,
-          sessionId: input.sessionId
+          matchCount: input.retrievalMetadata.matchCount,
+          noAnswer: !finalAnswer.supported,
+          payload: toPrismaJsonValue({
+            citations: finalAnswer.citations,
+            classification: input.retrievalMetadata.classification,
+            directAnswer: input.retrievalMetadata.directAnswer,
+            matches: input.retrievalMetadata.matches,
+            pagePath: input.input.pathname,
+            pageSlug: input.input.blogSlug
+          }),
+          query: input.input.question,
+          sessionId: input.sessionId,
+          userMessageId: input.userMessageId
         });
 
         sendEvent({ answer: finalAnswer, messageId: assistantMessage.id, type: "done" });
-
-        try {
-          await repositories.createRetrievalEvent({
-            assistantMessageId: assistantMessage.id,
-            matchCount: input.retrievalMetadata.matchCount,
-            noAnswer: !finalAnswer.supported,
-            pagePath: input.input.pathname,
-            pageSlug: input.input.blogSlug,
-            payload: toPrismaJsonValue({
-              citations: finalAnswer.citations,
-              classification: input.retrievalMetadata.classification,
-              directAnswer: input.retrievalMetadata.directAnswer,
-              matches: input.retrievalMetadata.matches
-            }),
-            query: input.input.question,
-            sessionId: input.sessionId,
-            userMessageId: input.userMessageId
-          });
-        } catch (retrievalError) {
-          log.warn("Failed to persist retrieval event", {
-            assistantMessageId: assistantMessage.id,
-            error: retrievalError instanceof Error ? retrievalError.message : String(retrievalError)
-          });
-        }
 
         void storeSessionMemory({
           answer: finalAnswer.answer,
@@ -97,7 +82,11 @@ export function createStreamingChatResponse(input: {
             error: memoryError instanceof Error ? memoryError.message : String(memoryError)
           });
         });
-      } catch {
+      } catch (streamError) {
+        log.error("Chat stream failed", {
+          sessionKey: input.sessionKey,
+          error: streamError instanceof Error ? streamError.message : String(streamError)
+        });
         sendEvent({
           answer: {
             answer:
