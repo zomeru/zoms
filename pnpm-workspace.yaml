@@ -1,3 +1,7 @@
+overrides:
+  js-yaml: '>=3.14.2'
+  '@hono/node-server': '>=1.19.13'
+  postcss: '>=8.5.10'
 allowBuilds:
   '@google/genai': true
   '@prisma/engines': true
