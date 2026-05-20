@@ -1,0 +1,25 @@
+allowBuilds:
+  '@google/genai': true
+  '@prisma/engines': true
+  esbuild: true
+  prisma: true
+  protobufjs: true
+  sharp: true
+minimumReleaseAgeExclude:
+  - '@sanity/diff@5.26.0'
+  - '@sanity/mutator@5.26.0'
+  - '@sanity/schema@5.26.0'
+  - '@sanity/types@5.26.0'
+  - '@sanity/util@5.26.0'
+  - '@types/node@25.9.1'
+  - '@types/react@19.2.15'
+  - '@vitest/coverage-v8@4.1.7'
+  - '@vitest/expect@4.1.7'
+  - '@vitest/mocker@4.1.7'
+  - '@vitest/pretty-format@4.1.7'
+  - '@vitest/runner@4.1.7'
+  - '@vitest/snapshot@4.1.7'
+  - '@vitest/spy@4.1.7'
+  - '@vitest/utils@4.1.7'
+  - sanity@5.26.0
+  - vitest@4.1.7
