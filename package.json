@@ -35,7 +35,7 @@
     "security:check": "pnpm dlx audit-ci --config .audit-ci.json"
   },
   "dependencies": {
-    "@google/genai": "^2.8.0",
+    "@google/genai": "^2.9.0",
     "@openrouter/ai-sdk-provider": "^2.9.1",
     "@portabletext/react": "^6.2.0",
     "@portabletext/types": "^4.0.2",
