@@ -1,6 +1,5 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
 
 const currentFilePath = fileURLToPath(import.meta.url);
@@ -11,9 +10,9 @@ export default defineConfig({
   resolve: {
     alias: {
       "server-only": serverOnlyMockPath
-    }
+    },
+    tsconfigPaths: true
   },
-  plugins: [tsconfigPaths()],
   test: {
     environment: "node",
     globals: true,
