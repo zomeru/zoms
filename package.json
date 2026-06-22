@@ -90,7 +90,7 @@
     "babel-plugin-react-compiler": "^1.0.0",
     "husky": "^9.1.7",
     "jsdom": "^29.1.1",
-    "lint-staged": "^17.0.7",
+    "lint-staged": "^17.0.8",
     "postcss": "^8.5.15",
     "prisma": "^7.8.0",
     "sanity": "^6.1.0",
