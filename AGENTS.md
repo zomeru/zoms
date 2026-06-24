@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Personal portfolio site with an AI-assisted technical blog and a site-wide grounded AI assistant. Built with Next.js 16 App Router, React 19, TypeScript 6.0.3 (strict), Tailwind CSS v4, Sanity CMS, Google Gemini (blog generation), and OpenRouter + Vercel AI SDK (chat assistant). Data layer: Prisma ORM + Neon PostgreSQL for session/analytics, Upstash Vector for RAG retrieval, Upstash Redis for rate limiting. Bot protection via botid. Deployed on Vercel.
+Personal portfolio site with an AI-assisted technical blog and a site-wide grounded AI assistant. Built with Next.js 16 App Router, React 19, TypeScript 6.0.3 (strict), Tailwind CSS v4, Sanity CMS, Google Gemini (blog generation), and OpenRouter + Vercel AI SDK (chat assistant). Data layer: Prisma ORM + Supabase PostgreSQL for session/analytics, Upstash Vector for RAG retrieval, Upstash Redis for rate limiting. Bot protection via botid. Deployed on Vercel.
 
 The root workspace contains two areas:
 
@@ -36,7 +36,7 @@ If nested `AGENTS.md` files are added later, the closest file should take preced
 - `src/styles`: `globals.css` (Tailwind v4 `@theme` tokens)
 - `tests/vitest`: Vitest unit/integration tests (~37 test files)
 - `scripts/`: automation scripts (Prisma generate/migrate, AI reindex/reset, Vitest runner, Sanity seeder)
-- `prisma/`: Prisma schema and migrations (PostgreSQL via Neon)
+- `prisma/`: Prisma schema and migrations (PostgreSQL via Supabase)
 - `public`: static assets, PWA icons, screenshots
 - `studio`: Sanity Studio (schemas: blogPost, project, experience, blockContent)
 - `.github/workflows`: CI (tests.yml — format, lint, types, unit tests, build, audit)
