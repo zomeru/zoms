@@ -1,6 +1,6 @@
 # Zoms Portfolio & AI Blog
 
-Modern personal portfolio. Built with **Next.js 16 App Router**, **React 19**, **TypeScript 6.0.3 (strict)**, **TailwindCSS v4**, **Sanity CMS**, and **Google Gemini** for automated post generation. Includes a site-wide grounded AI assistant backed by **OpenRouter**, **Upstash Vector**, **Upstash Redis**, **Supermemory**, and **Prisma + Neon PostgreSQL**, plus structured logging, centralized error handling, adaptive rate limiting, and bot protection via **botid**.
+Modern personal portfolio. Built with **Next.js 16 App Router**, **React 19**, **TypeScript 6.0.3 (strict)**, **TailwindCSS v4**, **Sanity CMS**, and **Google Gemini** for automated post generation. Includes a site-wide grounded AI assistant backed by **OpenRouter**, **Upstash Vector**, **Upstash Redis**, **Supermemory**, and **Prisma + Supabase PostgreSQL**, plus structured logging, centralized error handling, adaptive rate limiting, and bot protection via **botid**.
 
 ---
 
@@ -75,7 +75,7 @@ Two modes currently supported:
 | Validation                    | Zod                                                                         |
 | Rate Limiting                 | Upstash Redis (`@upstash/ratelimit`, `@upstash/redis`) + in-memory fallback |
 | Vector Search                 | Upstash Vector                                                              |
-| Database                      | Prisma ORM + Neon PostgreSQL                                                |
+| Database                      | Prisma ORM + Supabase PostgreSQL                                            |
 | Markdown (optional processor) | unified, remark-gfm, rehype-pretty-code, rehype-external-links, rehype-slug |
 | Logging                       | Custom logger (structured JSON / pretty dev)                                |
 | Tooling                       | Biome, Husky, lint-staged                                                    |
@@ -141,7 +141,7 @@ pnpm studio:dev # Sanity Studio (http://localhost:3333)
 | `NEXT_PUBLIC_SANITY_DATASET`    | Yes               | Sanity dataset (e.g. production)                                |
 | `SANITY_API_TOKEN`              | Yes (write ops)   | Token for create/update from server routes                      |
 | `GEMINI_API_KEY`                | For AI generation | Google Gemini key for `/api/blog/generate`                      |
-| `DATABASE_URL`                  | For AI assistant  | Prisma connection string for Neon/Postgres                      |
+| `DATABASE_URL`                  | For AI assistant  | Prisma connection string for Supabase/Postgres                      |
 | `DIRECT_URL`                    | For migrations    | Direct Postgres URL used by Prisma migrate                      |
 | `OPENROUTER_API_KEY`            | For AI assistant  | OpenRouter API key for grounded answers and transforms          |
 | `OPENROUTER_CHAT_MODEL`         | For AI assistant  | Chat model used for grounded answers and transforms             |
@@ -259,7 +259,7 @@ The assistant is mounted once in the root layout and stays alive across navigati
 
 1. Content is normalized from Sanity blog posts plus local about/project sources into a shared document shape.
 2. Documents are split into section-aware chunks, hashed, and written to Upstash Vector using the index's hosted embedding model.
-3. Prisma stores sessions, messages, ingestion runs, retrieval events, and indexed-document metadata in Neon PostgreSQL.
+3. Prisma stores sessions, messages, ingestion runs, retrieval events, and indexed-document metadata in Supabase PostgreSQL.
 4. Query-time retrieval embeds the user question, fetches vector matches, applies deterministic reranking heuristics, builds citations, and refuses unsupported answers.
 5. The assistant calls the Vercel AI SDK only after retrieval and only with retrieved site content in the prompt.
 
@@ -270,10 +270,10 @@ The assistant is mounted once in the root layout and stays alive across navigati
 - The assistant only needs deterministic top-k retrieval and metadata filtering, so a lightweight hosted vector index is sufficient for v1.
 - Using Upstash-hosted embeddings avoids dimension mismatches between external embedding providers and the free-tier index limits.
 
-### Why Neon + Prisma
+### Why Supabase + Prisma
 
 - Prisma gives typed schema management and repository helpers for assistant analytics and chat persistence.
-- Neon works cleanly with Next.js route handlers and serverless-style connections.
+- Supabase provides managed Postgres with built-in connection pooling that works cleanly with Next.js route handlers and serverless-style connections.
 - The relational layer is used for durable state, not vectors, which keeps query responsibilities clear.
 
 ### Retrieval Notes
@@ -403,7 +403,7 @@ src/
   styles/globals.css         # Tailwind v4 tokens & utilities
 tests/vitest/                # Vitest unit/integration tests (~37 files)
 scripts/                     # Automation (prisma, AI reindex/reset, vitest runner, sanity seeder)
-prisma/                      # Schema + migrations (Neon PostgreSQL)
+prisma/                      # Schema + migrations (Supabase PostgreSQL)
 studio/                      # Sanity Studio (schemas: blogPost, project, experience, blockContent)
 public/                      # Static assets, PWA icons, screenshots
 .github/                     # Copilot instructions + CI workflows (tests.yml)
