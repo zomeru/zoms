@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@google/genai": "^2.9.0",
-    "@openrouter/ai-sdk-provider": "^2.9.1",
+    "@openrouter/ai-sdk-provider": "^2.10.0",
     "@portabletext/react": "^6.2.0",
     "@portabletext/types": "^4.0.2",
     "@prisma/adapter-pg": "^7.8.0",
