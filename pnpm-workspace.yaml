@@ -3,6 +3,7 @@ overrides:
   '@hono/node-server': '>=1.19.13'
   postcss: '>=8.5.10'
   uuid: '>=11.1.1'
+  smol-toml: '>=1.6.1'
 allowBuilds:
   '@google/genai': true
   '@prisma/engines': true
