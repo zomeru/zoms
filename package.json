@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "portless proxy start -p 1355 && portless zoms next dev",
-    "dev:webpack": "portless proxy start -p 1355 && portless zoms next dev --webpack",
+    "dev": "portless zoms next dev",
+    "dev:webpack": "portless zoms next dev --webpack",
     "build": "next build",
     "start": "portless zoms-preview next start",
     "lint": "biome check --write .",
