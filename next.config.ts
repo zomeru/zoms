@@ -1,3 +1,4 @@
+import path from "node:path";
 import { withBotId } from "botid/next/config";
 import type { NextConfig } from "next";
 
@@ -28,6 +29,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  turbopack: {
+    root: path.resolve(".")
+  },
   async headers() {
     return [
       {
