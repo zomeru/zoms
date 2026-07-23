@@ -4,9 +4,9 @@ overrides:
   postcss: '>=8.5.10'
   uuid: '>=11.1.1'
   smol-toml: '>=1.6.1'
-  typescript: ^6.0.3
   sharp: '>=0.35.0'
   adm-zip: '>=0.6.0'
+  typescript: ^6.0.3
 allowBuilds:
   '@google/genai': true
   '@prisma/engines': true
@@ -15,3 +15,7 @@ allowBuilds:
   protobufjs: true
   sharp: true
 minimumReleaseAge: 0
+
+updateConfig:
+  ignoreDependencies:
+    - typescript
