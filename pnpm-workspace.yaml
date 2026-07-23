@@ -6,7 +6,6 @@ overrides:
   smol-toml: '>=1.6.1'
   sharp: '>=0.35.0'
   adm-zip: '>=0.6.0'
-  typescript: ^6.0.3
 allowBuilds:
   '@google/genai': true
   '@prisma/engines': true
