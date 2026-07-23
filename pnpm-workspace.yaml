@@ -15,6 +15,9 @@ allowBuilds:
   sharp: true
 minimumReleaseAge: 0
 
+allowedDeprecatedVersions:
+  node-domexception: '*'
+
 updateConfig:
   ignoreDependencies:
     - typescript
