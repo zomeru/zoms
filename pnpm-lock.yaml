@@ -22,7 +22,7 @@ importers:
         version: 2.13.0
       '@openrouter/ai-sdk-provider':
         specifier: ^3.0.0
-        version: 3.0.0(ai@7.0.36(zod@4.4.3))(zod@4.4.3)
+        version: 3.0.0(ai@7.0.37(zod@4.4.3))(zod@4.4.3)
       '@portabletext/react':
         specifier: ^7.0.1
         version: 7.0.1(react@19.2.8)
@@ -54,8 +54,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0(next@16.2.11(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)
       ai:
-        specifier: ^7.0.36
-        version: 7.0.36(zod@4.4.3)
+        specifier: ^7.0.37
+        version: 7.0.37(zod@4.4.3)
       botid:
         specifier: ^1.5.11
         version: 1.5.11(next@16.2.11(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)
@@ -228,8 +228,8 @@ packages:
   '@adobe/css-tools@4.5.0':
     resolution: {integrity: sha512-6OzddxPio9UiWTCemp4N8cYLV2ZN1ncRnV1cVGtve7dhPOtRkleRyx32GQCYSwDYgaHU3USMm84tNsvKzRCa1Q==}
 
-  '@ai-sdk/gateway@4.0.27':
-    resolution: {integrity: sha512-gqTMvV0N8/JirIZ3OzwjSZRYxzwZu/PeOFCKb8NB9fstWH39tI+L6CkeMNVou5/HCKEYAw6RCOHW59Vhquv8vA==}
+  '@ai-sdk/gateway@4.0.28':
+    resolution: {integrity: sha512-ee9TsNO3mkgHDWmTmJ8Fvltr6PFh52zhrV2+FaKJY3F3iu7kWZi5tCRJCR1HVhhlpj6lHniUb28nLQdPHkA/1Q==}
     engines: {node: '>=22'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -3145,8 +3145,8 @@ packages:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
     engines: {node: '>= 14'}
 
-  ai@7.0.36:
-    resolution: {integrity: sha512-1XJjua58GVQ0CyO2Xbioyladt85x71Joup2U8qKrjHUl8tHYwrDw8iFRtav6e94AxSVCn9FVgTS17oX1OCquKA==}
+  ai@7.0.37:
+    resolution: {integrity: sha512-stF+SEQJgKY3Qfe3FwNzqUrehHviOp2l7LemoI8YMOa0Zk5PxKsRNgUk3cHXz0RAue9RRyCAis2fz6LSCP6EKw==}
     engines: {node: '>=22'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -6515,7 +6515,7 @@ snapshots:
 
   '@adobe/css-tools@4.5.0': {}
 
-  '@ai-sdk/gateway@4.0.27(zod@4.4.3)':
+  '@ai-sdk/gateway@4.0.28(zod@4.4.3)':
     dependencies:
       '@ai-sdk/provider': 4.0.3
       '@ai-sdk/provider-utils': 5.0.12(zod@4.4.3)
@@ -8210,9 +8210,9 @@ snapshots:
     dependencies:
       '@octokit/openapi-types': 27.0.0
 
-  '@openrouter/ai-sdk-provider@3.0.0(ai@7.0.36(zod@4.4.3))(zod@4.4.3)':
+  '@openrouter/ai-sdk-provider@3.0.0(ai@7.0.37(zod@4.4.3))(zod@4.4.3)':
     dependencies:
-      ai: 7.0.36(zod@4.4.3)
+      ai: 7.0.37(zod@4.4.3)
       zod: 4.4.3
 
   '@opentelemetry/api@1.9.1':
@@ -9775,9 +9775,9 @@ snapshots:
 
   agent-base@7.1.4: {}
 
-  ai@7.0.36(zod@4.4.3):
+  ai@7.0.37(zod@4.4.3):
     dependencies:
-      '@ai-sdk/gateway': 4.0.27(zod@4.4.3)
+      '@ai-sdk/gateway': 4.0.28(zod@4.4.3)
       '@ai-sdk/provider': 4.0.3
       '@ai-sdk/provider-utils': 5.0.12(zod@4.4.3)
       zod: 4.4.3
