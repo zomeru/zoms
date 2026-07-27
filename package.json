@@ -92,7 +92,7 @@
     "jsdom": "^29.1.1",
     "lint-staged": "^17.2.0",
     "postcss": "^8.5.22",
-    "prisma": "^7.9.0",
+    "prisma": "^7.9.1",
     "sanity": "^6.6.0",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.1",
