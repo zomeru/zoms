@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-import vitestConfig from "../../vitest.config";
+import vitestConfig from "../../vitest.config.mjs";
 
 const currentFilePath = fileURLToPath(import.meta.url);
 const currentDirectory = path.dirname(currentFilePath);
@@ -11,7 +11,7 @@ const repositoryRoot = path.resolve(currentDirectory, "../..");
 
 describe("vitest config", () => {
   it("does not hardcode a machine-specific server-only alias path", () => {
-    const configSource = readFileSync(path.join(repositoryRoot, "vitest.config.ts"), "utf8");
+    const configSource = readFileSync(path.join(repositoryRoot, "vitest.config.mjs"), "utf8");
 
     expect(configSource).not.toContain("/Users/zomeru/Desktop/zoms");
   });
