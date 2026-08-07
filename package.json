@@ -42,7 +42,7 @@
     "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",
     "@rehype-pretty/transformers": "^0.13.2",
-    "@sanity/client": "^7.26.0",
+    "@sanity/client": "^7.26.2",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.1",
     "@vercel/analytics": "^2.0.1",
