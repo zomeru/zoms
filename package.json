@@ -91,7 +91,7 @@
     "husky": "^9.1.7",
     "jsdom": "^30.0.1",
     "lint-staged": "^17.3.0",
-    "postcss": "^8.5.25",
+    "postcss": "^8.5.26",
     "prisma": "^7.9.1",
     "sanity": "^6.8.0",
     "tailwindcss": "^4.3.3",
