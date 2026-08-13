@@ -55,17 +55,14 @@ export async function geminiGenerateBlogContent(): Promise<GeneratedBlogDraft> {
         content: {
           type: "string",
           description:
-            "Full production-ready markdown blog post with H1-H3 hierarchy, concise and practical, targeting about 900-1200 words"
+            "Full production-ready markdown blog post body only, without the title or an H1 heading; use H2-H3 hierarchy, concise and practical, targeting about 900-1200 words"
         }
       }
     },
     candidateCount: 1,
     temperature: 0.2,
     topP: 0.9,
-    maxOutputTokens: 8192,
-    thinkingConfig: {
-      thinkingBudget: 0
-    }
+    maxOutputTokens: 8192
   };
 
   const result = await getGeminiClient().models.generateContent({

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    "group:monorepos",
+    "group:recommended",
+    "workarounds:all"
+  ],
+  "timezone": "Asia/Manila",
+  "schedule": ["after 10pm every weekday"],
+  "prConcurrentLimit": 15,
+  "labels": ["dependencies"],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 5am on Monday"]
+  },
+  "packageRules": [
+    {
+      "description": "Keep React packages together",
+      "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"],
+      "groupName": "React"
+    },
+    {
+      "description": "Keep Sanity packages together",
+      "matchPackageNames": [
+        "sanity",
+        "next-sanity",
+        "@sanity/client",
+        "@sanity/vision",
+        "@portabletext/react",
+        "@portabletext/types"
+      ],
+      "groupName": "Sanity"
+    },
+    {
+      "description": "Keep TypeScript below version 7",
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<7"
+    },
+    {
+      "description": "Check Docker dependencies weekly",
+      "matchManagers": ["dockerfile"],
+      "schedule": ["before 5am on Monday"]
+    },
+    {
+      "description": "Check GitHub Actions dependencies every weekday",
+      "matchManagers": ["github-actions"],
+      "schedule": ["after 10pm every weekday"]
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "schedule": ["at any time"]
+  }
+}

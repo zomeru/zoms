@@ -6,23 +6,23 @@ import { getErrorMessage } from "../errorMessages";
 import { log } from "../logger";
 
 export const PRIMARY_BLOG_DOMAINS = [
-  `Web development (TypeScript-first: frontend, backend, fullstack)
-  - Frontend frameworks and app frameworks: React, Vue, Svelte, Solid, Angular, Astro
-  - Backend frameworks and server frameworks: Hono, NestJS, Express, Fastify, Elysia, Koa, AdonisJS, Nitro
-  - Fullstack meta frameworks: Next.js, Remix, Nuxt, SvelteKit, TanStack Start, SolidStart, Qwik City, RedwoodJS, Blitz.js, AnalogJS, Fresh, Waku, Vike, Vinxi`,
-  "Mobile development (React Native, Expo, cross-platform TypeScript stacks)",
-  "Backend systems and APIs (Node.js, Bun, serverless, edge, distributed systems)",
-  "AI / LLM engineering (models, inference, agents, evaluation, memory, RAG)",
-  "Developer tooling and DX (build systems, testing, CI/CD, observability)",
-  "Security and privacy (web/mobile/app-layer security, auth, data protection)"
+  "Application development (web, mobile, desktop, cross-platform, frontend, backend, and fullstack)",
+  "Software architecture and systems design (modularity, distributed systems, APIs, messaging, and integration patterns)",
+  "AI, machine learning, and data engineering (models, agents, evaluation, retrieval, pipelines, and analytics)",
+  "Programming languages and runtimes (language features, compilers, type systems, concurrency, and runtime behavior)",
+  "Cloud, platform, and infrastructure engineering (deployment, containers, serverless, edge, networking, and operations)",
+  "Developer tooling and engineering productivity (build systems, testing, CI/CD, observability, and local development)",
+  "Security, privacy, and identity (application security, authentication, authorization, data protection, and supply chains)"
 ] as const;
 
 export const SECONDARY_BLOG_DOMAINS = [
-  "AI tooling and platforms (evaluation tools, orchestration frameworks, tracing systems)",
-  "Databases and data management (SQL/NoSQL, vector databases, data modeling, ORMs such as Prisma, Drizzle, TypeORM)",
-  "Cloud and infrastructure (deployment patterns, scaling, edge computing)",
-  "Data layer (databases, caching, vector stores, streaming)",
-  "Performance optimization (rendering, networking, runtime efficiency)"
+  "Databases, storage, search, caching, streaming, and data modeling",
+  "Performance, scalability, reliability, resilience, and cost efficiency",
+  "User experience, accessibility, design systems, rendering, and interaction patterns",
+  "Testing, debugging, code quality, maintainability, migrations, and technical debt",
+  "Observability, incident response, production operations, and site reliability",
+  "Networking, protocols, real-time systems, synchronization, and offline-first design",
+  "Open source, developer ecosystems, standards, interoperability, and emerging engineering practices"
 ] as const;
 
 function pickRandomItem<T>(items: readonly T[]): T {
@@ -150,7 +150,6 @@ export function formatLLMText(text: string): string {
 
 export const generatePrompt = (): string => {
   const currentDate = new Date().toISOString().slice(0, 10);
-  const recentWindow = "~3 weeks";
   const primaryDomain = pickPrimaryBlogDomain();
   const secondaryDomains = pickSecondaryBlogDomain();
   const secondaryDomainLine =
@@ -163,21 +162,24 @@ Generate ONE production-ready technical blog post for software engineers.
 
 Current date:
 - Today is ${currentDate}
-- Topic and examples should feel current within roughly ${recentWindow}
+- Base topic selection on your own technical knowledge; do not assume access to live internet research or invent recent developments
 
-Selected domains:
+Optional topic inspiration (broad, non-exhaustive categories):
 - Primary: ${primaryDomain}
 ${secondaryDomainLine}
 
 Requirements:
-- Choose one specific, practical, fresh engineering topic centered on the primary domain
+- First use your own knowledge to identify a specific, practical engineering topic worth writing about
+- Treat the selected domains only as optional inspiration, not a whitelist or required scope; you may choose a better domain or topic that is not listed
+- Consider relevant tools, frameworks, techniques, and adjacent or emerging areas from your knowledge even when they are not explicitly listed
 - Secondary domains may be used only if they materially sharpen the article
 - Focus on one real problem, migration, tradeoff, implementation pattern, or architectural decision
 - Avoid broad overviews, vague trend summaries, and stale topics
 - If tools are mentioned, keep them secondary unless one tool is clearly central
 - Target 900–1200 words
 - Optimize for SEO without clickbait
-- Use clear H1–H3 markdown structure
+- Start titles naturally with clear, concrete subjects. Avoid title-opening words formed through suffixation; do not use abstract or gerund-heavy openings, including words ending in "ing", "ic", "istic", "tion", or "able" (for example, "Optimizing", "Architecting", or "Deterministic").
+- Return body content only: do not repeat the title or include an H1 heading in \`content\`; use H2–H3 headings for the article structure
 - Include code only if it materially improves understanding.
 - Include hyperlinks for the mentioned tools/libraries/frameworks to official documentation. (2 sentences max per explanation)
 
@@ -187,7 +189,7 @@ Return valid JSON with this shape:
   "slug": "kebab-case-seo-friendly-slug",
   "excerpt": "1-2 sentence SEO-friendly summary (max ${MAX_SUMMARY_LENGTH} chars)",
   "tags": ["keyword1", "keyword2", "keyword3"],
-  "content": "Full markdown blog post"
+  "content": "Full markdown blog post body only, without the title or an H1 heading"
 }
 `;
 
